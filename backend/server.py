@@ -1055,17 +1055,14 @@ async def chat_with_agent(message: str):
             }
         
         # Build context from memories
-        memory_context = "\\n".join([f"- {m.content}" for m in relevant_memories])
+        memory_context = "\n".join([f"- {m.content}" for m in relevant_memories])
         
         # Create chat with memory-enhanced system message
-        system_message = f"""You are {persona['name']}, a {persona['role']}.
-
-Your memories:
-{memory_context}
-
-Custom instructions: {persona.get('custom_instructions', 'Help the user with their learning journey.')}
-
-Respond naturally and helpfully based on your memories and the user's learning history."""
+        persona_name = persona.get('name', 'Learning Assistant')
+        persona_role = persona.get('role', 'Polymath Guide')
+        custom_inst = persona.get('custom_instructions', 'Help the user with their learning journey.')
+        
+        system_message = f"You are {persona_name}, a {persona_role}. Your memories: {memory_context}. Custom instructions: {custom_inst}. Respond naturally and helpfully."
         
         chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,
