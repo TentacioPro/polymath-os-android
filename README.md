@@ -206,3 +206,35 @@ Frontend: `expo start --tunnel`
 ✅ **Multi-Format Export**: JSON, Markdown, CSV (+ PDF/PPT backend ready)
 ✅ **Zero Data Loss**: Full backup and restore capability
 ✅ **Cross-Domain Learning**: Track and connect learning across any field
+
+## 🧠 Agent Memory System (NEW!)
+
+### Long-Term Learning Assistant
+
+Polymath OS includes an AI agent with persistent memory that learns from your data and interactions over time.
+
+**Key Features**:
+- **Memory Types**: Short-term, long-term, insights, patterns
+- **Automatic Learning**: Extracts insights from activities and journals
+- **Memory Consolidation**: Merges short-term into long-term insights
+- **Persona Configuration**: Customize agent name, role, traits, behavior
+- **Memory-Enhanced Chat**: Agent responds with context from memories
+- **Learning Progression**: Track how agent improves over time
+- **Memory Management**: View, edit, delete individual memories
+
+**How It Works**:
+1. Agent analyzes your learning activities
+2. Extracts patterns and insights
+3. Stores as memories with importance scores
+4. Consolidates memories over time
+5. Uses memories to provide personalized responses
+6. Learns from every interaction
+
+**Use Cases**:
+- Ask agent for learning recommendations (memory-aware)
+- View what agent has learned about your preferences
+- Configure agent personality to match your style
+- Track agent intelligence growth over time
+
+**API Endpoints**: 10 new endpoints for complete memory management
+
