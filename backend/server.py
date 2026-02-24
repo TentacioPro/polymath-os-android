@@ -102,6 +102,43 @@ class ExportRequest(BaseModel):
 class ImportRequest(BaseModel):
     data: Dict[str, Any]
 
+class AgentMemory(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    memory_type: str  # short_term, long_term, insight, pattern
+    content: str
+    source: str  # activity, journal, interaction, learning
+    metadata: Dict[str, Any] = {}
+    importance: float = 0.5  # 0.0-1.0
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    last_accessed: datetime = Field(default_factory=datetime.utcnow)
+    access_count: int = 0
+
+class AgentPersona(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str = "Learning Assistant"
+    role: str = "Polymath Guide"
+    focus_areas: List[str] = []
+    learning_style_preferences: Dict[str, Any] = {}
+    behavior_traits: List[str] = []
+    custom_instructions: str = ""
+    is_active: bool = True
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class LearningLog(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    learned_at: datetime = Field(default_factory=datetime.utcnow)
+    insight: str
+    source_data: Dict[str, Any] = {}
+    applied_to: List[str] = []  # Where this learning was applied
+
+class PersonaUpdate(BaseModel):
+    name: Optional[str] = None
+    role: Optional[str] = None
+    focus_areas: Optional[List[str]] = None
+    learning_style_preferences: Optional[Dict[str, Any]] = None
+    behavior_traits: Optional[List[str]] = None
+    custom_instructions: Optional[str] = None
+
 # ============= HELPER FUNCTIONS =============
 
 def generate_hash(title: str, url: Optional[str], timestamp: datetime) -> str:
