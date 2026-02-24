@@ -175,25 +175,26 @@ async def generate_connections(activity_id: str) -> List[Connection]:
             return []
         
         # Use AI to find connections
-        prompt = f"""
-Find connections between this activity and others:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"connections_{uuid.uuid4()}",
+            system_message="You are an expert at finding knowledge connections. Always respond with valid JSON only."
+        ).with_model("openai", "gpt-4o-mini")
+        
+        prompt = f"""Find connections between this activity and others:
 
 Main Activity:
 Title: {activity['title']}
 Category: {activity.get('category', 'Unknown')}
 
 Other Activities:
-{chr(10).join([f"- {a.get('title', '')} ({a.get('category', 'Unknown')})" for a in other_activities[:10]])}
+{chr(10).join([f"- ID: {a.get('id', '')} | {a.get('title', '')} ({a.get('category', 'Unknown')})" for a in other_activities[:10]])}
 
-Identify up to 3 strongest connections and explain why they're related.
-Respond in JSON format: [{"to_id": "id", "type": "related_concept|prerequisite|application", "reasoning": "explanation", "strength": 0.0-1.0}]
-"""
+Identify up to 3 strongest connections. Respond with ONLY this JSON array (no other text):
+[{{"to_id": "exact_id_from_above", "type": "related_concept", "reasoning": "why they connect", "strength": 0.8}}]"""
         
-        response = llm_client.generate_text(
-            messages=[{"role": "user", "content": prompt}],
-            model="gpt-4o-mini",
-            temperature=0.5
-        )
+        user_message = UserMessage(text=prompt)
+        response = await chat.send_message(user_message)
         
         try:
             connections_data = json.loads(response.strip())
