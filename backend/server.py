@@ -459,29 +459,27 @@ async def get_ai_suggestions():
         cat = activity.get("category", "Other")
         categories[cat] = categories.get(cat, 0) + 1
     
-    prompt = f"""
-Based on this learning history, provide 5 actionable suggestions for next topics to explore:
+    try:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"suggestions_{uuid.uuid4()}",
+            system_message="You are a learning advisor. Always respond with valid JSON only."
+        ).with_model("openai", "gpt-4o-mini")
+        
+        prompt = f"""Based on this learning history, provide 5 actionable suggestions for next topics to explore:
 
 Recent activities:
 {chr(10).join([f"- {a.get('title', '')} ({a.get('category', 'Unknown')})" for a in activities[:10]])}
 
 Category distribution: {categories}
 
-Provide suggestions that:
-1. Connect different domains
-2. Fill knowledge gaps
-3. Explore emerging topics
-4. Deepen understanding
+Provide suggestions that connect domains, fill gaps, explore emerging topics, deepen understanding.
 
-Respond in JSON format: [{"suggestion": "text", "reasoning": "why", "priority": 1-5}]
-"""
-    
-    try:
-        response = llm_client.generate_text(
-            messages=[{"role": "user", "content": prompt}],
-            model="gpt-4o-mini",
-            temperature=0.7
-        )
+Respond with ONLY this JSON array (no other text):
+[{{"suggestion": "text", "reasoning": "why", "priority": 5}}]"""
+        
+        user_message = UserMessage(text=prompt)
+        response = await chat.send_message(user_message)
         suggestions = json.loads(response.strip())
         return {"suggestions": suggestions}
     except Exception as e:
