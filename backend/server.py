@@ -117,26 +117,27 @@ async def check_duplicate(hash: str) -> bool:
 async def analyze_content_with_ai(title: str, url: Optional[str] = None) -> Dict[str, Any]:
     """Analyze content using AI"""
     try:
-        prompt = f"""
-Analyze this content and categorize it:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"analyze_{uuid.uuid4()}",
+            system_message="You are an expert content analyzer. Always respond with valid JSON only."
+        ).with_model("openai", "gpt-4o-mini")
+        
+        prompt = f"""Analyze this content and categorize it:
 Title: {title}
 URL: {url or 'N/A'}
 
-Provide analysis in this format:
-1. Category (AI, News, Tools, Market, Research, Tutorial, Other)
-2. Content Type (Video, Article, Blog, Course, Documentation)
-3. Key Topics (comma-separated list)
-4. Domain (Technology, Science, Business, Arts, etc.)
-5. Learning Value (1-10)
-
-Respond in JSON format.
-"""
+Respond with ONLY this JSON structure (no other text):
+{{
+  "category": "AI" or "News" or "Tools" or "Market" or "Research" or "Tutorial" or "Other",
+  "content_type": "Video" or "Article" or "Blog" or "Course" or "Documentation",
+  "key_topics": ["topic1", "topic2"],
+  "domain": "Technology" or "Science" or "Business" or "Arts",
+  "learning_value": 1-10
+}}"""
         
-        response = llm_client.generate_text(
-            messages=[{"role": "user", "content": prompt}],
-            model="gpt-4o-mini",
-            temperature=0.3
-        )
+        user_message = UserMessage(text=prompt)
+        response = await chat.send_message(user_message)
         
         # Parse AI response
         try:
