@@ -901,6 +901,14 @@ async def get_agent_memories(memory_type: Optional[str] = None, limit: int = 50)
         query["memory_type"] = memory_type
     
     memories = await db.agent_memory.find(query).sort([("importance", -1), ("timestamp", -1)]).limit(limit).to_list(limit)
+    
+    # Remove MongoDB ObjectId fields to avoid serialization issues
+    def clean_document(doc):
+        if doc and "_id" in doc:
+            del doc["_id"]
+        return doc
+    
+    memories = [clean_document(doc) for doc in memories]
     return memories
 
 @api_router.post("/agent/memory", response_model=AgentMemory)
