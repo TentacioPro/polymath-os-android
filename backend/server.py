@@ -1006,6 +1006,10 @@ async def get_agent_persona():
         )
         await db.agent_persona.insert_one(default_persona.dict())
         return default_persona.dict()
+    
+    # Remove MongoDB ObjectId fields to avoid serialization issues
+    if "_id" in persona:
+        del persona["_id"]
     return persona
 
 @api_router.put("/agent/persona")
