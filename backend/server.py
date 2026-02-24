@@ -12,7 +12,7 @@ from datetime import datetime
 import hashlib
 import json
 import io
-from emergentintegrations.llm import LLMClient
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 import csv
 from openpyxl import Workbook
 from pptx import Presentation
@@ -30,8 +30,8 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Initialize LLM client
-llm_client = LLMClient(api_key="sk-emergent-86bFd414c571d0e164", provider="openai")
+# Initialize LLM
+EMERGENT_LLM_KEY = "sk-emergent-86bFd414c571d0e164"
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
