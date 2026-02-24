@@ -1042,6 +1042,10 @@ async def update_agent_persona(update: PersonaUpdate):
     )
     
     updated = await db.agent_persona.find_one({"id": persona["id"]})
+    
+    # Remove MongoDB ObjectId fields to avoid serialization issues
+    if updated and "_id" in updated:
+        del updated["_id"]
     return updated
 
 @api_router.get("/agent/learning-logs")
