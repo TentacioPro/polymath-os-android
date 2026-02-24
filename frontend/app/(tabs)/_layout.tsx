@@ -62,6 +62,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="agent"
+        options={{
+          title: 'Agent',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="brain" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
