@@ -903,3 +903,129 @@ MongoDB Atlas (Managed)
 6. **Test Coverage**: Unit and integration tests
 7. **Error Boundaries**: Better crash handling
 8. **Performance Monitoring**: Real metrics
+
+## Agent Memory System Architecture
+
+### Overview
+Custom long-term memory system inspired by MemGPT, built on MongoDB with AI-powered learning.
+
+### Database Collections
+
+#### agent_memory
+```javascript
+{
+  id: "uuid",
+  memory_type: "short_term|long_term|insight|pattern",
+  content: "Memory content text",
+  source: "activity|journal|interaction|learning",
+  metadata: {},
+  importance: 0.0-1.0,
+  timestamp: ISODate,
+  last_accessed: ISODate,
+  access_count: 0
+}
+```
+
+**Indexes**:
+- `{ importance: -1, last_accessed: -1 }` - Memory retrieval
+- `{ memory_type: 1 }` - Filter by type
+
+#### agent_persona
+```javascript
+{
+  id: "uuid",
+  name: "Learning Assistant",
+  role: "Polymath Guide",
+  focus_areas: ["Technology", "AI"],
+  learning_style_preferences: {},
+  behavior_traits: ["Curious", "Analytical"],
+  custom_instructions: "Behavior definition",
+  is_active: true,
+  updated_at: ISODate
+}
+```
+
+#### learning_logs
+```javascript
+{
+  id: "uuid",
+  learned_at: ISODate,
+  insight: "What agent learned",
+  source_data: {},
+  applied_to: []
+}
+```
+
+### Memory Operations
+
+#### 1. Extract Insights
+```
+Analyze Activities → Identify Patterns → Extract Insights → Store as Memories
+```
+- Triggered: User clicks "Learn from Data"
+- Process: AI analyzes last 50 activities
+- Output: 3-5 insights stored as memories
+
+#### 2. Learn from Interactions
+```
+User Action → AI Analysis → Extract Learning → Store Memory + Log
+```
+- Triggers: Activity creation, journal creation, chat
+- Process: AI determines what to learn from interaction
+- Output: Memory + Learning log entry
+
+#### 3. Memory Retrieval
+```
+Context → AI Ranks Relevance → Retrieve Top N → Update Access Stats
+```
+- Used in: Chat with agent
+- Process: AI ranks memories by relevance to context
+- Updates: last_accessed, access_count
+
+#### 4. Memory Consolidation
+```
+Short-term Memories → AI Consolidation → Long-term Insights → Archive Old
+```
+- Triggered: User clicks "Consolidate"
+- Process: AI merges 20 short-term into 2-3 long-term
+- Result: Cleaner, more organized memory
+
+### Memory Lifecycle
+```
+1. Short-term (Recent interactions)
+   ↓ (after 20+ entries)
+2. Consolidation (AI merges related memories)
+   ↓
+3. Long-term (Permanent insights)
+   ↓ (rarely accessed)
+4. Archived (Kept but not actively used)
+```
+
+### Chat with Memory Context
+```
+User Message
+   ↓
+Retrieve Relevant Memories (AI-ranked)
+   ↓
+Build System Message (Persona + Memories)
+   ↓
+Generate Response (LLM with context)
+   ↓
+Store Interaction as Memory
+   ↓
+Learn from Interaction
+```
+
+### API Endpoints (10 new)
+- GET /api/agent/memory - List memories
+- POST /api/agent/memory - Create memory
+- PUT /api/agent/memory/{id} - Update memory
+- DELETE /api/agent/memory/{id} - Delete memory
+- POST /api/agent/learn - Trigger learning
+- POST /api/agent/consolidate - Consolidate memories
+- GET /api/agent/persona - Get persona
+- PUT /api/agent/persona - Update persona
+- GET /api/agent/learning-logs - View progression
+- GET /api/agent/chat - Chat with memory context
+- GET /api/agent/stats - Memory statistics
+
