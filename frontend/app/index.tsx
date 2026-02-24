@@ -1,16 +1,26 @@
-import { Text, View, StyleSheet, Image } from "react-native";
+import { useEffect } from 'react';
+import { useRouter } from 'expo-router';
+import { Text, View, StyleSheet } from "react-native";
 
 const EXPO_PUBLIC_BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 export default function Index() {
   console.log(EXPO_PUBLIC_BACKEND_URL, "EXPO_PUBLIC_BACKEND_URL");
+  
+  const router = useRouter();
+  
+  useEffect(() => {
+    // Redirect to the dashboard tab after a brief moment
+    const timer = setTimeout(() => {
+      router.replace('/(tabs)');
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [router]);
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require("../assets/images/app-image.png")}
-        style={styles.image}
-      />
+      <Text style={styles.loadingText}>Loading Polymath OS...</Text>
     </View>
   );
 }
@@ -22,9 +32,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  image: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "contain",
+  loadingText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
   },
 });
