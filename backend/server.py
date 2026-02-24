@@ -891,6 +891,237 @@ async def get_statistics():
         "sources": sources
     }
 
+
+# AGENT MEMORY & PERSONA
+@api_router.get("/agent/memory")
+async def get_agent_memories(memory_type: Optional[str] = None, limit: int = 50):
+    """Get agent memories"""
+    query = {}
+    if memory_type:
+        query["memory_type"] = memory_type
+    
+    memories = await db.agent_memory.find(query).sort([("importance", -1), ("timestamp", -1)]).limit(limit).to_list(limit)
+    return memories
+
+@api_router.post("/agent/memory", response_model=AgentMemory)
+async def create_agent_memory(memory_type: str, content: str, source: str, importance: float = 0.5):
+    """Manually create agent memory"""
+    memory = AgentMemory(
+        memory_type=memory_type,
+        content=content,
+        source=source,
+        importance=importance
+    )
+    await db.agent_memory.insert_one(memory.dict())
+    return memory
+
+@api_router.put("/agent/memory/{memory_id}")
+async def update_agent_memory(memory_id: str, content: str, importance: Optional[float] = None):
+    """Update agent memory"""
+    update_data = {"content": content}
+    if importance is not None:
+        update_data["importance"] = importance
+    
+    result = await db.agent_memory.update_one(
+        {"id": memory_id},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Memory not found")
+    
+    updated = await db.agent_memory.find_one({"id": memory_id})
+    return updated
+
+@api_router.delete("/agent/memory/{memory_id}")
+async def delete_agent_memory(memory_id: str):
+    """Delete agent memory"""
+    result = await db.agent_memory.delete_one({"id": memory_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Memory not found")
+    return {"message": "Memory deleted"}
+
+@api_router.post("/agent/learn")
+async def trigger_learning():
+    """Trigger agent to learn from current data"""
+    try:
+        # Extract insights from activities
+        insights = await extract_insights_from_activities()
+        
+        # Store as memories
+        memories_created = 0
+        for insight_data in insights:
+            memory = AgentMemory(
+                memory_type="insight",
+                content=insight_data["insight"],
+                source="learning",
+                importance=insight_data.get("importance", 0.7)
+            )
+            await db.agent_memory.insert_one(memory.dict())
+            memories_created += 1
+        
+        # Learn from recent journals
+        recent_journals = await db.journals.find().sort("timestamp", -1).limit(10).to_list(10)
+        for journal in recent_journals:
+            await learn_from_interaction("journal_entry", {
+                "title": journal.get("title"),
+                "content": journal.get("content", "")[:200],
+                "tags": journal.get("tags", [])
+            })
+        
+        return {
+            "insights_extracted": len(insights),
+            "memories_created": memories_created,
+            "journals_processed": len(recent_journals)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Learning failed: {str(e)}")
+
+@api_router.post("/agent/consolidate")
+async def trigger_memory_consolidation():
+    """Consolidate short-term memories into long-term insights"""
+    result = await consolidate_memories()
+    return result
+
+@api_router.get("/agent/persona")
+async def get_agent_persona():
+    """Get active agent persona"""
+    persona = await db.agent_persona.find_one({"is_active": True})
+    if not persona:
+        # Create default persona
+        default_persona = AgentPersona(
+            name="Learning Assistant",
+            role="Polymath Guide",
+            focus_areas=["Technology", "AI", "Learning Optimization"],
+            behavior_traits=["Curious", "Analytical", "Supportive"],
+            custom_instructions="Help the user track and optimize their learning journey across domains."
+        )
+        await db.agent_persona.insert_one(default_persona.dict())
+        return default_persona.dict()
+    return persona
+
+@api_router.put("/agent/persona")
+async def update_agent_persona(update: PersonaUpdate):
+    """Update agent persona"""
+    persona = await db.agent_persona.find_one({"is_active": True})
+    
+    if not persona:
+        raise HTTPException(status_code=404, detail="No active persona found")
+    
+    update_data = {}
+    if update.name:
+        update_data["name"] = update.name
+    if update.role:
+        update_data["role"] = update.role
+    if update.focus_areas:
+        update_data["focus_areas"] = update.focus_areas
+    if update.learning_style_preferences:
+        update_data["learning_style_preferences"] = update.learning_style_preferences
+    if update.behavior_traits:
+        update_data["behavior_traits"] = update.behavior_traits
+    if update.custom_instructions:
+        update_data["custom_instructions"] = update.custom_instructions
+    
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.agent_persona.update_one(
+        {"id": persona["id"]},
+        {"$set": update_data}
+    )
+    
+    updated = await db.agent_persona.find_one({"id": persona["id"]})
+    return updated
+
+@api_router.get("/agent/learning-logs")
+async def get_learning_logs(limit: int = 50):
+    """Get agent learning progression logs"""
+    logs = await db.learning_logs.find().sort("learned_at", -1).limit(limit).to_list(limit)
+    return logs
+
+@api_router.get("/agent/chat")
+async def chat_with_agent(message: str):
+    """Chat with the learning assistant agent (with memory)"""
+    try:
+        # Get relevant memories
+        relevant_memories = await get_relevant_memories(message, limit=5)
+        
+        # Get persona
+        persona = await db.agent_persona.find_one({"is_active": True})
+        if not persona:
+            persona = {
+                "name": "Learning Assistant",
+                "role": "Polymath Guide",
+                "custom_instructions": "Help track and optimize learning."
+            }
+        
+        # Build context from memories
+        memory_context = "\n".join([f"- {m.content}" for m in relevant_memories])
+        
+        # Create chat with memory-enhanced system message
+        system_message = f\"\"\"You are {persona['name']}, a {persona['role']}.
+
+Your memories:
+{memory_context}
+
+Custom instructions: {persona.get('custom_instructions', 'Help the user with their learning journey.')}
+
+Respond naturally and helpfully based on your memories and the user's learning history.\"\"\"
+        
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"agent_chat_{uuid.uuid4()}",
+            system_message=system_message
+        ).with_model("openai", "gpt-4o-mini")
+        
+        user_message_obj = UserMessage(text=message)
+        response = await chat.send_message(user_message_obj)
+        
+        # Store interaction as short-term memory
+        interaction_memory = AgentMemory(
+            memory_type="short_term",
+            content=f"User asked: {message[:100]}... I responded about their learning.",
+            source="chat",
+            metadata={"user_message": message, "response": response[:200]},
+            importance=0.6
+        )
+        await db.agent_memory.insert_one(interaction_memory.dict())
+        
+        # Learn from interaction
+        await learn_from_interaction("chat", {"message": message, "response": response})
+        
+        return {
+            "response": response,
+            "memories_used": len(relevant_memories),
+            "persona": persona.get("name")
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
+
+@api_router.get("/agent/stats")
+async def get_agent_stats():
+    """Get agent memory statistics"""
+    total_memories = await db.agent_memory.count_documents({})
+    short_term = await db.agent_memory.count_documents({"memory_type": "short_term"})
+    long_term = await db.agent_memory.count_documents({"memory_type": "long_term"})
+    insights = await db.agent_memory.count_documents({"memory_type": "insight"})
+    patterns = await db.agent_memory.count_documents({"memory_type": "pattern"})
+    total_learning_logs = await db.learning_logs.count_documents({})
+    
+    # Get most accessed memories
+    top_memories = await db.agent_memory.find().sort("access_count", -1).limit(5).to_list(5)
+    
+    return {
+        "total_memories": total_memories,
+        "breakdown": {
+            "short_term": short_term,
+            "long_term": long_term,
+            "insights": insights,
+            "patterns": patterns
+        },
+        "total_learning_events": total_learning_logs,
+        "most_accessed_memories": [{"content": m.get("content", "")[:100], "access_count": m.get("access_count", 0)} for m in top_memories]
+    }
+
 app.include_router(api_router)
 
 app.add_middleware(
