@@ -1461,3 +1461,151 @@ curl http://localhost:8001/api/
 - FastAPI Docs: https://fastapi.tiangolo.com
 - MongoDB Docs: https://docs.mongodb.com
 - React Native Docs: https://reactnative.dev
+
+## Agent Memory System API
+
+### New Endpoints (10 total)
+
+#### 1. Get Agent Memories
+```http
+GET /api/agent/memory?memory_type=long_term&limit=50
+
+Response: Array of memory objects
+[{
+  "id": "uuid",
+  "memory_type": "long_term",
+  "content": "User focuses on AI and technology",
+  "importance": 0.85,
+  "access_count": 5,
+  "timestamp": "2025-02-24T..."
+}]
+```
+
+#### 2. Create Memory
+```http
+POST /api/agent/memory?memory_type=long_term&content=Memory text&source=manual&importance=0.9
+
+Response: Memory object
+```
+
+#### 3. Update Memory
+```http
+PUT /api/agent/memory/{memory_id}
+Body: { "content": "Updated text", "importance": 0.95 }
+
+Response: Updated memory object
+```
+
+#### 4. Delete Memory
+```http
+DELETE /api/agent/memory/{memory_id}
+
+Response: {"message": "Memory deleted"}
+```
+
+#### 5. Trigger Learning
+```http
+POST /api/agent/learn
+
+Response: {
+  "insights_extracted": 3,
+  "memories_created": 3,
+  "journals_processed": 2
+}
+```
+
+#### 6. Consolidate Memories
+```http
+POST /api/agent/consolidate
+
+Response: {
+  "consolidated": 2,
+  "archived": 15
+}
+```
+
+#### 7. Get Persona
+```http
+GET /api/agent/persona
+
+Response: {
+  "name": "Learning Assistant",
+  "role": "Polymath Guide",
+  "focus_areas": ["AI", "Technology"],
+  "behavior_traits": ["Curious", "Analytical"],
+  "custom_instructions": "Help optimize learning"
+}
+```
+
+#### 8. Update Persona
+```http
+PUT /api/agent/persona
+Body: {
+  "name": "Abishek's Guide",
+  "focus_areas": ["AI", "Innovation"],
+  "custom_instructions": "Focus on cross-domain connections"
+}
+
+Response: Updated persona
+```
+
+#### 9. Get Learning Logs
+```http
+GET /api/agent/learning-logs?limit=50
+
+Response: [{
+  "id": "uuid",
+  "learned_at": "2025-02-24T...",
+  "insight": "What agent learned",
+  "source_data": {"type": "journal_entry"}
+}]
+```
+
+#### 10. Chat with Agent
+```http
+GET /api/agent/chat?message=What should I learn next?
+
+Response: {
+  "response": "Based on your focus on AI...",
+  "memories_used": 3,
+  "persona": "Learning Assistant"
+}
+```
+
+#### 11. Get Agent Stats
+```http
+GET /api/agent/stats
+
+Response: {
+  "total_memories": 25,
+  "breakdown": {
+    "short_term": 5,
+    "long_term": 15,
+    "insights": 3,
+    "patterns": 2
+  },
+  "total_learning_events": 12
+}
+```
+
+### Frontend: Agent Screen
+
+**File**: `/app/frontend/app/(tabs)/agent.tsx`
+
+**Features**:
+- Three tabs: Memories, Persona, Learning
+- Memory list with CRUD operations
+- Persona editor modal
+- Chat modal with agent
+- Action buttons for learning operations
+- Stats dashboard
+
+**Key Functions**:
+```typescript
+triggerLearning() - POST /api/agent/learn
+consolidateMemories() - POST /api/agent/consolidate  
+updatePersona() - PUT /api/agent/persona
+chatWithAgent() - GET /api/agent/chat
+deleteMemory() - DELETE /api/agent/memory/{id}
+```
+
