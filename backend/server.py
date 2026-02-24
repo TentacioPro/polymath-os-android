@@ -518,6 +518,16 @@ async def export_json():
     journals = await db.journals.find().to_list(10000)
     connections = await db.connections.find().to_list(10000)
     
+    # Remove MongoDB ObjectId fields to avoid serialization issues
+    def clean_document(doc):
+        if doc and "_id" in doc:
+            del doc["_id"]
+        return doc
+    
+    activities = [clean_document(doc) for doc in activities]
+    journals = [clean_document(doc) for doc in journals]
+    connections = [clean_document(doc) for doc in connections]
+    
     export_data = {
         "export_date": datetime.utcnow().isoformat(),
         "version": "1.0",
