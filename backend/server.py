@@ -1044,6 +1044,14 @@ async def update_agent_persona(update: PersonaUpdate):
 async def get_learning_logs(limit: int = 50):
     """Get agent learning progression logs"""
     logs = await db.learning_logs.find().sort("learned_at", -1).limit(limit).to_list(limit)
+    
+    # Remove MongoDB ObjectId fields to avoid serialization issues
+    def clean_document(doc):
+        if doc and "_id" in doc:
+            del doc["_id"]
+        return doc
+    
+    logs = [clean_document(doc) for doc in logs]
     return logs
 
 @api_router.get("/agent/chat")
