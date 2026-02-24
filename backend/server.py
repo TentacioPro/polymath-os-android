@@ -286,6 +286,199 @@ def parse_google_history(file_content: str) -> List[Dict[str, Any]]:
     except:
         return []
 
+
+# ============= AGENT MEMORY SYSTEM =============
+
+async def extract_insights_from_activities() -> List[str]:
+    """Extract learning patterns and insights from activities"""
+    try:
+        activities = await db.activities.find().sort("timestamp", -1).limit(50).to_list(50)
+        
+        if len(activities) < 5:
+            return []
+        
+        # Analyze patterns
+        categories = {}
+        domains = {}
+        for activity in activities:
+            cat = activity.get("category", "Other")
+            categories[cat] = categories.get(cat, 0) + 1
+            
+            if activity.get("ai_analysis"):
+                domain = activity["ai_analysis"].get("domain", "Unknown")
+                domains[domain] = domains.get(domain, 0) + 1
+        
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"insights_{uuid.uuid4()}",
+            system_message="You are a learning analyst. Extract insights from patterns. Respond with JSON only."
+        ).with_model("openai", "gpt-4o-mini")
+        
+        prompt = f"""Analyze this learning data and extract 3-5 key insights:
+
+Total activities: {len(activities)}
+Recent titles: {[a.get('title', '')[:50] for a in activities[:10]]}
+Category distribution: {categories}
+Domain distribution: {domains}
+
+Respond with ONLY JSON array:
+[{{"insight": "pattern or trend discovered", "importance": 0.8}}]"""
+        
+        user_message = UserMessage(text=prompt)
+        response = await chat.send_message(user_message)
+        
+        insights = json.loads(response.strip())
+        return insights
+    except Exception as e:
+        logging.error(f"Insight extraction failed: {e}")
+        return []
+
+async def learn_from_interaction(interaction_type: str, data: Dict[str, Any]):
+    """Learn from user interactions and store in memory"""
+    try:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"learn_{uuid.uuid4()}",
+            system_message="You are a learning assistant. Extract what you learned from this interaction."
+        ).with_model("openai", "gpt-4o-mini")
+        
+        prompt = f"""From this user interaction, what should I learn about their learning style?
+
+Interaction: {interaction_type}
+Data: {json.dumps(data, indent=2)[:500]}
+
+Respond with ONLY JSON:
+{{"learned": "what you learned", "application": "how to use this knowledge", "importance": 0.7}}"""
+        
+        user_message = UserMessage(text=prompt)
+        response = await chat.send_message(user_message)
+        
+        learned = json.loads(response.strip())
+        
+        # Store as learning log
+        log = LearningLog(
+            insight=learned.get("learned", ""),
+            source_data={"type": interaction_type, "data": data}
+        )
+        await db.learning_logs.insert_one(log.dict())
+        
+        # Store as long-term memory
+        memory = AgentMemory(
+            memory_type="insight",
+            content=learned.get("learned", ""),
+            source="interaction",
+            metadata={"application": learned.get("application", "")},
+            importance=learned.get("importance", 0.5)
+        )
+        await db.agent_memory.insert_one(memory.dict())
+        
+        return learned
+    except Exception as e:
+        logging.error(f"Learning from interaction failed: {e}")
+        return None
+
+async def get_relevant_memories(context: str, limit: int = 5) -> List[AgentMemory]:
+    """Retrieve relevant memories based on context"""
+    try:
+        # Get recent and important memories
+        memories = await db.agent_memory.find().sort([
+            ("importance", -1),
+            ("last_accessed", -1)
+        ]).limit(limit * 2).to_list(limit * 2)
+        
+        if not memories or len(memories) == 0:
+            return []
+        
+        # Use AI to rank relevance
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"memory_retrieval_{uuid.uuid4()}",
+            system_message="You rank memory relevance. Respond with JSON only."
+        ).with_model("openai", "gpt-4o-mini")
+        
+        prompt = f"""Rank these memories by relevance to context: "{context}"
+
+Memories:
+{chr(10).join([f"- ID: {m.get('id')} | {m.get('content', '')[:100]}" for m in memories[:10]])}
+
+Respond with ONLY JSON array of top {limit} relevant memory IDs:
+[{{"id": "memory_id", "relevance": 0.9}}]"""
+        
+        user_message = UserMessage(text=prompt)
+        response = await chat.send_message(user_message)
+        
+        ranked = json.loads(response.strip())
+        relevant_ids = [r["id"] for r in ranked[:limit]]
+        
+        # Update access stats
+        for mem_id in relevant_ids:
+            await db.agent_memory.update_one(
+                {"id": mem_id},
+                {
+                    "$set": {"last_accessed": datetime.utcnow()},
+                    "$inc": {"access_count": 1}
+                }
+            )
+        
+        # Return memories
+        relevant_memories = [m for m in memories if m.get("id") in relevant_ids]
+        return [AgentMemory(**m) for m in relevant_memories]
+    except Exception as e:
+        logging.error(f"Memory retrieval failed: {e}")
+        return []
+
+async def consolidate_memories():
+    """Consolidate short-term memories into long-term insights"""
+    try:
+        # Get recent short-term memories
+        short_term = await db.agent_memory.find({"memory_type": "short_term"}).sort("timestamp", -1).limit(20).to_list(20)
+        
+        if len(short_term) < 5:
+            return {"consolidated": 0}
+        
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"consolidate_{uuid.uuid4()}",
+            system_message="You consolidate memories into long-term insights. Respond with JSON only."
+        ).with_model("openai", "gpt-4o-mini")
+        
+        prompt = f"""Consolidate these short-term memories into 2-3 long-term insights:
+
+Memories:
+{chr(10).join([m.get('content', '')[:100] for m in short_term])}
+
+Respond with ONLY JSON:
+[{{"insight": "consolidated insight", "importance": 0.8, "sources": ["id1", "id2"]}}]"""
+        
+        user_message = UserMessage(text=prompt)
+        response = await chat.send_message(user_message)
+        
+        insights = json.loads(response.strip())
+        
+        consolidated_count = 0
+        for insight_data in insights:
+            memory = AgentMemory(
+                memory_type="long_term",
+                content=insight_data["insight"],
+                source="consolidation",
+                metadata={"source_memories": insight_data.get("sources", [])},
+                importance=insight_data.get("importance", 0.7)
+            )
+            await db.agent_memory.insert_one(memory.dict())
+            consolidated_count += 1
+        
+        # Archive old short-term memories
+        for mem in short_term:
+            await db.agent_memory.update_one(
+                {"id": mem["id"]},
+                {"$set": {"memory_type": "archived"}}
+            )
+        
+        return {"consolidated": consolidated_count, "archived": len(short_term)}
+    except Exception as e:
+        logging.error(f"Memory consolidation failed: {e}")
+        return {"consolidated": 0, "error": str(e)}
+
 # ============= API ENDPOINTS =============
 
 @api_router.get("/")
