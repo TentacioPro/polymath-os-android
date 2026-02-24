@@ -806,3 +806,68 @@ export const designTokens = {
 8. **Dark/Light Mode Toggle**: User preference
 9. **Haptic Feedback**: Touch response
 10. **Animations**: Delightful micro-interactions
+
+## Agent Memory Screen Design
+
+### Purpose
+View and manage AI agent's long-term memory system that learns from user data over time.
+
+### Three Sub-Views
+
+#### 1. Memories Tab
+- Memory list with type badges (short-term, long-term, insight, pattern)
+- Importance visualization (progress bar 0-100%)
+- Access count display
+- Delete button per memory
+- Stats overview: Total memories, breakdown by type
+- Action buttons: Learn from Data, Consolidate, Chat
+
+#### 2. Persona Tab  
+- Agent profile display (name, role)
+- Focus areas as tag chips
+- Behavior traits as tag chips
+- Custom instructions in text box
+- Edit button opens modal
+- Last updated timestamp
+
+#### 3. Learning Tab
+- Learning progression log (chronological)
+- Each entry shows: Insight, source, timestamp
+- Visualize agent intelligence growth
+- Icon: Bulb for each learning event
+
+### Memory Card Design
+```
+┌─────────────────────────────────┐
+│ [TYPE BADGE]            [🗑️]   │
+│ Memory content text...          │
+│ ▓▓▓▓▓░░░░░░ 60% importance      │
+│ Accessed: 5x • Jan 15, 2025     │
+└─────────────────────────────────┘
+```
+
+### Action Buttons Layout
+```
+┌──────────┬──────────┬──────────┐
+│  Learn   │Consolidate│   Chat   │
+│  [⚡]    │   [📚]    │  [💬]   │
+└──────────┴──────────┴──────────┘
+```
+
+### Color System for Memory Types
+- Short-term: #3b82f6 (Blue) - Temporary, recent
+- Long-term: #10b981 (Green) - Consolidated, permanent
+- Insights: #f59e0b (Amber) - Extracted patterns
+- Patterns: #ec4899 (Pink) - Recurring themes
+
+### Importance Indicator
+- 0-30%: Low (muted gray bar)
+- 31-70%: Medium (blue bar)
+- 71-100%: High (indigo bar with glow)
+
+### Chat Interface
+- Modal with chat input at bottom
+- Agent response in card with icon
+- Shows: memories_used count
+- Personality matches persona configuration
+
