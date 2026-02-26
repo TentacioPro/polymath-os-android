@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Black Dominant AI Memory Log</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --bg-color: #000000;
+            --surface-color: #000000;
+            --text-primary: #FFFFFF;
+            --text-secondary: #9CA3AF;
+            --border-color: #FFFFFF;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+        }
+        .font-display { font-family: var(--font-display); }
+        .font-mono { font-family: var(--font-mono); }
+        .bento-card {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+        .bg-grid-tech {
+            background-size: 40px 40px;
+            background-image:
+                linear-gradient(to right, #333333 1px, transparent 1px),
+                linear-gradient(to bottom, #333333 1px, transparent 1px);
+        }
+        .nova-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .nova-scroll::-webkit-scrollbar-track {
+            background: #111;
+        }
+        .nova-scroll::-webkit-scrollbar-thumb {
+            background: #fff;
+        }.status-blink {
+            animation: blink 2s infinite;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    * {
+        border-radius: 0px !important;}
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[var(--bg-color)] bg-grid-tech min-h-screen relative overflow-x-hidden flex flex-col">
+<header class="sticky top-0 z-50 bg-[var(--bg-color)]/95 backdrop-blur-sm border-b border-[var(--border-color)] px-5 py-4 flex justify-between items-end">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<div class="w-2 h-2 bg-white status-blink"></div>
+<div class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-primary)]">System Online</div>
+</div>
+<h1 class="font-display font-bold text-2xl tracking-tighter uppercase leading-none text-white">AI Memory<span class="font-normal text-[var(--text-secondary)] block text-xs tracking-normal mt-0.5">Black Dominant v3.8</span></h1>
+</div>
+<div class="flex flex-col items-end">
+<div class="font-mono text-[10px] mb-1 text-white">UPTIME: 42:10:09</div>
+<div class="w-8 h-8 border border-[var(--border-color)] overflow-hidden bg-black flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px] text-white">psychology</span>
+</div>
+</div>
+</header>
+<main class="px-5 pb-32 pt-6 max-w-md mx-auto space-y-4 flex-grow">
+<div class="grid grid-cols-2 gap-4">
+<div class="bento-card p-3 flex flex-col justify-between h-24">
+<div class="flex justify-between items-start">
+<span class="font-mono text-[10px] uppercase text-[var(--text-secondary)]">Active Context</span>
+<span class="material-symbols-outlined text-[16px] text-white">memory</span>
+</div>
+<div>
+<div class="text-3xl font-mono font-bold text-white">8,192</div>
+<div class="text-[10px] font-mono uppercase tracking-wide text-[var(--text-secondary)]">Tokens Processed</div>
+</div>
+</div>
+<div class="bento-card p-3 flex flex-col justify-between h-24 bg-white text-black">
+<div class="flex justify-between items-start">
+<span class="font-mono text-[10px] uppercase text-gray-600">Cognitive Load</span>
+<span class="material-symbols-outlined text-[16px] text-black">monitor_heart</span>
+</div>
+<div>
+<div class="text-3xl font-mono font-bold text-black">14%</div>
+<div class="text-[10px] font-mono uppercase tracking-wide text-gray-600">Idle State</div>
+</div>
+</div>
+</div>
+<div class="bento-card p-4 space-y-4">
+<div class="flex justify-between items-center border-b border-gray-800 pb-2">
+<h3 class="font-mono text-xs uppercase font-bold tracking-wider text-white">Memory Allocation</h3>
+<span class="text-[10px] font-mono text-[var(--text-secondary)]">DIAGNOSTIC MODE</span>
+</div>
+<div class="space-y-3">
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-mono text-white">
+<span>SHORT_TERM_BUFFER</span>
+<span>42%</span>
+</div>
+<div class="h-2 w-full bg-gray-900 border border-gray-800">
+<div class="h-full bg-white w-[42%]"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-mono text-white">
+<span>LONG_TERM_VECTOR_DB</span>
+<span>89%</span>
+</div>
+<div class="h-2 w-full bg-gray-900 border border-gray-800">
+<div class="h-full bg-white w-[89%]"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-mono text-white">
+<span>SEMANTIC_CACHE</span>
+<span>12%</span>
+</div>
+<div class="h-2 w-full bg-gray-900 border border-gray-800">
+<div class="h-full bg-white w-[12%]"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="bento-card p-0 flex flex-col h-64">
+<div class="px-4 py-3 border-b border-white bg-black flex justify-between items-center">
+<span class="font-mono text-xs font-bold uppercase text-white">Terminal Output</span>
+<div class="flex gap-1">
+<div class="w-2 h-2 bg-white"></div>
+<div class="w-2 h-2 bg-transparent border border-white"></div>
+<div class="w-2 h-2 bg-transparent border border-white"></div>
+</div>
+</div>
+<div class="p-4 font-mono text-[10px] leading-relaxed overflow-y-auto nova-scroll flex-1 bg-black text-white">
+<div class="flex gap-2">
+<span class="text-gray-500">14:02:11</span>
+<span>&gt; Initializing neural handshake...</span>
+</div>
+<div class="flex gap-2">
+<span class="text-gray-500">14:02:12</span>
+<span>&gt; Connection established.</span>
+</div>
+<div class="flex gap-2 text-blue-400">
+<span class="text-gray-500">14:02:15</span>
+<span>&gt; MEMORY_DUMP_INITIATED [Sector 7]</span>
+</div>
+<div class="flex gap-2">
+<span class="text-gray-500">14:02:44</span>
+<span>&gt; Parsing user intent parameters.</span>
+</div>
+<div class="flex gap-2">
+<span class="text-gray-500">14:03:01</span>
+<span>&gt; Retrieving context from vector store...</span>
+</div>
+<div class="flex gap-2">
+<span class="text-gray-500">14:03:05</span>
+<span>&gt; Context found: "Project Alpha" (0.92 similarity)</span>
+</div>
+<div class="flex gap-2 mt-2">
+<span class="text-gray-500">14:04:22</span>
+<span class="animate-pulse bg-white text-black px-1">_ AWAITING INPUT</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<div class="bento-card p-2 flex flex-col items-center justify-center py-4 bg-black hover:bg-white hover:text-black text-white transition-colors group cursor-pointer border border-white">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">bug_report</span>
+<span class="font-mono text-[9px] uppercase">Debug</span>
+</div>
+<div class="bento-card p-2 flex flex-col items-center justify-center py-4 bg-black hover:bg-white hover:text-black text-white transition-colors group cursor-pointer border border-white">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">history</span>
+<span class="font-mono text-[9px] uppercase">Rollback</span>
+</div>
+<div class="bento-card p-2 flex flex-col items-center justify-center py-4 bg-black hover:bg-white hover:text-black text-white transition-colors group cursor-pointer border border-white">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">delete_sweep</span>
+<span class="font-mono text-[9px] uppercase">Flush</span>
+</div>
+</div>
+</main>
+<div class="fixed bottom-0 left-0 w-full bg-[var(--bg-color)] border-t border-[var(--border-color)] p-5 z-50">
+<div class="max-w-md mx-auto relative">
+<label class="block font-mono text-[9px] uppercase mb-1 ml-1 text-[var(--text-secondary)]">System Command Line</label>
+<div class="flex shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] border border-white bg-black">
+<span class="font-mono text-sm py-3 pl-3 pr-1 text-gray-500 select-none">&gt;</span>
+<input class="w-full border-none focus:ring-0 p-3 font-mono text-sm bg-transparent placeholder-gray-600 text-white" placeholder="Enter query or command..." type="text" value="analyze --depth=deep memory_sector_4"/>
+<button class="px-4 border-l border-white text-white hover:bg-white hover:text-black transition-colors">
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

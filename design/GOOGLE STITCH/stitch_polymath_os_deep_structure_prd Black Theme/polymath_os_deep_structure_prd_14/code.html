@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>System Navigation Drawer</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --bg-color: #000000;
+            --surface-color: #000000;
+            --text-primary: #FFFFFF;
+            --text-secondary: #D4D4D4;
+            --border-color: #FFFFFF;
+            --border-light: #404040;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+        }
+        .font-display { font-family: var(--font-display); }
+        .font-mono { font-family: var(--font-mono); }
+        .bento-card {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+        .bg-blueprint {
+            background-color: #1a1a1a;
+            background-image: 
+                linear-gradient(#333 1px, transparent 1px), 
+                linear-gradient(90deg, #333 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .architect-shadow {
+            box-shadow: 4px 4px 0px 0px rgba(255,255,255,1);
+        }
+        .drawer-shadow {
+            box-shadow: 10px 0px 20px -5px rgba(255,255,255,0.05);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }.border-b-05 {
+            border-bottom-width: 0.5px;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-black bg-blueprint min-h-screen relative overflow-hidden">
+<div class="absolute inset-0 bg-black/70 backdrop-blur-sm z-0"></div>
+<aside class="relative z-10 w-[85%] max-w-sm h-full min-h-screen bg-[var(--bg-color)] border-r border-white drawer-shadow flex flex-col text-white">
+<div class="px-6 py-8 border-b border-white bg-[var(--bg-color)]">
+<div class="flex items-center justify-between mb-6">
+<div class="w-8 h-8 bg-white text-black flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">grid_view</span>
+</div>
+<button class="w-8 h-8 flex items-center justify-center border border-transparent hover:border-white transition-colors text-white">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<div class="font-mono text-[9px] uppercase text-gray-300 tracking-wider mb-1">System Uptime</div>
+<div class="font-display font-bold text-xl text-white">14:02:51</div>
+</div>
+<div>
+<div class="font-mono text-[9px] uppercase text-gray-300 tracking-wider mb-1">Active Mutagens</div>
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+<span class="font-mono text-sm font-bold text-white">Stable</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto no-scrollbar bg-black">
+<div class="grid grid-cols-2 border-b border-white">
+<button class="flex flex-col items-center justify-center p-4 border-r border-white hover:bg-neutral-900 transition-colors group">
+<span class="material-symbols-outlined mb-2 group-hover:scale-110 transition-transform text-white">add_circle</span>
+<span class="font-mono text-[10px] uppercase font-bold text-white">New Thread</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 hover:bg-neutral-900 transition-colors group">
+<span class="material-symbols-outlined mb-2 group-hover:scale-110 transition-transform text-white">search</span>
+<span class="font-mono text-[10px] uppercase font-bold text-white">Search</span>
+</button>
+</div>
+<nav class="flex flex-col">
+<div class="pt-6 pb-2 px-6">
+<h3 class="font-mono text-[10px] uppercase text-gray-400 tracking-widest font-bold">Data Management</h3>
+</div>
+<a class="flex items-center justify-between px-6 py-4 border-b border-white hover:bg-neutral-900 transition-colors group" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-gray-300">folder_zip</span>
+<span class="font-display font-medium text-sm uppercase tracking-tight text-white">Attachment Archive</span>
+</div>
+<span class="font-mono text-[10px] bg-white text-black px-1.5 py-0.5">12</span>
+</a>
+<div class="pt-8 pb-2 px-6 flex justify-between items-end">
+<h3 class="font-mono text-[10px] uppercase text-gray-400 tracking-widest font-bold">Today</h3>
+<span class="font-mono text-[9px] text-gray-400">NOV 04</span>
+</div>
+<div class="flex flex-col border-t border-white/50">
+<a class="flex items-center justify-between px-6 py-3.5 border-b-05 border-white/50 hover:bg-neutral-900 transition-colors border-l-2 border-l-white bg-neutral-900" href="#">
+<div class="flex flex-col gap-1 w-full">
+<span class="font-display font-bold text-sm truncate w-[90%] text-white">Quantum Encryption Protocols</span>
+<span class="font-mono text-[10px] text-gray-400 truncate">Analyzing 256-bit key structure...</span>
+</div>
+</a>
+<a class="flex items-center justify-between px-6 py-3.5 border-b-05 border-white/50 hover:bg-neutral-900 transition-colors border-l-2 border-l-transparent hover:border-l-gray-500" href="#">
+<div class="flex flex-col gap-1 w-full">
+<span class="font-display font-medium text-sm truncate w-[90%] text-white">Neural Net Optimization</span>
+<span class="font-mono text-[10px] text-gray-400 truncate">Refactoring layer 4 weights...</span>
+</div>
+</a>
+</div>
+<div class="pt-8 pb-2 px-6 flex justify-between items-end">
+<h3 class="font-mono text-[10px] uppercase text-gray-400 tracking-widest font-bold">Yesterday</h3>
+<span class="font-mono text-[9px] text-gray-400">NOV 03</span>
+</div>
+<div class="flex flex-col border-t border-white/50">
+<a class="flex items-center justify-between px-6 py-3.5 border-b-05 border-white/50 hover:bg-neutral-900 transition-colors border-l-2 border-l-transparent hover:border-l-gray-500" href="#">
+<div class="flex flex-col gap-1 w-full">
+<span class="font-display font-medium text-sm truncate w-[90%] text-white">System Architecture Review</span>
+<span class="font-mono text-[10px] text-gray-400 truncate">Finalizing blueprint v2.4</span>
+</div>
+</a>
+<a class="flex items-center justify-between px-6 py-3.5 border-b-05 border-white/50 hover:bg-neutral-900 transition-colors border-l-2 border-l-transparent hover:border-l-gray-500" href="#">
+<div class="flex flex-col gap-1 w-full">
+<span class="font-display font-medium text-sm truncate w-[90%] text-white">Legacy Code Migration</span>
+<span class="font-mono text-[10px] text-gray-400 truncate">Module B imports complete</span>
+</div>
+</a>
+<a class="flex items-center justify-between px-6 py-3.5 border-b-05 border-white/50 hover:bg-neutral-900 transition-colors border-l-2 border-l-transparent hover:border-l-gray-500" href="#">
+<div class="flex flex-col gap-1 w-full">
+<span class="font-display font-medium text-sm truncate w-[90%] text-white">Debug Log: Error 404</span>
+<span class="font-mono text-[10px] text-gray-400 truncate">Traceback pending analysis</span>
+</div>
+</a>
+</div>
+<div class="pt-8 pb-2 px-6 flex justify-between items-end">
+<h3 class="font-mono text-[10px] uppercase text-gray-400 tracking-widest font-bold">Previous 7 Days</h3>
+</div>
+<div class="flex flex-col border-t border-white/50">
+<a class="flex items-center justify-between px-6 py-3.5 border-b-05 border-white/50 hover:bg-neutral-900 transition-colors border-l-2 border-l-transparent hover:border-l-gray-500" href="#">
+<div class="flex flex-col gap-1 w-full">
+<span class="font-display font-medium text-sm truncate w-[90%] text-white">Project Titan Init</span>
+<span class="font-mono text-[10px] text-gray-400 truncate">Kickoff meeting notes</span>
+</div>
+</a>
+</div>
+</nav>
+</div>
+<div class="p-6 border-t border-white bg-[var(--bg-color)] mt-auto">
+<div class="bento-card p-3 flex items-center justify-between cursor-pointer hover:bg-neutral-900 transition-colors group border border-white">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 border border-white flex items-center justify-center bg-black text-white group-hover:bg-white group-hover:text-black transition-colors">
+<span class="material-symbols-outlined text-[18px]">contrast</span>
+</div>
+<div>
+<div class="font-display text-xs font-bold uppercase text-white">Swap Theme</div>
+<div class="font-mono text-[9px] text-gray-400">CURRENT: NOVA</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-[16px] text-white">chevron_right</span>
+</div>
+<div class="flex justify-between items-center mt-4 pt-4 border-t border-white/30">
+<button class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+<span class="font-mono text-[10px] uppercase">Settings</span>
+</button>
+<button class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+<span class="font-mono text-[10px] uppercase">Log Out</span>
+<span class="material-symbols-outlined text-[18px]">logout</span>
+</button>
+</div>
+</div>
+</aside>
+</body></html>

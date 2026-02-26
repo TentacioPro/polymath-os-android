@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Knowledge Source Gallery</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --bg-color: #FFFFFF;
+            --surface-color: #F8FAFC;
+            --text-primary: #000000;
+            --text-secondary: #475569;
+            --border-color: #000000;
+            --border-muted: #E2E8F0;
+            --accent-color: #000000;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+        }
+        .font-display { font-family: var(--font-display); }
+        .font-mono { font-family: var(--font-mono); }
+        .bento-card {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+        .bg-blueprint {
+            background-image: 
+                linear-gradient(#F1F5F9 1px, transparent 1px), 
+                linear-gradient(90deg, #F1F5F9 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .architect-shadow {
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+        }
+        .cascade-shadow {
+            box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }.type-pdf { background-color: #ef4444; color: white; }
+        .type-img { background-color: #3b82f6; color: white; }
+        .type-txt { background-color: #000000; color: white; }
+        .type-link { background-color: #10b981; color: white; }.sharp { border-radius: 0px !important; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[var(--bg-color)] bg-blueprint min-h-screen relative overflow-x-hidden">
+<header class="sticky top-0 z-40 bg-[var(--bg-color)]/90 backdrop-blur-md border-b border-[var(--border-color)] px-6 py-4 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 flex items-center justify-center border border-transparent hover:border-black transition-colors sharp">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</button>
+<h1 class="font-display font-bold text-xl tracking-tight uppercase">Knowledge // Sources</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-8 h-8 flex items-center justify-center border border-transparent hover:border-black transition-colors sharp">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center border border-transparent hover:border-black transition-colors sharp">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+</div>
+</header>
+<main class="px-5 pb-32 pt-6 max-w-md mx-auto relative">
+<div class="grid grid-cols-3 gap-3 mb-8">
+<div class="aspect-square bento-card sharp p-2 flex flex-col justify-between cursor-pointer hover:bg-gray-50 transition-colors group">
+<div class="flex justify-between items-start">
+<div class="type-pdf text-[8px] font-mono px-1 py-0.5 font-bold uppercase">PDF</div>
+<span class="material-symbols-outlined text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</div>
+<div class="flex-1 flex items-center justify-center my-2">
+<span class="material-symbols-outlined text-[32px] text-gray-300">description</span>
+</div>
+<div class="font-mono text-[9px] truncate text-[var(--text-secondary)]">neural_net_v4.pdf</div>
+</div>
+<div class="aspect-square bento-card sharp p-0 relative border-black ring-1 ring-black cursor-pointer">
+<div class="absolute top-2 left-2 z-10 type-img text-[8px] font-mono px-1 py-0.5 font-bold uppercase">IMG</div>
+<img alt="Schema" class="w-full h-full object-cover grayscale contrast-125 hover:grayscale-0 transition-all duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9O2F38mtzqeORLCp5DjHopvwg5rQF4qeET7RCA9Xmp188mqpFylUu8EFXLf_V2qmhkZBXFDcdAm4GNGRsdhMvsAN3sXUyI1evJKXzMP01O1-X83mlVbt4as4bB_TO3xpMoxCMr-WyU0TKJAO9QJ3D48as3y4X7C9IUjhhf6Yq55SL6mURvK7577p1bX7WF26cZr_rpoLayUI5AlxBzXS996blBmptF5JdmndC0JY6t2lalSTbFDn-MZjEO_JO4lewX5Y7zfOF_3zi"/>
+<div class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm p-1 border-t border-black">
+<div class="font-mono text-[9px] truncate">schema_arch_01.jpg</div>
+</div>
+</div>
+<div class="aspect-square bento-card sharp p-2 flex flex-col justify-between cursor-pointer hover:bg-gray-50 transition-colors group">
+<div class="flex justify-between items-start">
+<div class="type-txt text-[8px] font-mono px-1 py-0.5 font-bold uppercase">TXT</div>
+<span class="material-symbols-outlined text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</div>
+<div class="flex-1 flex items-center justify-center my-2">
+<span class="material-symbols-outlined text-[32px] text-gray-300">article</span>
+</div>
+<div class="font-mono text-[9px] truncate text-[var(--text-secondary)]">notes_meeting.txt</div>
+</div>
+<div class="aspect-square bento-card sharp p-2 flex flex-col justify-between cursor-pointer hover:bg-gray-50 transition-colors group">
+<div class="flex justify-between items-start">
+<div class="type-link text-[8px] font-mono px-1 py-0.5 font-bold uppercase">LNK</div>
+</div>
+<div class="flex-1 flex items-center justify-center my-2">
+<span class="material-symbols-outlined text-[32px] text-gray-300">link</span>
+</div>
+<div class="font-mono text-[9px] truncate text-[var(--text-secondary)]">arxiv.org/ref...</div>
+</div>
+<div class="aspect-square bento-card sharp p-0 relative cursor-pointer hover:opacity-80 transition-opacity">
+<div class="absolute top-2 left-2 z-10 type-img text-[8px] font-mono px-1 py-0.5 font-bold uppercase">IMG</div>
+<img alt="Network" class="w-full h-full object-cover grayscale contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_vmzg8erFpgT9MroNCjd3UxPrBFyYgbf3GcSF4BAiCbdwX0-Y_o50GyxwztlzeiQIwM9Zf9tag8byF78_K4crRfcyF6j2tDdN2--8O43GZeImYKB-gtizL8sN_jD1Vj1vixZIYEEpKafB3Jz2tATpN4CeaAp81Um_15noTqoU3GzNPWEA1O46oWojEB-l8iJWvNxqg-xAaeOJgHra9hCbuTohOFnfOpIltVFll8R3vfYXDi6_hn-fhEGKg7wZn5VnL9K0yeuXS7CN"/>
+<div class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm p-1 border-t border-transparent group-hover:border-black">
+<div class="font-mono text-[9px] truncate text-[var(--text-secondary)]">network_map.png</div>
+</div>
+</div>
+<div class="aspect-square bento-card sharp p-2 flex flex-col justify-between cursor-pointer hover:bg-gray-50 transition-colors group">
+<div class="flex justify-between items-start">
+<div class="type-pdf text-[8px] font-mono px-1 py-0.5 font-bold uppercase">PDF</div>
+</div>
+<div class="flex-1 flex items-center justify-center my-2">
+<span class="material-symbols-outlined text-[32px] text-gray-300">picture_as_pdf</span>
+</div>
+<div class="font-mono text-[9px] truncate text-[var(--text-secondary)]">specs_v2.pdf</div>
+</div>
+<div class="aspect-square bento-card sharp p-2 flex flex-col justify-between cursor-pointer hover:bg-gray-50 transition-colors group">
+<div class="flex justify-between items-start">
+<div class="type-txt text-[8px] font-mono px-1 py-0.5 font-bold uppercase">TXT</div>
+</div>
+<div class="flex-1 flex items-center justify-center my-2">
+<span class="material-symbols-outlined text-[32px] text-gray-300">code</span>
+</div>
+<div class="font-mono text-[9px] truncate text-[var(--text-secondary)]">config_dump.json</div>
+</div>
+<div class="aspect-square border border-dashed border-gray-300 sharp flex flex-col items-center justify-center cursor-pointer hover:border-black hover:bg-gray-50 transition-all text-[var(--text-secondary)] hover:text-black">
+<span class="material-symbols-outlined text-[24px]">add</span>
+<span class="font-mono text-[9px] uppercase mt-2">Upload</span>
+</div>
+</div>
+<div class="relative z-20">
+<div class="absolute top-2 left-2 w-full h-full bg-black border border-black sharp"></div>
+<div class="bg-white border border-black sharp p-5 relative flex flex-col gap-4">
+<div class="flex justify-between items-start border-b border-gray-100 pb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-gray-100 border border-gray-200 sharp overflow-hidden">
+<img alt="Thumb" class="w-full h-full object-cover grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYnJ6aAdiPDjfq6zsy86RUImj3XYIniVcrsL6wMprvOu9dPj5xG18HeWn7SUWQQM_4cwUXn5qZ6aP7zVq8uYzSFxatPCyrVj1kFa8MkDgZpEcF3vj1A4yJC1mz4-m063RT0GyVI-72VRONbWwjIwqzpxq04YlINew4Dz0i7I_3Nj5h852AKRzOoppSvXE6o7R8vF5ZdD5uqEBymbfmwmo7jaKpany498iiBlfzYqy9qoiiU2neBDIIxEXVTQCHUdZI2P6Cc24zD07A"/>
+</div>
+<div>
+<h3 class="font-display font-bold text-lg uppercase leading-none">schema_arch_01.jpg</h3>
+<div class="font-mono text-[10px] text-[var(--text-secondary)] mt-1">2.4 MB • IMG • 14 OCT 2023</div>
+</div>
+</div>
+<button class="text-black hover:bg-gray-100 p-1 sharp transition-colors">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-px bg-gray-200 border border-gray-200">
+<div class="bg-white p-2">
+<div class="font-mono text-[9px] text-[var(--text-secondary)] uppercase">Dimensions</div>
+<div class="font-display font-bold text-sm">2400 x 1600</div>
+</div>
+<div class="bg-white p-2">
+<div class="font-mono text-[9px] text-[var(--text-secondary)] uppercase">Source</div>
+<div class="font-display font-bold text-sm">External Upl.</div>
+</div>
+<div class="bg-white p-2">
+<div class="font-mono text-[9px] text-[var(--text-secondary)] uppercase">Vectors</div>
+<div class="font-display font-bold text-sm">1,024</div>
+</div>
+<div class="bg-white p-2">
+<div class="font-mono text-[9px] text-[var(--text-secondary)] uppercase">Status</div>
+<div class="font-mono text-xs text-green-600 font-bold uppercase flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-green-600 rounded-full inline-block"></span> Indexed
+                    </div>
+</div>
+</div>
+<div>
+<div class="font-mono text-[10px] uppercase font-bold mb-2">Semantic Tags</div>
+<div class="flex flex-wrap gap-2">
+<span class="border border-black px-2 py-1 font-mono text-[10px] uppercase bg-gray-50">#Architecture</span>
+<span class="border border-black px-2 py-1 font-mono text-[10px] uppercase bg-gray-50">#Schematic</span>
+<span class="border border-black px-2 py-1 font-mono text-[10px] uppercase bg-gray-50">#Plan_V2</span>
+</div>
+</div>
+<button class="w-full bg-black text-white sharp py-3 px-4 flex items-center justify-between hover:bg-gray-800 transition-colors group">
+<div class="flex flex-col items-start">
+<span class="font-mono text-[10px] text-gray-400 uppercase tracking-wider">Action</span>
+<span class="font-display font-bold uppercase">Inject to Mesh</span>
+</div>
+<span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">input</span>
+</button>
+</div>
+</div>
+<div class="mt-12">
+<div class="flex justify-between items-end mb-3 px-1 border-b border-black pb-1">
+<h3 class="font-mono text-xs uppercase font-bold tracking-wider">Sync Log</h3>
+<span class="font-mono text-[10px] text-[var(--text-secondary)]">LIVE</span>
+</div>
+<div class="space-y-2">
+<div class="flex items-center gap-3 py-2 border-b border-gray-100">
+<span class="material-symbols-outlined text-[16px] text-green-600">check_circle</span>
+<div class="flex-1">
+<div class="font-mono text-[10px] uppercase">schema_arch_01.jpg</div>
+<div class="font-mono text-[9px] text-gray-400">Successfully tokenized</div>
+</div>
+<div class="font-mono text-[9px] text-gray-400">2m ago</div>
+</div>
+<div class="flex items-center gap-3 py-2 border-b border-gray-100">
+<span class="material-symbols-outlined text-[16px] text-blue-600">sync</span>
+<div class="flex-1">
+<div class="font-mono text-[10px] uppercase">meeting_notes_q4.txt</div>
+<div class="font-mono text-[9px] text-gray-400">Processing vectors...</div>
+</div>
+<div class="font-mono text-[9px] text-gray-400">5m ago</div>
+</div>
+</div>
+</div>
+</main>
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[360px] z-50">
+<div class="bg-black text-white border border-black shadow-2xl flex justify-between items-center p-1.5 pl-4 pr-1.5 architect-shadow">
+<div class="flex items-center gap-6">
+<button class="flex flex-col items-center gap-0.5 text-gray-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+</button>
+<button class="flex flex-col items-center gap-0.5 text-white">
+<span class="material-symbols-outlined text-[20px] fill-current">hub</span>
+</button>
+<button class="flex flex-col items-center gap-0.5 text-gray-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</button>
+</div>
+<button class="bg-white text-black w-10 h-10 flex items-center justify-center hover:bg-gray-200 transition-colors sharp">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+
+</body></html>

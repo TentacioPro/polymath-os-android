@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Black Dominant Activities Hub</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Archivo+Narrow:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --bg-color: #000000;
+            --surface-color: #000000;
+            --text-primary: #FFFFFF;
+            --text-secondary: #CCCCCC;
+            --border-color: #FFFFFF;
+            --border-muted: #333333;
+            --accent-primary: #FFFFFF;
+            --font-display: 'Archivo Narrow', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+        }
+        .font-display { font-family: var(--font-display); }
+        .font-mono { font-family: var(--font-mono); }
+        .sharp-border {
+            border: 1px solid var(--border-color);
+            border-radius: 0px;
+        }
+        .list-divider {
+            border-bottom: 1px solid var(--border-color);
+        }.no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[var(--bg-color)] min-h-screen relative overflow-x-hidden">
+<header class="sticky top-0 z-50 bg-[var(--bg-color)] border-b border-[var(--border-color)]">
+<div class="px-5 py-4 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div>
+<div class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-secondary)] mb-0.5">Activities Log</div>
+<h1 class="font-display font-bold text-3xl tracking-tight uppercase leading-none text-white">Activities<br/>Hub</h1>
+</div>
+<div class="flex flex-col items-end">
+<div class="font-mono text-[10px] mb-1 text-white">SYS.ONLINE</div>
+<div class="w-8 h-8 border border-[var(--border-color)] bg-black flex items-center justify-center sharp-border">
+<img alt="User" class="w-full h-full object-cover grayscale invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBi9MP0M2TyMxujegpu8LR50a52zBZQajPzxING8nJnrNde1M3T8cusvvmO5vF2hBjF8hVXptT4cL0W-IgCHu8_69ihrmtrWnskDSI7Njbfxjols5-VoaUaew4LuUmDOPFP2lCQvj2gGPY-rBjDhvOCPHy1A6xqI2ydoslFuANH-45p304msqCdd2ZqKhYpi1puTxizY5phvuEa2tn73e8oOQ1zArsbnIWaBhta3WyL8aZgzYDNzjY631EH2447pybhU9wM9c-LcPwa"/>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-[-1px] border border-[var(--border-color)]">
+<button class="flex items-center justify-center gap-2 py-3 px-4 bg-black text-white border-r border-[var(--border-color)] hover:bg-white hover:text-black transition-colors group">
+<span class="material-symbols-outlined text-[18px]">edit_square</span>
+<span class="font-display font-bold text-sm uppercase tracking-wider">Manual Entry</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-3 px-4 bg-black text-white hover:bg-white hover:text-black transition-colors group">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+<span class="font-display font-bold text-sm uppercase tracking-wider">Upload</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto no-scrollbar border-t border-[var(--border-color)] bg-black">
+<div class="flex items-center px-5 py-3 gap-2 min-w-max">
+<button class="bg-white text-black border border-white px-4 py-1.5 text-xs font-mono uppercase hover:bg-gray-200 transition-colors">
+                    All
+                </button>
+<button class="bg-black text-white border border-white px-4 py-1.5 text-xs font-mono uppercase hover:bg-white hover:text-black transition-colors">
+                    Ingestion
+                </button>
+<button class="bg-black text-white border border-white px-4 py-1.5 text-xs font-mono uppercase hover:bg-white hover:text-black transition-colors">
+                    Synthesis
+                </button>
+<button class="bg-black text-white border border-white px-4 py-1.5 text-xs font-mono uppercase hover:bg-white hover:text-black transition-colors">
+                    Exports
+                </button>
+<button class="bg-black text-white border border-white px-4 py-1.5 text-xs font-mono uppercase hover:bg-white hover:text-black transition-colors">
+                    System
+                </button>
+</div>
+</div>
+</header>
+<main class="px-0 pb-28 pt-0 max-w-md mx-auto">
+<div class="border-b border-[var(--border-color)] bg-black px-5 py-2 flex justify-between items-end sticky top-[158px] z-40">
+<span class="font-mono text-xs font-bold uppercase text-white">Today</span>
+<span class="font-mono text-[10px] text-[var(--text-secondary)]">24 OCT 2023</span>
+</div>
+<div class="flex flex-col">
+<div class="group relative bg-black list-divider p-5 hover:bg-zinc-900 transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-white">article</span>
+<h3 class="font-display font-bold text-lg leading-none uppercase text-white">The Architecture of AI</h3>
+</div>
+<span class="font-mono text-[10px] border border-white bg-white text-black px-1 py-0.5 font-bold">INGESTED</span>
+</div>
+<div class="flex justify-between items-end">
+<div class="flex flex-col gap-1">
+<p class="text-xs text-[var(--text-secondary)] font-mono">Source: medium.com</p>
+<p class="text-xs text-[var(--text-secondary)] font-mono truncate max-w-[200px]">Tags: #parametric #systems</p>
+</div>
+<div class="font-mono text-[10px] text-[var(--text-secondary)]">14:02</div>
+</div>
+</div>
+<div class="group relative bg-black list-divider p-5 hover:bg-zinc-900 transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-white">picture_as_pdf</span>
+<h3 class="font-display font-bold text-lg leading-none uppercase text-white">Vector Embeddings 101</h3>
+</div>
+<span class="font-mono text-[10px] border border-white bg-white text-black px-1 py-0.5 font-bold">ANALYZED</span>
+</div>
+<div class="flex justify-between items-end">
+<div class="flex flex-col gap-1">
+<p class="text-xs text-[var(--text-secondary)] font-mono">Source: arxiv.org</p>
+<p class="text-xs text-[var(--text-secondary)] font-mono truncate max-w-[200px]">Tags: #math #vectors #ml</p>
+</div>
+<div class="font-mono text-[10px] text-[var(--text-secondary)]">12:45</div>
+</div>
+</div>
+<div class="group relative bg-black list-divider p-5 hover:bg-zinc-900 transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-white">mic</span>
+<h3 class="font-display font-bold text-lg leading-none uppercase text-white">Lex Fridman #342</h3>
+</div>
+<span class="font-mono text-[10px] border border-white bg-white text-black px-1 py-0.5 font-bold">PLAYING</span>
+</div>
+<div class="flex justify-between items-end">
+<div class="flex flex-col gap-1">
+<p class="text-xs text-[var(--text-secondary)] font-mono">Source: Spotify</p>
+<div class="w-full h-1 bg-zinc-800 mt-1 w-[120px] relative border border-zinc-700">
+<div class="absolute left-0 top-0 h-full bg-white w-[45%]"></div>
+</div>
+</div>
+<div class="font-mono text-[10px] text-[var(--text-secondary)]">09:30</div>
+</div>
+</div>
+<div class="group relative bg-black list-divider p-5 hover:bg-zinc-900 transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-white">folder_zip</span>
+<h3 class="font-display font-bold text-lg leading-none uppercase text-white">Project_Alpha_Assets</h3>
+</div>
+<span class="font-mono text-[10px] border border-white bg-white text-black px-1 py-0.5 font-bold">ARCHIVED</span>
+</div>
+<div class="flex justify-between items-end">
+<div class="flex flex-col gap-1">
+<p class="text-xs text-[var(--text-secondary)] font-mono">Size: 2.4 GB</p>
+<p class="text-xs text-[var(--text-secondary)] font-mono">Loc: /local/storage</p>
+</div>
+<div class="font-mono text-[10px] text-[var(--text-secondary)]">08:15</div>
+</div>
+</div>
+</div>
+<div class="border-b border-[var(--border-color)] bg-black px-5 py-2 flex justify-between items-end sticky top-[158px] z-30 mt-0 border-t border-white">
+<span class="font-mono text-xs font-bold uppercase text-white">Yesterday</span>
+<span class="font-mono text-[10px] text-[var(--text-secondary)]">23 OCT 2023</span>
+</div>
+<div class="flex flex-col">
+<div class="group relative bg-black list-divider p-5 hover:bg-zinc-900 transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-white">auto_awesome</span>
+<h3 class="font-display font-bold text-lg leading-none uppercase text-white">Synthesis: Pattern #4</h3>
+</div>
+<span class="font-mono text-[10px] border border-white bg-white text-black px-1 py-0.5 font-bold">CREATED</span>
+</div>
+<div class="flex justify-between items-end">
+<div class="flex flex-col gap-1">
+<p class="text-xs text-[var(--text-secondary)] font-mono">Generated from 5 sources</p>
+</div>
+<div class="font-mono text-[10px] text-[var(--text-secondary)]">18:45</div>
+</div>
+</div>
+<div class="group relative bg-black list-divider p-5 hover:bg-zinc-900 transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-white">link</span>
+<h3 class="font-display font-bold text-lg leading-none uppercase text-white">Web Clip: Design Trends</h3>
+</div>
+<span class="font-mono text-[10px] border border-white bg-white text-black px-1 py-0.5 font-bold">INGESTED</span>
+</div>
+<div class="flex justify-between items-end">
+<div class="flex flex-col gap-1">
+<p class="text-xs text-[var(--text-secondary)] font-mono">Source: awwwards.com</p>
+</div>
+<div class="font-mono text-[10px] text-[var(--text-secondary)]">16:20</div>
+</div>
+</div>
+</div>
+</main>
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[360px] z-50">
+<div class="bg-black text-white border border-white shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] flex justify-between items-center p-1.5 pl-4 pr-1.5">
+<div class="flex items-center gap-8">
+<button class="flex flex-col items-center gap-0.5 text-gray-400 hover:text-white transition-colors group">
+<span class="material-symbols-outlined text-[20px] group-hover:-translate-y-0.5 transition-transform">dashboard</span>
+</button>
+<button class="flex flex-col items-center gap-0.5 text-white">
+<span class="material-symbols-outlined text-[20px]">hub</span>
+<span class="w-1 h-1 bg-white rounded-full mt-0.5"></span>
+</button>
+<button class="flex flex-col items-center gap-0.5 text-gray-400 hover:text-white transition-colors group">
+<span class="material-symbols-outlined text-[20px] group-hover:-translate-y-0.5 transition-transform">memory</span>
+</button>
+</div>
+<button class="bg-white text-black w-10 h-10 flex items-center justify-center hover:bg-gray-200 transition-colors border border-transparent hover:border-black">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+</body></html>

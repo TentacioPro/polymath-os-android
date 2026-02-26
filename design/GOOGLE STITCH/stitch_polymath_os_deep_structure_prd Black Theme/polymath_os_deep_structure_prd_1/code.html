@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Polymath OS: Neural Mesh Detail - Black Dominant</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --bg-nova: #000000;
+            --border-primary: #FFFFFF;
+            --text-primary: #FFFFFF;
+            --text-muted: #A3A3A3;
+            --card-surface: #000000;
+            --accent-white: #FFFFFF;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body {
+            background-color: var(--bg-nova);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+        }
+        h1, h2, h3, h4, .font-display {
+            font-family: var(--font-display);
+        }
+        .font-mono {
+            font-family: var(--font-mono);
+        }
+        .nova-card {
+            background-color: var(--card-surface);
+            border: 1px solid var(--border-primary);
+            position: relative;
+            overflow: hidden;
+            border-radius: 0px;
+        }
+        .nova-button-primary {
+            background-color: var(--accent-white);
+            color: #000000;
+            border-radius: 0px;
+            transition: all 0.2s ease;
+        }
+        .nova-button-primary:active {
+            transform: translateY(1px);
+        }
+        .grid-bg {
+            background-image: linear-gradient(#1a1a1a 1px, transparent 1px), linear-gradient(90deg, #1a1a1a 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-color: #000000;
+        }.node-circle {
+            background-color: #FFFFFF;
+            border-radius: 50%;
+        }
+        .node-line {
+            background-color: #FFFFFF;
+            height: 0.5px;
+            transform-origin: left center;
+        }
+        .scroller-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .invert-icon {
+            filter: invert(1);
+        }
+    </style>
+<style>
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="antialiased min-h-screen selection:bg-white selection:text-black pb-32 grid-bg">
+<header class="sticky top-0 z-50 backdrop-blur-md border-b border-white bg-black/90">
+<div class="px-5 py-4 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center w-8 h-8 border border-white hover:bg-white hover:text-black transition-colors rounded-none text-white">
+<span class="material-symbols-outlined text-lg">arrow_back</span>
+</button>
+<span class="text-xs font-mono uppercase tracking-widest text-neutral-400">Neural Mesh</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+<span class="text-xs font-mono text-white font-bold">LIVE</span>
+</div>
+</div>
+</div>
+</header>
+<main class="px-5 pt-6 flex flex-col gap-6 relative">
+<div class="relative w-full aspect-square border border-white bg-black overflow-hidden p-4 group">
+<div class="absolute top-2 left-2 w-3 h-3 border-t border-l border-white"></div>
+<div class="absolute top-2 right-2 w-3 h-3 border-t border-r border-white"></div>
+<div class="absolute bottom-2 left-2 w-3 h-3 border-b border-l border-white"></div>
+<div class="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-white"></div>
+<div class="absolute top-4 left-4 text-[10px] font-mono text-neutral-400 uppercase">Sector 7G-Alpha</div>
+<div class="relative w-full h-full flex items-center justify-center">
+<div class="absolute w-12 h-12 border border-white rounded-full flex items-center justify-center bg-black z-20">
+<div class="w-4 h-4 bg-white rounded-full"></div>
+</div>
+<div class="absolute top-1/2 left-1/2 w-32 h-[0.5px] bg-white -translate-y-1/2 -rotate-45 origin-left z-0"></div>
+<div class="absolute top-1/2 left-1/2 w-24 h-[0.5px] bg-white -translate-y-1/2 rotate-12 origin-left z-0"></div>
+<div class="absolute top-1/2 left-1/2 w-28 h-[0.5px] bg-white -translate-y-1/2 rotate-[130deg] origin-left z-0"></div>
+<div class="absolute top-1/2 left-1/2 w-20 h-[0.5px] bg-white -translate-y-1/2 rotate-[200deg] origin-left z-0"></div>
+<div class="absolute top-[25%] left-[25%] w-3 h-3 bg-black border border-white rounded-full z-10 hover:bg-white transition-colors cursor-pointer"></div>
+<div class="absolute top-[60%] right-[20%] w-4 h-4 bg-black border border-white rounded-full z-10 hover:bg-white transition-colors cursor-pointer"></div>
+<div class="absolute bottom-[20%] left-[40%] w-2 h-2 bg-white rounded-full z-10"></div>
+<div class="absolute top-[40%] left-[80%] w-3 h-3 bg-black border border-white rounded-full z-10 hover:bg-white transition-colors cursor-pointer"></div>
+<div class="absolute top-[20%] left-[30%] bg-white text-black text-[8px] px-1 py-0.5 font-mono pointer-events-none">
+                    N:842
+                </div>
+</div>
+<div class="absolute bottom-4 right-4 flex flex-col items-end gap-1">
+<div class="flex items-center gap-2">
+<span class="text-[9px] font-mono uppercase text-neutral-400">Active</span>
+<div class="w-2 h-2 bg-white rounded-full"></div>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[9px] font-mono uppercase text-neutral-400">Dormant</span>
+<div class="w-2 h-2 border border-white rounded-full bg-black"></div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="nova-button-primary py-3 px-4 flex items-center justify-center gap-2 group hover:bg-neutral-200">
+<span class="material-symbols-outlined text-sm">add_link</span>
+<span class="text-xs font-mono uppercase tracking-widest font-bold">Connect</span>
+</button>
+<button class="border border-white bg-black text-white py-3 px-4 flex items-center justify-center gap-2 hover:bg-neutral-900 transition-colors">
+<span class="material-symbols-outlined text-sm">analytics</span>
+<span class="text-xs font-mono uppercase tracking-widest font-bold">Analyze</span>
+</button>
+</div>
+<div class="flex flex-col gap-3">
+<div class="flex justify-between items-end px-1">
+<h3 class="text-sm font-mono uppercase tracking-widest font-bold text-white">Recent Correlations</h3>
+<span class="text-[10px] font-mono text-neutral-400">SYNCED 2M AGO</span>
+</div>
+<div class="nova-card">
+<div class="border-b border-white bg-neutral-900 p-3 flex justify-between items-center">
+<span class="text-xs font-mono text-white">ID: THETA-9</span>
+<span class="material-symbols-outlined text-sm text-white">more_horiz</span>
+</div>
+<div class="divide-y divide-white/20">
+<div class="p-4 hover:bg-neutral-900 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-display font-semibold text-base leading-tight text-white">Pattern Recognition Alpha</h4>
+<span class="text-[10px] font-mono bg-white text-black px-1.5 py-0.5 font-bold">HIGH</span>
+</div>
+<p class="text-xs text-neutral-400 font-mono line-clamp-1 mb-2">Detected anomaly in sector 4. Cross-reference complete.</p>
+<div class="flex gap-2 items-center">
+<span class="text-[9px] font-mono uppercase border border-neutral-700 px-1 text-neutral-500">Vision</span>
+<span class="text-[9px] font-mono uppercase border border-neutral-700 px-1 text-neutral-500">Logic</span>
+<span class="ml-auto text-[10px] font-mono text-neutral-500">0.04s</span>
+</div>
+</div>
+<div class="p-4 hover:bg-neutral-900 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-display font-semibold text-base leading-tight text-white">Semantic Cluster B</h4>
+<span class="text-[10px] font-mono border border-white text-white px-1.5 py-0.5 font-bold">IDLE</span>
+</div>
+<p class="text-xs text-neutral-400 font-mono line-clamp-1 mb-2">Re-indexing knowledge base for linguistic cohesion.</p>
+<div class="flex gap-2 items-center">
+<span class="text-[9px] font-mono uppercase border border-neutral-700 px-1 text-neutral-500">Language</span>
+<span class="ml-auto text-[10px] font-mono text-neutral-500">1.2s</span>
+</div>
+</div>
+<div class="p-4 hover:bg-neutral-900 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-display font-semibold text-base leading-tight text-white">Audio Synthesis Node</h4>
+<span class="text-[10px] font-mono border border-white text-white px-1.5 py-0.5 font-bold">PROC</span>
+</div>
+<p class="text-xs text-neutral-400 font-mono line-clamp-1 mb-2">Waveform generation pending approval from Core.</p>
+<div class="flex gap-2 items-center">
+<span class="text-[9px] font-mono uppercase border border-neutral-700 px-1 text-neutral-500">Audio</span>
+<span class="ml-auto text-[10px] font-mono text-neutral-500">0.01s</span>
+</div>
+</div>
+</div>
+<div class="border-t border-white p-2 bg-neutral-900">
+<button class="w-full text-center text-[10px] font-mono uppercase tracking-widest py-2 text-white hover:bg-white hover:text-black transition-colors">
+                        View Full Log
+                    </button>
+</div>
+</div>
+</div>
+<div class="mt-2 border border-white p-3 flex items-center justify-between bg-black">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-lg animate-spin-slow text-white">settings_suggest</span>
+<div class="flex flex-col">
+<span class="text-[10px] font-mono uppercase text-neutral-400">System Integrity</span>
+<span class="text-xs font-bold font-display text-white">100% OPERATIONAL</span>
+</div>
+</div>
+<div class="flex gap-1 h-3">
+<div class="w-1 bg-white h-full"></div>
+<div class="w-1 bg-white h-full"></div>
+<div class="w-1 bg-white h-full"></div>
+<div class="w-1 bg-neutral-700 h-full"></div>
+<div class="w-1 bg-neutral-800 h-full"></div>
+</div>
+</div>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 border-t border-white bg-black z-50">
+<div class="flex justify-around items-center h-20 px-2 pb-2">
+<button class="flex flex-col items-center justify-center w-16 gap-1 group opacity-40 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-2xl text-white">dashboard</span>
+<span class="text-[9px] font-mono uppercase tracking-wider text-white">Dash</span>
+</button>
+<button class="flex flex-col items-center justify-center w-16 gap-1 group opacity-40 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-2xl text-white">grid_view</span>
+<span class="text-[9px] font-mono uppercase tracking-wider text-white">Feed</span>
+</button>
+<button class="relative -top-6 bg-black border border-white text-white w-14 h-14 flex items-center justify-center shadow-[4px_4px_0px_rgba(255,255,255,1)] hover:shadow-[2px_2px_0px_rgba(255,255,255,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all group">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+<button class="flex flex-col items-center justify-center w-16 gap-1 group">
+<div class="p-1 bg-white text-black">
+<span class="material-symbols-outlined text-2xl">hub</span>
+</div>
+<span class="text-[9px] font-mono uppercase tracking-wider text-white font-bold">Mesh</span>
+</button>
+<button class="flex flex-col items-center justify-center w-16 gap-1 group opacity-40 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-2xl text-white">memory</span>
+<span class="text-[9px] font-mono uppercase tracking-wider text-white">Agent</span>
+</button>
+</div>
+</nav>
+</body></html>

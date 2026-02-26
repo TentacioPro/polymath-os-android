@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Integration &amp; Gallery Hub</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --bg-color: #000000;
+            --surface-color: #000000;
+            --text-primary: #FFFFFF;
+            --text-secondary: #9CA3AF;
+            --border-color: #FFFFFF;
+            --border-muted: #333333;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+        }
+        .font-display { font-family: var(--font-display); }
+        .font-mono { font-family: var(--font-mono); }
+        .bento-card {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+        .bg-blueprint {
+            background-image: 
+                linear-gradient(#1a1a1a 1px, transparent 1px), 
+                linear-gradient(90deg, #1a1a1a 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .architect-shadow {
+            box-shadow: 4px 4px 0px 0px rgba(255,255,255,0.2);
+        }
+        .tab-shadow {
+             box-shadow: 2px 2px 0px 0px rgba(255,255,255,1);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }.toggle-checkbox:checked {
+            right: 0;
+            border-color: #FFFFFF;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #FFFFFF;
+        }
+        .toggle-rect {
+            appearance: none;
+            width: 32px;
+            height: 16px;
+            background: #000;
+            border: 1px solid #FFF;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle-rect:checked {
+            background: #FFF;
+        }
+        .toggle-rect::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 10px;
+            height: 10px;
+            background: #FFF;
+            transition: transform 0.2s;
+        }
+        .toggle-rect:checked::after {
+            background: #000;
+            transform: translateX(16px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[var(--bg-color)] bg-blueprint min-h-screen relative overflow-x-hidden">
+<header class="sticky top-0 z-50 bg-[var(--bg-color)]/90 backdrop-blur-md border-b border-[var(--border-color)] px-6 py-4 flex justify-between items-center text-white">
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 flex items-center justify-center border border-transparent hover:border-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</button>
+<h1 class="font-display font-bold text-xl tracking-tight uppercase">Integrations</h1>
+</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-[20px]">search</span>
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</div>
+</header>
+<main class="px-5 pb-32 pt-6 max-w-md mx-auto space-y-6">
+<div class="grid grid-cols-2 gap-4">
+<button class="bento-card p-4 tab-shadow group hover:-translate-y-0.5 transition-transform bg-white text-black border-white">
+<div class="flex flex-col h-full justify-between">
+<span class="material-symbols-outlined text-[24px] mb-2">auto_stories</span>
+<div>
+<h3 class="font-display font-bold text-sm uppercase">Prompts Gallery</h3>
+<div class="font-mono text-[10px] opacity-70 mt-1">124 TEMPLATES</div>
+</div>
+</div>
+</button>
+<button class="bento-card p-4 tab-shadow group hover:-translate-y-0.5 transition-transform bg-black text-white border-white">
+<div class="flex flex-col h-full justify-between">
+<span class="material-symbols-outlined text-[24px] mb-2">sports_esports</span>
+<div>
+<h3 class="font-display font-bold text-sm uppercase">Games Log</h3>
+<div class="font-mono text-[10px] text-[var(--text-secondary)] group-hover:text-white mt-1">ACTIVE SESSION</div>
+</div>
+</div>
+</button>
+</div>
+<section>
+<div class="flex justify-between items-end mb-3 px-1 text-white">
+<h3 class="font-mono text-xs uppercase font-bold tracking-wider">Active Connections</h3>
+<span class="font-mono text-[10px] text-[var(--text-secondary)]">SYNC STATUS: OK</span>
+</div>
+<div class="grid grid-cols-1 gap-0 border border-white divide-y divide-white bg-black architect-shadow">
+<div class="p-4 flex items-center justify-between group hover:bg-zinc-900 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 border border-white flex items-center justify-center bg-black text-white">
+<span class="font-display font-bold text-lg">N</span>
+</div>
+<div>
+<div class="font-display font-bold text-sm uppercase text-white">Notion</div>
+<div class="font-mono text-[10px] text-[var(--text-secondary)]">Workspace: Polymath_Main</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<input checked="" class="toggle-rect" type="checkbox"/>
+<span class="font-mono text-[9px] text-green-400 uppercase">Status: Syncing</span>
+</div>
+</div>
+<div class="p-4 flex items-center justify-between group hover:bg-zinc-900 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 border border-white flex items-center justify-center bg-black text-white">
+<span class="font-display font-bold text-lg">K</span>
+</div>
+<div>
+<div class="font-display font-bold text-sm uppercase text-white">Kindle</div>
+<div class="font-mono text-[10px] text-[var(--text-secondary)]">Highlights Database</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<input checked="" class="toggle-rect" type="checkbox"/>
+<span class="font-mono text-[9px] text-[var(--text-secondary)] uppercase">Last Pull: 2m ago</span>
+</div>
+</div>
+<div class="p-4 flex items-center justify-between group hover:bg-zinc-900 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 border border-white flex items-center justify-center bg-black text-white">
+<span class="material-symbols-outlined text-lg">code</span>
+</div>
+<div>
+<div class="font-display font-bold text-sm uppercase text-white">GitHub</div>
+<div class="font-mono text-[10px] text-[var(--text-secondary)]">Repo: deep-structure</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<input checked="" class="toggle-rect" type="checkbox"/>
+<span class="font-mono text-[9px] text-[var(--text-secondary)] uppercase">Last Pull: 1h ago</span>
+</div>
+</div>
+<div class="p-4 flex items-center justify-between group hover:bg-zinc-900 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 border border-white flex items-center justify-center bg-black text-white">
+<span class="font-display font-bold text-lg">#</span>
+</div>
+<div>
+<div class="font-display font-bold text-sm uppercase text-white">Slack</div>
+<div class="font-mono text-[10px] text-[var(--text-secondary)]">Channel: #updates</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<input class="toggle-rect" type="checkbox"/>
+<span class="font-mono text-[9px] text-red-500 uppercase">Paused</span>
+</div>
+</div>
+</div>
+</section>
+<section>
+<div class="flex justify-between items-end mb-3 px-1 text-white">
+<h3 class="font-mono text-xs uppercase font-bold tracking-wider">Available Sources</h3>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="bento-card p-3 flex flex-col items-start gap-3 hover:border-white cursor-pointer group bg-black border-white">
+<div class="w-8 h-8 border border-zinc-700 group-hover:border-white flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+</div>
+<div>
+<div class="font-display font-bold text-xs uppercase text-white">Gmail</div>
+<div class="font-mono text-[9px] text-[var(--text-secondary)] mt-0.5">Connect Inbox</div>
+</div>
+<button class="mt-auto w-full py-1 border border-white text-white text-[10px] font-mono hover:bg-white hover:text-black transition-colors uppercase">
+                    Connect
+                </button>
+</div>
+<div class="bento-card p-3 flex flex-col items-start gap-3 hover:border-white cursor-pointer group bg-black border-white">
+<div class="w-8 h-8 border border-zinc-700 group-hover:border-white flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+</div>
+<div>
+<div class="font-display font-bold text-xs uppercase text-white">GCal</div>
+<div class="font-mono text-[9px] text-[var(--text-secondary)] mt-0.5">Sync Events</div>
+</div>
+<button class="mt-auto w-full py-1 border border-white text-white text-[10px] font-mono hover:bg-white hover:text-black transition-colors uppercase">
+                    Connect
+                </button>
+</div>
+<div class="bento-card p-3 flex flex-col items-start gap-3 hover:border-white cursor-pointer group bg-black border-white">
+<div class="w-8 h-8 border border-zinc-700 group-hover:border-white flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[18px]">rss_feed</span>
+</div>
+<div>
+<div class="font-display font-bold text-xs uppercase text-white">RSS</div>
+<div class="font-mono text-[9px] text-[var(--text-secondary)] mt-0.5">Feed Aggregator</div>
+</div>
+<button class="mt-auto w-full py-1 border border-white text-white text-[10px] font-mono hover:bg-white hover:text-black transition-colors uppercase">
+                    Connect
+                </button>
+</div>
+<div class="bento-card p-3 flex flex-col items-start gap-3 hover:border-white cursor-pointer group bg-black border-white">
+<div class="w-8 h-8 border border-zinc-700 group-hover:border-white flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[18px]">cloud</span>
+</div>
+<div>
+<div class="font-display font-bold text-xs uppercase text-white">Drive</div>
+<div class="font-mono text-[9px] text-[var(--text-secondary)] mt-0.5">File Storage</div>
+</div>
+<button class="mt-auto w-full py-1 border border-white text-white text-[10px] font-mono hover:bg-white hover:text-black transition-colors uppercase">
+                    Connect
+                </button>
+</div>
+</div>
+</section>
+<section class="pt-2">
+<div class="bento-card p-4 bg-black text-white border-white">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-mono text-xs uppercase font-bold tracking-wider">System Log</h3>
+<span class="material-symbols-outlined text-[16px]">terminal</span>
+</div>
+<div class="font-mono text-[9px] space-y-1 opacity-80">
+<div class="flex justify-between">
+<span>&gt; Syncing Notion pages...</span>
+<span>10:42 AM</span>
+</div>
+<div class="flex justify-between text-green-400">
+<span>&gt; GitHub pull successful</span>
+<span>10:38 AM</span>
+</div>
+<div class="flex justify-between">
+<span>&gt; Kindle highlights index</span>
+<span>10:15 AM</span>
+</div>
+<div class="flex justify-between text-yellow-400">
+<span>&gt; Slack connection paused</span>
+<span>09:30 AM</span>
+</div>
+</div>
+</div>
+</section>
+<div class="text-center pt-4 pb-4">
+<div class="font-mono text-[10px] text-[var(--text-secondary)] uppercase tracking-widest">Polymath OS build 2023.11.04</div>
+</div>
+</main>
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[360px] z-40">
+<div class="bg-black text-white border border-white shadow-2xl flex justify-between items-center p-1.5 pl-4 pr-1.5 architect-shadow">
+<div class="flex items-center gap-6">
+<button class="flex flex-col items-center gap-0.5 text-zinc-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+</button>
+<button class="flex flex-col items-center gap-0.5 text-white">
+<span class="material-symbols-outlined text-[20px] fill-current">hub</span>
+</button>
+<button class="flex flex-col items-center gap-0.5 text-zinc-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</button>
+</div>
+<button class="bg-white text-black w-10 h-10 flex items-center justify-center hover:bg-gray-200 transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+</body></html>

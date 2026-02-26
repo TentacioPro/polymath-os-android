@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Detailed Prompt &amp; Export View</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --bg-color: #000000;
+            --surface-color: #000000;
+            --text-primary: #FFFFFF;
+            --text-secondary: #D4D4D4;
+            --border-color: #FFFFFF;
+            --border-muted: #333333;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+        }
+        .font-display { font-family: var(--font-display); }
+        .font-mono { font-family: var(--font-mono); }
+        .bg-blueprint {
+            background-image: 
+                linear-gradient(#262626 1px, transparent 1px), 
+                linear-gradient(90deg, #262626 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .architect-shadow {
+            box-shadow: 4px 4px 0px 0px rgba(255,255,255,1);
+        }
+        .architect-shadow-sm {
+            box-shadow: 2px 2px 0px 0px rgba(255,255,255,1);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[var(--bg-color)] bg-blueprint min-h-screen relative overflow-hidden flex flex-col">
+<header class="sticky top-0 z-50 bg-[var(--bg-color)]/95 backdrop-blur-md border-b border-[var(--border-color)] px-4 py-3 flex justify-between items-center h-16 shrink-0">
+<div class="flex items-center gap-4">
+<button class="w-8 h-8 flex items-center justify-center border border-transparent hover:border-white transition-colors group text-white">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<div class="flex flex-col text-white">
+<h1 class="font-display font-bold text-lg tracking-tight uppercase leading-none">Response View</h1>
+<span class="font-mono text-[9px] uppercase tracking-widest text-[var(--text-secondary)]">Log ID #992-ALPHA</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="h-2 w-2 bg-white rounded-none animate-pulse"></div>
+<span class="font-mono text-[10px] uppercase text-[var(--text-secondary)]">Live</span>
+</div>
+</header>
+<main class="flex-1 flex flex-col p-4 gap-4 overflow-hidden relative">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
+<div class="flex items-center gap-2">
+<div class="bg-white text-black px-2 py-1 font-mono text-[10px] uppercase font-bold">
+                    Analysis Mode
+                </div>
+<span class="font-mono text-[10px] text-[var(--text-secondary)] uppercase">Tokens: 2,405</span>
+</div>
+<div class="flex items-center gap-3 self-end md:self-auto">
+<div class="flex border border-white bg-black architect-shadow-sm">
+<button class="w-10 h-10 flex items-center justify-center bg-white text-black border-r border-black hover:bg-gray-200 transition-colors group" title="Export to PDF">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-white text-black border-r border-black hover:bg-gray-200 transition-colors group" title="Sync to Mesh">
+<span class="material-symbols-outlined text-[20px]">hub</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-white text-black hover:bg-gray-200 transition-colors group" title="Copy to Clipboard">
+<span class="material-symbols-outlined text-[20px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex-1 relative border border-white bg-black architect-shadow overflow-hidden flex flex-col">
+<div class="border-b border-white p-3 bg-black flex justify-between items-center shrink-0">
+<div class="flex items-center gap-2 text-white">
+<span class="material-symbols-outlined text-[16px]">description</span>
+<span class="font-mono text-xs font-bold uppercase">Polymath_Output_v2.txt</span>
+</div>
+<div class="flex gap-1">
+<div class="w-2 h-2 border border-white bg-black"></div>
+<div class="w-2 h-2 border border-white bg-white"></div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-6 md:p-8 no-scrollbar">
+<div class="max-w-3xl mx-auto prose prose-sm prose-invert font-sans text-white">
+<h2 class="font-display font-bold text-2xl uppercase tracking-tight mb-6 text-white">Structural Analysis: The Void Sector</h2>
+<div class="font-mono text-xs text-[var(--text-secondary)] mb-6 p-2 border border-[var(--border-muted)] bg-neutral-900 inline-block">
+                        TIMESTAMP: 2023-10-27 14:02:22 UTC <br/>
+                        ORIGIN: Neural Core / Deep Structure
+                    </div>
+<p class="leading-relaxed mb-4 text-justify text-white">
+                        Upon initiating the deep-scan protocol on the 'Void' sector, the neural mesh identified several micro-fractures in the data containment fields. These anomalies are not merely surface-level corruptions but indicate a deeper desynchronization within the tertiary cache nodes. The latency spikes observed (reaching peaks of 142ms) are consistent with buffer overflow events triggered by recursive loop injections.
+                    </p>
+<p class="leading-relaxed mb-4 text-justify text-white">
+                        The architectural integrity of the sector remains at 87%, which is within acceptable operational parameters but trending downward. Immediate re-indexing is recommended to prevent cascading failures across adjacent sectors. The following subsystems have been flagged for manual review:
+                    </p>
+<ul class="list-none pl-0 space-y-2 mb-6 font-mono text-xs border-l-2 border-white pl-4 py-2 my-4 text-white">
+<li class="flex items-center gap-3">
+<span class="w-1.5 h-1.5 bg-white"></span>
+<span class="font-bold">NODE_01 [WARNING]:</span>
+<span class="text-[var(--text-secondary)]">Throughput variance detected.</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="w-1.5 h-1.5 bg-white"></span>
+<span class="font-bold">NODE_04 [CRITICAL]:</span>
+<span class="text-[var(--text-secondary)]">Packet loss &gt; 5%. Isolation protocol active.</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="w-1.5 h-1.5 bg-white"></span>
+<span class="font-bold">GATEWAY_AUX:</span>
+<span class="text-[var(--text-secondary)]">Handshake timeouts observed.</span>
+</li>
+</ul>
+<h3 class="font-display font-bold text-lg uppercase tracking-tight mb-3 text-white">Proposed Remediation Strategy</h3>
+<p class="leading-relaxed mb-4 text-justify text-white">
+                        To stabilize the grid, a three-phase approach is suggested. First, isolate the affected nodes (04 and 07) to prevent data bleed. Second, execute a flush of the temporary semantic buffers. Finally, re-synchronize the sector clock with the master timeline.
+                    </p>
+<p class="leading-relaxed mb-4 text-justify text-white">
+                        The "Sync to Mesh" option is available in your export tools to push these new configuration parameters directly to the live environment. Please review the raw data logs attached below for granular timestamp analysis.
+                    </p>
+<div class="mt-8 border-t border-[var(--border-muted)] pt-4">
+<p class="font-mono text-[10px] text-[var(--text-secondary)] uppercase">
+                            END OF STREAM // CHECKSUM: 88A-22B-X1
+                        </p>
+</div>
+</div>
+</div>
+<div class="border-t border-white p-2 bg-black flex justify-between items-center shrink-0 text-white">
+<div class="font-mono text-[9px] uppercase text-[var(--text-secondary)]">
+                    Read Only Access
+                </div>
+<div class="font-mono text-[9px] uppercase">
+                    Page 1 / 1
+                </div>
+</div>
+</div>
+</main>
+<div class="sticky bottom-0 bg-[var(--bg-color)] border-t border-[var(--border-color)] p-4 z-40 shrink-0">
+<div class="max-w-3xl mx-auto flex justify-between items-center">
+<button class="flex items-center gap-2 hover:opacity-70 transition-opacity text-white">
+<span class="material-symbols-outlined text-[20px]">edit_note</span>
+<span class="font-mono text-xs uppercase font-bold underline">Refine Prompt</span>
+</button>
+<div class="flex items-center gap-4">
+<button class="font-display font-bold text-sm uppercase tracking-wide hover:underline text-white">
+                    Discard
+                </button>
+<button class="bg-white text-black px-6 py-2 font-display font-bold text-sm uppercase tracking-wide hover:bg-gray-200 transition-colors architect-shadow-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
+                    Save to Archive
+                </button>
+</div>
+</div>
+</div>
+</body></html>

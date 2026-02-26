@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Content Detail Subpage</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --bg-color: #FFFFFF;
+            --surface-color: #F8FAFC;
+            --text-primary: #000000;
+            --text-secondary: #475569;
+            --border-color: #000000;
+            --border-muted: #E2E8F0;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+        }
+        .font-display { font-family: var(--font-display); }
+        .font-mono { font-family: var(--font-mono); }
+        .bento-card {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }.bg-grid-pattern {
+            background-image: 
+                linear-gradient(#E5E7EB 1px, transparent 1px), 
+                linear-gradient(90deg, #E5E7EB 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .architect-shadow {
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+        }
+        .square-bullet {
+            list-style-type: none;
+        }
+        .square-bullet li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .square-bullet li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.6em;
+            width: 6px;
+            height: 6px;
+            background-color: #000;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[var(--bg-color)] bg-grid-pattern min-h-screen relative overflow-x-hidden">
+<header class="sticky top-0 z-50 bg-[var(--bg-color)]/95 backdrop-blur-md border-b border-[var(--border-color)] px-4 py-3 flex justify-between items-center">
+<button class="w-10 h-10 flex items-center justify-center border border-black hover:bg-black hover:text-white transition-colors bg-white">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<div class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-secondary)]">
+        Reading Mode // Active
+    </div>
+<button class="w-10 h-10 flex items-center justify-center border border-black hover:bg-black hover:text-white transition-colors bg-white">
+<span class="material-symbols-outlined text-[18px]">ios_share</span>
+</button>
+</header>
+<main class="px-4 pb-32 pt-6 max-w-md mx-auto space-y-6">
+<section>
+<div class="flex items-center gap-2 mb-2">
+<span class="bg-black text-white text-[10px] font-mono px-2 py-0.5 uppercase">Architecture</span>
+<span class="border border-black text-[10px] font-mono px-2 py-0.5 uppercase bg-white">Analysis</span>
+</div>
+<h1 class="font-display text-4xl font-bold leading-[0.95] tracking-tight mb-4">
+            The New Brutalism: Digital Structure
+        </h1>
+</section>
+<div class="bento-card p-0 grid grid-cols-3 divide-x divide-black architect-shadow">
+<div class="p-3 text-center">
+<div class="font-mono text-[9px] uppercase text-[var(--text-secondary)] mb-1">Date</div>
+<div class="font-display font-bold text-sm">OCT 24</div>
+</div>
+<div class="p-3 text-center">
+<div class="font-mono text-[9px] uppercase text-[var(--text-secondary)] mb-1">Source</div>
+<div class="font-display font-bold text-sm">WIRED</div>
+</div>
+<div class="p-3 text-center">
+<div class="font-mono text-[9px] uppercase text-[var(--text-secondary)] mb-1">Author</div>
+<div class="font-display font-bold text-sm">K. LEE</div>
+</div>
+</div>
+<div class="bento-card p-5 border-l-4 border-l-black">
+<div class="flex items-center gap-2 mb-4 border-b border-gray-200 pb-2">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+<h3 class="font-mono text-xs uppercase font-bold tracking-wider">AI Synthesis</h3>
+</div>
+<ul class="square-bullet text-sm leading-relaxed text-gray-800">
+<li>Digital interfaces are returning to raw, structural honesty, moving away from skeuomorphic or overly flat designs.</li>
+<li>"Neo-Brutalism" in UI emphasizes high contrast, bold typography, and distinct borders.</li>
+<li>The trend reflects a desire for transparency in how information is architected and presented to the user.</li>
+</ul>
+</div>
+<article class="prose prose-sm prose-p:font-body prose-headings:font-display text-black max-w-none">
+<p class="mb-4 first-letter:float-left first-letter:text-5xl first-letter:pr-3 first-letter:font-bold first-letter:font-display">
+            In the digital age, the concept of "structure" has often been hidden behind layers of smooth gradients and soft shadows. We are now witnessing a paradigm shift.
+        </p>
+<p class="mb-4">
+            Designers are stripping away the decoration to reveal the underlying grid. It is an act of digital honesty—showing the user exactly how the machine thinks, organizes, and presents data.
+        </p>
+<div class="my-6 border border-black p-1 bg-white">
+<img alt="Abstract architectural structure" class="w-full h-48 object-cover grayscale contrast-125 block" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBi9MP0M2TyMxujegpu8LR50a52zBZQajPzxING8nJnrNde1M3T8cusvvmO5vF2hBjF8hVXptT4cL0W-IgCHu8_69ihrmtrWnskDSI7Njbfxjols5-VoaUaew4LuUmDOPFP2lCQvj2gGPY-rBjDhvOCPHy1A6xqI2ydoslFuANH-45p304msqCdd2ZqKhYpi1puTxizY5phvuEa2tn73e8oOQ1zArsbnIWaBhta3WyL8aZgzYDNzjY631EH2447pybhU9wM9c-LcPwa"/>
+<div class="border-t border-black p-2 bg-gray-50 flex justify-between items-center">
+<span class="font-mono text-[10px] uppercase">Fig 1.1 - Structural Integrity</span>
+</div>
+</div>
+<p>
+            This return to structure is not just aesthetic; it is functional. By defining clear boundaries with sharp lines and high contrast, we reduce cognitive load. The user knows exactly where one thought ends and another begins.
+        </p>
+</article>
+<a class="block bento-card p-4 hover:bg-black hover:text-white transition-all group" href="#">
+<div class="flex justify-between items-center">
+<div class="flex flex-col">
+<span class="font-mono text-[10px] uppercase mb-1 opacity-60">Deep Link</span>
+<span class="font-display font-bold text-lg group-hover:underline decoration-1 underline-offset-4">Read Full Source</span>
+</div>
+<span class="material-symbols-outlined text-[24px] transform group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform">arrow_outward</span>
+</div>
+</a>
+<div class="h-8"></div> 
+</main>
+<div class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-black p-4 z-40">
+<div class="max-w-md mx-auto flex gap-3">
+<button class="flex-1 bg-black text-white h-14 flex items-center justify-center gap-2 border border-black hover:bg-gray-900 active:translate-y-0.5 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-display font-bold uppercase tracking-wide">Synthesize</span>
+</button>
+<button class="w-14 h-14 bg-white text-black border border-black flex items-center justify-center hover:bg-gray-50 active:translate-y-0.5 transition-all">
+<span class="material-symbols-outlined">bookmark_add</span>
+</button>
+</div>
+<div class="w-full h-4"></div> 
+</div>
+
+</body></html>

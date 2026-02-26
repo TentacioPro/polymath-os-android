@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Black Dominant Neural Chat</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --bg-color: #000000;
+            --surface-color: #111111;
+            --text-primary: #FFFFFF;
+            --text-secondary: #AAAAAA;--border-color: #FFFFFF;
+            --border-muted: #333333;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+        }
+        .font-display { font-family: var(--font-display); }
+        .font-mono { font-family: var(--font-mono); }
+        .bg-blueprint {
+            background-image: 
+                linear-gradient(#333333 1px, transparent 1px), 
+                linear-gradient(90deg, #333333 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .architect-shadow {box-shadow: 4px 4px 0px 0px rgba(255,255,255,0.3);
+        }
+        .chat-bubble-ai {
+            background-color: #000000;
+            color: #FFFFFF;
+            border: 1px solid #FFFFFF;
+            padding: 1rem;
+            max-width: 85%;
+            margin-right: auto;
+        }
+        .chat-bubble-user {
+            background-color: #FFFFFF;
+            color: #000000;
+            padding: 1rem;
+            max-width: 85%;
+            margin-left: auto;
+            border: 1px solid #FFFFFF;}
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[var(--bg-color)] bg-blueprint min-h-screen relative overflow-hidden">
+<header class="sticky top-0 z-50 bg-[var(--bg-color)]/95 backdrop-blur-md border-b border-[var(--border-muted)] px-4 py-3 flex justify-between items-center h-16 shrink-0">
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 flex items-center justify-center border border-transparent hover:border-white text-white transition-colors group">
+<span class="material-symbols-outlined text-[24px]">menu_open</span>
+</button>
+<div class="flex flex-col">
+<h1 class="font-display font-bold text-lg tracking-tight uppercase leading-none text-white">Neural Link</h1>
+<span class="font-mono text-[9px] uppercase tracking-widest text-[var(--text-secondary)]">Deep Structure v2.4</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+<span class="font-mono text-[10px] uppercase text-[var(--text-secondary)]">Online</span>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-4 space-y-6 pb-32 no-scrollbar" id="chat-container">
+<div class="flex justify-center py-4">
+<div class="font-mono text-[10px] text-white uppercase bg-black border border-[var(--border-color)] px-3 py-1">
+                Encryption Layer Active // Session ID: #8821-X
+            </div>
+</div>
+<div class="flex flex-col gap-1 items-start w-full">
+<div class="flex items-center gap-2 mb-1">
+<div class="w-4 h-4 bg-white flex items-center justify-center">
+<span class="material-symbols-outlined text-black text-[10px]">smart_toy</span>
+</div>
+<span class="font-mono text-[10px] uppercase font-bold text-white">System Core</span>
+</div>
+<div class="chat-bubble-ai architect-shadow">
+<p class="text-sm leading-relaxed">
+                    Polymath OS initialization complete. Neural interfaces are calibrated. How may I assist with the architectural analysis today?
+                </p>
+</div>
+</div>
+<div class="flex flex-col gap-1 items-end w-full">
+<div class="flex items-center gap-2 mb-1 flex-row-reverse">
+<div class="w-4 h-4 border border-white bg-black flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[10px]">person</span>
+</div>
+<span class="font-mono text-[10px] uppercase font-bold text-[var(--text-secondary)]">Architect</span>
+</div>
+<div class="chat-bubble-user architect-shadow">
+<p class="text-sm leading-relaxed font-mono">
+                    Analyze the structural integrity of the 'Void' sector data stream. I'm seeing latency spikes.
+                </p>
+</div>
+</div>
+<div class="flex flex-col gap-1 items-start w-full">
+<div class="flex items-center gap-2 mb-1">
+<div class="w-4 h-4 bg-white flex items-center justify-center">
+<span class="material-symbols-outlined text-black text-[10px]">smart_toy</span>
+</div>
+<span class="font-mono text-[10px] uppercase font-bold text-white">System Core</span>
+</div>
+<div class="chat-bubble-ai architect-shadow">
+<p class="text-sm leading-relaxed mb-3">
+                    Scanning sector 'Void'... <br/>
+                    Detected anomalies in the tertiary cache nodes.
+                </p>
+<div class="border-l-2 border-white pl-3 my-2">
+<ul class="font-mono text-xs space-y-1 text-[var(--text-secondary)]">
+<li class="flex justify-between w-full max-w-[240px] text-white"><span>NODE_01</span> <span class="text-yellow-400">[WARN]</span></li>
+<li class="flex justify-between w-full max-w-[240px] text-white"><span>NODE_04</span> <span class="text-red-500">[CRIT]</span></li>
+<li class="flex justify-between w-full max-w-[240px] text-white"><span>LATENCY</span> <span>142ms</span></li>
+</ul>
+</div>
+<p class="text-sm leading-relaxed">
+                    Would you like me to initiate a re-indexing protocol?
+                </p>
+</div>
+</div>
+<div class="flex flex-col gap-1 items-end w-full">
+<div class="flex items-center gap-2 mb-1 flex-row-reverse">
+<div class="w-4 h-4 border border-white bg-black flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[10px]">person</span>
+</div>
+<span class="font-mono text-[10px] uppercase font-bold text-[var(--text-secondary)]">Architect</span>
+</div>
+<div class="chat-bubble-user architect-shadow">
+<p class="text-sm leading-relaxed font-mono">
+                    Yes, proceed. Also attach the log file from the last 24 hours.
+                </p>
+</div>
+</div>
+<div class="flex flex-col gap-1 items-start w-full animate-pulse">
+<div class="flex items-center gap-2 mb-1">
+<div class="w-4 h-4 bg-white flex items-center justify-center">
+<span class="material-symbols-outlined text-black text-[10px]">smart_toy</span>
+</div>
+<span class="font-mono text-[10px] uppercase font-bold text-white">System Core</span>
+</div>
+<div class="chat-bubble-ai architect-shadow py-3 px-4">
+<div class="flex gap-1.5">
+<div class="w-1.5 h-1.5 bg-white"></div>
+<div class="w-1.5 h-1.5 bg-white"></div>
+<div class="w-1.5 h-1.5 bg-white"></div>
+</div>
+</div>
+</div>
+</main>
+<div class="fixed bottom-0 left-0 right-0 bg-[var(--bg-color)] border-t border-[var(--border-muted)] p-4 z-40">
+<div class="max-w-3xl mx-auto flex flex-col gap-3">
+<div class="relative w-full architect-shadow bg-black">
+<div class="absolute top-0 left-0 bottom-0 w-12 flex items-center justify-center border-r border-transparent">
+<button class="w-8 h-8 flex items-center justify-center hover:bg-white/10 transition-colors border border-transparent hover:border-white">
+<span class="material-symbols-outlined text-[20px] text-white">add</span>
+</button>
+</div>
+<textarea class="w-full pl-12 pr-12 py-4 bg-black text-white border border-white focus:ring-0 focus:border-white resize-none font-mono text-sm min-h-[60px] max-h-[120px] placeholder-gray-500" placeholder="Type a command..." rows="1"></textarea>
+<div class="absolute top-0 right-0 bottom-0 w-12 flex items-center justify-center">
+<button class="w-8 h-8 flex items-center justify-center bg-white text-black hover:bg-gray-200 transition-colors">
+<span class="material-symbols-outlined text-[20px]">arrow_upward</span>
+</button>
+</div>
+</div>
+<div class="flex justify-between items-center px-1">
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-white transition-colors group">
+<span class="material-symbols-outlined text-[18px]">history</span>
+<span class="font-mono text-[10px] uppercase tracking-wider group-hover:underline">History</span>
+</button>
+<button class="flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-white transition-colors group">
+<span class="material-symbols-outlined text-[18px]">folder_open</span>
+<span class="font-mono text-[10px] uppercase tracking-wider group-hover:underline">Files</span>
+</button>
+</div>
+<div class="font-mono text-[9px] text-gray-500 uppercase">
+                    Tokens: 402 / 4096
+                </div>
+</div>
+</div>
+</div>
+</body></html>

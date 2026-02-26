@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Analytics &amp; Insights View</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --bg-color: #FFFFFF;
+            --surface-color: #F8FAFC;
+            --text-primary: #000000;
+            --text-secondary: #475569;
+            --border-color: #000000;
+            --border-muted: #E2E8F0;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+        }
+        .font-display { font-family: var(--font-display); }
+        .font-mono { font-family: var(--font-mono); }
+        .bento-card {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+        .bg-blueprint {
+            background-image: 
+                linear-gradient(#F1F5F9 1px, transparent 1px), 
+                linear-gradient(90deg, #F1F5F9 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .architect-shadow {
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }.chart-grid {
+            background-image: linear-gradient(to right, #f0f0f0 1px, transparent 1px),
+                              linear-gradient(to bottom, #f0f0f0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[var(--bg-color)] bg-blueprint min-h-screen relative overflow-x-hidden">
+<header class="sticky top-0 z-50 bg-[var(--bg-color)]/90 backdrop-blur-md border-b border-[var(--border-color)] px-6 py-4 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 flex items-center justify-center border border-transparent hover:border-black transition-colors">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</button>
+<h1 class="font-display font-bold text-xl tracking-tight uppercase">Analytics</h1>
+</div>
+<button class="w-8 h-8 bg-black flex items-center justify-center hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-white text-[18px]">filter_list</span>
+</button>
+</header>
+<main class="px-5 pb-32 pt-6 max-w-md mx-auto space-y-6">
+<div class="grid grid-cols-2 gap-4">
+<div class="bento-card p-4 architect-shadow">
+<div class="flex justify-between items-start mb-2">
+<span class="font-mono text-[10px] text-[var(--text-secondary)] uppercase">Data Points</span>
+<span class="material-symbols-outlined text-[16px]">database</span>
+</div>
+<div class="font-display text-3xl font-bold">8,421</div>
+<div class="text-[10px] font-mono text-green-600 mt-1 flex items-center">
+<span class="material-symbols-outlined text-[12px] mr-0.5">trending_up</span> +12%
+            </div>
+</div>
+<div class="bento-card p-4 architect-shadow">
+<div class="flex justify-between items-start mb-2">
+<span class="font-mono text-[10px] text-[var(--text-secondary)] uppercase">Avg. Depth</span>
+<span class="material-symbols-outlined text-[16px]">layers</span>
+</div>
+<div class="font-display text-3xl font-bold">4.2</div>
+<div class="text-[10px] font-mono text-[var(--text-secondary)] mt-1">
+                Levels
+            </div>
+</div>
+</div>
+<div class="bento-card p-5 architect-shadow">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h2 class="font-display text-lg font-bold uppercase tracking-tight">Weekly Intake</h2>
+<div class="font-mono text-[10px] text-[var(--text-secondary)]">DATA VOLUME (MB)</div>
+</div>
+<div class="flex gap-2">
+<span class="w-2 h-2 bg-black inline-block"></span>
+<span class="font-mono text-[10px] uppercase">Input</span>
+</div>
+</div>
+<div class="h-48 w-full flex items-end justify-between gap-2 px-2 pb-4 border-b border-l border-[var(--border-muted)] relative">
+<div class="absolute inset-0 border-t border-[var(--border-muted)] opacity-30 top-0"></div>
+<div class="absolute inset-0 border-t border-[var(--border-muted)] opacity-30 top-1/4"></div>
+<div class="absolute inset-0 border-t border-[var(--border-muted)] opacity-30 top-2/4"></div>
+<div class="absolute inset-0 border-t border-[var(--border-muted)] opacity-30 top-3/4"></div>
+<div class="w-full bg-gray-200 h-[40%] relative group hover:bg-black transition-colors duration-200 cursor-pointer">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-mono px-1">40</div>
+</div>
+<div class="w-full bg-gray-300 h-[65%] relative group hover:bg-black transition-colors duration-200 cursor-pointer">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-mono px-1">65</div>
+</div>
+<div class="w-full bg-gray-800 h-[85%] relative group hover:bg-black transition-colors duration-200 cursor-pointer">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-mono px-1">85</div>
+</div>
+<div class="w-full bg-gray-400 h-[55%] relative group hover:bg-black transition-colors duration-200 cursor-pointer">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-mono px-1">55</div>
+</div>
+<div class="w-full bg-gray-200 h-[30%] relative group hover:bg-black transition-colors duration-200 cursor-pointer">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-mono px-1">30</div>
+</div>
+<div class="w-full bg-black h-[92%] relative group hover:bg-gray-800 transition-colors duration-200 cursor-pointer">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-mono px-1">92</div>
+</div>
+<div class="w-full bg-gray-500 h-[45%] relative group hover:bg-black transition-colors duration-200 cursor-pointer">
+<div class="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-mono px-1">45</div>
+</div>
+</div>
+<div class="flex justify-between mt-2 px-2 font-mono text-[10px] text-[var(--text-secondary)]">
+<span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 h-full">
+<div class="bento-card p-4 h-full flex flex-col">
+<h3 class="font-display text-sm font-bold uppercase mb-3">Heatmap</h3>
+<div class="grid grid-cols-5 gap-1 aspect-square content-center flex-1">
+<div class="bg-gray-100 aspect-square"></div>
+<div class="bg-gray-300 aspect-square"></div>
+<div class="bg-gray-100 aspect-square"></div>
+<div class="bg-black aspect-square"></div>
+<div class="bg-gray-200 aspect-square"></div>
+<div class="bg-gray-400 aspect-square"></div>
+<div class="bg-gray-100 aspect-square"></div>
+<div class="bg-gray-800 aspect-square"></div>
+<div class="bg-gray-200 aspect-square"></div>
+<div class="bg-gray-100 aspect-square"></div>
+<div class="bg-gray-200 aspect-square"></div>
+<div class="bg-gray-900 aspect-square"></div>
+<div class="bg-gray-300 aspect-square"></div>
+<div class="bg-gray-100 aspect-square"></div>
+<div class="bg-gray-400 aspect-square"></div>
+<div class="bg-black aspect-square"></div>
+<div class="bg-gray-200 aspect-square"></div>
+<div class="bg-gray-500 aspect-square"></div>
+<div class="bg-gray-100 aspect-square"></div>
+<div class="bg-gray-300 aspect-square"></div>
+<div class="bg-gray-100 aspect-square"></div>
+<div class="bg-gray-400 aspect-square"></div>
+<div class="bg-gray-100 aspect-square"></div>
+<div class="bg-gray-200 aspect-square"></div>
+<div class="bg-gray-800 aspect-square"></div>
+</div>
+<div class="flex justify-between items-center mt-3 font-mono text-[8px] text-[var(--text-secondary)] uppercase">
+<span>Low</span>
+<div class="flex gap-0.5">
+<div class="w-2 h-2 bg-gray-100"></div>
+<div class="w-2 h-2 bg-gray-400"></div>
+<div class="w-2 h-2 bg-black"></div>
+</div>
+<span>High</span>
+</div>
+</div>
+<div class="bento-card p-4 h-full flex flex-col">
+<h3 class="font-display text-sm font-bold uppercase mb-3 leading-tight">Correlation Strength</h3>
+<div class="border-l border-b border-black flex-1 relative min-h-[120px]">
+<div class="absolute w-1.5 h-1.5 bg-black bottom-[20%] left-[10%] rounded-none"></div>
+<div class="absolute w-1.5 h-1.5 bg-black bottom-[35%] left-[25%] rounded-none"></div>
+<div class="absolute w-1.5 h-1.5 bg-gray-400 bottom-[45%] left-[30%] rounded-none"></div>
+<div class="absolute w-1.5 h-1.5 bg-black bottom-[60%] left-[50%] rounded-none"></div>
+<div class="absolute w-1.5 h-1.5 bg-gray-400 bottom-[55%] left-[65%] rounded-none"></div>
+<div class="absolute w-1.5 h-1.5 bg-black bottom-[80%] left-[75%] rounded-none"></div>
+<div class="absolute w-1.5 h-1.5 bg-black bottom-[85%] left-[85%] rounded-none"></div>
+<div class="absolute w-1.5 h-1.5 bg-gray-400 bottom-[25%] left-[80%] rounded-none"></div>
+<div class="absolute w-[120%] h-[1px] bg-black/30 bottom-0 left-0 rotate-[-35deg] origin-bottom-left"></div>
+</div>
+<div class="flex justify-between mt-2 font-mono text-[8px] text-[var(--text-secondary)]">
+<span>0</span>
+<span>DATA SET</span>
+<span>100</span>
+</div>
+</div>
+</div>
+<div class="bento-card divide-y divide-black">
+<div class="p-4 flex justify-between items-center">
+<div>
+<div class="font-display text-sm font-bold uppercase">System Resources</div>
+<div class="font-mono text-[10px] text-[var(--text-secondary)]">CPU: 32% // MEM: 1.4GB</div>
+</div>
+<div class="w-16 h-8 border border-black p-0.5 relative">
+<div class="h-full bg-black w-[32%]"></div>
+</div>
+</div>
+<div class="p-4 flex justify-between items-center">
+<div>
+<div class="font-display text-sm font-bold uppercase">Network Traffic</div>
+<div class="font-mono text-[10px] text-[var(--text-secondary)]">UL: 45MB // DL: 120MB</div>
+</div>
+<div class="w-16 h-8 border border-black p-0.5 relative flex flex-col justify-between gap-px">
+<div class="h-full bg-gray-400 w-[60%]"></div>
+<div class="h-full bg-black w-[85%]"></div>
+</div>
+</div>
+</div>
+<div class="text-center pt-4 pb-4">
+<div class="font-mono text-[10px] text-[var(--text-secondary)] uppercase tracking-widest">Analysis Completed // 04:22 PM</div>
+</div>
+</main>
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[360px] z-40">
+<div class="bg-black text-white border border-black shadow-2xl flex justify-between items-center p-1.5 pl-4 pr-1.5 architect-shadow">
+<div class="flex items-center gap-6">
+<button class="flex flex-col items-center gap-0.5 text-white">
+<span class="material-symbols-outlined text-[20px] fill-current">dashboard</span>
+</button>
+<button class="flex flex-col items-center gap-0.5 text-gray-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">hub</span>
+</button>
+<button class="flex flex-col items-center gap-0.5 text-gray-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</button>
+</div>
+<button class="bg-white text-black w-10 h-10 flex items-center justify-center hover:bg-gray-200 transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+
+</body></html>
