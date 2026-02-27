@@ -81,3 +81,7 @@ android-sdk/ -e
 # Environment files
 *.env
 *.env.*
+
+# Emergent Agent artifacts (from original cloud build)
+.emergent/
+.gitconfig

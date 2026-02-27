@@ -5,8 +5,9 @@ Quick test for export JSON issue
 
 import requests
 import json
+import os
 
-BACKEND_URL = "https://polymath-hub.preview.emergentagent.com/api"
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8001/api")
 
 def test_export_json_debug():
     """Debug the export JSON endpoint issue"""

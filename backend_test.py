@@ -7,11 +7,12 @@ Testing the NEW Agent Memory System endpoints
 import requests
 import json
 import sys
+import os
 from datetime import datetime
 import time
 
-# Backend URL from environment
-BASE_URL = "https://polymath-hub.preview.emergentagent.com/api"
+# Backend URL - use local dev server
+BASE_URL = os.environ.get("BACKEND_URL", "http://localhost:8001/api")
 
 class AgentMemoryTester:
     def __init__(self):

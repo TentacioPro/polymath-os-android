@@ -12,7 +12,7 @@ from datetime import datetime
 import hashlib
 import json
 import io
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+from openai import AsyncOpenAI
 import csv
 from openpyxl import Workbook
 from pptx import Presentation
@@ -30,8 +30,20 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Initialize LLM
-EMERGENT_LLM_KEY = "sk-emergent-86bFd414c571d0e164"
+# Initialize LLM (OpenAI direct — no proxy)
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
+openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+
+async def ai_chat(system_message: str, user_prompt: str, model: str = "gpt-4o-mini") -> str:
+    """Send a chat completion request to OpenAI directly."""
+    completion = await openai_client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_prompt},
+        ],
+    )
+    return completion.choices[0].message.content
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -154,12 +166,6 @@ async def check_duplicate(hash: str) -> bool:
 async def analyze_content_with_ai(title: str, url: Optional[str] = None) -> Dict[str, Any]:
     """Analyze content using AI"""
     try:
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=f"analyze_{uuid.uuid4()}",
-            system_message="You are an expert content analyzer. Always respond with valid JSON only."
-        ).with_model("openai", "gpt-4o-mini")
-        
         prompt = f"""Analyze this content and categorize it:
 Title: {title}
 URL: {url or 'N/A'}
@@ -173,8 +179,10 @@ Respond with ONLY this JSON structure (no other text):
   "learning_value": 1-10
 }}"""
         
-        user_message = UserMessage(text=prompt)
-        response = await chat.send_message(user_message)
+        response = await ai_chat(
+            system_message="You are an expert content analyzer. Always respond with valid JSON only.",
+            user_prompt=prompt
+        )
         
         # Parse AI response
         try:
@@ -212,12 +220,6 @@ async def generate_connections(activity_id: str) -> List[Connection]:
             return []
         
         # Use AI to find connections
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=f"connections_{uuid.uuid4()}",
-            system_message="You are an expert at finding knowledge connections. Always respond with valid JSON only."
-        ).with_model("openai", "gpt-4o-mini")
-        
         prompt = f"""Find connections between this activity and others:
 
 Main Activity:
@@ -230,8 +232,10 @@ Other Activities:
 Identify up to 3 strongest connections. Respond with ONLY this JSON array (no other text):
 [{{"to_id": "exact_id_from_above", "type": "related_concept", "reasoning": "why they connect", "strength": 0.8}}]"""
         
-        user_message = UserMessage(text=prompt)
-        response = await chat.send_message(user_message)
+        response = await ai_chat(
+            system_message="You are an expert at finding knowledge connections. Always respond with valid JSON only.",
+            user_prompt=prompt
+        )
         
         try:
             connections_data = json.loads(response.strip())
@@ -308,12 +312,6 @@ async def extract_insights_from_activities() -> List[str]:
                 domain = activity["ai_analysis"].get("domain", "Unknown")
                 domains[domain] = domains.get(domain, 0) + 1
         
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=f"insights_{uuid.uuid4()}",
-            system_message="You are a learning analyst. Extract insights from patterns. Respond with JSON only."
-        ).with_model("openai", "gpt-4o-mini")
-        
         prompt = f"""Analyze this learning data and extract 3-5 key insights:
 
 Total activities: {len(activities)}
@@ -324,8 +322,10 @@ Domain distribution: {domains}
 Respond with ONLY JSON array:
 [{{"insight": "pattern or trend discovered", "importance": 0.8}}]"""
         
-        user_message = UserMessage(text=prompt)
-        response = await chat.send_message(user_message)
+        response = await ai_chat(
+            system_message="You are a learning analyst. Extract insights from patterns. Respond with JSON only.",
+            user_prompt=prompt
+        )
         
         insights = json.loads(response.strip())
         return insights
@@ -336,12 +336,6 @@ Respond with ONLY JSON array:
 async def learn_from_interaction(interaction_type: str, data: Dict[str, Any]):
     """Learn from user interactions and store in memory"""
     try:
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=f"learn_{uuid.uuid4()}",
-            system_message="You are a learning assistant. Extract what you learned from this interaction."
-        ).with_model("openai", "gpt-4o-mini")
-        
         prompt = f"""From this user interaction, what should I learn about their learning style?
 
 Interaction: {interaction_type}
@@ -350,8 +344,10 @@ Data: {json.dumps(data, indent=2)[:500]}
 Respond with ONLY JSON:
 {{"learned": "what you learned", "application": "how to use this knowledge", "importance": 0.7}}"""
         
-        user_message = UserMessage(text=prompt)
-        response = await chat.send_message(user_message)
+        response = await ai_chat(
+            system_message="You are a learning assistant. Extract what you learned from this interaction.",
+            user_prompt=prompt
+        )
         
         learned = json.loads(response.strip())
         
@@ -390,12 +386,6 @@ async def get_relevant_memories(context: str, limit: int = 5) -> List[AgentMemor
             return []
         
         # Use AI to rank relevance
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=f"memory_retrieval_{uuid.uuid4()}",
-            system_message="You rank memory relevance. Respond with JSON only."
-        ).with_model("openai", "gpt-4o-mini")
-        
         prompt = f"""Rank these memories by relevance to context: "{context}"
 
 Memories:
@@ -404,8 +394,10 @@ Memories:
 Respond with ONLY JSON array of top {limit} relevant memory IDs:
 [{{"id": "memory_id", "relevance": 0.9}}]"""
         
-        user_message = UserMessage(text=prompt)
-        response = await chat.send_message(user_message)
+        response = await ai_chat(
+            system_message="You rank memory relevance. Respond with JSON only.",
+            user_prompt=prompt
+        )
         
         ranked = json.loads(response.strip())
         relevant_ids = [r["id"] for r in ranked[:limit]]
@@ -436,12 +428,6 @@ async def consolidate_memories():
         if len(short_term) < 5:
             return {"consolidated": 0}
         
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=f"consolidate_{uuid.uuid4()}",
-            system_message="You consolidate memories into long-term insights. Respond with JSON only."
-        ).with_model("openai", "gpt-4o-mini")
-        
         prompt = f"""Consolidate these short-term memories into 2-3 long-term insights:
 
 Memories:
@@ -450,8 +436,10 @@ Memories:
 Respond with ONLY JSON:
 [{{"insight": "consolidated insight", "importance": 0.8, "sources": ["id1", "id2"]}}]"""
         
-        user_message = UserMessage(text=prompt)
-        response = await chat.send_message(user_message)
+        response = await ai_chat(
+            system_message="You consolidate memories into long-term insights. Respond with JSON only.",
+            user_prompt=prompt
+        )
         
         insights = json.loads(response.strip())
         
@@ -690,12 +678,6 @@ async def get_ai_suggestions():
         categories[cat] = categories.get(cat, 0) + 1
     
     try:
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=f"suggestions_{uuid.uuid4()}",
-            system_message="You are a learning advisor. Always respond with valid JSON only."
-        ).with_model("openai", "gpt-4o-mini")
-        
         prompt = f"""Based on this learning history, provide 5 actionable suggestions for next topics to explore:
 
 Recent activities:
@@ -708,8 +690,10 @@ Provide suggestions that connect domains, fill gaps, explore emerging topics, de
 Respond with ONLY this JSON array (no other text):
 [{{"suggestion": "text", "reasoning": "why", "priority": 5}}]"""
         
-        user_message = UserMessage(text=prompt)
-        response = await chat.send_message(user_message)
+        response = await ai_chat(
+            system_message="You are a learning advisor. Always respond with valid JSON only.",
+            user_prompt=prompt
+        )
         suggestions = json.loads(response.strip())
         return {"suggestions": suggestions}
     except Exception as e:
@@ -1088,14 +1072,10 @@ async def chat_with_agent(message: str):
         
         system_message = f"You are {persona_name}, a {persona_role}. Your memories: {memory_context}. Custom instructions: {custom_inst}. Respond naturally and helpfully."
         
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=f"agent_chat_{uuid.uuid4()}",
-            system_message=system_message
-        ).with_model("openai", "gpt-4o-mini")
-        
-        user_message_obj = UserMessage(text=message)
-        response = await chat.send_message(user_message_obj)
+        response = await ai_chat(
+            system_message=system_message,
+            user_prompt=message
+        )
         
         # Store interaction as short-term memory
         interaction_memory = AgentMemory(
