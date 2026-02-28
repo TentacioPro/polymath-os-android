@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { ThemeName } from '../theme/tokens';
 
 interface Activity {
   id: string;
@@ -23,6 +23,16 @@ interface Journal {
 }
 
 interface AppState {
+  // Theme
+  themeName: ThemeName;
+  setThemeName: (name: ThemeName) => void;
+
+  // Drawer
+  drawerOpen: boolean;
+  setDrawerOpen: (open: boolean) => void;
+  toggleDrawer: () => void;
+
+  // Data
   activities: Activity[];
   journals: Journal[];
   connections: any[];
@@ -34,7 +44,17 @@ interface AppState {
   clearAll: () => void;
 }
 
-export const useStore = create<AppState>((set) => ({
+export const useStore = create<AppState>()((set) => ({
+  // Theme
+  themeName: 'void' as ThemeName,
+  setThemeName: (themeName) => set({ themeName }),
+
+  // Drawer
+  drawerOpen: false,
+  setDrawerOpen: (drawerOpen) => set({ drawerOpen }),
+  toggleDrawer: () => set((s) => ({ drawerOpen: !s.drawerOpen })),
+
+  // Data
   activities: [],
   journals: [],
   connections: [],

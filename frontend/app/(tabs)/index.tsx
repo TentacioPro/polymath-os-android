@@ -1,16 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
+import SafeView from '../../components/shared/SafeView';
+import StatCard from '../../components/ui/StatCard';
+import BentoCard from '../../components/ui/BentoCard';
+import SectionHeader from '../../components/ui/SectionHeader';
+import ArchitectButton from '../../components/ui/ArchitectButton';
+import Badge from '../../components/ui/Badge';
+import ThemedText from '../../components/shared/ThemedText';
+import { useTheme, createThemedStyles, spacing, fs, sw } from '../../theme';
 import { useStore } from '../../store/useStore';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
-const { width } = Dimensions.get('window');
 
 export default function Dashboard() {
+  const { theme } = useTheme();
+  const toggleDrawer = useStore((s) => s.toggleDrawer);
+  const { activities, setActivities, setJournals } = useStore();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const { activities, journals, setActivities, setJournals } = useStore();
+  const styles = useStyles();
 
   useEffect(() => {
     loadData();
@@ -22,9 +38,8 @@ export default function Dashboard() {
       const [statsRes, activitiesRes, journalsRes] = await Promise.all([
         axios.get(`${BACKEND_URL}/api/stats`),
         axios.get(`${BACKEND_URL}/api/activities?limit=10`),
-        axios.get(`${BACKEND_URL}/api/journals?limit=5`)
+        axios.get(`${BACKEND_URL}/api/journals?limit=5`),
       ]);
-      
       setStats(statsRes.data);
       setActivities(activitiesRes.data);
       setJournals(journalsRes.data);
@@ -37,249 +52,453 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366f1" />
-        <Text style={styles.loadingText}>Loading your polymath journey...</Text>
-      </View>
+      <SafeView>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.accent} />
+          <ThemedText variant="caption" color="secondary" style={{ marginTop: 16 }}>
+            Loading your polymath journey...
+          </ThemedText>
+        </View>
+      </SafeView>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Polymath OS</Text>
-        <Text style={styles.subtitle}>Track, Learn, Connect</Text>
-      </View>
+    <SafeView>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={toggleDrawer} style={styles.menuBtn}>
+            <MaterialIcons name="menu" size={22} color={theme.textPrimary} />
+          </TouchableOpacity>
+          <View style={styles.headerCenter}>
+            <Text style={[styles.systemLabel, { color: theme.textSecondary }]}>
+              System: Online
+            </Text>
+            <Text style={[styles.title, { color: theme.textPrimary }]}>
+              Polymath<Text style={{ color: theme.textSecondary }}>OS</Text>
+            </Text>
+          </View>
+          <View style={styles.headerRight}>
+            <Text style={[styles.dateLabel, { color: theme.textPrimary }]}>
+              {new Date()
+                .toLocaleDateString('en-US', { month: 'short', day: '2-digit' })
+                .toUpperCase()}
+            </Text>
+            <View style={[styles.avatar, { borderColor: theme.border }]}>
+              <MaterialIcons name="person" size={18} color={theme.textSecondary} />
+            </View>
+          </View>
+        </View>
 
-      {/* Stats Cards */}
-      <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <Ionicons name="document-text" size={32} color="#6366f1" />
-          <Text style={styles.statNumber}>{stats?.total_activities || 0}</Text>
-          <Text style={styles.statLabel}>Activities</Text>
+        {/* Stat cards — 3-col bento grid */}
+        <View style={styles.statsGrid}>
+          <StatCard
+            value={stats?.total_activities || 0}
+            label="Items/Day"
+            icon={<MaterialIcons name="speed" size={16} color={theme.textPrimary} />}
+            badge="NEW"
+          />
+          <StatCard
+            value={`${Math.min(stats?.total_journals || 0, 100)}%`}
+            label="Recall"
+          />
+          <StatCard
+            value={stats?.total_connections || 0}
+            label="Day Streak"
+            inverted
+            icon={
+              <MaterialIcons
+                name="local-fire-department"
+                size={16}
+                color={theme.accentContrast}
+              />
+            }
+          />
         </View>
-        <View style={styles.statCard}>
-          <Ionicons name="book" size={32} color="#10b981" />
-          <Text style={styles.statNumber}>{stats?.total_journals || 0}</Text>
-          <Text style={styles.statLabel}>Journals</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Ionicons name="git-network" size={32} color="#f59e0b" />
-          <Text style={styles.statNumber}>{stats?.total_connections || 0}</Text>
-          <Text style={styles.statLabel}>Connections</Text>
-        </View>
-      </View>
 
-      {/* Category Distribution */}
-      {stats?.categories && Object.keys(stats.categories).length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Learning Categories</Text>
-          <View style={styles.categoriesContainer}>
-            {Object.entries(stats.categories).map(([category, count]: [string, any]) => (
-              <View key={category} style={styles.categoryChip}>
-                <Text style={styles.categoryName}>{category}</Text>
-                <View style={styles.categoryBadge}>
-                  <Text style={styles.categoryCount}>{count}</Text>
+        {/* Neural Mesh synthesis card */}
+        <View style={{ paddingHorizontal: spacing.xl }}>
+          <BentoCard shadow padding="none">
+            <View style={[styles.meshPreview, { borderBottomColor: theme.border }]}>
+              <View
+                style={[
+                  styles.meshTag,
+                  { backgroundColor: theme.background, borderColor: theme.border },
+                ]}
+              >
+                <Text style={[styles.meshTagText, { color: theme.textPrimary }]}>
+                  Neural Mesh v3.0
+                </Text>
+              </View>
+            </View>
+            <View style={{ padding: spacing.xl }}>
+              <View style={styles.statusRow}>
+                <View style={[styles.pulseDot, { backgroundColor: theme.accent }]} />
+                <Text style={[styles.statusText, { color: theme.textPrimary }]}>
+                  Synthesis Ready
+                </Text>
+              </View>
+              <ThemedText
+                variant="heading"
+                style={{ marginBottom: spacing.md, textTransform: 'none' }}
+              >
+                {activities.length > 0
+                  ? 'Correlation detected in recent ingestion.'
+                  : 'Ready to build your knowledge mesh.'}
+              </ThemedText>
+              <View style={[styles.quoteBar, { borderLeftColor: theme.borderMuted }]}>
+                <ThemedText variant="body" color="secondary">
+                  {activities.length > 0
+                    ? `You've ingested ${activities.length} items. Semantic overlap > 85%.`
+                    : 'Start adding activities to discover patterns.'}
+                </ThemedText>
+              </View>
+              <ArchitectButton
+                label="Merge Concepts"
+                onPress={() => {}}
+                variant="outline"
+                fullWidth
+                icon={
+                  <MaterialIcons name="arrow-forward" size={14} color={theme.textPrimary} />
+                }
+                style={{ marginTop: spacing.lg }}
+              />
+            </View>
+          </BentoCard>
+        </View>
+
+        {/* Topics Distribution + Stats */}
+        <View style={styles.dualGrid}>
+          <BentoCard style={{ flex: 2 }} padding="md">
+            <View style={styles.circleContainer}>
+              <View style={[styles.circleOuter, { borderColor: theme.borderMuted }]}>
+                <View style={[styles.circleInner, { borderColor: theme.accent }]}>
+                  <ThemedText
+                    variant="mono"
+                    style={{ fontSize: 11, fontWeight: '700' }}
+                  >
+                    AI
+                  </ThemedText>
+                  <Text style={{ color: theme.textSecondary, fontSize: 8 }}>75%</Text>
+                </View>
+              </View>
+            </View>
+          </BentoCard>
+
+          <BentoCard style={{ flex: 3 }} padding="md">
+            <SectionHeader label="Topics Distribution" />
+            {(stats?.categories
+              ? Object.entries(stats.categories).slice(0, 3)
+              : [
+                  ['Artificial Intel.', 14],
+                  ['Engineering', 8],
+                  ['Philosophy', 3],
+                ]
+            ).map(([name, count]: any, i: number) => (
+              <View key={name} style={styles.topicRow}>
+                <View style={styles.topicLeft}>
+                  <View
+                    style={[
+                      styles.topicDot,
+                      {
+                        backgroundColor: i === 0 ? theme.accent : 'transparent',
+                        borderWidth: i === 0 ? 0 : 1,
+                        borderColor: theme.border,
+                      },
+                    ]}
+                  />
+                  <Text style={[styles.topicName, { color: theme.textPrimary }]}>{name}</Text>
+                </View>
+                <Text
+                  style={[
+                    styles.topicCount,
+                    { color: i === 0 ? theme.textPrimary : theme.textSecondary },
+                  ]}
+                >
+                  {String(count).padStart(2, '0')}
+                </Text>
+              </View>
+            ))}
+          </BentoCard>
+        </View>
+
+        {/* Ingestion Log */}
+        <View style={{ paddingHorizontal: spacing.xl }}>
+          <BentoCard padding="lg">
+            <View style={styles.logHeader}>
+              <ThemedText variant="heading" style={{ textTransform: 'none' }}>
+                Ingestion Log
+              </ThemedText>
+              <Badge label="LIVE" />
+            </View>
+
+            {activities.slice(0, 4).map((activity: any, i: number) => (
+              <View
+                key={activity.id}
+                style={[
+                  styles.logItem,
+                  i < Math.min(activities.length, 4) - 1 && {
+                    borderBottomWidth: 1,
+                    borderBottomColor: theme.borderMuted,
+                  },
+                ]}
+              >
+                <View style={styles.logTimeline}>
+                  <View style={[styles.logDot, { backgroundColor: theme.accent }]} />
+                  {i < Math.min(activities.length, 4) - 1 && (
+                    <View style={[styles.logLine, { backgroundColor: theme.borderMuted }]} />
+                  )}
+                </View>
+                <View style={styles.logContent}>
+                  <View style={styles.logTitleRow}>
+                    <Text
+                      style={[styles.logTitle, { color: theme.textPrimary }]}
+                      numberOfLines={1}
+                    >
+                      {activity.title}
+                    </Text>
+                    <Text style={[styles.logTime, { color: theme.textSecondary }]}>
+                      {new Date(activity.timestamp).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                      })}
+                    </Text>
+                  </View>
+                  <Text style={[styles.logSource, { color: theme.textSecondary }]}>
+                    {activity.source}
+                    {activity.category ? ` · ${activity.category}` : ''}
+                  </Text>
                 </View>
               </View>
             ))}
-          </View>
+
+            {activities.length === 0 && (
+              <ThemedText
+                variant="body"
+                color="muted"
+                style={{ textAlign: 'center', paddingVertical: 20 }}
+              >
+                No activities yet. Add your first one!
+              </ThemedText>
+            )}
+          </BentoCard>
         </View>
-      )}
 
-      {/* Recent Activities */}
-      {activities.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Learning</Text>
-          {activities.slice(0, 5).map((activity: any) => (
-            <View key={activity.id} style={styles.activityCard}>
-              <View style={styles.activityHeader}>
-                <Text style={styles.activityTitle} numberOfLines={2}>{activity.title}</Text>
-                <View style={[styles.categoryTag, { backgroundColor: getCategoryColor(activity.category) }]}>
-                  <Text style={styles.categoryTagText}>{activity.category || 'Other'}</Text>
-                </View>
-              </View>
-              <Text style={styles.activityMeta}>
-                {new Date(activity.timestamp).toLocaleDateString()} • {activity.source}
-              </Text>
-            </View>
-          ))}
-        </View>
-      )}
-
-      {/* Quick Actions */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <TouchableOpacity style={styles.actionButton} onPress={loadData}>
-          <Ionicons name="refresh" size={20} color="#fff" />
-          <Text style={styles.actionButtonText}>Refresh Data</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={{ height: 40 }} />
-    </ScrollView>
+        {/* Bottom spacer for floating pill */}
+        <View style={{ height: 100 }} />
+      </ScrollView>
+    </SafeView>
   );
 }
 
-const getCategoryColor = (category: string) => {
-  const colors: Record<string, string> = {
-    'AI': '#8b5cf6',
-    'News': '#3b82f6',
-    'Tools': '#10b981',
-    'Market': '#f59e0b',
-    'Research': '#ec4899',
-    'Tutorial': '#06b6d4',
-    'Other': '#6b7280'
-  };
-  return colors[category] || colors['Other'];
-};
-
-const styles = StyleSheet.create({
-  container: {
+const useStyles = createThemedStyles((theme) => ({
+  scroll: {
     flex: 1,
-    backgroundColor: '#0f172a',
+  },
+  scrollContent: {
+    paddingTop: 0,
+    gap: sw(16),
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0f172a',
-  },
-  loadingText: {
-    color: '#e2e8f0',
-    marginTop: 16,
-    fontSize: 16,
   },
   header: {
-    padding: 24,
-    paddingTop: 40,
-    backgroundColor: '#1e293b',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    paddingHorizontal: sw(20),
+    paddingVertical: sw(16),
+    borderBottomWidth: 1,
+    borderBottomColor: theme.borderMuted,
+  },
+  menuBtn: {
+    padding: 4,
+  },
+  headerCenter: {
+    flex: 1,
+    marginLeft: sw(12),
+  },
+  systemLabel: {
+    fontSize: fs(10),
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    marginBottom: 2,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 4,
+    fontSize: fs(22),
+    fontWeight: '700',
+    letterSpacing: -0.5,
+    textTransform: 'uppercase',
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#94a3b8',
+  headerRight: {
+    alignItems: 'flex-end',
+    gap: 4,
+  },
+  dateLabel: {
+    fontSize: fs(11),
+    fontWeight: '500',
+  },
+  avatar: {
+    width: sw(34),
+    height: sw(34),
+    borderRadius: sw(17),
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   statsGrid: {
     flexDirection: 'row',
-    padding: 16,
-    gap: 12,
+    paddingHorizontal: sw(20),
+    gap: sw(10),
   },
-  statCard: {
-    flex: 1,
-    backgroundColor: '#1e293b',
-    borderRadius: 16,
-    padding: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#334155',
-  },
-  statNumber: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginTop: 8,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#94a3b8',
-    marginTop: 4,
-  },
-  section: {
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 12,
-  },
-  categoriesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  categoryChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1e293b',
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: '#334155',
-  },
-  categoryName: {
-    color: '#e2e8f0',
-    fontSize: 14,
-    marginRight: 8,
-  },
-  categoryBadge: {
-    backgroundColor: '#6366f1',
-    borderRadius: 10,
-    minWidth: 24,
-    height: 24,
+  meshPreview: {
+    height: 100,
+    borderBottomWidth: 1,
+    backgroundColor: theme.background,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 6,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
   },
-  categoryCount: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  activityCard: {
-    backgroundColor: '#1e293b',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+  meshTag: {
+    position: 'absolute',
+    top: sw(12),
+    left: sw(12),
     borderWidth: 1,
-    borderColor: '#334155',
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
   },
-  activityHeader: {
+  meshTagText: {
+    fontSize: fs(10),
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: spacing.sm,
+  },
+  pulseDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  statusText: {
+    fontSize: fs(11),
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  quoteBar: {
+    borderLeftWidth: 2,
+    paddingLeft: sw(12),
+    marginBottom: spacing.sm,
+  },
+  dualGrid: {
+    flexDirection: 'row',
+    paddingHorizontal: sw(20),
+    gap: sw(10),
+  },
+  circleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.lg,
+  },
+  circleOuter: {
+    width: sw(72),
+    height: sw(72),
+    borderRadius: sw(36),
+    borderWidth: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  circleInner: {
+    width: sw(56),
+    height: sw(56),
+    borderRadius: sw(28),
+    borderWidth: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  topicRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 6,
+  },
+  topicLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  topicDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  topicName: {
+    fontSize: fs(12),
+    fontWeight: '500',
+  },
+  topicCount: {
+    fontSize: fs(12),
+    fontWeight: '500',
+  },
+  logHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  logItem: {
+    flexDirection: 'row',
+    gap: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  logTimeline: {
+    alignItems: 'center',
+    width: 16,
+  },
+  logDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginTop: 6,
+  },
+  logLine: {
+    width: 1,
+    flex: 1,
+    marginTop: 4,
+  },
+  logContent: {
+    flex: 1,
+  },
+  logTitleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: 4,
   },
-  activityTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
+  logTitle: {
+    fontSize: fs(13),
+    fontWeight: '700',
     flex: 1,
     marginRight: 8,
   },
-  categoryTag: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+  logTime: {
+    fontSize: fs(10),
+    letterSpacing: 0.5,
   },
-  categoryTagText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: 'bold',
+  logSource: {
+    fontSize: fs(11),
+    letterSpacing: 0.5,
   },
-  activityMeta: {
-    fontSize: 12,
-    color: '#94a3b8',
-  },
-  actionButton: {
-    backgroundColor: '#6366f1',
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  actionButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
+}));
