@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, TextInput, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
-import * as FileSystem from 'expo-file-system';
+import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import * as DocumentPicker from 'expo-document-picker';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -16,22 +15,27 @@ export default function ExportScreen() {
     try {
       setLoading(true);
       const res = await axios.post(`${BACKEND_URL}/api/export/${format}`);
-      
+
+      let file: File;
+
       if (format === 'json') {
         const jsonString = JSON.stringify(res.data, null, 2);
-        const fileUri = `${FileSystem.documentDirectory}polymath_export.json`;
-        await FileSystem.writeAsStringAsync(fileUri, jsonString);
-        await Sharing.shareAsync(fileUri);
+        file = new File(Paths.cache, 'polymath_export.json');
+        file.create({ overwrite: true });
+        file.write(jsonString);
       } else if (format === 'markdown') {
-        const fileUri = `${FileSystem.documentDirectory}${res.data.filename}`;
-        await FileSystem.writeAsStringAsync(fileUri, res.data.content);
-        await Sharing.shareAsync(fileUri);
+        file = new File(Paths.cache, res.data.filename);
+        file.create({ overwrite: true });
+        file.write(res.data.content);
       } else if (format === 'csv') {
-        const fileUri = `${FileSystem.documentDirectory}${res.data.filename}`;
-        await FileSystem.writeAsStringAsync(fileUri, res.data.content);
-        await Sharing.shareAsync(fileUri);
+        file = new File(Paths.cache, res.data.filename);
+        file.create({ overwrite: true });
+        file.write(res.data.content);
+      } else {
+        throw new Error(`Unknown format: ${format}`);
       }
-      
+
+      await Sharing.shareAsync(file.uri);
       Alert.alert('Success', `Data exported as ${format.toUpperCase()}`);
     } catch (error) {
       console.error('Export error:', error);
@@ -43,21 +47,16 @@ export default function ExportScreen() {
 
   const handleImport = async () => {
     try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: 'application/json',
-        copyToCacheDirectory: true
-      });
-
-      if (result.canceled || !result.assets?.[0]) {
-        return;
-      }
+      const picked = await File.pickFileAsync(undefined, 'application/json');
+      const file = Array.isArray(picked) ? picked[0] : picked;
+      if (!file) return;
 
       setLoading(true);
-      const fileContent = await FileSystem.readAsStringAsync(result.assets[0].uri);
+      const fileContent = await file.text();
       const data = JSON.parse(fileContent);
 
       const res = await axios.post(`${BACKEND_URL}/api/import/restore`, data);
-      
+
       Alert.alert(
         'Import Complete',
         `Imported:\n• ${res.data.activities_imported} activities\n• ${res.data.journals_imported} journals\n• ${res.data.connections_imported} connections`

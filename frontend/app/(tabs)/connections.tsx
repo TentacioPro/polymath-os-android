@@ -165,7 +165,7 @@ export default function Connections() {
             <ActivityIndicator color="#fff" />
           ) : (
             <>
-              <Ionicons name="sparkles" size={20} color="#fff" />
+              <Ionicons name="flash" size={20} color="#fff" />
               <Text style={styles.generateButtonText}>Generate Suggestions</Text>
             </>
           )}
@@ -233,7 +233,7 @@ export default function Connections() {
           onPress={() => setView('suggestions')}
         >
           <Ionicons
-            name="sparkles"
+            name="flash"
             size={20}
             color={view === 'suggestions' ? '#6366f1' : '#64748b'}
           />

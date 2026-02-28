@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
-import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
+import { File } from 'expo-file-system';
 import { useStore } from '../../store/useStore';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -61,24 +60,16 @@ export default function Activities() {
 
   const handleUploadFile = async () => {
     try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: 'application/json',
-        copyToCacheDirectory: true
-      });
-
-      if (result.canceled || !result.assets?.[0]) {
-        return;
-      }
-
-      const fileUri = result.assets[0].uri;
-      const fileContent = await FileSystem.readAsStringAsync(fileUri);
+      const picked = await File.pickFileAsync(undefined, 'application/json');
+      const file = Array.isArray(picked) ? picked[0] : picked;
+      if (!file) return;
 
       setLoading(true);
       const formData = new FormData();
       formData.append('file', {
-        uri: fileUri,
+        uri: file.uri,
         type: 'application/json',
-        name: result.assets[0].name
+        name: file.name
       } as any);
 
       const response = await axios.post(

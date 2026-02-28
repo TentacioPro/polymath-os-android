@@ -67,7 +67,7 @@ export default function TabLayout() {
         options={{
           title: 'Agent',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="brain" size={size} color={color} />
+            <Ionicons name="bulb" size={size} color={color} />
           ),
         }}
       />

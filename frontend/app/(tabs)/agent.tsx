@@ -190,7 +190,7 @@ export default function AgentMemory() {
         <Text style={styles.sectionTitle}>Memories ({memories.length})</Text>
         {memories.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons name="brain-outline" size={64} color="#475569" />
+            <Ionicons name="bulb-outline" size={64} color="#475569" />
             <Text style={styles.emptyText}>No memories yet</Text>
             <Text style={styles.emptySubtext}>Tap "Learn from Data" to extract insights</Text>
           </View>
@@ -301,7 +301,7 @@ export default function AgentMemory() {
 
         {learningLogs.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons name="school-outline" size={64} color="#475569" />
+            <Ionicons name="book-outline" size={64} color="#475569" />
             <Text style={styles.emptyText}>No learning logs yet</Text>
             <Text style={styles.emptySubtext}>Agent will learn from your interactions</Text>
           </View>
@@ -339,7 +339,7 @@ export default function AgentMemory() {
           style={[styles.tab, view === 'memories' && styles.activeTab]}
           onPress={() => setView('memories')}
         >
-          <Ionicons name="brain" size={20} color={view === 'memories' ? '#6366f1' : '#64748b'} />
+          <Ionicons name="bulb" size={20} color={view === 'memories' ? '#6366f1' : '#64748b'} />
           <Text style={[styles.tabText, view === 'memories' && styles.activeTabText]}>
             Memories
           </Text>
