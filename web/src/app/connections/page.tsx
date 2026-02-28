@@ -7,7 +7,6 @@ import {
   useSuggestions,
 } from '@/hooks/useConnections';
 import { useActivities } from '@/hooks/useActivities';
-import { Sparkles, ArrowRight, Lightbulb, Loader2 } from 'lucide-react';
 
 type View = 'timeline' | 'graph' | 'suggestions';
 
@@ -19,14 +18,13 @@ export default function ConnectionsPage() {
   const {
     data: suggestions,
     refetch: fetchSuggestions,
-    isLoading: suggestionsLoading,
     isFetching: suggestionsFetching,
   } = useSuggestions();
 
-  const tabs: { key: View; label: string }[] = [
-    { key: 'timeline', label: 'Timeline' },
-    { key: 'graph', label: 'Graph' },
-    { key: 'suggestions', label: 'Suggestions' },
+  const tabs: { key: View; label: string; icon: string }[] = [
+    { key: 'timeline', label: 'Timeline', icon: 'timeline' },
+    { key: 'graph', label: 'Graph', icon: 'hub' },
+    { key: 'suggestions', label: 'Suggest', icon: 'lightbulb' },
   ];
 
   const sortedActivities = activities
@@ -39,36 +37,39 @@ export default function ConnectionsPage() {
   const getPriorityColor = (priority: string) => {
     switch (priority?.toLowerCase()) {
       case 'high':
-        return 'bg-poly-pink';
+        return '#ec4899';
       case 'medium':
-        return 'bg-poly-amber';
+        return '#f59e0b';
       default:
-        return 'bg-poly-blue';
+        return '#3b82f6';
     }
   };
 
   return (
-    <div className="p-6 max-w-5xl">
+    <div className="pt-6 flex flex-col gap-6">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-poly-text">Dots to Connect</h1>
-        <p className="text-sm text-poly-muted mt-1">
-          Discover relationships between your learning
+      <div>
+        <h1 className="font-display text-xl font-bold text-poly-text uppercase tracking-tight">
+          Neural Mesh
+        </h1>
+        <p className="text-[10px] font-mono text-poly-muted uppercase tracking-widest mt-1">
+          Correlation // Discovery
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 bg-poly-card p-2 rounded-xl mb-6">
+      <div className="flex gap-0 border border-poly-border">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setView(tab.key)}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+            className={`flex-1 py-2.5 flex items-center justify-center gap-1.5 text-[10px] font-mono uppercase tracking-widest font-bold transition-colors border-r border-poly-border last:border-r-0 ${
               view === tab.key
-                ? 'bg-poly-border text-poly-indigo'
-                : 'text-poly-dim hover:text-poly-muted'
+                ? 'bg-poly-accent text-poly-accent-text'
+                : 'text-poly-muted hover:text-poly-text'
             }`}
           >
+            <span className="material-symbols-outlined text-[16px]">{tab.icon}</span>
             {tab.label}
           </button>
         ))}
@@ -76,46 +77,55 @@ export default function ConnectionsPage() {
 
       {/* Timeline View */}
       {view === 'timeline' && (
-        <div className="space-y-0">
+        <div className="flex flex-col gap-0">
           {sortedActivities.map((activity, index) => (
             <div key={activity.id} className="flex gap-4">
               {/* Timeline dot + line */}
-              <div className="flex flex-col items-center pt-1">
-                <div className="w-3 h-3 rounded-full bg-poly-indigo shrink-0" />
+              <div className="flex flex-col items-center pt-1.5">
+                <div className="w-2.5 h-2.5 bg-poly-accent shrink-0" />
                 {index < sortedActivities.length - 1 && (
-                  <div className="w-0.5 flex-1 bg-poly-border mt-1" />
+                  <div className="w-px flex-1 bg-poly-border mt-1" />
                 )}
               </div>
 
               {/* Card */}
-              <div className="bg-poly-card border border-poly-border rounded-xl p-4 mb-3 flex-1">
-                <h3 className="text-base font-semibold text-poly-text mb-1">
+              <div className="border border-poly-border bg-poly-surface p-4 mb-3 flex-1">
+                <h3 className="text-sm font-display font-bold text-poly-text mb-1 uppercase">
                   {activity.title}
                 </h3>
-                <p className="text-xs text-poly-dim mb-3">
-                  {new Date(activity.timestamp).toLocaleDateString()} •{' '}
+                <p className="text-[10px] font-mono text-poly-dim mb-3">
+                  {new Date(activity.timestamp).toLocaleDateString()} &middot;{' '}
                   {activity.source}
                 </p>
                 <button
                   onClick={() => generateConnections.mutate(activity.id)}
                   disabled={generateConnections.isPending}
-                  className="bg-poly-indigo/20 text-poly-indigo text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-poly-indigo/30 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                  className="border border-poly-border text-poly-accent text-[10px] font-mono font-bold px-3 py-1.5 hover:bg-poly-accent hover:text-poly-accent-text transition-colors flex items-center gap-1.5 disabled:opacity-50 uppercase tracking-wider"
                 >
                   {generateConnections.isPending ? (
-                    <Loader2 size={14} className="animate-spin" />
+                    <span className="material-symbols-outlined text-[14px] animate-spin">
+                      progress_activity
+                    </span>
                   ) : (
-                    <Sparkles size={14} />
+                    <span className="material-symbols-outlined text-[14px]">
+                      auto_awesome
+                    </span>
                   )}
-                  Generate Connections
+                  Generate
                 </button>
               </div>
             </div>
           ))}
 
           {sortedActivities.length === 0 && (
-            <div className="text-center py-16">
-              <p className="text-lg font-semibold text-poly-muted">No activities yet</p>
-              <p className="text-sm text-poly-dim mt-2">
+            <div className="text-center py-16 border border-poly-border-muted">
+              <span className="material-symbols-outlined text-[48px] text-poly-dim mb-4 block">
+                hub
+              </span>
+              <p className="text-sm font-display font-bold text-poly-muted uppercase">
+                No activities yet
+              </p>
+              <p className="text-[10px] font-mono text-poly-dim mt-2">
                 Add some activities first to discover connections
               </p>
             </div>
@@ -125,50 +135,61 @@ export default function ConnectionsPage() {
 
       {/* Graph View */}
       {view === 'graph' && (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-0">
           {connectionsLoading ? (
             <div className="flex items-center justify-center py-16">
-              <div className="w-8 h-8 border-2 border-poly-indigo border-t-transparent rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-poly-accent border-t-transparent animate-spin" style={{ borderRadius: '50%' }} />
             </div>
           ) : connections && connections.length > 0 ? (
-            connections.map((conn) => (
-              <div
-                key={conn.id}
-                className="bg-poly-card border border-poly-border rounded-xl p-4"
-              >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {connections.map((conn) => (
+                <div
+                  key={conn.id}
+                  className="border border-poly-border bg-poly-surface p-4"
+                >
                 <div className="flex items-center gap-3 mb-3">
                   {/* From node */}
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-poly-indigo" />
-                    <span className="text-sm font-medium text-poly-text truncate max-w-[180px]">
+                    <div className="w-2 h-2 bg-poly-accent" />
+                    <span className="text-[11px] font-mono text-poly-text truncate max-w-[150px] uppercase">
                       {conn.from_id}
                     </span>
                   </div>
 
-                  <ArrowRight size={16} className="text-poly-dim shrink-0" />
+                  <span className="material-symbols-outlined text-[14px] text-poly-dim shrink-0">
+                    arrow_forward
+                  </span>
 
                   {/* To node */}
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-poly-green" />
-                    <span className="text-sm font-medium text-poly-text truncate max-w-[180px]">
+                    <div className="w-2 h-2 bg-poly-green" />
+                    <span className="text-[11px] font-mono text-poly-text truncate max-w-[150px] uppercase">
                       {conn.to_id}
                     </span>
                   </div>
                 </div>
 
-                <p className="text-xs text-poly-dim italic mb-2">
+                <p className="text-[10px] font-mono text-poly-dim uppercase tracking-wider mb-2">
                   {conn.connection_type}
                 </p>
 
-                <div className="border-t border-poly-border pt-2">
-                  <p className="text-sm text-poly-muted">{conn.reasoning}</p>
+                <div className="border-t border-poly-border-muted pt-2">
+                  <p className="text-xs text-poly-muted leading-relaxed">
+                    {conn.reasoning}
+                  </p>
                 </div>
-              </div>
-            ))
+                </div>
+              ))}
+            </div>
           ) : (
-            <div className="text-center py-16">
-              <p className="text-lg font-semibold text-poly-muted">No connections yet</p>
-              <p className="text-sm text-poly-dim mt-2">
+            <div className="text-center py-16 border border-poly-border-muted">
+              <span className="material-symbols-outlined text-[48px] text-poly-dim mb-4 block">
+                hub
+              </span>
+              <p className="text-sm font-display font-bold text-poly-muted uppercase">
+                No connections yet
+              </p>
+              <p className="text-[10px] font-mono text-poly-dim mt-2">
                 Generate connections from the Timeline view
               </p>
             </div>
@@ -178,36 +199,42 @@ export default function ConnectionsPage() {
 
       {/* Suggestions View */}
       {view === 'suggestions' && (
-        <div>
+        <div className="flex flex-col gap-6">
           <button
             onClick={() => fetchSuggestions()}
             disabled={suggestionsFetching}
-            className="bg-poly-indigo rounded-xl px-4 py-3 flex items-center justify-center gap-2 w-full mb-6 hover:bg-poly-indigo/90 transition-colors disabled:opacity-50"
+            className="w-full bg-poly-accent text-poly-accent-text py-3 font-mono text-xs uppercase tracking-widest font-bold hover:opacity-80 transition-opacity disabled:opacity-50 architect-shadow-sm flex items-center justify-center gap-2"
           >
             {suggestionsFetching ? (
-              <Loader2 size={20} className="text-white animate-spin" />
+              <span className="material-symbols-outlined text-[16px] animate-spin">
+                progress_activity
+              </span>
             ) : (
-              <Sparkles size={20} className="text-white" />
+              <span className="material-symbols-outlined text-[16px]">
+                auto_awesome
+              </span>
             )}
-            <span className="text-white text-sm font-semibold">
-              {suggestionsFetching ? 'Generating...' : 'Generate AI Suggestions'}
-            </span>
+            {suggestionsFetching ? 'Generating...' : 'Generate AI Suggestions'}
           </button>
 
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {suggestions?.map((suggestion: any, index: number) => (
               <div
                 key={suggestion.id || index}
-                className="bg-poly-card border border-poly-border rounded-xl p-4"
+                className="border border-poly-border bg-poly-surface p-4"
               >
                 <div className="flex items-start gap-3">
-                  <Lightbulb size={20} className="text-poly-amber shrink-0 mt-0.5" />
+                  <span className="material-symbols-outlined text-[20px] text-poly-amber shrink-0 mt-0.5">
+                    lightbulb
+                  </span>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <span
-                        className={`text-[10px] font-bold text-white px-2 py-0.5 rounded-md ${getPriorityColor(
-                          suggestion.priority
-                        )}`}
+                        className="text-[8px] font-mono font-bold px-1.5 py-0.5 uppercase"
+                        style={{
+                          backgroundColor: getPriorityColor(suggestion.priority),
+                          color: '#FFFFFF',
+                        }}
                       >
                         {suggestion.priority || 'Normal'}
                       </span>
@@ -215,7 +242,9 @@ export default function ConnectionsPage() {
                     <p className="text-sm text-poly-text mb-1.5">
                       {suggestion.suggestion}
                     </p>
-                    <p className="text-xs text-poly-dim">{suggestion.reasoning}</p>
+                    <p className="text-[10px] font-mono text-poly-dim">
+                      {suggestion.reasoning}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -223,8 +252,8 @@ export default function ConnectionsPage() {
           </div>
 
           {!suggestions?.length && !suggestionsFetching && (
-            <div className="text-center py-12">
-              <p className="text-sm text-poly-dim">
+            <div className="text-center py-12 border border-poly-border-muted">
+              <p className="text-[10px] font-mono text-poly-dim uppercase tracking-wider">
                 Click &quot;Generate AI Suggestions&quot; to get started
               </p>
             </div>

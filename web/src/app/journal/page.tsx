@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useJournals, useCreateJournal, useDeleteJournal } from '@/hooks/useJournals';
-import { Plus, X, Trash2 } from 'lucide-react';
+import ResponsiveModal from '@/components/ResponsiveModal';
 
 export default function JournalPage() {
   const { data: journals, isLoading } = useJournals();
@@ -29,56 +29,64 @@ export default function JournalPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="w-8 h-8 border-2 border-poly-indigo border-t-transparent rounded-full animate-spin" />
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-6 h-6 border-2 border-poly-accent border-t-transparent animate-spin" style={{ borderRadius: '50%' }} />
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-5xl">
+    <div className="pt-6 flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-poly-text">Journal</h1>
-          <p className="text-sm text-poly-muted mt-1">
+          <h1 className="font-display text-xl font-bold text-poly-text uppercase tracking-tight">
+            Journal
+          </h1>
+          <p className="text-[10px] font-mono text-poly-muted uppercase tracking-widest mt-1">
             {journals?.length || 0} entries
           </p>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-poly-indigo rounded-xl px-4 py-2.5 flex items-center gap-2 text-sm font-medium text-white hover:bg-poly-indigo/90 transition-colors"
+          className="bg-poly-accent text-poly-accent-text px-3 py-2 flex items-center gap-2 transition-colors hover:opacity-80"
         >
-          <Plus size={18} />
-          New Entry
+          <span className="material-symbols-outlined text-[16px]">add</span>
+          <span className="text-[10px] font-mono uppercase tracking-wider font-bold">
+            New Entry
+          </span>
         </button>
       </div>
 
-      {/* Journal Cards */}
-      <div className="space-y-3">
+      {/* Journal Cards — responsive grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {journals?.map((journal) => (
           <div
             key={journal.id}
-            className="bg-poly-card border border-poly-border rounded-xl p-4 group"
+            className="border border-poly-border bg-poly-surface p-4 group flex flex-col"
           >
             <div className="flex justify-between items-start mb-2">
-              <h3 className="text-base font-semibold text-poly-text">{journal.title}</h3>
+              <h3 className="text-sm font-display font-bold text-poly-text uppercase">
+                {journal.title}
+              </h3>
               <button
                 onClick={() => deleteJournal.mutate(journal.id)}
                 className="opacity-0 group-hover:opacity-100 text-poly-red hover:text-red-400 transition-all"
               >
-                <Trash2 size={16} />
+                <span className="material-symbols-outlined text-[16px]">delete</span>
               </button>
             </div>
 
-            <p className="text-sm text-poly-muted line-clamp-4 mb-3">{journal.content}</p>
+            <p className="text-xs text-poly-muted line-clamp-4 mb-3 leading-relaxed">
+              {journal.content}
+            </p>
 
             {journal.tags && journal.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-3">
                 {journal.tags.map((tag, i) => (
                   <span
                     key={i}
-                    className="bg-poly-border text-poly-indigo text-xs px-2.5 py-1 rounded-full font-medium"
+                    className="border border-poly-border-muted text-poly-accent text-[9px] px-2 py-0.5 font-mono font-bold uppercase"
                   >
                     #{tag}
                   </span>
@@ -86,7 +94,7 @@ export default function JournalPage() {
               </div>
             )}
 
-            <p className="text-xs text-poly-dim">
+            <p className="text-[10px] font-mono text-poly-dim mt-auto pt-2">
               {new Date(journal.timestamp).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
@@ -98,76 +106,70 @@ export default function JournalPage() {
       </div>
 
       {journals?.length === 0 && (
-        <div className="text-center py-16">
-          <p className="text-lg font-semibold text-poly-muted">No journal entries yet</p>
-          <p className="text-sm text-poly-dim mt-2">
+        <div className="text-center py-16 border border-poly-border-muted">
+          <span className="material-symbols-outlined text-[48px] text-poly-dim mb-4 block">
+            menu_book
+          </span>
+          <p className="text-sm font-display font-bold text-poly-muted uppercase">
+            No journal entries yet
+          </p>
+          <p className="text-[10px] font-mono text-poly-dim mt-2">
             Start journaling your learning journey
           </p>
         </div>
       )}
 
       {/* Create Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-end justify-center z-50">
-          <div className="bg-poly-card rounded-t-3xl w-full max-w-lg p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-poly-text">New Journal Entry</h2>
-              <button onClick={() => setShowModal(false)}>
-                <X size={28} className="text-poly-muted" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-semibold text-poly-light mb-2 block">
-                  Title *
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Entry title"
-                  className="w-full bg-poly-bg border border-poly-border rounded-xl px-4 py-3 text-base text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-indigo"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold text-poly-light mb-2 block">
-                  Content *
-                </label>
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Write your thoughts..."
-                  rows={6}
-                  className="w-full bg-poly-bg border border-poly-border rounded-xl px-4 py-3 text-base text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-indigo resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold text-poly-light mb-2 block">
-                  Tags (comma-separated)
-                </label>
-                <input
-                  type="text"
-                  value={tagsInput}
-                  onChange={(e) => setTagsInput(e.target.value)}
-                  placeholder="AI, Learning, Notes"
-                  className="w-full bg-poly-bg border border-poly-border rounded-xl px-4 py-3 text-base text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-indigo"
-                />
-              </div>
-
-              <button
-                onClick={handleSubmit}
-                disabled={!title.trim() || !content.trim() || createJournal.isPending}
-                className="w-full bg-poly-indigo rounded-xl py-4 text-base font-semibold text-white hover:bg-poly-indigo/90 transition-colors disabled:opacity-50"
-              >
-                {createJournal.isPending ? 'Saving...' : 'Save Entry'}
-              </button>
-            </div>
+      <ResponsiveModal open={showModal} onClose={() => setShowModal(false)} title="New Journal Entry">
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="text-[10px] font-mono font-bold text-poly-muted mb-2 block uppercase tracking-widest">
+              Title *
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Entry title"
+              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-sm text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-accent font-mono"
+            />
           </div>
+
+          <div>
+            <label className="text-[10px] font-mono font-bold text-poly-muted mb-2 block uppercase tracking-widest">
+              Content *
+            </label>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Write your thoughts..."
+              rows={6}
+              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-sm text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-accent resize-none font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="text-[10px] font-mono font-bold text-poly-muted mb-2 block uppercase tracking-widest">
+              Tags (comma-separated)
+            </label>
+            <input
+              type="text"
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+              placeholder="AI, Learning, Notes"
+              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-sm text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-accent font-mono"
+            />
+          </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={!title.trim() || !content.trim() || createJournal.isPending}
+            className="w-full bg-poly-accent text-poly-accent-text py-3 font-mono text-xs uppercase tracking-widest font-bold hover:opacity-80 transition-opacity disabled:opacity-50 architect-shadow-sm"
+          >
+            {createJournal.isPending ? 'Saving...' : 'Save Entry'}
+          </button>
         </div>
-      )}
+      </ResponsiveModal>
     </div>
   );
 }

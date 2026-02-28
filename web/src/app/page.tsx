@@ -2,7 +2,6 @@
 
 import { useStats } from '@/hooks/useStats';
 import { useActivities } from '@/hooks/useActivities';
-import { FileText, BookOpen, GitBranch, RefreshCw } from 'lucide-react';
 import { getCategoryColor } from '@/lib/constants';
 
 export default function Dashboard() {
@@ -13,111 +12,171 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-poly-indigo border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-poly-light mt-4 text-base">Loading your polymath journey...</p>
+          <div className="w-6 h-6 border-2 border-poly-accent border-t-transparent animate-spin mx-auto" style={{ borderRadius: '50%' }} />
+          <p className="text-poly-muted mt-4 text-xs font-mono uppercase tracking-widest">
+            Initializing...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-6xl">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-poly-text">Polymath OS</h1>
-        <p className="text-base text-poly-muted mt-1">Track, Learn, Connect</p>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-3 mb-8">
-        <div className="bg-poly-card border border-poly-border rounded-2xl p-4 flex flex-col items-center">
-          <FileText size={32} className="text-poly-indigo" />
-          <span className="text-[28px] font-bold text-poly-text mt-2">
-            {stats?.total_activities || 0}
-          </span>
-          <span className="text-xs text-poly-muted mt-1">Activities</span>
+    <div className="pt-6 flex flex-col gap-6">
+      {/* Title Section */}
+      <div className="flex justify-between items-end px-1">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-poly-text uppercase tracking-tight">
+            Polymath OS
+          </h1>
+          <p className="text-[10px] font-mono text-poly-muted uppercase tracking-widest mt-1">
+            System // Dashboard
+          </p>
         </div>
-        <div className="bg-poly-card border border-poly-border rounded-2xl p-4 flex flex-col items-center">
-          <BookOpen size={32} className="text-poly-green" />
-          <span className="text-[28px] font-bold text-poly-text mt-2">
-            {stats?.total_journals || 0}
-          </span>
-          <span className="text-xs text-poly-muted mt-1">Journals</span>
-        </div>
-        <div className="bg-poly-card border border-poly-border rounded-2xl p-4 flex flex-col items-center">
-          <GitBranch size={32} className="text-poly-amber" />
-          <span className="text-[28px] font-bold text-poly-text mt-2">
-            {stats?.total_connections || 0}
-          </span>
-          <span className="text-xs text-poly-muted mt-1">Connections</span>
-        </div>
-      </div>
-
-      {/* Category Distribution */}
-      {stats?.categories && Object.keys(stats.categories).length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-xl font-bold text-poly-text mb-3">Learning Categories</h2>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(stats.categories).map(([category, count]) => (
-              <div
-                key={category}
-                className="flex items-center bg-poly-card border border-poly-border rounded-full py-2 px-4"
-              >
-                <span className="text-sm text-poly-light mr-2">{category}</span>
-                <span
-                  className="text-xs font-bold text-white rounded-full min-w-[24px] h-6 flex items-center justify-center px-1.5"
-                  style={{ backgroundColor: '#6366f1' }}
-                >
-                  {count as number}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Recent Activities */}
-      {activities && activities.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-xl font-bold text-poly-text mb-3">Recent Learning</h2>
-          <div className="space-y-3">
-            {activities.slice(0, 5).map((activity) => (
-              <div
-                key={activity.id}
-                className="bg-poly-card border border-poly-border rounded-xl p-4"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-base font-semibold text-poly-text flex-1 mr-2 line-clamp-2">
-                    {activity.title}
-                  </h3>
-                  <span
-                    className="text-[10px] font-bold text-white px-2 py-1 rounded-md shrink-0"
-                    style={{ backgroundColor: getCategoryColor(activity.category || 'Other') }}
-                  >
-                    {activity.category || 'Other'}
-                  </span>
-                </div>
-                <p className="text-xs text-poly-muted">
-                  {new Date(activity.timestamp).toLocaleDateString()} • {activity.source}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Quick Actions */}
-      <div>
-        <h2 className="text-xl font-bold text-poly-text mb-3">Quick Actions</h2>
         <button
           onClick={() => refetch()}
-          className="bg-poly-indigo rounded-xl px-4 py-4 flex items-center justify-center gap-2 w-full hover:bg-poly-indigo/90 transition-colors"
+          className="w-8 h-8 flex items-center justify-center border border-poly-border hover:bg-poly-accent hover:text-poly-accent-text transition-colors text-poly-text"
         >
-          <RefreshCw size={20} className="text-white" />
-          <span className="text-white text-base font-semibold">Refresh Data</span>
+          <span className="material-symbols-outlined text-lg">refresh</span>
         </button>
+      </div>
+
+      {/* Bento Stats Grid — 3 cols mobile, 3 cols tablet, 6 cols desktop */}
+      <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="border border-poly-border bg-poly-surface p-4 flex flex-col items-center architect-shadow-sm lg:col-span-2">
+          <span className="material-symbols-outlined text-[28px] text-poly-accent mb-2">
+            description
+          </span>
+          <span className="text-2xl font-display font-bold text-poly-text">
+            {stats?.total_activities || 0}
+          </span>
+          <span className="text-[9px] font-mono uppercase tracking-widest text-poly-muted mt-1">
+            Activities
+          </span>
+        </div>
+        <div className="border border-poly-border bg-poly-surface p-4 flex flex-col items-center architect-shadow-sm lg:col-span-2">
+          <span className="material-symbols-outlined text-[28px] text-poly-accent mb-2">
+            menu_book
+          </span>
+          <span className="text-2xl font-display font-bold text-poly-text">
+            {stats?.total_journals || 0}
+          </span>
+          <span className="text-[9px] font-mono uppercase tracking-widest text-poly-muted mt-1">
+            Journals
+          </span>
+        </div>
+        <div className="border border-poly-border bg-poly-surface p-4 flex flex-col items-center architect-shadow-sm lg:col-span-2">
+          <span className="material-symbols-outlined text-[28px] text-poly-accent mb-2">
+            hub
+          </span>
+          <span className="text-2xl font-display font-bold text-poly-text">
+            {stats?.total_connections || 0}
+          </span>
+          <span className="text-[9px] font-mono uppercase tracking-widest text-poly-muted mt-1">
+            Connections
+          </span>
+        </div>
+      </div>
+
+      {/* Mid section: Topics + Recent side by side on md+ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Category Distribution */}
+        {stats?.categories && Object.keys(stats.categories).length > 0 && (
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between items-end px-1">
+              <h3 className="text-sm font-mono uppercase tracking-widest font-bold text-poly-text">
+                Topic Distribution
+              </h3>
+              <span className="text-[10px] font-mono text-poly-muted">
+                {Object.keys(stats.categories).length} DOMAINS
+              </span>
+            </div>
+            <div className="border border-poly-border bg-poly-surface p-4 flex-1">
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(stats.categories).map(([category, count]) => (
+                  <div
+                    key={category}
+                    className="flex items-center border border-poly-border-muted py-1.5 px-3 gap-2"
+                  >
+                    <span
+                      className="w-2 h-2 shrink-0"
+                      style={{ backgroundColor: getCategoryColor(category) }}
+                    />
+                    <span className="text-xs font-mono text-poly-text uppercase">
+                      {category}
+                    </span>
+                    <span className="text-[10px] font-mono font-bold text-poly-accent">
+                      {count as number}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Recent Activities */}
+        {activities && activities.length > 0 && (
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between items-end px-1">
+              <h3 className="text-sm font-mono uppercase tracking-widest font-bold text-poly-text">
+                Recent Learning
+              </h3>
+              <span className="text-[10px] font-mono text-poly-muted">
+                LAST {Math.min(5, activities.length)}
+              </span>
+            </div>
+            <div className="flex flex-col gap-0">
+              {activities.slice(0, 5).map((activity, idx) => (
+                <div
+                  key={activity.id}
+                  className={`border border-poly-border bg-poly-surface p-4 ${
+                    idx > 0 ? '-mt-px' : ''
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="text-sm font-display font-bold text-poly-text flex-1 mr-3 uppercase line-clamp-1">
+                      {activity.title}
+                    </h4>
+                    <span
+                      className="text-[8px] font-mono font-bold px-1.5 py-0.5 uppercase shrink-0"
+                      style={{
+                        backgroundColor: getCategoryColor(activity.category || 'Other'),
+                        color: '#FFFFFF',
+                      }}
+                    >
+                      {activity.category || 'Other'}
+                    </span>
+                  </div>
+                  <p className="text-[10px] font-mono text-poly-muted">
+                    {new Date(activity.timestamp).toLocaleDateString()} &middot;{' '}
+                    {activity.source}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* System Status */}
+      <div className="border border-poly-border bg-poly-surface p-4 architect-shadow-subtle">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-poly-muted">
+            System Integrity
+          </span>
+          <div className="flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 bg-poly-green" style={{ borderRadius: '50%' }} />
+            <span className="text-[10px] font-mono text-poly-green font-bold">
+              OPERATIONAL
+            </span>
+          </div>
+        </div>
+        <div className="h-1 bg-poly-border-muted overflow-hidden">
+          <div className="h-full bg-poly-accent" style={{ width: '92%' }} />
+        </div>
       </div>
     </div>
   );

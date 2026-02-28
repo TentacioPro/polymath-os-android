@@ -2,16 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { api } from '@/lib/api';
-import {
-  FileJson,
-  FileText,
-  FileSpreadsheet,
-  Upload,
-  Info,
-  AlertTriangle,
-  X,
-  Loader2,
-} from 'lucide-react';
+import ResponsiveModal from '@/components/ResponsiveModal';
 
 export default function ExportPage() {
   const [loading, setLoading] = useState(false);
@@ -81,158 +72,163 @@ export default function ExportPage() {
   const exportCards = [
     {
       format: 'json' as const,
-      title: 'Export as JSON',
+      title: 'JSON',
       description: 'Complete data backup with all metadata',
-      icon: FileJson,
-      color: 'text-poly-indigo',
+      icon: 'data_object',
     },
     {
       format: 'markdown' as const,
-      title: 'Export as Markdown',
+      title: 'Markdown',
       description: 'Human-readable format for notes',
-      icon: FileText,
-      color: 'text-poly-green',
+      icon: 'description',
     },
     {
       format: 'csv' as const,
-      title: 'Export as CSV',
+      title: 'CSV',
       description: 'Spreadsheet-compatible format',
-      icon: FileSpreadsheet,
-      color: 'text-poly-amber',
+      icon: 'table_chart',
     },
   ];
 
   return (
-    <div className="p-6 max-w-5xl">
+    <div className="pt-6 flex flex-col gap-6">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-poly-text">Export & Import</h1>
-        <p className="text-sm text-poly-muted mt-1">Manage your data</p>
+      <div>
+        <h1 className="font-display text-xl font-bold text-poly-text uppercase tracking-tight">
+          Export & Import
+        </h1>
+        <p className="text-[10px] font-mono text-poly-muted uppercase tracking-widest mt-1">
+          Data // Portability
+        </p>
       </div>
 
       {/* Export Section */}
-      <div className="mb-8 pb-8 border-b border-poly-card">
-        <div className="flex items-center gap-3 mb-2">
-          <h2 className="text-xl font-bold text-poly-text">Export Data</h2>
-        </div>
-        <p className="text-sm text-poly-muted mb-4">
-          Download your knowledge base in various formats
-        </p>
+      <div>
+        <h2 className="text-[10px] font-mono font-bold text-poly-muted uppercase tracking-widest mb-3">
+          Export Data
+        </h2>
 
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {exportCards.map((card) => (
             <button
               key={card.format}
               onClick={() => handleExport(card.format)}
               disabled={loading}
-              className="w-full bg-poly-card border border-poly-border rounded-xl p-4 flex items-center gap-4 hover:border-poly-indigo/50 transition-colors text-left disabled:opacity-50"
+              className="w-full border border-poly-border bg-poly-surface p-4 flex items-center gap-4 md:flex-col md:items-start md:gap-3 hover:bg-poly-accent hover:text-poly-accent-text transition-colors text-left disabled:opacity-50 group"
             >
-              <card.icon size={28} className={card.color} />
+              <span className="material-symbols-outlined text-[24px] text-poly-accent group-hover:text-poly-accent-text">
+                {card.icon}
+              </span>
               <div className="flex-1">
-                <h3 className="text-base font-semibold text-poly-text">
+                <h3 className="text-sm font-display font-bold text-poly-text group-hover:text-poly-accent-text uppercase">
                   {card.title}
                 </h3>
-                <p className="text-xs text-poly-muted">{card.description}</p>
+                <p className="text-[10px] font-mono text-poly-muted group-hover:text-poly-accent-text/70 mt-0.5">
+                  {card.description}
+                </p>
               </div>
+              <span className="material-symbols-outlined text-[20px] text-poly-dim group-hover:text-poly-accent-text">
+                download
+              </span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Restore Section */}
-      <div className="mb-8 pb-8 border-b border-poly-card">
-        <div className="flex items-center gap-3 mb-2">
-          <h2 className="text-xl font-bold text-poly-text">Restore Data</h2>
-        </div>
-        <p className="text-sm text-poly-muted mb-4">
-          Import a previous JSON backup to restore your data
-        </p>
-
-        <button
-          onClick={() => setShowImportModal(true)}
-          className="w-full bg-poly-card border-2 border-poly-pink rounded-xl p-4 flex items-center gap-4 hover:bg-poly-pink/5 transition-colors text-left"
-        >
-          <Upload size={28} className="text-poly-pink" />
-          <div className="flex-1">
-            <h3 className="text-base font-semibold text-poly-text">
-              Import from JSON
-            </h3>
-            <p className="text-xs text-poly-muted">
-              Restore from a previously exported backup
-            </p>
-          </div>
-        </button>
-      </div>
-
-      {/* Info Box */}
-      <div className="bg-poly-card border border-poly-indigo rounded-xl p-4 flex gap-3">
-        <Info size={20} className="text-poly-indigo shrink-0 mt-0.5" />
+      {/* Restore + Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <h3 className="text-sm font-semibold text-poly-indigo mb-1">
+          <h2 className="text-[10px] font-mono font-bold text-poly-muted uppercase tracking-widest mb-3">
+            Restore Data
+          </h2>
+
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="w-full h-full border-2 border-dashed border-poly-border bg-poly-surface p-6 flex flex-col items-center gap-3 hover:border-poly-accent transition-colors group"
+          >
+            <span className="material-symbols-outlined text-[32px] text-poly-accent">
+              upload_file
+            </span>
+            <div className="text-center">
+              <h3 className="text-sm font-display font-bold text-poly-text uppercase">
+                Import from JSON
+              </h3>
+              <p className="text-[10px] font-mono text-poly-muted mt-1">
+                Restore from a previously exported backup
+              </p>
+            </div>
+          </button>
+        </div>
+
+        {/* Info Box */}
+        <div className="border border-poly-accent bg-poly-surface p-4 flex gap-3 h-fit">
+        <span className="material-symbols-outlined text-[20px] text-poly-accent shrink-0 mt-0.5">
+          info
+        </span>
+        <div>
+          <h3 className="text-[10px] font-mono font-bold text-poly-accent mb-1 uppercase tracking-widest">
             Data Portability
           </h3>
-          <p className="text-xs text-poly-muted leading-relaxed">
+          <p className="text-[11px] text-poly-muted leading-relaxed font-mono">
             Your data is yours. Export anytime in the format that works best for
             you. JSON exports contain all metadata and can be used to fully
             restore your knowledge base.
           </p>
         </div>
       </div>
+      </div>
 
       {/* Import Modal */}
-      {showImportModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-5">
-          <div className="bg-poly-card rounded-3xl w-full max-w-md">
-            <div className="flex items-center justify-between p-6 border-b border-poly-border">
-              <h2 className="text-xl font-bold text-poly-text">Import Data</h2>
-              <button onClick={() => setShowImportModal(false)}>
-                <X size={28} className="text-poly-muted" />
-              </button>
-            </div>
+      <ResponsiveModal open={showImportModal} onClose={() => setShowImportModal(false)} title="Import Data">
+        <div className="flex flex-col items-center">
+          <span className="material-symbols-outlined text-[48px] text-poly-accent mb-4">
+            warning
+          </span>
+          <h3 className="text-sm font-display font-bold text-poly-text mb-2 uppercase">
+            Warning
+          </h3>
+          <p className="text-[11px] font-mono text-poly-muted text-center leading-relaxed mb-6">
+            Importing data will merge with your existing data. Make sure the
+            file is a valid Polymath OS JSON export.
+          </p>
 
-            <div className="p-6 flex flex-col items-center">
-              <AlertTriangle size={48} className="text-poly-amber mb-4" />
-              <h3 className="text-lg font-bold text-poly-text mb-2">
-                Warning
-              </h3>
-              <p className="text-sm text-poly-muted text-center leading-relaxed mb-6">
-                Importing data will merge with your existing data. Make sure the
-                file is a valid Polymath OS JSON export.
-              </p>
-
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={loading}
-                className="w-full bg-poly-pink rounded-xl py-4 flex items-center justify-center gap-2 text-white font-semibold hover:bg-poly-pink/90 transition-colors disabled:opacity-50"
-              >
-                {loading ? (
-                  <Loader2 size={20} className="animate-spin" />
-                ) : (
-                  <Upload size={20} />
-                )}
-                {loading ? 'Importing...' : 'Select JSON File'}
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleImport(file);
-                }}
-              />
-            </div>
-          </div>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={loading}
+            className="w-full bg-poly-accent text-poly-accent-text py-3 flex items-center justify-center gap-2 font-mono text-xs uppercase tracking-widest font-bold hover:opacity-80 transition-opacity disabled:opacity-50 architect-shadow-sm"
+          >
+            {loading ? (
+              <span className="material-symbols-outlined text-[20px] animate-spin">
+                progress_activity
+              </span>
+            ) : (
+              <span className="material-symbols-outlined text-[20px]">
+                upload_file
+              </span>
+            )}
+            {loading ? 'Importing...' : 'Select JSON File'}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleImport(file);
+            }}
+          />
         </div>
-      )}
+      </ResponsiveModal>
 
       {/* Loading overlay */}
       {loading && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-40">
+        <div className="fixed inset-0 bg-[var(--poly-overlay)] flex items-center justify-center z-40">
           <div className="text-center">
-            <Loader2 size={32} className="text-poly-indigo animate-spin mx-auto" />
-            <p className="text-poly-text mt-4">Processing...</p>
+            <span className="material-symbols-outlined text-[32px] text-poly-accent animate-spin">
+              progress_activity
+            </span>
+            <p className="text-poly-text mt-4 font-mono text-sm uppercase">Processing...</p>
           </div>
         </div>
       )}

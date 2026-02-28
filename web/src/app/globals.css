@@ -1,20 +1,22 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Base backgrounds */
-  --color-poly-bg: #0f172a;
-  --color-poly-card: #1e293b;
-  --color-poly-border: #334155;
-  --color-poly-input: #374151;
+  /* ───── Theme-aware tokens (resolved via CSS vars) ───── */
+  --color-poly-bg: var(--poly-bg);
+  --color-poly-surface: var(--poly-surface);
+  --color-poly-card: var(--poly-surface);
+  --color-poly-text: var(--poly-text);
+  --color-poly-muted: var(--poly-muted);
+  --color-poly-dim: var(--poly-dim);
+  --color-poly-light: var(--poly-light);
+  --color-poly-border: var(--poly-border);
+  --color-poly-border-muted: var(--poly-border-muted);
+  --color-poly-input: var(--poly-surface);
+  --color-poly-accent: var(--poly-accent);
+  --color-poly-accent-text: var(--poly-accent-text);
+  --color-poly-grid: var(--poly-grid);
 
-  /* Text */
-  --color-poly-text: #ffffff;
-  --color-poly-muted: #94a3b8;
-  --color-poly-dim: #64748b;
-  --color-poly-light: #e2e8f0;
-
-  /* Accents */
-  --color-poly-indigo: #6366f1;
+  /* ───── Semantic accent colours (shared across themes) ───── */
   --color-poly-green: #10b981;
   --color-poly-amber: #f59e0b;
   --color-poly-pink: #ec4899;
@@ -23,29 +25,171 @@
   --color-poly-cyan: #06b6d4;
   --color-poly-gray: #6b7280;
   --color-poly-red: #ef4444;
+  /* legacy alias – maps accent to what pages used as "indigo" */
+  --color-poly-indigo: var(--poly-accent);
 
-  /* Fonts */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* ───── Fonts ───── */
+  --font-display: var(--font-space-grotesk);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+/* ═══════════════════════════════════════════════════════
+   THEME: BLACK  (Void)
+   ═══════════════════════════════════════════════════════ */
+:root,
+.theme-black {
+  --poly-bg: #000000;
+  --poly-surface: #000000;
+  --poly-text: #FFFFFF;
+  --poly-muted: #A3A3A3;
+  --poly-dim: #666666;
+  --poly-light: #D4D4D4;
+  --poly-border: #FFFFFF;
+  --poly-border-muted: #333333;
+  --poly-accent: #FFFFFF;
+  --poly-accent-text: #000000;
+  --poly-grid: #1a1a1a;
+  --poly-shadow: 255,255,255;
+  --poly-overlay: rgba(0,0,0,0.70);
+  --poly-scrollbar-track: #000000;
+  --poly-scrollbar-thumb: #333333;
+  color-scheme: dark;
+}
+
+/* ═══════════════════════════════════════════════════════
+   THEME: AMBER  (Ember)
+   ═══════════════════════════════════════════════════════ */
+.theme-amber {
+  --poly-bg: #000000;
+  --poly-surface: #000000;
+  --poly-text: #FFFFFF;
+  --poly-muted: #9CA3AF;
+  --poly-dim: #666666;
+  --poly-light: #D4D4D4;
+  --poly-border: #FF8C00;
+  --poly-border-muted: #332200;
+  --poly-accent: #FFB800;
+  --poly-accent-text: #000000;
+  --poly-grid: #331a00;
+  --poly-shadow: 255,140,0;
+  --poly-overlay: rgba(0,0,0,0.70);
+  --poly-scrollbar-track: #000000;
+  --poly-scrollbar-thumb: #332200;
+  color-scheme: dark;
+}
+
+/* ═══════════════════════════════════════════════════════
+   THEME: NOVA  (Light)
+   ═══════════════════════════════════════════════════════ */
+.theme-nova {
+  --poly-bg: #FFFFFF;
+  --poly-surface: #F8FAFC;
+  --poly-text: #000000;
+  --poly-muted: #475569;
+  --poly-dim: #94A3B8;
+  --poly-light: #1E293B;
+  --poly-border: #000000;
+  --poly-border-muted: #E2E8F0;
+  --poly-accent: #000000;
+  --poly-accent-text: #FFFFFF;
+  --poly-grid: #F1F5F9;
+  --poly-shadow: 0,0,0;
+  --poly-overlay: rgba(255,255,255,0.30);
+  --poly-scrollbar-track: #FFFFFF;
+  --poly-scrollbar-thumb: #E2E8F0;
+  color-scheme: light;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Global base
+   ═══════════════════════════════════════════════════════ */
+* {
+  border-radius: 0px !important;
 }
 
 body {
-  background: var(--color-poly-bg);
-  color: var(--color-poly-text);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  background-color: var(--poly-bg);
+  color: var(--poly-text);
+  font-family: var(--font-sans), 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar for dark theme */
+/* ───── Typography helpers ───── */
+.font-display {
+  font-family: var(--font-display), 'Space Grotesk', sans-serif;
+}
+.font-body {
+  font-family: var(--font-sans), 'Inter', sans-serif;
+}
+
+/* ───── Architect shadow (brutalist offset) ───── */
+.architect-shadow {
+  box-shadow: 4px 4px 0px 0px rgba(var(--poly-shadow), 1);
+}
+.architect-shadow-sm {
+  box-shadow: 2px 2px 0px 0px rgba(var(--poly-shadow), 1);
+}
+.architect-shadow-lg {
+  box-shadow: 8px 8px 0px 0px rgba(var(--poly-shadow), 1);
+}
+.architect-shadow-subtle {
+  box-shadow: 4px 4px 0px 0px rgba(var(--poly-shadow), 0.2);
+}
+
+/* ───── Scrollbar ───── */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-poly-bg);
+  background: var(--poly-scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-poly-border);
-  border-radius: 4px;
+  background: var(--poly-scrollbar-thumb);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-poly-dim);
+  background: var(--poly-dim);
 }
+
+/* ───── Selection ───── */
+::selection {
+  background-color: var(--poly-accent);
+  color: var(--poly-accent-text);
+}
+
+/* ───── No-scrollbar utility ───── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ───── Material Symbols ───── */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 1;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Responsive utilities
+   ═══════════════════════════════════════════════════════ */
+
+/* Sidebar-aware collapsed offset — used when sidebar collapse is toggled.
+   The sidebar component toggles between w-16 (64px) and w-60 (240px).
+   The main padding in layout.tsx handles the expanded (240px) offset.
+   This class is for the collapsed (64px) case via JS toggle if needed. */
+
+/* Modal responsive classes */
+.modal-overlay {
+  @apply fixed inset-0 bg-[var(--poly-overlay)] backdrop-blur-sm flex z-50;
+  @apply items-end md:items-center justify-center md:p-6;
+}
+
+.modal-panel {
+  @apply bg-poly-bg w-full border-poly-border p-6 max-h-[90vh] overflow-y-auto;
+  @apply border-t md:border;
+}
+
+@media (min-width: 768px) {
+  .modal-panel {
+    box-shadow: 6px 6px 0px var(--poly-shadow);
+  }
+}
+
