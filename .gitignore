@@ -77,7 +77,13 @@ agenthub/agents/youtube/db
 .cache/
 
 # Mobile development
-android-sdk/ -e 
+android-sdk/
+.metro-cache/
+.expo/
+
+# Secrets
+apikey
+
 # Environment files
 *.env
 *.env.*
