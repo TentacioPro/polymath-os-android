@@ -1,0 +1,99 @@
+name: CI — Build & Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Backend (Python / FastAPI) ──────────────────────────
+  backend:
+    name: Backend — Lint & Validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          flake8 server.py --max-line-length 120 --ignore E501,W503
+
+      - name: Type check (optional)
+        continue-on-error: true
+        run: |
+          pip install mypy
+          mypy server.py --ignore-missing-imports --no-error-summary || true
+
+  # ── Web App (Next.js) ──────────────────────────────────
+  web:
+    name: Web — Build & Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+        continue-on-error: true
+
+      - name: Build
+        env:
+          NEXT_PUBLIC_BACKEND_URL: http://localhost:8001
+        run: bun run build
+
+  # ── Mobile App (Expo / React Native) ───────────────────
+  mobile:
+    name: Mobile — Typecheck & Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Lint
+        run: bun run lint
+        continue-on-error: true
+
+      - name: Typecheck
+        run: bunx tsc --noEmit
+        continue-on-error: true

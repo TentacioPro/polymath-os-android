@@ -1,0 +1,37 @@
+name: OpenHands AI Agent
+
+# Trigger: create a GitHub Issue with the "agent" label
+# The agent reads the Issue body as instructions, writes code, and opens a PR.
+#
+# Required repository secrets:
+#   OPENAI_API_KEY  — your OpenAI API key
+#
+# Usage:
+#   1. Create an Issue titled e.g. "Add pagination to /api/activities"
+#   2. Write detailed instructions in the Issue body
+#   3. Add the "agent" label
+#   4. OpenHands picks it up, creates a branch, commits, and opens a PR
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  agent:
+    if: contains(github.event.issue.labels.*.name, 'agent')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run OpenHands Agent
+        uses: all-hands-ai/openhands-resolver@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          issue-number: ${{ github.event.issue.number }}
+          max-iterations: 50
