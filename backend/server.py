@@ -21,9 +21,24 @@ from PyPDF2 import PdfWriter, PdfReader
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import tempfile
+import sentry_sdk
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# ── Sentry Error Tracking ────────────────────────────────
+# Set SENTRY_DSN in your .env to enable. Free tier: 10k events/month.
+# Get your DSN at https://sentry.io → Projects → Python → FastAPI
+_sentry_dsn = os.environ.get('SENTRY_DSN', '')
+if _sentry_dsn:
+    sentry_sdk.init(
+        dsn=_sentry_dsn,
+        traces_sample_rate=0.2,       # 20% of requests get performance traces
+        profiles_sample_rate=0.1,     # 10% profiling
+        environment=os.environ.get('SENTRY_ENV', 'development'),
+        release=os.environ.get('SENTRY_RELEASE', 'polymath-backend@0.1.0'),
+        send_default_pii=False,       # Don't send user PII
+    )
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
