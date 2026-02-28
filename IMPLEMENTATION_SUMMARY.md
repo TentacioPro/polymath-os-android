@@ -80,20 +80,34 @@
 - ✅ Error handling with graceful fallbacks
 - ⏳ Multi-provider UI (backend ready)
 
-### 6. Mobile App Design
-- ✅ 5-screen tab navigation
-- ✅ Dashboard (overview with stats)
-- ✅ Activities (list + add + upload)
-- ✅ Journal (list + create)
-- ✅ Connections (3 visualization modes)
-- ✅ Export (export/import options)
-- ✅ Dark theme throughout
+### 6. Mobile App Design (v2 — Brutalist Architect)
+- ✅ 3-tab floating pill navigation (Dashboard, Knowledge, Neural Mesh)
+- ✅ 7 stack screens (Agent, Chat, Export, Alerts, Analytics, Integrations, Profile)
+- ✅ Full-screen app drawer with nav links + theme switcher
+- ✅ QuickCapture bottom sheet (FAB-triggered)
+- ✅ 3-theme system: Void (black), Nova (white), Amber (black+orange)
+- ✅ 10 reusable components (FloatingPill, AppDrawer, QuickCapture, BentoCard, StatCard, ArchitectButton, Badge, SectionHeader, SafeView, ThemedText)
+- ✅ Brutalist aesthetic (sharp corners, architect shadows, mono uppercase)
+- ✅ SpaceGrotesk typography (Regular, Bold, Variable)
+- ✅ Pixel 8a-calibrated responsive scaling
+- ✅ SVG-based knowledge graph (Neural Mesh)
+- ✅ Chat interface with agent responses
+- ✅ Dashboard: bento grid with stat cards, topic distribution, ingestion log
 - ✅ Touch-optimized (44x44 minimum)
-- ✅ Bottom sheet modals
-- ✅ Loading indicators
-- ✅ Error alerts
-- ✅ Empty states
-- ✅ Native components only
+- ✅ Loading indicators + error alerts + empty states
+
+### 7. Web App (Responsive Desktop Revamp)
+- ✅ Adaptive layout: desktop sidebar + mobile bottom nav + drawer
+- ✅ Collapsible AppSidebar (64px rail ↔ 240px expanded)
+- ✅ Mobile TopHeader with hamburger + LIVE status
+- ✅ Floating pill BottomNav matching mobile app
+- ✅ Mobile-only overlay Drawer
+- ✅ SidebarAwareMain content wrapper
+- ✅ 3 CSS themes (theme-black, theme-amber, theme-nova) with poly-* custom properties
+- ✅ ThemeProvider with localStorage persistence
+- ✅ ResponsiveModal (bottom sheet on mobile, dialog on desktop)
+- ✅ 7 app pages (dashboard, activities, agent, connections, journal, export, chat)
+- ✅ Chat page with persistent sessions + markdown rendering
 
 ---
 
@@ -225,15 +239,27 @@ Created 7 comprehensive documentation files in `/app/docs/`:
 
 ## 🏗️ Technical Stack
 
-### Frontend
-- **Framework**: Expo SDK 54 with Expo Router
+### Frontend (Mobile)
+- **Framework**: Expo SDK 54 with Expo Router v6
 - **Language**: TypeScript
-- **UI**: React Native (native components)
-- **State**: Zustand
+- **UI**: React Native with custom component library (10 components)
+- **State**: Zustand (with theme + drawer persistence)
 - **HTTP Client**: Axios
-- **File Operations**: expo-file-system, expo-document-picker, expo-sharing
+- **Navigation**: Floating pill tab bar + stack screens + drawer
+- **Theme**: 3 themes (Void/Nova/Amber) with 25+ tokens each
+- **Typography**: SpaceGrotesk (Regular, Bold, Variable)
 - **Icons**: @expo/vector-icons (Ionicons)
-- **Charts**: react-native-gifted-charts, react-native-svg
+- **Visualization**: react-native-svg (knowledge graph)
+
+### Frontend (Web)
+- **Framework**: Next.js 16 (App Router, Turbopack)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4 with CSS custom properties (3 theme classes)
+- **State**: TanStack Query 5 + React Context (sidebar, theme)
+- **HTTP Client**: Axios
+- **Layout**: Responsive adaptive (desktop sidebar / mobile bottom nav + drawer)
+- **Components**: 8 shared (AppSidebar, BottomNav, Drawer, TopHeader, etc.)
+- **Icons**: lucide-react
 
 ### Backend
 - **Framework**: FastAPI 0.110.1

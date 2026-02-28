@@ -1,5 +1,7 @@
 # Polymath OS - UI/UX Design System
 
+> **Note**: This document describes the original v1 design system. The app has been revamped to use a **Brutalist Architect Design System (v2)** with 3 themes (Void/Nova/Amber), custom components, and responsive layouts. See `docs/UI_REVAMP_PLAN.md`, `docs/WEB_DESKTOP_REVAMP_PLAN.md`, and `docs/DESIGN_ANALYSIS_REPORT.md` for the current design specification. The theme tokens are defined in `frontend/theme/tokens.ts` (mobile) and `web/src/app/globals.css` (web).
+
 ## Design Philosophy
 
 ### Core Principles
