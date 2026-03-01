@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { View } from 'react-native';
-import { ThemeProvider } from '../theme';
+import { ThemeProvider, useTheme } from '../theme';
 import type { ThemeName } from '../theme';
 import { useStore } from '../store/useStore';
 import AppDrawer from '../components/navigation/AppDrawer';
@@ -14,9 +14,51 @@ import ErrorBoundary from '../components/shared/ErrorBoundary';
 // Keep splash visible while fonts load
 SplashScreen.preventAutoHideAsync();
 
+// Theme background map to prevent white flash
+const THEME_BACKGROUNDS: Record<ThemeName, string> = {
+  void: '#000000',
+  nova: '#FFFFFF',
+  amber: '#000000',
+};
+
+function AppContent({ onLayoutReady }: { onLayoutReady: () => void }) {
+  const { theme, themeName } = useTheme();
+  const bgColor = theme.background;
+
+  return (
+    <View style={{ flex: 1, backgroundColor: bgColor }} onLayout={onLayoutReady}>
+      <StatusBar style={themeName === 'nova' ? 'dark' : 'light'} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: bgColor },
+          animation: 'fade',
+        }}
+      >
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="chat"
+          options={{ animation: 'slide_from_bottom' }}
+        />
+        <Stack.Screen name="agent" />
+        <Stack.Screen name="profile" />
+        <Stack.Screen name="analytics" />
+        <Stack.Screen name="integrations" />
+        <Stack.Screen name="alerts" />
+        <Stack.Screen name="export" />
+        <Stack.Screen name="journal" />
+        <Stack.Screen name="activity-detail" />
+        <Stack.Screen name="search" />
+      </Stack>
+      <AppDrawer />
+    </View>
+  );
+}
+
 export default function RootLayout() {
   const themeName = useStore((s) => s.themeName);
   const setThemeName = useStore((s) => s.setThemeName);
+  const rootBg = THEME_BACKGROUNDS[themeName];
 
   const [fontsLoaded] = useFonts({
     SpaceGrotesk: require('../assets/fonts/SpaceGrotesk-Regular.ttf'),
@@ -35,40 +77,17 @@ export default function RootLayout() {
   );
 
   if (!fontsLoaded) {
-    return null;
+    return (
+      <View style={{ flex: 1, backgroundColor: rootBg }} />
+    );
   }
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider style={{ backgroundColor: rootBg }}>
       <ErrorBoundary>
         <ThemeProvider themeName={themeName} onThemeChange={handleThemeChange}>
-          <View style={{ flex: 1 }} onLayout={onLayoutReady}>
-            <StatusBar style={themeName === 'nova' ? 'dark' : 'light'} />
-            <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: 'transparent' },
-              animation: 'fade',
-            }}
-          >
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen
-              name="chat"
-              options={{ animation: 'slide_from_bottom' }}
-            />
-            <Stack.Screen name="agent" />
-            <Stack.Screen name="profile" />
-            <Stack.Screen name="analytics" />
-            <Stack.Screen name="integrations" />
-            <Stack.Screen name="alerts" />
-            <Stack.Screen name="export" />
-            <Stack.Screen name="journal" />
-            <Stack.Screen name="activity-detail" />
-            <Stack.Screen name="search" />
-          </Stack>
-          <AppDrawer />
-        </View>
-      </ThemeProvider>
+          <AppContent onLayoutReady={onLayoutReady} />
+        </ThemeProvider>
       </ErrorBoundary>
     </SafeAreaProvider>
   );

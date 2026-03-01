@@ -10,7 +10,9 @@ export default function TabLayout() {
       tabBar={(props) => <FloatingPill {...props} />}
       screenOptions={{
         headerShown: false,
+        sceneStyle: { backgroundColor: theme.background },
       }}
+      sceneContainerStyle={{ backgroundColor: theme.background }}
     >
       <Tabs.Screen
         name="index"
