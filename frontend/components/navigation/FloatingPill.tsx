@@ -1,30 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
+  Text,
   TouchableOpacity,
   StyleSheet,
   Dimensions,
   Platform,
+  Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme, spacing } from '../../theme';
+import { useStore } from '../../store/useStore';
 import QuickCapture from './QuickCapture';
-import { hapticTab, hapticPress } from '../../utils/haptics';
+import { hapticPress } from '../../utils/haptics';
 
-const PILL_MAX_WIDTH = 360;
+const PILL_MAX_WIDTH = 300;
 const PILL_BOTTOM_OFFSET = 24;
-
-interface PillTab {
-  name: string;
-  icon: keyof typeof MaterialIcons.glyphMap;
-}
-
-const TABS: PillTab[] = [
-  { name: 'index', icon: 'dashboard' },
-  { name: 'knowledge', icon: 'hub' },
-  { name: 'mesh', icon: 'grain' },
-];
 
 interface FloatingPillProps {
   state: any;
@@ -33,114 +25,99 @@ interface FloatingPillProps {
 }
 
 /**
- * Custom floating pill bottom nav bar.
- * 3 nav icons + 1 action (add) button on the right.
+ * Quick Capture floating pill bar.
+ * Single centered capture button - tapping opens QuickCapture modal.
  * Always black bg, theme-aware border & shadow.
- * Maps to Stitch prd_4/6/7/9/12 floating pill pattern.
+ * Visibility controlled by preferences.showQuickCaptureOnHome
  */
 export default function FloatingPill({ state, descriptors, navigation }: FloatingPillProps) {
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
   const screenWidth = Dimensions.get('window').width;
   const [captureVisible, setCaptureVisible] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+  const showOnHome = useStore((s) => s.preferences.showQuickCaptureOnHome);
+  const hasHydrated = useStore((s) => s._hasHydrated);
+  
+  // Fade-in animation
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
-  const pillWidth = Math.min(screenWidth * 0.9, PILL_MAX_WIDTH);
+  const pillWidth = Math.min(screenWidth * 0.85, PILL_MAX_WIDTH);
   const bottomOffset = PILL_BOTTOM_OFFSET + insets.bottom;
+
+  // Delay appearance until app is ready
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsReady(true);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleCapture = () => {
     hapticPress();
     setCaptureVisible(true);
   };
 
+  // If disabled in preferences or not ready, don't render
+  if (!showOnHome || !isReady) return null;
+
   return (
     <>
-    <QuickCapture
-      visible={captureVisible}
-      onClose={() => setCaptureVisible(false)}
-    />
-    <View
-      style={[
-        styles.wrapper,
-        { bottom: bottomOffset },
-      ]}
-      pointerEvents="box-none"
-    >
-      <View
-        style={[
-          styles.pill,
-          {
-            width: pillWidth,
-            backgroundColor: theme.pill.background,
-            borderColor: theme.pill.border,
-            // Architect shadow
-            shadowColor: theme.pill.shadow,
-            shadowOffset: { width: 4, height: 4 },
-            shadowOpacity: 1,
-            shadowRadius: 0,
-            elevation: 8,
-          },
-        ]}
-      >
-        {/* Nav Icons */}
-        <View style={styles.navGroup}>
-          {TABS.map((tab, index) => {
-            const isActive = state.index === index;
-            return (
-              <TouchableOpacity
-                key={tab.name}
-                onPress={() => {
-                  hapticTab();
-                  const route = state.routes[index];
-                  const event = navigation.emit({
-                    type: 'tabPress',
-                    target: route.key,
-                    canPreventDefault: true,
-                  });
-                  if (!event.defaultPrevented) {
-                    navigation.navigate(route.name);
-                  }
-                }}
-                style={styles.navItem}
-                activeOpacity={0.7}
-              >
-                <MaterialIcons
-                  name={tab.icon}
-                  size={22}
-                  color={isActive ? theme.pill.activeColor : theme.pill.inactiveColor}
-                />
-                {/* Active dot indicator */}
-                {isActive && (
-                  <View
-                    style={[
-                      styles.activeDot,
-                      { backgroundColor: theme.pill.activeColor },
-                    ]}
-                  />
-                )}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* Action button (add / quickcapture) */}
-        <TouchableOpacity
-          onPress={handleCapture}
+      <QuickCapture
+        visible={captureVisible}
+        onClose={() => setCaptureVisible(false)}
+      />
+      {!captureVisible && (
+        <Animated.View
           style={[
-            styles.actionButton,
-            {
-              backgroundColor: theme.pill.actionBackground,
-            },
+            styles.wrapper,
+            { bottom: bottomOffset, opacity: fadeAnim },
           ]}
-          activeOpacity={0.8}
+          pointerEvents="box-none"
         >
-          <MaterialIcons
-            name="add"
-            size={22}
-            color={theme.pill.actionIcon}
-          />
-        </TouchableOpacity>
-      </View>
-    </View>
+          <TouchableOpacity
+            onPress={handleCapture}
+            activeOpacity={0.85}
+            style={[
+              styles.pill,
+              {
+                width: pillWidth,
+                backgroundColor: theme.pill.background,
+                borderColor: theme.pill.border,
+                shadowColor: theme.pill.shadow,
+                shadowOffset: { width: 4, height: 4 },
+                shadowOpacity: 1,
+                shadowRadius: 0,
+                elevation: 8,
+              },
+            ]}
+          >
+            <MaterialIcons
+              name="add"
+              size={20}
+              color={theme.pill.activeColor}
+            />
+            <Text
+              style={[
+                styles.captureText,
+                { color: theme.pill.activeColor },
+              ]}
+            >
+              QUICK CAPTURE
+            </Text>
+            <MaterialIcons
+              name="edit"
+              size={18}
+              color={theme.pill.inactiveColor}
+            />
+          </TouchableOpacity>
+        </Animated.View>
+      )}
     </>
   );
 }
@@ -159,34 +136,17 @@ const styles = StyleSheet.create({
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    gap: 10,
     borderWidth: 1,
     borderRadius: 16,
-    paddingLeft: spacing.lg,
-    paddingRight: 6,
-    paddingVertical: 6,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: 14,
   },
-  navGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 32,
-  },
-  navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 4,
-  },
-  activeDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    marginTop: 4,
-  },
-  actionButton: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 10,
+  captureText: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1.5,
+    fontFamily: 'SpaceGrotesk',
   },
 });

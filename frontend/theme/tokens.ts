@@ -1,7 +1,7 @@
-// Theme tokens for Polymath OS — 3 themes: Void, Nova, Amber Void
+// Theme tokens for Polymath OS — 7 themes
 // Source of truth: Google Stitch designs
 
-export type ThemeName = 'void' | 'nova' | 'amber';
+export type ThemeName = 'void' | 'nova' | 'amber' | 'ocean' | 'forest' | 'sunset' | 'midnight';
 
 export interface ThemeTokens {
   name: ThemeName;
@@ -259,15 +259,275 @@ export const amberTheme: ThemeTokens = {
   },
 };
 
+// ─── Ocean Theme ────────────────────────────────────────────────────────────
+
+export const oceanTheme: ThemeTokens = {
+  name: 'ocean',
+  label: 'OCEAN DEPTH',
+
+  background: '#0A1628',
+  surface: '#0F1F35',
+  surfaceElevated: '#162A45',
+
+  border: '#3B82F6',
+  borderMuted: '#1E3A5F',
+
+  textPrimary: '#FFFFFF',
+  textSecondary: '#60A5FA',
+  textMuted: '#3B82F6',
+
+  accent: '#3B82F6',
+  accentContrast: '#FFFFFF',
+
+  shadow: 'rgba(59,130,246,0.4)',
+  shadowMuted: 'rgba(59,130,246,0.1)',
+  shadowOffset: { width: 0, height: 2 },
+
+  fontDisplay: 'SpaceGrotesk',
+  fontMono: 'JetBrainsMono',
+
+  drawer: {
+    background: '#0A1628',
+    border: '#3B82F6',
+    textPrimary: '#FFFFFF',
+    textSecondary: '#60A5FA',
+    activeIndicator: '#3B82F6',
+    overlay: 'rgba(10,22,40,0.8)',
+  },
+
+  pill: {
+    background: '#0F1F35',
+    border: '#3B82F6',
+    shadow: 'rgba(59,130,246,0.3)',
+    activeColor: '#60A5FA',
+    inactiveColor: '#3B82F6',
+    actionBackground: '#3B82F6',
+    actionIcon: '#FFFFFF',
+  },
+
+  status: {
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#3B82F6',
+  },
+
+  categories: {
+    AI: '#3B82F6',
+    News: '#60A5FA',
+    Tools: '#2563EB',
+    Market: '#1D4ED8',
+    Research: '#3B82F6',
+    Tutorial: '#60A5FA',
+    Other: '#1E3A5F',
+  },
+};
+
+// ─── Forest Theme ───────────────────────────────────────────────────────────
+
+export const forestTheme: ThemeTokens = {
+  name: 'forest',
+  label: 'FOREST CANOPY',
+
+  background: '#0A1A0A',
+  surface: '#0F250F',
+  surfaceElevated: '#153015',
+
+  border: '#10B981',
+  borderMuted: '#0D3D29',
+
+  textPrimary: '#FFFFFF',
+  textSecondary: '#34D399',
+  textMuted: '#10B981',
+
+  accent: '#10B981',
+  accentContrast: '#000000',
+
+  shadow: 'rgba(16,185,129,0.4)',
+  shadowMuted: 'rgba(16,185,129,0.1)',
+  shadowOffset: { width: 0, height: 2 },
+
+  fontDisplay: 'SpaceGrotesk',
+  fontMono: 'JetBrainsMono',
+
+  drawer: {
+    background: '#0A1A0A',
+    border: '#10B981',
+    textPrimary: '#FFFFFF',
+    textSecondary: '#34D399',
+    activeIndicator: '#10B981',
+    overlay: 'rgba(10,26,10,0.8)',
+  },
+
+  pill: {
+    background: '#0F250F',
+    border: '#10B981',
+    shadow: 'rgba(16,185,129,0.3)',
+    activeColor: '#34D399',
+    inactiveColor: '#10B981',
+    actionBackground: '#10B981',
+    actionIcon: '#000000',
+  },
+
+  status: {
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#34D399',
+  },
+
+  categories: {
+    AI: '#10B981',
+    News: '#34D399',
+    Tools: '#059669',
+    Market: '#047857',
+    Research: '#10B981',
+    Tutorial: '#34D399',
+    Other: '#0D3D29',
+  },
+};
+
+// ─── Sunset Theme ───────────────────────────────────────────────────────────
+
+export const sunsetTheme: ThemeTokens = {
+  name: 'sunset',
+  label: 'SUNSET BLAZE',
+
+  background: '#1A0A0A',
+  surface: '#2A0F0F',
+  surfaceElevated: '#3A1515',
+
+  border: '#F97316',
+  borderMuted: '#7C2D12',
+
+  textPrimary: '#FFFFFF',
+  textSecondary: '#FB923C',
+  textMuted: '#F97316',
+
+  accent: '#F97316',
+  accentContrast: '#000000',
+
+  shadow: 'rgba(249,115,22,0.4)',
+  shadowMuted: 'rgba(249,115,22,0.1)',
+  shadowOffset: { width: 0, height: 2 },
+
+  fontDisplay: 'SpaceGrotesk',
+  fontMono: 'JetBrainsMono',
+
+  drawer: {
+    background: '#1A0A0A',
+    border: '#F97316',
+    textPrimary: '#FFFFFF',
+    textSecondary: '#FB923C',
+    activeIndicator: '#F97316',
+    overlay: 'rgba(26,10,10,0.8)',
+  },
+
+  pill: {
+    background: '#2A0F0F',
+    border: '#F97316',
+    shadow: 'rgba(249,115,22,0.3)',
+    activeColor: '#FB923C',
+    inactiveColor: '#F97316',
+    actionBackground: '#F97316',
+    actionIcon: '#000000',
+  },
+
+  status: {
+    success: '#10B981',
+    warning: '#F97316',
+    error: '#EF4444',
+    info: '#FB923C',
+  },
+
+  categories: {
+    AI: '#F97316',
+    News: '#FB923C',
+    Tools: '#EA580C',
+    Market: '#C2410C',
+    Research: '#F97316',
+    Tutorial: '#FB923C',
+    Other: '#7C2D12',
+  },
+};
+
+// ─── Midnight Theme ─────────────────────────────────────────────────────────
+
+export const midnightTheme: ThemeTokens = {
+  name: 'midnight',
+  label: 'MIDNIGHT PURPLE',
+
+  background: '#0F0A1A',
+  surface: '#1A1028',
+  surfaceElevated: '#251538',
+
+  border: '#A855F7',
+  borderMuted: '#4C1D95',
+
+  textPrimary: '#FFFFFF',
+  textSecondary: '#C084FC',
+  textMuted: '#A855F7',
+
+  accent: '#A855F7',
+  accentContrast: '#FFFFFF',
+
+  shadow: 'rgba(168,85,247,0.4)',
+  shadowMuted: 'rgba(168,85,247,0.1)',
+  shadowOffset: { width: 0, height: 2 },
+
+  fontDisplay: 'SpaceGrotesk',
+  fontMono: 'JetBrainsMono',
+
+  drawer: {
+    background: '#0F0A1A',
+    border: '#A855F7',
+    textPrimary: '#FFFFFF',
+    textSecondary: '#C084FC',
+    activeIndicator: '#A855F7',
+    overlay: 'rgba(15,10,26,0.8)',
+  },
+
+  pill: {
+    background: '#1A1028',
+    border: '#A855F7',
+    shadow: 'rgba(168,85,247,0.3)',
+    activeColor: '#C084FC',
+    inactiveColor: '#A855F7',
+    actionBackground: '#A855F7',
+    actionIcon: '#FFFFFF',
+  },
+
+  status: {
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#A855F7',
+  },
+
+  categories: {
+    AI: '#A855F7',
+    News: '#C084FC',
+    Tools: '#9333EA',
+    Market: '#7C3AED',
+    Research: '#A855F7',
+    Tutorial: '#C084FC',
+    Other: '#4C1D95',
+  },
+};
+
 // ─── Theme registry ─────────────────────────────────────────────────────────
 
 export const themes: Record<ThemeName, ThemeTokens> = {
   void: voidTheme,
   nova: novaTheme,
   amber: amberTheme,
+  ocean: oceanTheme,
+  forest: forestTheme,
+  sunset: sunsetTheme,
+  midnight: midnightTheme,
 };
 
-export const themeNames: ThemeName[] = ['void', 'nova', 'amber'];
+export const themeNames: ThemeName[] = ['void', 'nova', 'amber', 'ocean', 'forest', 'sunset', 'midnight'];
 
 export const getNextTheme = (current: ThemeName): ThemeName => {
   const idx = themeNames.indexOf(current);

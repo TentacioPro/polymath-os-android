@@ -129,10 +129,10 @@ export default function ProfileScreen() {
         {/* Appearance */}
         <Text style={[styles.sectionTitle, { color: textMuted }]}>APPEARANCE</Text>
         <SettingItem
-          icon="dark-mode"
-          label="Theme"
-          desc={themeName === 'void' ? 'Void (Dark)' : themeName === 'nova' ? 'Nova (Light)' : 'Amber Void'}
-          onPress={() => { hapticPress(); cycleTheme(); }}
+          icon="palette"
+          label="Themes"
+          desc={`${themeName.charAt(0).toUpperCase() + themeName.slice(1)} (7 themes available)`}
+          onPress={() => { hapticSelection(); router.push('/appearance' as any); }}
         />
 
         {/* System */}

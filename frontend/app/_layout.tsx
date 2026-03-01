@@ -19,6 +19,10 @@ const THEME_BACKGROUNDS: Record<ThemeName, string> = {
   void: '#000000',
   nova: '#FFFFFF',
   amber: '#000000',
+  ocean: '#0A1628',
+  forest: '#0A1A0A',
+  sunset: '#1A0A0A',
+  midnight: '#0F0A1A',
 };
 
 function AppContent({ onLayoutReady }: { onLayoutReady: () => void }) {

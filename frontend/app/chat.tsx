@@ -5,7 +5,7 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
-  KeyboardAvoidingView,
+  Keyboard,
   Platform,
   ActivityIndicator,
   Animated,
@@ -42,6 +42,7 @@ export default function ChatScreen() {
   ]);
   const flatListRef = useRef<FlatList>(null);
   const dotAnim = useRef(new Animated.Value(0)).current;
+  const keyboardHeight = useRef(new Animated.Value(0)).current;
 
   // Colors
   const bg = theme.background;
@@ -64,6 +65,33 @@ export default function ChatScreen() {
       return () => loop.stop();
     }
   }, [sending, dotAnim]);
+
+  // Keyboard listeners to handle gap issue
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, (e) => {
+      Animated.timing(keyboardHeight, {
+        toValue: e.endCoordinates.height,
+        duration: Platform.OS === 'ios' ? 250 : 100,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      Animated.timing(keyboardHeight, {
+        toValue: 0,
+        duration: Platform.OS === 'ios' ? 250 : 100,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const sendMessage = async () => {
     if (!input.trim() || sending) return;
@@ -145,10 +173,8 @@ export default function ChatScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: bg }]}>
-      <KeyboardAvoidingView
-        style={styles.kav}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+      <Animated.View
+        style={[styles.kav, { paddingBottom: keyboardHeight }]}
       >
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: border }]}>
@@ -232,7 +258,7 @@ export default function ChatScreen() {
             )}
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
+      </Animated.View>
     </View>
   );
 }

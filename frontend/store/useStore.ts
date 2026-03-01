@@ -22,6 +22,30 @@ interface Journal {
   timestamp: string;
 }
 
+// Personalization preferences
+interface Preferences {
+  // Quick Capture visibility
+  showQuickCaptureOnHome: boolean;
+  showQuickCaptureInSidebar: boolean;
+  
+  // Layout options
+  sidebarPosition: 'left' | 'right' | 'hidden';
+  dashboardLayout: 'grid' | 'list' | 'compact';
+  profileLayout: 'full' | 'minimal';
+  
+  // Screen visibility
+  visibleScreens: {
+    dashboard: boolean;
+    knowledge: boolean;
+    mesh: boolean;
+    journal: boolean;
+    chat: boolean;
+    analytics: boolean;
+    integrations: boolean;
+    alerts: boolean;
+  };
+}
+
 interface AppState {
   // Theme
   themeName: ThemeName;
@@ -43,10 +67,33 @@ interface AppState {
   setLoading: (loading: boolean) => void;
   clearAll: () => void;
 
+  // Preferences
+  preferences: Preferences;
+  setPreference: <K extends keyof Preferences>(key: K, value: Preferences[K]) => void;
+  setScreenVisibility: (screen: keyof Preferences['visibleScreens'], visible: boolean) => void;
+
   // Theme hydration (manual async)
   _hasHydrated: boolean;
   setHasHydrated: (val: boolean) => void;
 }
+
+const defaultPreferences: Preferences = {
+  showQuickCaptureOnHome: true,
+  showQuickCaptureInSidebar: true,
+  sidebarPosition: 'left',
+  dashboardLayout: 'grid',
+  profileLayout: 'full',
+  visibleScreens: {
+    dashboard: true,
+    knowledge: true,
+    mesh: true,
+    journal: true,
+    chat: true,
+    analytics: true,
+    integrations: true,
+    alerts: true,
+  },
+};
 
 export const useStore = create<AppState>()((set) => ({
   // Theme
@@ -68,6 +115,18 @@ export const useStore = create<AppState>()((set) => ({
   setConnections: (connections) => set({ connections }),
   setLoading: (loading) => set({ isLoading: loading }),
   clearAll: () => set({ activities: [], journals: [], connections: [] }),
+
+  // Preferences
+  preferences: defaultPreferences,
+  setPreference: (key, value) => set((s) => ({
+    preferences: { ...s.preferences, [key]: value },
+  })),
+  setScreenVisibility: (screen, visible) => set((s) => ({
+    preferences: {
+      ...s.preferences,
+      visibleScreens: { ...s.preferences.visibleScreens, [screen]: visible },
+    },
+  })),
 
   // Hydration
   _hasHydrated: false,
