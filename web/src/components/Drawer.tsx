@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { href: '/journal', icon: 'menu_book', label: 'Journal' },
   { href: '/connections', icon: 'hub', label: 'Neural Mesh' },
   { href: '/agent', icon: 'memory', label: 'Agent Memory' },
+  { href: '/chat', icon: 'chat', label: 'Chat' },
   { href: '/export', icon: 'download', label: 'Export & Import' },
 ];
 
@@ -75,7 +76,7 @@ export default function Drawer() {
               </span>
             </Link>
             <Link
-              href="/agent"
+              href="/chat"
               className="border border-poly-border p-3 flex flex-col items-center gap-1.5 hover:bg-poly-accent hover:text-poly-accent-text transition-colors text-poly-text"
             >
               <span className="material-symbols-outlined text-[20px]">

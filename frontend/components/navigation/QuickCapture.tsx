@@ -8,10 +8,15 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import axios from 'axios';
 import { useTheme, spacing, fs, sw } from '../../theme';
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 
 interface QuickCaptureProps {
   visible: boolean;
@@ -37,17 +42,37 @@ export default function QuickCapture({ visible, onClose, onSubmit }: QuickCaptur
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
   const [text, setText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   if (!visible) return null;
 
   const d = theme.drawer;
 
-  const handleSubmit = () => {
-    if (text.trim() && onSubmit) {
-      onSubmit(text.trim());
+  const handleSubmit = async () => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+
+    setSubmitting(true);
+    try {
+      // Detect if it looks like a URL
+      const isUrl = /^https?:\/\//i.test(trimmed);
+
+      await axios.post(`${BACKEND_URL}/api/activities/manual`, {
+        title: isUrl ? trimmed.slice(0, 120) : trimmed,
+        source: 'manual',
+        url: isUrl ? trimmed : undefined,
+        notes: isUrl ? undefined : trimmed,
+      });
+
+      if (onSubmit) onSubmit(trimmed);
+      setText('');
+      onClose();
+    } catch (e: any) {
+      const msg = e?.response?.data?.detail || 'Failed to save. Try again.';
+      Alert.alert('Capture Error', msg);
+    } finally {
+      setSubmitting(false);
     }
-    setText('');
-    onClose();
   };
 
   return (
@@ -116,15 +141,19 @@ export default function QuickCapture({ visible, onClose, onSubmit }: QuickCaptur
               {
                 backgroundColor: theme.accent,
                 borderRadius: 8,
-                opacity: text.trim().length > 0 ? 1 : 0.4,
+                opacity: text.trim().length > 0 && !submitting ? 1 : 0.4,
               },
             ]}
             onPress={handleSubmit}
-            disabled={!text.trim()}
+            disabled={!text.trim() || submitting}
           >
-            <Text style={[styles.submitLabel, { color: theme.accentContrast }]}>
-              Capture to Inbox
-            </Text>
+            {submitting ? (
+              <ActivityIndicator size="small" color={theme.accentContrast} />
+            ) : (
+              <Text style={[styles.submitLabel, { color: theme.accentContrast }]}>
+                Capture to Inbox
+              </Text>
+            )}
           </TouchableOpacity>
 
           <Text style={[styles.target, { color: d.textSecondary }]}>

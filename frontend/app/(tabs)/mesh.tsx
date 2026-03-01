@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Svg, { Line, Rect, Text as SvgText } from 'react-native-svg';
@@ -14,6 +15,7 @@ import SafeView from '../../components/shared/SafeView';
 import BentoCard from '../../components/ui/BentoCard';
 import SectionHeader from '../../components/ui/SectionHeader';
 import Badge from '../../components/ui/Badge';
+import ArchitectButton from '../../components/ui/ArchitectButton';
 import ThemedText from '../../components/shared/ThemedText';
 import { useTheme, createThemedStyles, spacing, fs, sw } from '../../theme';
 import { useStore } from '../../store/useStore';
@@ -39,7 +41,11 @@ export default function NeuralMesh() {
   const { theme } = useTheme();
   const toggleDrawer = useStore((s) => s.toggleDrawer);
   const { connections, setConnections } = useStore();
+  const { activities } = useStore();
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const styles = useStyles();
 
   // Generate mesh nodes from connections data
@@ -59,6 +65,41 @@ export default function NeuralMesh() {
       console.error('Failed to load connections:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGenerateAll = async () => {
+    if (activities.length === 0) {
+      Alert.alert('No Activities', 'Add some knowledge sources first to generate connections.');
+      return;
+    }
+    setGenerating(true);
+    try {
+      let generated = 0;
+      for (const activity of activities.slice(0, 5)) {
+        try {
+          const res = await axios.post(`${BACKEND_URL}/api/ai/generate-connections/${activity.id}`);
+          generated += (res.data?.length || 0);
+        } catch (_) { /* skip individual failures */ }
+      }
+      Alert.alert('Done', `Generated ${generated} new connections.`);
+      loadConnections();
+    } catch (e) {
+      Alert.alert('Error', 'Failed to generate connections');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleLoadSuggestions = async () => {
+    setLoadingSuggestions(true);
+    try {
+      const res = await axios.get(`${BACKEND_URL}/api/ai/suggestions`);
+      setSuggestions(res.data?.suggestions || res.data || []);
+    } catch (e) {
+      console.error('Failed to load suggestions:', e);
+    } finally {
+      setLoadingSuggestions(false);
     }
   };
 
@@ -220,6 +261,41 @@ export default function NeuralMesh() {
               </View>
             </View>
           </BentoCard>
+        </View>
+
+        {/* AI Actions */}
+        <View style={{ paddingHorizontal: spacing.xl }}>
+          <SectionHeader label="AI Actions" icon="auto-awesome" />
+          <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+            <View style={{ flex: 1 }}>
+              <ArchitectButton
+                label={generating ? 'Generating...' : 'Generate Connections'}
+                icon={<MaterialIcons name="hub" size={16} color={theme.accentContrast} />}
+                onPress={handleGenerateAll}
+                disabled={generating || activities.length === 0}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <ArchitectButton
+                label={loadingSuggestions ? 'Loading...' : 'AI Suggestions'}
+                icon={<MaterialIcons name="lightbulb" size={16} color={theme.accentContrast} />}
+                onPress={handleLoadSuggestions}
+                disabled={loadingSuggestions}
+              />
+            </View>
+          </View>
+
+          {suggestions.length > 0 && (
+            <View style={{ marginTop: spacing.md }}>
+              {suggestions.slice(0, 4).map((s: any, i: number) => (
+                <BentoCard key={i} padding="md" style={{ marginBottom: spacing.sm }}>
+                  <ThemedText variant="body">
+                    {typeof s === 'string' ? s : s.suggestion || s.title || JSON.stringify(s)}
+                  </ThemedText>
+                </BentoCard>
+              ))}
+            </View>
+          )}
         </View>
 
         {/* Connections list */}

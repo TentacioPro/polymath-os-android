@@ -165,17 +165,17 @@ export default function Dashboard() {
       <div className="border border-poly-border bg-poly-surface p-4 architect-shadow-subtle">
         <div className="flex items-center justify-between mb-3">
           <span className="text-[10px] font-mono uppercase tracking-widest text-poly-muted">
-            System Integrity
+            Data Summary
           </span>
           <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 bg-poly-green" style={{ borderRadius: '50%' }} />
-            <span className="text-[10px] font-mono text-poly-green font-bold">
-              OPERATIONAL
+            <div className="w-1.5 h-1.5 bg-poly-accent" style={{ borderRadius: '50%' }} />
+            <span className="text-[10px] font-mono text-poly-accent font-bold">
+              {stats ? `${stats.total_activities + stats.total_journals + stats.total_connections} items` : '...'}
             </span>
           </div>
         </div>
         <div className="h-1 bg-poly-border-muted overflow-hidden">
-          <div className="h-full bg-poly-accent" style={{ width: '92%' }} />
+          <div className="h-full bg-poly-accent" style={{ width: stats ? '100%' : '0%' }} />
         </div>
       </div>
     </div>

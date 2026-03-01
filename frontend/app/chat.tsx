@@ -7,12 +7,16 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import axios from 'axios';
 import SafeView from '../components/shared/SafeView';
 import ThemedText from '../components/shared/ThemedText';
 import { useTheme, createThemedStyles, spacing, fs, sw } from '../theme';
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 interface Message {
   id: string;
@@ -26,6 +30,7 @@ export default function ChatScreen() {
   const router = useRouter();
   const styles = useStyles();
   const [input, setInput] = useState('');
+  const [sending, setSending] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -36,8 +41,8 @@ export default function ChatScreen() {
   ]);
   const flatListRef = useRef<FlatList>(null);
 
-  const sendMessage = () => {
-    if (!input.trim()) return;
+  const sendMessage = async () => {
+    if (!input.trim() || sending) return;
     const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
@@ -45,20 +50,36 @@ export default function ChatScreen() {
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, userMsg]);
+    const query = input.trim();
     setInput('');
+    setSending(true);
 
-    // Simulate response
-    setTimeout(() => {
+    try {
+      const res = await axios.get(`${BACKEND_URL}/api/agent/chat`, {
+        params: { message: query },
+      });
       setMessages((prev) => [
         ...prev,
         {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: 'Processing your request through the deep structure...',
+          content: res.data.response || res.data.message || 'No response received.',
           timestamp: new Date(),
         },
       ]);
-    }, 800);
+    } catch (error: any) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: `Error: ${error?.response?.data?.detail || error.message || 'Failed to reach agent.'}`,
+          timestamp: new Date(),
+        },
+      ]);
+    } finally {
+      setSending(false);
+    }
   };
 
   const renderMessage = ({ item }: { item: Message }) => (
@@ -137,17 +158,23 @@ export default function ChatScreen() {
           <TextInput
             value={input}
             onChangeText={setInput}
-            placeholder="Type a message..."
+            placeholder={sending ? 'Agent is thinking...' : 'Type a message...'}
             placeholderTextColor={theme.textMuted}
             style={[styles.textInput, { color: theme.textPrimary, borderColor: theme.border }]}
             onSubmitEditing={sendMessage}
             returnKeyType="send"
+            editable={!sending}
           />
           <TouchableOpacity
             onPress={sendMessage}
-            style={[styles.sendBtn, { backgroundColor: theme.accent }]}
+            disabled={sending || !input.trim()}
+            style={[styles.sendBtn, { backgroundColor: theme.accent, opacity: sending || !input.trim() ? 0.4 : 1 }]}
           >
-            <MaterialIcons name="send" size={18} color={theme.accentContrast} />
+            {sending ? (
+              <ActivityIndicator size="small" color={theme.accentContrast} />
+            ) : (
+              <MaterialIcons name="send" size={18} color={theme.accentContrast} />
+            )}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

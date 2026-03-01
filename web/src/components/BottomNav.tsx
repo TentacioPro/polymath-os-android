@@ -7,7 +7,7 @@ const NAV_ITEMS = [
   { href: '/', icon: 'dashboard', label: 'Dash' },
   { href: '/connections', icon: 'hub', label: 'Mesh' },
   { href: '/agent', icon: 'memory', label: 'Agent' },
-  { href: '/export', icon: 'person', label: 'Profile' },
+  { href: '/export', icon: 'download', label: 'Export' },
 ];
 
 export default function BottomNav() {

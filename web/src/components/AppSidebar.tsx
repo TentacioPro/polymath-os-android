@@ -142,10 +142,10 @@ export default function AppSidebar() {
 
       {/* Status */}
       <div className={`border-t border-poly-border-muted flex items-center ${collapsed ? 'justify-center p-3' : 'px-4 py-3 gap-2'}`}>
-        <div className="w-1.5 h-1.5 bg-poly-green shrink-0" style={{ borderRadius: '50%' }} />
+        <div className="w-1.5 h-1.5 bg-poly-accent shrink-0" style={{ borderRadius: '50%' }} />
         {!collapsed && (
           <span className="text-[8px] font-mono text-poly-dim uppercase tracking-widest">
-            Connected
+            Polymath OS
           </span>
         )}
       </div>

@@ -95,21 +95,21 @@ export default function Dashboard() {
         <View style={styles.statsGrid}>
           <StatCard
             value={stats?.total_activities || 0}
-            label="Items/Day"
-            icon={<MaterialIcons name="speed" size={16} color={theme.textPrimary} />}
-            badge="NEW"
+            label="Activities"
+            icon={<MaterialIcons name="layers" size={16} color={theme.textPrimary} />}
           />
           <StatCard
-            value={`${Math.min(stats?.total_journals || 0, 100)}%`}
-            label="Recall"
+            value={stats?.total_journals || 0}
+            label="Journals"
+            icon={<MaterialIcons name="menu-book" size={16} color={theme.textPrimary} />}
           />
           <StatCard
             value={stats?.total_connections || 0}
-            label="Day Streak"
+            label="Connections"
             inverted
             icon={
               <MaterialIcons
-                name="local-fire-department"
+                name="hub"
                 size={16}
                 color={theme.accentContrast}
               />
@@ -128,7 +128,7 @@ export default function Dashboard() {
                 ]}
               >
                 <Text style={[styles.meshTagText, { color: theme.textPrimary }]}>
-                  Neural Mesh v3.0
+                  Neural Mesh
                 </Text>
               </View>
             </View>
@@ -136,7 +136,7 @@ export default function Dashboard() {
               <View style={styles.statusRow}>
                 <View style={[styles.pulseDot, { backgroundColor: theme.accent }]} />
                 <Text style={[styles.statusText, { color: theme.textPrimary }]}>
-                  Synthesis Ready
+                  {(stats?.total_connections || 0) > 0 ? 'Connections Active' : 'Ready'}
                 </Text>
               </View>
               <ThemedText
@@ -144,18 +144,18 @@ export default function Dashboard() {
                 style={{ marginBottom: spacing.md, textTransform: 'none' }}
               >
                 {activities.length > 0
-                  ? 'Correlation detected in recent ingestion.'
+                  ? `${activities.length} sources ingested across ${Object.keys(stats?.categories || {}).length || 0} domains.`
                   : 'Ready to build your knowledge mesh.'}
               </ThemedText>
               <View style={[styles.quoteBar, { borderLeftColor: theme.borderMuted }]}>
                 <ThemedText variant="body" color="secondary">
-                  {activities.length > 0
-                    ? `You've ingested ${activities.length} items. Semantic overlap > 85%.`
+                  {(stats?.total_connections || 0) > 0
+                    ? `${stats.total_connections} connections found. Navigate to Mesh to explore.`
                     : 'Start adding activities to discover patterns.'}
                 </ThemedText>
               </View>
               <ArchitectButton
-                label="Merge Concepts"
+                label="Explore Mesh"
                 onPress={() => {}}
                 variant="outline"
                 fullWidth
@@ -178,9 +178,9 @@ export default function Dashboard() {
                     variant="mono"
                     style={{ fontSize: 11, fontWeight: '700' }}
                   >
-                    AI
+                    {stats?.total_activities || 0}
                   </ThemedText>
-                  <Text style={{ color: theme.textSecondary, fontSize: 8 }}>75%</Text>
+                  <Text style={{ color: theme.textSecondary, fontSize: 8 }}>TOTAL</Text>
                 </View>
               </View>
             </View>
@@ -188,13 +188,9 @@ export default function Dashboard() {
 
           <BentoCard style={{ flex: 3 }} padding="md">
             <SectionHeader label="Topics Distribution" />
-            {(stats?.categories
+            {(stats?.categories && Object.keys(stats.categories).length > 0
               ? Object.entries(stats.categories).slice(0, 3)
-              : [
-                  ['Artificial Intel.', 14],
-                  ['Engineering', 8],
-                  ['Philosophy', 3],
-                ]
+              : []
             ).map(([name, count]: any, i: number) => (
               <View key={name} style={styles.topicRow}>
                 <View style={styles.topicLeft}>

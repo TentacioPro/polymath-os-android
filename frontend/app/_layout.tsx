@@ -60,6 +60,7 @@ export default function RootLayout() {
             <Stack.Screen name="integrations" />
             <Stack.Screen name="alerts" />
             <Stack.Screen name="export" />
+            <Stack.Screen name="journal" />
           </Stack>
           <AppDrawer />
         </View>

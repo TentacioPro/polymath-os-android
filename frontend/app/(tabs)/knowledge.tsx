@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,10 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
+  TextInput,
+  Modal,
+  Alert,
+  Pressable,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
@@ -36,6 +40,11 @@ export default function Knowledge() {
   const { activities, setActivities } = useStore();
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('All');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addTitle, setAddTitle] = useState('');
+  const [addUrl, setAddUrl] = useState('');
+  const [addNotes, setAddNotes] = useState('');
+  const [saving, setSaving] = useState(false);
   const styles = useStyles();
 
   useEffect(() => {
@@ -53,6 +62,46 @@ export default function Knowledge() {
       setLoading(false);
     }
   };
+
+  const handleAdd = async () => {
+    if (!addTitle.trim()) return;
+    setSaving(true);
+    try {
+      await axios.post(`${BACKEND_URL}/api/activities/manual`, {
+        title: addTitle.trim(),
+        source: 'manual',
+        url: addUrl.trim() || undefined,
+        notes: addNotes.trim() || undefined,
+      });
+      setAddTitle('');
+      setAddUrl('');
+      setAddNotes('');
+      setShowAddModal(false);
+      loadData();
+    } catch (e: any) {
+      Alert.alert('Error', e?.response?.data?.detail || 'Failed to add activity');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = useCallback((id: string, title: string) => {
+    Alert.alert('Delete Activity', `Remove "${title}"?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await axios.delete(`${BACKEND_URL}/api/activities/${id}`);
+            setActivities(activities.filter((a: any) => a.id !== id));
+          } catch (e) {
+            Alert.alert('Error', 'Failed to delete');
+          }
+        },
+      },
+    ]);
+  }, [activities, setActivities]);
 
   const filters = ['All', 'Article', 'PDF', 'Link', 'Audio', 'File'];
   const filtered = filter === 'All'
@@ -94,8 +143,8 @@ export default function Knowledge() {
             Source Gallery
           </ThemedText>
         </View>
-        <TouchableOpacity style={styles.searchBtn}>
-          <MaterialIcons name="search" size={22} color={theme.textPrimary} />
+        <TouchableOpacity style={styles.searchBtn} onPress={() => setShowAddModal(true)}>
+          <MaterialIcons name="add" size={22} color={theme.textPrimary} />
         </TouchableOpacity>
       </View>
 
@@ -146,7 +195,11 @@ export default function Knowledge() {
           </View>
         }
         renderItem={({ item }: any) => (
-          <TouchableOpacity style={styles.sourceCard} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.sourceCard}
+            activeOpacity={0.8}
+            onLongPress={() => handleDelete(item.id, item.title)}
+          >
             <BentoCard padding="sm" style={{ flex: 1 }}>
               <View style={styles.sourceIcon}>
                 <MaterialIcons
@@ -170,6 +223,66 @@ export default function Knowledge() {
         )}
         ListFooterComponent={<View style={{ height: 100 }} />}
       />
+
+      {/* Add Activity Modal */}
+      <Modal visible={showAddModal} animationType="slide" transparent>
+        <View style={[styles.modalOverlay]}>
+          <View style={[styles.modalContent, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <View style={styles.modalHeader}>
+              <ThemedText variant="heading">Add Knowledge</ThemedText>
+              <TouchableOpacity onPress={() => setShowAddModal(false)}>
+                <MaterialIcons name="close" size={22} color={theme.textPrimary} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={[styles.modalLabel, { color: theme.textSecondary }]}>TITLE *</Text>
+            <TextInput
+              style={[styles.modalInput, { color: theme.textPrimary, borderColor: theme.border }]}
+              placeholder="What did you learn?"
+              placeholderTextColor={theme.textMuted}
+              value={addTitle}
+              onChangeText={setAddTitle}
+            />
+
+            <Text style={[styles.modalLabel, { color: theme.textSecondary }]}>URL (optional)</Text>
+            <TextInput
+              style={[styles.modalInput, { color: theme.textPrimary, borderColor: theme.border }]}
+              placeholder="https://..."
+              placeholderTextColor={theme.textMuted}
+              value={addUrl}
+              onChangeText={setAddUrl}
+              autoCapitalize="none"
+              keyboardType="url"
+            />
+
+            <Text style={[styles.modalLabel, { color: theme.textSecondary }]}>NOTES (optional)</Text>
+            <TextInput
+              style={[styles.modalInput, styles.modalTextArea, { color: theme.textPrimary, borderColor: theme.border }]}
+              placeholder="Any notes..."
+              placeholderTextColor={theme.textMuted}
+              value={addNotes}
+              onChangeText={setAddNotes}
+              multiline
+            />
+
+            <TouchableOpacity
+              style={[styles.modalSubmitBtn, { backgroundColor: theme.accent, opacity: addTitle.trim() && !saving ? 1 : 0.4 }]}
+              onPress={handleAdd}
+              disabled={!addTitle.trim() || saving}
+            >
+              {saving ? (
+                <ActivityIndicator size="small" color={theme.accentContrast} />
+              ) : (
+                <Text style={[styles.modalSubmitText, { color: theme.accentContrast }]}>Add Activity</Text>
+              )}
+            </TouchableOpacity>
+
+            <Text style={[styles.hintText, { color: theme.textMuted }]}>
+              Long-press any card to delete
+            </Text>
+          </View>
+        </View>
+      </Modal>
     </SafeView>
   );
 }
@@ -250,5 +363,58 @@ const useStyles = createThemedStyles((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 60,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopWidth: 1,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: sw(20),
+    gap: sw(8),
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: sw(8),
+  },
+  modalLabel: {
+    fontSize: fs(10),
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    marginTop: sw(4),
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: sw(12),
+    paddingVertical: sw(10),
+    fontSize: fs(14),
+  },
+  modalTextArea: {
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  modalSubmitBtn: {
+    paddingVertical: 14,
+    alignItems: 'center',
+    borderRadius: 8,
+    marginTop: sw(8),
+  },
+  modalSubmitText: {
+    fontSize: fs(13),
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  hintText: {
+    fontSize: fs(10),
+    textAlign: 'center',
+    marginTop: sw(4),
+    marginBottom: sw(8),
   },
 }));

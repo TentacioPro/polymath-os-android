@@ -30,6 +30,7 @@ const NAV_LINKS: DrawerLink[] = [
   { label: 'Dashboard', icon: 'dashboard', route: '/(tabs)' },
   { label: 'Knowledge', icon: 'hub', route: '/(tabs)/knowledge' },
   { label: 'Neural Mesh', icon: 'grain', route: '/(tabs)/mesh' },
+  { label: 'Journal', icon: 'menu-book', route: '/journal' },
   { label: 'Agent', icon: 'psychology', route: '/agent' },
   { label: 'Chat', icon: 'chat', route: '/chat' },
 ];
@@ -50,6 +51,8 @@ export default function AppDrawer() {
   const insets = useSafeAreaInsets();
   const drawerOpen = useStore((s) => s.drawerOpen);
   const setDrawerOpen = useStore((s) => s.setDrawerOpen);
+  const activities = useStore((s) => s.activities);
+  const connections = useStore((s) => s.connections);
 
   const drawerWidth = Math.min(
     Dimensions.get('window').width * DRAWER_WIDTH_RATIO,
@@ -99,14 +102,18 @@ export default function AppDrawer() {
           </View>
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
-              <Text style={[styles.statLabel, { color: d.textSecondary }]}>System</Text>
-              <Text style={[styles.statValue, { color: d.textPrimary }]}>Online</Text>
+              <Text style={[styles.statLabel, { color: d.textSecondary }]}>Activities</Text>
+              <Text style={[styles.statValue, { color: d.textPrimary }]}>
+                {activities.length}
+              </Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={[styles.statLabel, { color: d.textSecondary }]}>Status</Text>
+              <Text style={[styles.statLabel, { color: d.textSecondary }]}>Mesh</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <View style={[styles.statusDot, { backgroundColor: theme.status.success }]} />
-                <Text style={[styles.statValue, { color: d.textPrimary }]}>Stable</Text>
+                <Text style={[styles.statValue, { color: d.textPrimary }]}>
+                  {connections.length}
+                </Text>
               </View>
             </View>
           </View>

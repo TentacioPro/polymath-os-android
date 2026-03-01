@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, Share } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert, Share, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import axios from 'axios';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import SafeView from '../components/shared/SafeView';
 import BentoCard from '../components/ui/BentoCard';
 import ArchitectButton from '../components/ui/ArchitectButton';
@@ -9,11 +12,13 @@ import SectionHeader from '../components/ui/SectionHeader';
 import ThemedText from '../components/shared/ThemedText';
 import { useTheme, createThemedStyles, spacing, fs, sw } from '../theme';
 
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+
 const EXPORT_FORMATS = [
-  { icon: 'description' as const, label: 'Markdown', ext: '.md' },
-  { icon: 'code' as const, label: 'JSON', ext: '.json' },
-  { icon: 'picture-as-pdf' as const, label: 'PDF', ext: '.pdf' },
-  { icon: 'text-snippet' as const, label: 'Plain Text', ext: '.txt' },
+  { icon: 'description' as const, label: 'Markdown', ext: '.md', endpoint: '/api/export/markdown' },
+  { icon: 'code' as const, label: 'JSON', ext: '.json', endpoint: '/api/export/json' },
+  { icon: 'grid-on' as const, label: 'CSV', ext: '.csv', endpoint: '/api/export/csv' },
+  { icon: 'text-snippet' as const, label: 'Plain Text', ext: '.txt', endpoint: '/api/export/markdown' },
 ];
 
 export default function ExportScreen() {
@@ -21,15 +26,45 @@ export default function ExportScreen() {
   const router = useRouter();
   const styles = useStyles();
   const [selectedFormat, setSelectedFormat] = useState(0);
+  const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   const handleExport = async () => {
+    const fmt = EXPORT_FORMATS[selectedFormat];
+    setExporting(true);
     try {
-      await Share.share({
-        message: 'Polymath OS Export — Deep Structure Knowledge Graph',
-        title: 'Export Knowledge',
-      });
-    } catch (err) {
-      Alert.alert('Export', 'Export functionality coming soon.');
+      const res = await axios.post(`${BACKEND_URL}${fmt.endpoint}`);
+      const content = typeof res.data === 'string' ? res.data : JSON.stringify(res.data, null, 2);
+      const fileName = `polymath_export_${Date.now()}${fmt.ext}`;
+      const filePath = `${FileSystem.cacheDirectory}${fileName}`;
+      await FileSystem.writeAsStringAsync(filePath, content);
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(filePath);
+      } else {
+        await Share.share({ message: content, title: `Polymath Export (${fmt.label})` });
+      }
+      Alert.alert('Export Complete', `Exported as ${fmt.label} successfully.`);
+    } catch (err: any) {
+      Alert.alert('Export Failed', err?.message || 'Could not export data.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleImport = async () => {
+    try {
+      const { File } = await import('expo-file-system/next');
+      const file = await File.pickFileAsync({ types: ['application/json'] });
+      if (!file) return;
+      setImporting(true);
+      const content = await file.text();
+      const data = JSON.parse(content);
+      const res = await axios.post(`${BACKEND_URL}/api/import/restore`, data);
+      Alert.alert('Import Complete', `Restored: ${JSON.stringify(res.data)}`);
+    } catch (err: any) {
+      Alert.alert('Import Failed', err?.message || 'Could not import data.');
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -111,10 +146,26 @@ export default function ExportScreen() {
 
         <View style={{ paddingHorizontal: spacing.xl }}>
           <ArchitectButton
-            label="Generate Export"
+            label={exporting ? 'Exporting...' : 'Generate Export'}
             onPress={handleExport}
             variant="primary"
+            disabled={exporting}
           />
+        </View>
+
+        <View style={{ paddingHorizontal: spacing.xl }}>
+          <SectionHeader label="Import / Restore" icon="upload-file" />
+          <BentoCard padding="lg">
+            <ThemedText variant="body" color="secondary" style={{ marginBottom: spacing.md }}>
+              Restore your full knowledge graph from a previous JSON export.
+            </ThemedText>
+            <ArchitectButton
+              label={importing ? 'Importing...' : 'Import JSON Backup'}
+              onPress={handleImport}
+              variant="outline"
+              disabled={importing}
+            />
+          </BentoCard>
         </View>
 
         <View style={{ height: 40 }} />
