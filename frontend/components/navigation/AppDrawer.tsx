@@ -20,6 +20,17 @@ import { hapticDrawer, hapticPress, hapticSelection } from '../../utils/haptics'
 const DRAWER_WIDTH_RATIO = 0.78;
 const MAX_DRAWER_WIDTH = 300;
 
+// Map routes to screen visibility keys
+const ROUTE_TO_SCREEN: Record<string, string> = {
+  '/(tabs)': 'dashboard',
+  '/(tabs)/knowledge': 'knowledge',
+  '/(tabs)/mesh': 'mesh',
+  '/journal': 'journal',
+  '/chat': 'chat',
+  '/analytics': 'analytics',
+  '/alerts': 'alerts',
+};
+
 interface DrawerLink {
   label: string;
   icon: keyof typeof MaterialIcons.glyphMap;
@@ -51,15 +62,33 @@ export default function AppDrawer() {
   const setDrawerOpen = useStore((s) => s.setDrawerOpen);
   const activities = useStore((s) => s.activities);
   const connections = useStore((s) => s.connections);
+  const preferences = useStore((s) => s.preferences);
 
   const screenWidth = Dimensions.get('window').width;
   const drawerWidth = Math.min(screenWidth * DRAWER_WIDTH_RATIO, MAX_DRAWER_WIDTH);
 
+  // Filter nav links based on visibility preferences
+  const filteredNavLinks = NAV_LINKS.filter((link) => {
+    const screenKey = ROUTE_TO_SCREEN[link.route];
+    if (!screenKey) return true;
+    return preferences.visibleScreens[screenKey as keyof typeof preferences.visibleScreens];
+  });
+
+  const filteredToolLinks = TOOL_LINKS.filter((link) => {
+    const screenKey = ROUTE_TO_SCREEN[link.route];
+    if (!screenKey) return true;
+    return preferences.visibleScreens[screenKey as keyof typeof preferences.visibleScreens];
+  });
+
+  // Sidebar position determines animation direction
+  const isRightSide = preferences.sidebarPosition === 'right';
+
   // Animations
-  const slideAnim = useRef(new Animated.Value(-drawerWidth)).current;
+  const slideAnim = useRef(new Animated.Value(isRightSide ? drawerWidth : -drawerWidth)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    const hiddenValue = isRightSide ? drawerWidth : -drawerWidth;
     if (drawerOpen) {
       Animated.parallel([
         Animated.spring(slideAnim, {
@@ -77,7 +106,7 @@ export default function AppDrawer() {
     } else {
       Animated.parallel([
         Animated.spring(slideAnim, {
-          toValue: -drawerWidth,
+          toValue: hiddenValue,
           useNativeDriver: true,
           damping: 22,
           stiffness: 180,
@@ -89,8 +118,10 @@ export default function AppDrawer() {
         }),
       ]).start();
     }
-  }, [drawerOpen]);
+  }, [drawerOpen, isRightSide]);
 
+  // Hidden sidebar = no drawer at all
+  if (preferences.sidebarPosition === 'hidden') return null;
   if (!drawerOpen) return null;
 
   const close = () => {
@@ -124,6 +155,7 @@ export default function AppDrawer() {
       <Animated.View
         style={[
           styles.drawer,
+          isRightSide ? styles.drawerRight : styles.drawerLeft,
           {
             width: drawerWidth,
             backgroundColor: bg,
@@ -163,7 +195,7 @@ export default function AppDrawer() {
         >
           {/* Main Nav */}
           <View style={styles.navSection}>
-            {NAV_LINKS.map((link, i) => (
+            {filteredNavLinks.map((link, i) => (
               <TouchableOpacity
                 key={link.route}
                 style={[styles.navItem, { backgroundColor: surfaceMuted }]}
@@ -180,7 +212,7 @@ export default function AppDrawer() {
           {/* Tools Section */}
           <Text style={[styles.sectionTitle, { color: textSecondary }]}>TOOLS</Text>
           <View style={styles.navSection}>
-            {TOOL_LINKS.map((link) => (
+            {filteredToolLinks.map((link) => (
               <TouchableOpacity
                 key={link.route}
                 style={[styles.navItem, { backgroundColor: surfaceMuted }]}
@@ -228,7 +260,6 @@ const styles = StyleSheet.create({
   drawer: {
     position: 'absolute',
     top: 0,
-    left: 0,
     bottom: 0,
     ...Platform.select({
       ios: {
@@ -239,6 +270,12 @@ const styles = StyleSheet.create({
       },
       android: { elevation: 24 },
     }),
+  },
+  drawerLeft: {
+    left: 0,
+  },
+  drawerRight: {
+    right: 0,
   },
 
   /* Header */

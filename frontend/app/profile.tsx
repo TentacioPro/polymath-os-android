@@ -134,6 +134,12 @@ export default function ProfileScreen() {
           desc={`${themeName.charAt(0).toUpperCase() + themeName.slice(1)} (7 themes available)`}
           onPress={() => { hapticSelection(); router.push('/appearance' as any); }}
         />
+        <SettingItem
+          icon="tune"
+          label="Customize"
+          desc="Layouts, screens & visibility"
+          onPress={() => { hapticSelection(); router.push('/customize' as any); }}
+        />
 
         {/* System */}
         <Text style={[styles.sectionTitle, { color: textMuted }]}>SYSTEM</Text>

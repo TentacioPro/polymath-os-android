@@ -34,6 +34,7 @@ export default function Dashboard() {
   const insets = useSafeAreaInsets();
   const toggleDrawer = useStore((s) => s.toggleDrawer);
   const { activities, setActivities, setJournals } = useStore();
+  const dashboardLayout = useStore((s) => s.preferences.dashboardLayout);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -153,33 +154,52 @@ export default function Dashboard() {
           ))}
         </View>
 
-        {/* Stats Row */}
-        <View style={styles.statsRow}>
+        {/* Stats Row - Layout responsive */}
+        <View style={[
+          styles.statsRow,
+          dashboardLayout === 'list' && styles.statsRowList,
+          dashboardLayout === 'compact' && styles.statsRowCompact,
+        ]}>
           <TouchableOpacity
-            style={[styles.statCard, { backgroundColor: surface, borderColor: border }]}
+            style={[
+              styles.statCard,
+              { backgroundColor: surface, borderColor: border },
+              dashboardLayout === 'list' && styles.statCardList,
+              dashboardLayout === 'compact' && styles.statCardCompact,
+            ]}
             onPress={() => { hapticLight(); router.push('/(tabs)/knowledge' as any); }}
             activeOpacity={0.8}
           >
-            <MaterialIcons name="layers" size={20} color={accent} />
-            <Text style={[styles.statValue, { color: text }]}>{totalActivities}</Text>
+            <MaterialIcons name="layers" size={dashboardLayout === 'compact' ? 16 : 20} color={accent} />
+            <Text style={[styles.statValue, { color: text }, dashboardLayout === 'compact' && styles.statValueCompact]}>{totalActivities}</Text>
             <Text style={[styles.statLabel, { color: textMuted }]}>Activities</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.statCard, { backgroundColor: surface, borderColor: border }]}
+            style={[
+              styles.statCard,
+              { backgroundColor: surface, borderColor: border },
+              dashboardLayout === 'list' && styles.statCardList,
+              dashboardLayout === 'compact' && styles.statCardCompact,
+            ]}
             onPress={() => { hapticLight(); router.push('/journal' as any); }}
             activeOpacity={0.8}
           >
-            <MaterialIcons name="menu-book" size={20} color={accent} />
-            <Text style={[styles.statValue, { color: text }]}>{totalJournals}</Text>
+            <MaterialIcons name="menu-book" size={dashboardLayout === 'compact' ? 16 : 20} color={accent} />
+            <Text style={[styles.statValue, { color: text }, dashboardLayout === 'compact' && styles.statValueCompact]}>{totalJournals}</Text>
             <Text style={[styles.statLabel, { color: textMuted }]}>Journals</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.statCard, { backgroundColor: accent }]}
+            style={[
+              styles.statCard,
+              { backgroundColor: accent },
+              dashboardLayout === 'list' && styles.statCardList,
+              dashboardLayout === 'compact' && styles.statCardCompact,
+            ]}
             onPress={() => { hapticLight(); router.push('/(tabs)/mesh' as any); }}
             activeOpacity={0.8}
           >
-            <MaterialIcons name="hub" size={20} color={theme.accentContrast} />
-            <Text style={[styles.statValue, { color: theme.accentContrast }]}>{totalConnections}</Text>
+            <MaterialIcons name="hub" size={dashboardLayout === 'compact' ? 16 : 20} color={theme.accentContrast} />
+            <Text style={[styles.statValue, { color: theme.accentContrast }, dashboardLayout === 'compact' && styles.statValueCompact]}>{totalConnections}</Text>
             <Text style={[styles.statLabel, { color: theme.accentContrast + 'CC' }]}>Mesh</Text>
           </TouchableOpacity>
         </View>
@@ -424,4 +444,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   viewAllText: { fontSize: fs(13), fontWeight: '700' },
+
+  /* Layout Variants */
+  statsRowList: { flexDirection: 'column', gap: spacing.sm },
+  statsRowCompact: { gap: spacing.xs },
+  statCardList: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: spacing.md },
+  statCardCompact: { paddingVertical: spacing.sm, paddingHorizontal: spacing.sm },
+  statValueCompact: { fontSize: fs(18) },
 });
