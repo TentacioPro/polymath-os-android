@@ -14,9 +14,9 @@ Full UI/UX revamp for mobile-first, native-feel experience with haptic feedback.
 - [x] Revamp floating pill navigation (haptics added)
 - [x] AppDrawer already updated ✅ (with haptics)
 
-### Phase 3: Tab Screens
-- [ ] Revamp Knowledge screen (`app/(tabs)/knowledge.tsx`)
-- [ ] Revamp Mesh screen (`app/(tabs)/mesh.tsx`)
+### Phase 3: Tab Screens ✅
+- [x] Revamp Knowledge screen (`app/(tabs)/knowledge.tsx`) - mobile-first list view, haptics
+- [x] Revamp Mesh screen (`app/(tabs)/mesh.tsx`) - mobile-first graph, haptics
 
 ### Phase 4: Stack Screens
 - [ ] Revamp Chat screen (`app/chat.tsx`)

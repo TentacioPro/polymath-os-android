@@ -9,65 +9,71 @@ import {
   TextInput,
   Modal,
   Alert,
-  Pressable,
   RefreshControl,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
-import SafeView from '../../components/shared/SafeView';
-import BentoCard from '../../components/ui/BentoCard';
-import SectionHeader from '../../components/ui/SectionHeader';
-import Badge from '../../components/ui/Badge';
-import ThemedText from '../../components/shared/ThemedText';
-import { useTheme, createThemedStyles, spacing, fs, sw } from '../../theme';
+import { useTheme, spacing, fs, sw } from '../../theme';
 import { useStore } from '../../store/useStore';
+import { hapticPress, hapticLight, hapticSuccess, hapticWarning, hapticSelection } from '../../utils/haptics';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+
+const FILTERS = ['All', 'Article', 'PDF', 'Link', 'Audio', 'File'];
 
 const TYPE_ICONS: Record<string, keyof typeof MaterialIcons.glyphMap> = {
   article: 'article',
   pdf: 'picture-as-pdf',
-  image: 'image',
   link: 'link',
   audio: 'mic',
   video: 'videocam',
-  file: 'folder-zip',
+  file: 'folder',
   default: 'description',
 };
 
 export default function Knowledge() {
   const { theme } = useTheme();
-  const router = useRouter();
+  const insets = useSafeAreaInsets();
   const toggleDrawer = useStore((s) => s.toggleDrawer);
   const { activities, setActivities } = useStore();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState<string>('All');
+  const [filter, setFilter] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
   const [addTitle, setAddTitle] = useState('');
   const [addUrl, setAddUrl] = useState('');
   const [addNotes, setAddNotes] = useState('');
   const [saving, setSaving] = useState(false);
-  const styles = useStyles();
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  // Colors
+  const bg = theme.background;
+  const surface = theme.surface;
+  const text = theme.textPrimary;
+  const textMuted = theme.textSecondary;
+  const accent = theme.accent;
+  const border = theme.borderMuted;
+
+  useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${BACKEND_URL}/api/activities?limit=50`);
+      const res = await axios.get(`${BACKEND_URL}/api/activities?limit=100`);
       setActivities(res.data);
     } catch (error) {
-      console.error('Failed to load knowledge sources:', error);
+      console.error('Knowledge load error:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const onRefresh = () => {
+    hapticLight();
     setRefreshing(true);
     loadData().finally(() => setRefreshing(false));
   };
@@ -82,20 +88,23 @@ export default function Knowledge() {
         url: addUrl.trim() || undefined,
         notes: addNotes.trim() || undefined,
       });
+      hapticSuccess();
       setAddTitle('');
       setAddUrl('');
       setAddNotes('');
       setShowAddModal(false);
       loadData();
     } catch (e: any) {
-      Alert.alert('Error', e?.response?.data?.detail || 'Failed to add activity');
+      hapticWarning();
+      Alert.alert('Error', e?.response?.data?.detail || 'Failed to add');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = useCallback((id: string, title: string) => {
-    Alert.alert('Delete Activity', `Remove "${title}"?`, [
+    hapticWarning();
+    Alert.alert('Delete', `Remove "${title}"?`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
@@ -103,8 +112,10 @@ export default function Knowledge() {
         onPress: async () => {
           try {
             await axios.delete(`${BACKEND_URL}/api/activities/${id}`);
+            hapticSuccess();
             setActivities(activities.filter((a: any) => a.id !== id));
           } catch (e) {
+            hapticWarning();
             Alert.alert('Error', 'Failed to delete');
           }
         },
@@ -112,15 +123,14 @@ export default function Knowledge() {
     ]);
   }, [activities, setActivities]);
 
-  const filters = ['All', 'Article', 'PDF', 'Link', 'Audio', 'File'];
   const filtered = filter === 'All'
     ? activities
     : activities.filter((a: any) =>
         (a.content_type || a.source || '').toLowerCase().includes(filter.toLowerCase()),
       );
 
-  const getTypeIcon = (activity: any): keyof typeof MaterialIcons.glyphMap => {
-    const type = (activity.content_type || activity.source || '').toLowerCase();
+  const getIcon = (item: any): keyof typeof MaterialIcons.glyphMap => {
+    const type = (item.content_type || item.source || '').toLowerCase();
     for (const [key, icon] of Object.entries(TYPE_ICONS)) {
       if (type.includes(key)) return icon;
     }
@@ -129,308 +139,234 @@ export default function Knowledge() {
 
   if (loading) {
     return (
-      <SafeView>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.accent} />
-        </View>
-      </SafeView>
+      <View style={[styles.loading, { backgroundColor: bg, paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={accent} />
+      </View>
     );
   }
 
   return (
-    <SafeView>
+    <View style={[styles.container, { backgroundColor: bg }]}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={toggleDrawer} style={styles.menuBtn}>
-          <MaterialIcons name="menu" size={22} color={theme.textPrimary} />
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity
+          onPress={() => { hapticLight(); toggleDrawer(); }}
+          style={[styles.iconBtn, { backgroundColor: surface }]}
+        >
+          <MaterialIcons name="menu" size={22} color={text} />
         </TouchableOpacity>
-        <View style={styles.headerCenter}>
-          <Text style={[styles.systemLabel, { color: theme.textSecondary }]}>
-            Knowledge Sources
-          </Text>
-          <ThemedText variant="display" style={{ fontSize: 24 }}>
-            Source Gallery
-          </ThemedText>
+        <View style={styles.headerText}>
+          <Text style={[styles.title, { color: text }]}>Knowledge</Text>
+          <Text style={[styles.subtitle, { color: textMuted }]}>{activities.length} sources</Text>
         </View>
-        <TouchableOpacity style={styles.searchBtn} onPress={() => router.push('/search')}>
-          <MaterialIcons name="search" size={22} color={theme.textPrimary} />
+        <TouchableOpacity
+          onPress={() => { hapticPress(); router.push('/search' as any); }}
+          style={[styles.iconBtn, { backgroundColor: surface }]}
+        >
+          <MaterialIcons name="search" size={22} color={text} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.searchBtn} onPress={() => setShowAddModal(true)}>
-          <MaterialIcons name="add" size={22} color={theme.textPrimary} />
+        <TouchableOpacity
+          onPress={() => { hapticPress(); setShowAddModal(true); }}
+          style={[styles.iconBtn, { backgroundColor: accent }]}
+        >
+          <MaterialIcons name="add" size={22} color={theme.accentContrast} />
         </TouchableOpacity>
       </View>
 
-      {/* Filter chips */}
+      {/* Filters */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={[styles.filterBar, { borderBottomColor: theme.border }]}
+        style={styles.filterScroll}
         contentContainerStyle={styles.filterContent}
       >
-        {filters.map((f) => (
+        {FILTERS.map((f) => (
           <TouchableOpacity
             key={f}
-            onPress={() => setFilter(f)}
+            onPress={() => { hapticSelection(); setFilter(f); }}
             style={[
               styles.filterChip,
-              {
-                backgroundColor: filter === f ? theme.accent : 'transparent',
-                borderColor: theme.border,
-              },
+              { backgroundColor: filter === f ? accent : surface, borderColor: border },
             ]}
           >
-            <Text
-              style={[
-                styles.filterLabel,
-                { color: filter === f ? theme.accentContrast : theme.textPrimary },
-              ]}
-            >
+            <Text style={[styles.filterText, { color: filter === f ? theme.accentContrast : text }]}>
               {f}
             </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
 
-      {/* Source cards — 3-col grid */}
+      {/* Content */}
       <FlatList
         data={filtered}
         keyExtractor={(item: any) => item.id}
-        numColumns={3}
-        contentContainerStyle={styles.grid}
-        columnWrapperStyle={styles.gridRow}
+        contentContainerStyle={styles.listContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accent} />
         }
         ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <MaterialIcons name="folder-open" size={40} color={theme.textMuted} />
-            <ThemedText variant="body" color="muted" style={{ marginTop: 12 }}>
-              No sources found
-            </ThemedText>
+          <View style={styles.empty}>
+            <MaterialIcons name="folder-open" size={48} color={border} />
+            <Text style={[styles.emptyText, { color: textMuted }]}>No sources found</Text>
           </View>
         }
-        renderItem={({ item }: any) => (
+        renderItem={({ item, index }) => (
           <TouchableOpacity
-            style={styles.sourceCard}
-            activeOpacity={0.8}
-            onPress={() => router.push({ pathname: '/activity-detail', params: { id: item.id } })}
+            style={[styles.itemCard, { backgroundColor: surface, borderColor: border }]}
+            onPress={() => { hapticLight(); router.push(`/activity-detail?id=${item.id}` as any); }}
             onLongPress={() => handleDelete(item.id, item.title)}
+            activeOpacity={0.7}
           >
-            <BentoCard padding="sm" style={{ flex: 1 }}>
-              <View style={styles.sourceIcon}>
-                <MaterialIcons
-                  name={getTypeIcon(item)}
-                  size={24}
-                  color={theme.textPrimary}
-                />
-              </View>
-              <Text
-                style={[styles.sourceTitle, { color: theme.textPrimary }]}
-                numberOfLines={2}
-              >
+            <View style={[styles.itemIcon, { backgroundColor: bg }]}>
+              <MaterialIcons name={getIcon(item)} size={20} color={accent} />
+            </View>
+            <View style={styles.itemContent}>
+              <Text style={[styles.itemTitle, { color: text }]} numberOfLines={1}>
                 {item.title}
               </Text>
-              <Badge
-                label={(item.content_type || item.category || 'FILE').toUpperCase().slice(0, 4)}
-                variant="filled"
-              />
-            </BentoCard>
+              <Text style={[styles.itemMeta, { color: textMuted }]} numberOfLines={1}>
+                {item.source}{item.category ? ` · ${item.category}` : ''}
+              </Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={20} color={textMuted} />
           </TouchableOpacity>
         )}
-        ListFooterComponent={<View style={{ height: 100 }} />}
+        ListFooterComponent={<View style={{ height: 120 }} />}
       />
 
-      {/* Add Activity Modal */}
+      {/* Add Modal */}
       <Modal visible={showAddModal} animationType="slide" transparent>
-        <View style={[styles.modalOverlay]}>
-          <View style={[styles.modalContent, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+        >
+          <View style={[styles.modalContent, { backgroundColor: surface, paddingBottom: insets.bottom + 16 }]}>
             <View style={styles.modalHeader}>
-              <ThemedText variant="heading">Add Knowledge</ThemedText>
-              <TouchableOpacity onPress={() => setShowAddModal(false)}>
-                <MaterialIcons name="close" size={22} color={theme.textPrimary} />
+              <Text style={[styles.modalTitle, { color: text }]}>Add Knowledge</Text>
+              <TouchableOpacity onPress={() => { hapticLight(); setShowAddModal(false); }}>
+                <MaterialIcons name="close" size={24} color={text} />
               </TouchableOpacity>
             </View>
 
-            <Text style={[styles.modalLabel, { color: theme.textSecondary }]}>TITLE *</Text>
+            <Text style={[styles.label, { color: textMuted }]}>Title *</Text>
             <TextInput
-              style={[styles.modalInput, { color: theme.textPrimary, borderColor: theme.border }]}
+              style={[styles.input, { color: text, borderColor: border, backgroundColor: bg }]}
               placeholder="What did you learn?"
-              placeholderTextColor={theme.textMuted}
+              placeholderTextColor={textMuted}
               value={addTitle}
               onChangeText={setAddTitle}
             />
 
-            <Text style={[styles.modalLabel, { color: theme.textSecondary }]}>URL (optional)</Text>
+            <Text style={[styles.label, { color: textMuted }]}>URL (optional)</Text>
             <TextInput
-              style={[styles.modalInput, { color: theme.textPrimary, borderColor: theme.border }]}
+              style={[styles.input, { color: text, borderColor: border, backgroundColor: bg }]}
               placeholder="https://..."
-              placeholderTextColor={theme.textMuted}
+              placeholderTextColor={textMuted}
               value={addUrl}
               onChangeText={setAddUrl}
               autoCapitalize="none"
               keyboardType="url"
             />
 
-            <Text style={[styles.modalLabel, { color: theme.textSecondary }]}>NOTES (optional)</Text>
+            <Text style={[styles.label, { color: textMuted }]}>Notes (optional)</Text>
             <TextInput
-              style={[styles.modalInput, styles.modalTextArea, { color: theme.textPrimary, borderColor: theme.border }]}
+              style={[styles.input, styles.textArea, { color: text, borderColor: border, backgroundColor: bg }]}
               placeholder="Any notes..."
-              placeholderTextColor={theme.textMuted}
+              placeholderTextColor={textMuted}
               value={addNotes}
               onChangeText={setAddNotes}
               multiline
             />
 
             <TouchableOpacity
-              style={[styles.modalSubmitBtn, { backgroundColor: theme.accent, opacity: addTitle.trim() && !saving ? 1 : 0.4 }]}
-              onPress={handleAdd}
+              style={[styles.submitBtn, { backgroundColor: accent, opacity: addTitle.trim() && !saving ? 1 : 0.5 }]}
+              onPress={() => { hapticPress(); handleAdd(); }}
               disabled={!addTitle.trim() || saving}
             >
               {saving ? (
                 <ActivityIndicator size="small" color={theme.accentContrast} />
               ) : (
-                <Text style={[styles.modalSubmitText, { color: theme.accentContrast }]}>Add Activity</Text>
+                <Text style={[styles.submitText, { color: theme.accentContrast }]}>Add</Text>
               )}
             </TouchableOpacity>
 
-            <Text style={[styles.hintText, { color: theme.textMuted }]}>
-              Long-press any card to delete
-            </Text>
+            <Text style={[styles.hint, { color: textMuted }]}>Long-press items to delete</Text>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
-    </SafeView>
+    </View>
   );
 }
 
-const useStyles = createThemedStyles((theme) => ({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+
+  /* Header */
   header: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    paddingHorizontal: sw(20),
-    paddingVertical: sw(16),
-    borderBottomWidth: 1,
-    borderBottomColor: theme.borderMuted,
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+    gap: spacing.sm,
   },
-  menuBtn: {
-    padding: 4,
-  },
-  headerCenter: {
-    flex: 1,
-    marginLeft: sw(12),
-  },
-  systemLabel: {
-    fontSize: fs(10),
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    marginBottom: 2,
-  },
-  searchBtn: {
-    padding: 4,
-  },
-  filterBar: {
-    borderBottomWidth: 1,
-    maxHeight: 52,
-  },
-  filterContent: {
-    paddingHorizontal: sw(20),
-    paddingVertical: sw(10),
-    gap: sw(8),
-    flexDirection: 'row',
-  },
-  filterChip: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: sw(16),
-    paddingVertical: 6,
-  },
-  filterLabel: {
-    fontSize: fs(11),
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    fontWeight: '500',
-  },
-  grid: {
-    padding: sw(20),
-  },
-  gridRow: {
-    gap: sw(8),
-    marginBottom: sw(8),
-  },
-  sourceCard: {
-    flex: 1,
-    maxWidth: '33.33%',
-  },
-  sourceIcon: {
-    marginBottom: spacing.sm,
-  },
-  sourceTitle: {
-    fontSize: fs(11),
-    fontWeight: '600',
-    marginBottom: spacing.sm,
-    lineHeight: 14,
-  },
-  emptyState: {
+  headerText: { flex: 1, marginLeft: spacing.sm },
+  title: { fontSize: fs(20), fontWeight: '700' },
+  subtitle: { fontSize: fs(12), marginTop: 2 },
+  iconBtn: {
+    width: sw(44),
+    height: sw(44),
+    borderRadius: sw(12),
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 60,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    borderTopWidth: 1,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    padding: sw(20),
-    gap: sw(8),
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: sw(8),
-  },
-  modalLabel: {
-    fontSize: fs(10),
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    marginTop: sw(4),
-  },
-  modalInput: {
+
+  /* Filters */
+  filterScroll: { maxHeight: 52 },
+  filterContent: { paddingHorizontal: spacing.lg, gap: spacing.sm, paddingBottom: spacing.md },
+  filterChip: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: 10,
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: sw(12),
-    paddingVertical: sw(10),
-    fontSize: fs(14),
   },
-  modalTextArea: {
-    minHeight: 80,
-    textAlignVertical: 'top',
-  },
-  modalSubmitBtn: {
-    paddingVertical: 14,
+  filterText: { fontSize: fs(12), fontWeight: '600' },
+
+  /* List */
+  listContent: { paddingHorizontal: spacing.lg },
+  itemCard: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 8,
-    marginTop: sw(8),
+    padding: spacing.md,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: spacing.sm,
+    gap: spacing.md,
   },
-  modalSubmitText: {
-    fontSize: fs(13),
-    fontWeight: '700',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
+  itemIcon: {
+    width: sw(40),
+    height: sw(40),
+    borderRadius: sw(10),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  hintText: {
-    fontSize: fs(10),
-    textAlign: 'center',
-    marginTop: sw(4),
-    marginBottom: sw(8),
-  },
-}));
+  itemContent: { flex: 1 },
+  itemTitle: { fontSize: fs(14), fontWeight: '600', marginBottom: 2 },
+  itemMeta: { fontSize: fs(11) },
+
+  /* Empty */
+  empty: { alignItems: 'center', paddingVertical: spacing.xxxl },
+  emptyText: { fontSize: fs(14), marginTop: spacing.md },
+
+  /* Modal */
+  modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
+  modalContent: { borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: spacing.lg },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
+  modalTitle: { fontSize: fs(18), fontWeight: '700' },
+  label: { fontSize: fs(11), textTransform: 'uppercase', letterSpacing: 1, marginTop: spacing.md, marginBottom: spacing.xs },
+  input: { borderWidth: 1, borderRadius: 12, paddingHorizontal: spacing.md, paddingVertical: spacing.md, fontSize: fs(15) },
+  textArea: { minHeight: 80, textAlignVertical: 'top' },
+  submitBtn: { paddingVertical: spacing.lg, borderRadius: 12, alignItems: 'center', marginTop: spacing.lg },
+  submitText: { fontSize: fs(14), fontWeight: '700' },
+  hint: { fontSize: fs(11), textAlign: 'center', marginTop: spacing.md },
+});
