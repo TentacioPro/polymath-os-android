@@ -8,12 +8,14 @@ import {
   Share,
   ActivityIndicator,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
-import * as FileSystem from 'expo-file-system';
+import { Paths, File as ExpoFile } from 'expo-file-system';
+import * as DocumentPicker from 'expo-document-picker';
 import * as Sharing from 'expo-sharing';
 import { useTheme, spacing, fs, sw } from '../theme';
 import { hapticLight, hapticPress, hapticSuccess, hapticWarning, hapticSelection } from '../utils/haptics';
@@ -50,10 +52,10 @@ export default function ExportScreen() {
       const res = await axios.post(`${BACKEND_URL}${fmt.endpoint}`);
       const content = typeof res.data === 'string' ? res.data : JSON.stringify(res.data, null, 2);
       const fileName = `polymath_export_${Date.now()}${fmt.ext}`;
-      const filePath = `${FileSystem.cacheDirectory}${fileName}`;
-      await FileSystem.writeAsStringAsync(filePath, content);
+      const file = new ExpoFile(Paths.cache, fileName);
+      await file.write(content);
       if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(filePath);
+        await Sharing.shareAsync(file.uri);
       } else {
         await Share.share({ message: content, title: `Polymath Export (${fmt.label})` });
       }
@@ -69,11 +71,15 @@ export default function ExportScreen() {
 
   const handleImport = async () => {
     try {
-      const { File } = await import('expo-file-system/next');
-      const file = await File.pickFileAsync({ types: ['application/json'] });
-      if (!file) return;
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/json',
+        copyToCacheDirectory: true,
+      });
+      if (result.canceled || !result.assets || result.assets.length === 0) return;
+      const asset = result.assets[0];
       hapticPress();
       setImporting(true);
+      const file = new ExpoFile(asset.uri);
       const content = await file.text();
       const data = JSON.parse(content);
       const res = await axios.post(`${BACKEND_URL}/api/import/restore`, data);

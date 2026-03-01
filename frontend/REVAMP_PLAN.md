@@ -30,12 +30,11 @@ Full UI/UX revamp for mobile-first, native-feel experience with haptic feedback.
 - [x] Revamp Integrations screen (`app/integrations.tsx`) - mobile-first with haptics
 - [x] Revamp Alerts screen (`app/alerts.tsx`) - mobile-first with haptics
 
-### Phase 5: UI Components
-- [ ] Revamp StatCard
-- [ ] Revamp BentoCard  
-- [ ] Revamp ArchitectButton
-- [ ] Revamp Badge
-- [ ] Add new components as needed
+### Phase 5: UI Components ✅
+- [x] ArchitectButton - Added haptic feedback
+- [x] Export screen - Fixed expo-file-system v19 API (Paths, File classes)
+- [x] Installed expo-document-picker for file import
+- [x] StatCard, BentoCard, Badge - Display-only (no changes needed)
 
 ### Phase 6: Polish & Commit
 - [ ] Final testing

@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ViewStyle, ActivityIndicator } from 'react-native';
 import { useTheme, useArchitectShadow } from '../../theme';
+import { hapticPress } from '../../utils/haptics';
 
 interface ArchitectButtonProps {
   label: string;
@@ -45,9 +46,14 @@ export default function ArchitectButton({
       ? 'transparent'
       : 'transparent';
 
+  const handlePress = () => {
+    hapticPress();
+    onPress();
+  };
+
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled || loading}
       activeOpacity={0.8}
       style={[
