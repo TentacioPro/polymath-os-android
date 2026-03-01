@@ -8,6 +8,7 @@ import {
   TextInput,
   Modal,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -45,6 +46,7 @@ export default function JournalScreen() {
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
   const [saving, setSaving] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadJournals();
@@ -61,6 +63,11 @@ export default function JournalScreen() {
       setLoading(false);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadJournals().finally(() => setRefreshing(false));
+  }, []);
 
   const handleSave = async () => {
     if (!title.trim() || !content.trim()) return;
@@ -131,7 +138,12 @@ export default function JournalScreen() {
 
   return (
     <SafeView>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+        }
+      >
         {/* Header */}
         <View style={[styles.header, { borderBottomColor: theme.border }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>

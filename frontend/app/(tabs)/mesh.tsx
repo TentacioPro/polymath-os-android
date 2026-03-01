@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,11 @@ import {
   ActivityIndicator,
   Dimensions,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import Svg, { Line, Rect, Text as SvgText } from 'react-native-svg';
+import Svg, { Line, Rect, Circle, Text as SvgText } from 'react-native-svg';
+import { useRouter } from 'expo-router';
 import axios from 'axios';
 import SafeView from '../../components/shared/SafeView';
 import BentoCard from '../../components/ui/BentoCard';
@@ -39,10 +41,12 @@ interface MeshEdge {
 
 export default function NeuralMesh() {
   const { theme } = useTheme();
+  const router = useRouter();
   const toggleDrawer = useStore((s) => s.toggleDrawer);
   const { connections, setConnections } = useStore();
   const { activities } = useStore();
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
@@ -65,8 +69,14 @@ export default function NeuralMesh() {
       console.error('Failed to load connections:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadConnections();
+  }, []);
 
   const handleGenerateAll = async () => {
     if (activities.length === 0) {
@@ -103,7 +113,7 @@ export default function NeuralMesh() {
     }
   };
 
-  // Create graph nodes from connections
+  // Create graph nodes from connections — force-directed layout
   const nodes: MeshNode[] = React.useMemo(() => {
     if (connections.length === 0) {
       return [
@@ -115,38 +125,59 @@ export default function NeuralMesh() {
       ];
     }
 
-    const uniqueLabels = new Set<string>();
+    const uniqueMap = new Map<string, string>();
     connections.forEach((c: any) => {
-      uniqueLabels.add(c.activity_1_title || c.from || 'Node');
-      uniqueLabels.add(c.activity_2_title || c.to || 'Node');
+      const k1 = c.from_id || c.from || c.activity_1_title || 'A';
+      const k2 = c.to_id || c.to || c.activity_2_title || 'B';
+      if (!uniqueMap.has(k1)) uniqueMap.set(k1, c.activity_1_title || c.from || 'Node');
+      if (!uniqueMap.has(k2)) uniqueMap.set(k2, c.activity_2_title || c.to || 'Node');
     });
 
-    const labels = Array.from(uniqueLabels).slice(0, 8);
-    return labels.map((label, i) => ({
-      id: `n${i}`,
-      label: label.slice(0, 20),
-      x: graphWidth * (0.15 + 0.7 * Math.random()),
-      y: 30 + (graphHeight - 60) * Math.random(),
-      type: (i === 0 ? 'root' : i < 3 ? 'primary' : 'secondary') as MeshNode['type'],
-    }));
+    const entries = Array.from(uniqueMap.entries()).slice(0, 10);
+    // Arrange in a circle, then nudge with a simple hash for variety
+    const cx = graphWidth / 2;
+    const cy = graphHeight / 2;
+    const radius = Math.min(graphWidth, graphHeight) * 0.35;
+
+    return entries.map(([id, label], i) => {
+      const angle = (2 * Math.PI * i) / entries.length - Math.PI / 2;
+      // Simple deterministic hash for slight offset
+      const hash = (id.charCodeAt(0) + id.length) % 20 - 10;
+      return {
+        id,
+        label: label.slice(0, 18),
+        x: Math.max(60, Math.min(graphWidth - 60, cx + radius * Math.cos(angle) + hash)),
+        y: Math.max(20, Math.min(graphHeight - 20, cy + radius * Math.sin(angle) + hash * 0.5)),
+        type: (i === 0 ? 'root' : i < 3 ? 'primary' : 'secondary') as MeshNode['type'],
+      };
+    });
   }, [connections, graphWidth, graphHeight]);
 
   const edges: MeshEdge[] = React.useMemo(() => {
     if (nodes.length <= 1) return [];
-    const result: MeshEdge[] = [];
-    for (let i = 1; i < nodes.length; i++) {
-      result.push({
-        from: nodes[Math.max(0, i - 1 - Math.floor(Math.random() * 2))].id,
-        to: nodes[i].id,
-        dashed: nodes[i].type === 'pending',
-      });
+    if (connections.length === 0) {
+      // Default demo edges
+      const result: MeshEdge[] = [];
+      for (let i = 1; i < nodes.length; i++) {
+        result.push({ from: nodes[0].id, to: nodes[i].id });
+      }
+      return result;
     }
-    return result;
-  }, [nodes]);
+    return connections.slice(0, 15).map((c: any) => ({
+      from: c.from_id || c.from || c.activity_1_title || '',
+      to: c.to_id || c.to || c.activity_2_title || '',
+      dashed: (c.strength || 0.5) < 0.3,
+    })).filter(e => nodes.some(n => n.id === e.from) && nodes.some(n => n.id === e.to));
+  }, [nodes, connections]);
 
   return (
     <SafeView>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+        }
+      >
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={toggleDrawer} style={styles.menuBtn}>

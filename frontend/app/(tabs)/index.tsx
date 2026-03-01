@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
@@ -26,6 +27,7 @@ export default function Dashboard() {
   const { activities, setActivities, setJournals } = useStore();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const styles = useStyles();
 
   useEffect(() => {
@@ -50,6 +52,11 @@ export default function Dashboard() {
     }
   };
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadData().finally(() => setRefreshing(false));
+  }, []);
+
   if (loading) {
     return (
       <SafeView>
@@ -65,7 +72,13 @@ export default function Dashboard() {
 
   return (
     <SafeView>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+        }
+      >
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={toggleDrawer} style={styles.menuBtn}>

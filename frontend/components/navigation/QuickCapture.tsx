@@ -10,6 +10,7 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
+  Clipboard,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -126,6 +127,26 @@ export default function QuickCapture({ visible, onClose, onSubmit }: QuickCaptur
                 key={action.label}
                 style={[styles.actionItem, { borderColor: d.border, borderRadius: 8 }]}
                 activeOpacity={0.7}
+                onPress={() => {
+                  if (action.label === 'Link') {
+                    // Paste link from clipboard
+                    Clipboard.getString().then((clipText) => {
+                      if (clipText && /^https?:\/\//i.test(clipText)) {
+                        setText(clipText);
+                      } else {
+                        Alert.alert('Paste a Link', 'Copy a URL to your clipboard first, then tap Link to paste it.');
+                      }
+                    }).catch(() => {
+                      Alert.alert('Clipboard', 'Could not read clipboard.');
+                    });
+                  } else if (action.label === 'Voice') {
+                    Alert.alert('Voice Capture', 'Voice recording coming soon. Type your note instead.');
+                  } else if (action.label === 'Scan') {
+                    Alert.alert('Scan', 'Camera scanning coming soon. Use Link or File instead.');
+                  } else if (action.label === 'File') {
+                    Alert.alert('File Upload', 'Document picker coming soon. Use quick text capture for now.');
+                  }
+                }}
               >
                 <MaterialIcons name={action.icon} size={fs(18)} color={d.textPrimary} />
                 <Text style={[styles.actionLabel, { color: d.textPrimary }]}>

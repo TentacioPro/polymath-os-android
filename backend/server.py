@@ -484,6 +484,26 @@ Respond with ONLY JSON:
 
 # ============= API ENDPOINTS =============
 
+@api_router.get("/health")
+async def health_check():
+    """System health check endpoint"""
+    try:
+        # Check MongoDB connection
+        await db.command("ping")
+        db_status = "connected"
+    except Exception:
+        db_status = "disconnected"
+    
+    ai_status = "configured" if OPENAI_API_KEY else "not_configured"
+    
+    return {
+        "status": "operational" if db_status == "connected" else "degraded",
+        "database": db_status,
+        "ai": ai_status,
+        "version": "1.0.0",
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
 @api_router.get("/")
 async def root():
     return {"message": "Polymath OS API"}
@@ -586,6 +606,115 @@ async def get_activities(skip: int = 0, limit: int = 100, category: Optional[str
     
     activities = await db.activities.find(query).sort("timestamp", -1).skip(skip).limit(limit).to_list(limit)
     return [Activity(**activity) for activity in activities]
+
+@api_router.get("/activities/{activity_id}")
+async def get_activity_detail(activity_id: str):
+    """Get a single activity by ID with full details"""
+    activity = await db.activities.find_one({"id": activity_id})
+    if not activity:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    if "_id" in activity:
+        del activity["_id"]
+    # Also fetch related connections
+    connections = await db.connections.find({
+        "$or": [{"from_id": activity_id}, {"to_id": activity_id}]
+    }).to_list(50)
+    for c in connections:
+        if "_id" in c:
+            del c["_id"]
+    activity["related_connections"] = connections
+    return activity
+
+@api_router.get("/search")
+async def search_all(q: str, limit: int = 30):
+    """Full-text search across activities, journals, and connections"""
+    if not q or len(q) < 2:
+        return {"activities": [], "journals": [], "connections": []}
+    
+    regex_pattern = {"$regex": q, "$options": "i"}
+    
+    # Search activities
+    act_query = {"$or": [
+        {"title": regex_pattern},
+        {"notes": regex_pattern},
+        {"category": regex_pattern},
+        {"content_type": regex_pattern},
+    ]}
+    activities = await db.activities.find(act_query).sort("timestamp", -1).limit(limit).to_list(limit)
+    
+    # Search journals
+    jrnl_query = {"$or": [
+        {"title": regex_pattern},
+        {"content": regex_pattern},
+        {"tags": regex_pattern},
+    ]}
+    journals = await db.journals.find(jrnl_query).sort("timestamp", -1).limit(limit).to_list(limit)
+    
+    # Search connections
+    conn_query = {"$or": [
+        {"ai_reasoning": regex_pattern},
+        {"connection_type": regex_pattern},
+    ]}
+    connections = await db.connections.find(conn_query).limit(limit).to_list(limit)
+    
+    def clean(doc):
+        if doc and "_id" in doc:
+            del doc["_id"]
+        return doc
+    
+    return {
+        "activities": [clean(a) for a in activities],
+        "journals": [clean(j) for j in journals],
+        "connections": [clean(c) for c in connections],
+        "total": len(activities) + len(journals) + len(connections),
+    }
+
+@api_router.get("/notifications")
+async def get_notifications(limit: int = 20):
+    """Get system notifications based on recent activity"""
+    notifications = []
+    
+    # Recent connections discovered
+    recent_connections = await db.connections.find().sort("timestamp", -1).limit(5).to_list(5)
+    for conn in recent_connections:
+        if "_id" in conn:
+            del conn["_id"]
+        notifications.append({
+            "id": conn.get("id", str(uuid.uuid4())),
+            "title": "Connection discovered",
+            "desc": conn.get("ai_reasoning", "New semantic link found")[:80],
+            "type": "info",
+            "timestamp": conn.get("timestamp", datetime.utcnow()).isoformat() if isinstance(conn.get("timestamp"), datetime) else str(conn.get("timestamp", "")),
+        })
+    
+    # Recent learning logs
+    recent_logs = await db.learning_logs.find().sort("learned_at", -1).limit(3).to_list(3)
+    for log in recent_logs:
+        if "_id" in log:
+            del log["_id"]
+        notifications.append({
+            "id": log.get("id", str(uuid.uuid4())),
+            "title": "Learning event",
+            "desc": log.get("insight", "Agent learned something new")[:80],
+            "type": "success",
+            "timestamp": log.get("learned_at", datetime.utcnow()).isoformat() if isinstance(log.get("learned_at"), datetime) else str(log.get("learned_at", "")),
+        })
+    
+    # Check data health
+    total_activities = await db.activities.count_documents({})
+    total_connections = await db.connections.count_documents({})
+    if total_activities > 0 and total_connections == 0:
+        notifications.append({
+            "id": "no-connections-hint",
+            "title": "No connections yet",
+            "desc": f"You have {total_activities} activities. Generate connections from the Neural Mesh screen.",
+            "type": "warning",
+            "timestamp": datetime.utcnow().isoformat(),
+        })
+    
+    # Sort by timestamp descending
+    notifications.sort(key=lambda n: n.get("timestamp", ""), reverse=True)
+    return notifications[:limit]
 
 @api_router.delete("/activities/{activity_id}")
 async def delete_activity(activity_id: str):

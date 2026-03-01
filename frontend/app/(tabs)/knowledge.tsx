@@ -10,8 +10,10 @@ import {
   Modal,
   Alert,
   Pressable,
+  RefreshControl,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import axios from 'axios';
 import SafeView from '../../components/shared/SafeView';
 import BentoCard from '../../components/ui/BentoCard';
@@ -36,9 +38,11 @@ const TYPE_ICONS: Record<string, keyof typeof MaterialIcons.glyphMap> = {
 
 export default function Knowledge() {
   const { theme } = useTheme();
+  const router = useRouter();
   const toggleDrawer = useStore((s) => s.toggleDrawer);
   const { activities, setActivities } = useStore();
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<string>('All');
   const [showAddModal, setShowAddModal] = useState(false);
   const [addTitle, setAddTitle] = useState('');
@@ -61,6 +65,11 @@ export default function Knowledge() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadData().finally(() => setRefreshing(false));
   };
 
   const handleAdd = async () => {
@@ -143,6 +152,9 @@ export default function Knowledge() {
             Source Gallery
           </ThemedText>
         </View>
+        <TouchableOpacity style={styles.searchBtn} onPress={() => router.push('/search')}>
+          <MaterialIcons name="search" size={22} color={theme.textPrimary} />
+        </TouchableOpacity>
         <TouchableOpacity style={styles.searchBtn} onPress={() => setShowAddModal(true)}>
           <MaterialIcons name="add" size={22} color={theme.textPrimary} />
         </TouchableOpacity>
@@ -186,6 +198,9 @@ export default function Knowledge() {
         numColumns={3}
         contentContainerStyle={styles.grid}
         columnWrapperStyle={styles.gridRow}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+        }
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <MaterialIcons name="folder-open" size={40} color={theme.textMuted} />
@@ -198,6 +213,7 @@ export default function Knowledge() {
           <TouchableOpacity
             style={styles.sourceCard}
             activeOpacity={0.8}
+            onPress={() => router.push({ pathname: '/activity-detail', params: { id: item.id } })}
             onLongPress={() => handleDelete(item.id, item.title)}
           >
             <BentoCard padding="sm" style={{ flex: 1 }}>

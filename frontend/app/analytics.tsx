@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
@@ -19,29 +19,45 @@ export default function AnalyticsScreen() {
 
   const [stats, setStats] = useState<any>(null);
   const [agentStats, setAgentStats] = useState<any>(null);
+  const [health, setHealth] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchStats = async () => {
+    try {
+      const [sRes, aRes, hRes] = await Promise.all([
+        axios.get(`${BACKEND_URL}/api/stats`),
+        axios.get(`${BACKEND_URL}/api/agent/stats`).catch(() => ({ data: null })),
+        axios.get(`${BACKEND_URL}/api/health`).catch(() => ({ data: null })),
+      ]);
+      setStats(sRes.data);
+      setAgentStats(aRes.data);
+      setHealth(hRes.data);
+    } catch (e) {
+      console.error('Failed to fetch analytics:', e);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const [sRes, aRes] = await Promise.all([
-          axios.get(`${BACKEND_URL}/api/stats`),
-          axios.get(`${BACKEND_URL}/api/agent/stats`).catch(() => ({ data: null })),
-        ]);
-        setStats(sRes.data);
-        setAgentStats(aRes.data);
-      } catch (e) {
-        console.error('Failed to fetch analytics:', e);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchStats();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
     fetchStats();
   }, []);
 
   return (
     <SafeView>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+        }
+      >
         <View style={[styles.header, { borderBottomColor: theme.border }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
             <MaterialIcons name="arrow-back" size={22} color={theme.textPrimary} />
@@ -109,6 +125,50 @@ export default function AnalyticsScreen() {
                 )}
               </BentoCard>
             </View>
+
+            {/* Source Distribution */}
+            {stats?.source_distribution && stats.source_distribution.length > 0 && (
+              <View style={{ paddingHorizontal: spacing.xl }}>
+                <SectionHeader label="Source Distribution" icon="pie-chart" />
+                <BentoCard padding="lg">
+                  <View style={{ gap: 8 }}>
+                    {stats.source_distribution.map((src: [string, number], i: number) => (
+                      <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <ThemedText variant="body" style={{ flex: 1 }}>{src[0] || 'unknown'}</ThemedText>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                          <View style={{ width: 60, height: 4, backgroundColor: theme.border, overflow: 'hidden' }}>
+                            <View style={{ height: '100%', backgroundColor: '#FFB800', width: `${Math.min(src[1] * 10, 100)}%` }} />
+                          </View>
+                          <ThemedText variant="caption" color="muted" style={{ width: 20, textAlign: 'right' }}>{src[1]}</ThemedText>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </BentoCard>
+              </View>
+            )}
+
+            {/* System Health */}
+            {health && (
+              <View style={{ paddingHorizontal: spacing.xl }}>
+                <SectionHeader label="System Health" icon="monitor-heart" />
+                <View style={styles.statsGrid}>
+                  <StatCard
+                    label="STATUS"
+                    value={health.status === 'healthy' ? 'OK' : 'WARN'}
+                  />
+                  <StatCard
+                    label="DATABASE"
+                    value={health.database?.status === 'connected' ? 'UP' : 'DOWN'}
+                  />
+                  <StatCard
+                    label="AI"
+                    value={health.ai?.configured ? 'ON' : 'OFF'}
+                    inverted
+                  />
+                </View>
+              </View>
+            )}
           </>
         )}
 

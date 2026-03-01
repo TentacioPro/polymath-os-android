@@ -9,6 +9,7 @@ import { ThemeProvider } from '../theme';
 import type { ThemeName } from '../theme';
 import { useStore } from '../store/useStore';
 import AppDrawer from '../components/navigation/AppDrawer';
+import ErrorBoundary from '../components/shared/ErrorBoundary';
 
 // Keep splash visible while fonts load
 SplashScreen.preventAutoHideAsync();
@@ -39,10 +40,11 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider themeName={themeName} onThemeChange={handleThemeChange}>
-        <View style={{ flex: 1 }} onLayout={onLayoutReady}>
-          <StatusBar style={themeName === 'nova' ? 'dark' : 'light'} />
-          <Stack
+      <ErrorBoundary>
+        <ThemeProvider themeName={themeName} onThemeChange={handleThemeChange}>
+          <View style={{ flex: 1 }} onLayout={onLayoutReady}>
+            <StatusBar style={themeName === 'nova' ? 'dark' : 'light'} />
+            <Stack
             screenOptions={{
               headerShown: false,
               contentStyle: { backgroundColor: 'transparent' },
@@ -61,10 +63,13 @@ export default function RootLayout() {
             <Stack.Screen name="alerts" />
             <Stack.Screen name="export" />
             <Stack.Screen name="journal" />
+            <Stack.Screen name="activity-detail" />
+            <Stack.Screen name="search" />
           </Stack>
           <AppDrawer />
         </View>
       </ThemeProvider>
+      </ErrorBoundary>
     </SafeAreaProvider>
   );
 }
