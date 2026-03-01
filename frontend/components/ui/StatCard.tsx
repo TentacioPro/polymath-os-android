@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import { useTheme, spacing } from '../../theme';
 
 interface StatCardProps {
@@ -21,10 +21,29 @@ export default function StatCard({ value, label, icon, inverted, badge }: StatCa
   const bg = inverted ? theme.accent : theme.surface;
   const textColor = inverted ? theme.accentContrast : theme.textPrimary;
   const mutedColor = inverted ? theme.accentContrast + '99' : theme.textSecondary;
-  const borderColor = inverted ? 'transparent' : theme.border;
+  const borderColor = inverted ? 'transparent' : theme.borderMuted;
 
   return (
-    <View style={[styles.card, { backgroundColor: bg, borderColor }]}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: bg,
+          borderColor,
+          ...(inverted
+            ? Platform.select({
+                ios: {
+                  shadowColor: theme.accent,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 8,
+                },
+                android: { elevation: 6 },
+              })
+            : {}),
+        },
+      ]}
+    >
       <View style={styles.topRow}>
         {icon}
         {badge && (
@@ -56,10 +75,10 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 12,
     padding: spacing.md,
     justifyContent: 'space-between',
-    minHeight: 100,
+    minHeight: 96,
   },
   topRow: {
     flexDirection: 'row',

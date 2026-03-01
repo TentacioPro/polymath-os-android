@@ -46,7 +46,7 @@ export default function BentoCard({
             : elevated
               ? theme.surfaceElevated
               : theme.surface,
-          borderColor: inverted ? 'transparent' : theme.border,
+          borderColor: inverted ? 'transparent' : theme.borderMuted,
           padding: paddingMap[padding],
         },
         shadow && architectShadow,
@@ -62,7 +62,7 @@ export default function BentoCard({
 const styles = StyleSheet.create({
   card: {
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 12,
     overflow: 'hidden',
   },
 });

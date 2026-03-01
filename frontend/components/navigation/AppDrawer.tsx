@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -16,8 +16,8 @@ import { useTheme, spacing } from '../../theme';
 import { useStore } from '../../store/useStore';
 import { router } from 'expo-router';
 
-const DRAWER_WIDTH_RATIO = 0.85;
-const MAX_DRAWER_WIDTH = 360;
+const DRAWER_WIDTH_RATIO = 0.72;
+const MAX_DRAWER_WIDTH = 320;
 
 interface DrawerLink {
   label: string;
@@ -59,27 +59,67 @@ export default function AppDrawer() {
     MAX_DRAWER_WIDTH,
   );
 
+  // Slide + fade animations
+  const slideAnim = useRef(new Animated.Value(-drawerWidth)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (drawerOpen) {
+      Animated.parallel([
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          useNativeDriver: true,
+          damping: 20,
+          stiffness: 200,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.spring(slideAnim, {
+          toValue: -drawerWidth,
+          useNativeDriver: true,
+          damping: 20,
+          stiffness: 200,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [drawerOpen]);
+
   if (!drawerOpen) return null;
 
   const close = () => setDrawerOpen(false);
 
   const navigate = (route: string) => {
     close();
-    setTimeout(() => router.push(route as any), 100);
+    setTimeout(() => router.push(route as any), 150);
   };
 
   const d = theme.drawer;
 
   return (
     <View style={[StyleSheet.absoluteFill, styles.overlay, { zIndex: 100 }]}>
-      {/* Backdrop */}
-      <Pressable
-        style={[styles.backdrop, { backgroundColor: d.overlay }]}
-        onPress={close}
-      />
+      {/* Animated Backdrop */}
+      <Animated.View
+        style={[StyleSheet.absoluteFillObject, { opacity: fadeAnim }]}
+      >
+        <Pressable
+          style={[styles.backdrop, { backgroundColor: d.overlay }]}
+          onPress={close}
+        />
+      </Animated.View>
 
-      {/* Drawer panel */}
-      <View
+      {/* Animated Drawer panel */}
+      <Animated.View
         style={[
           styles.drawer,
           {
@@ -87,6 +127,7 @@ export default function AppDrawer() {
             backgroundColor: d.background,
             borderRightColor: d.border,
             paddingTop: insets.top,
+            transform: [{ translateX: slideAnim }],
           },
         ]}
       >
@@ -128,7 +169,10 @@ export default function AppDrawer() {
             <MaterialIcons name="add-circle" size={18} color={d.textPrimary} />
             <Text style={[styles.quickActionLabel, { color: d.textPrimary }]}>New Thread</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickAction}>
+          <TouchableOpacity
+            style={styles.quickAction}
+            onPress={() => navigate('/search')}
+          >
             <MaterialIcons name="search" size={18} color={d.textPrimary} />
             <Text style={[styles.quickActionLabel, { color: d.textPrimary }]}>Search</Text>
           </TouchableOpacity>
@@ -206,7 +250,7 @@ export default function AppDrawer() {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </Animated.View>
     </View>
   );
 }
