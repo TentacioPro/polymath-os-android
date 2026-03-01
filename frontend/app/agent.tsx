@@ -1,35 +1,45 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
-import SafeView from '../components/shared/SafeView';
-import BentoCard from '../components/ui/BentoCard';
-import SectionHeader from '../components/ui/SectionHeader';
-import ThemedText from '../components/shared/ThemedText';
-import Badge from '../components/ui/Badge';
-import ArchitectButton from '../components/ui/ArchitectButton';
-import { useTheme, createThemedStyles, spacing, fs, sw } from '../theme';
+import { useTheme, spacing, fs, sw } from '../theme';
+import { hapticLight, hapticPress, hapticSuccess, hapticWarning, hapticSelection } from '../utils/haptics';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 
 const CAPABILITIES = [
-  { icon: 'auto-awesome' as const, label: 'Synthesize', desc: 'Generate connections across your knowledge', action: 'learn' },
-  { icon: 'psychology' as const, label: 'Deep Analysis', desc: 'Analyze patterns in ingested content', action: 'consolidate' },
-  { icon: 'hub' as const, label: 'Mesh Build', desc: 'Construct neural mesh from activities', action: 'learn' },
-  { icon: 'import-export' as const, label: 'Export', desc: 'Package knowledge for external use', action: 'export' },
+  { icon: 'auto-awesome' as const, label: 'Synthesize', desc: 'Generate connections', action: 'learn' },
+  { icon: 'psychology' as const, label: 'Deep Analysis', desc: 'Analyze patterns', action: 'consolidate' },
+  { icon: 'hub' as const, label: 'Mesh Build', desc: 'Construct neural mesh', action: 'learn' },
+  { icon: 'file-download' as const, label: 'Export', desc: 'Package knowledge', action: 'export' },
 ];
 
 export default function AgentScreen() {
   const { theme } = useTheme();
-  const router = useRouter();
-  const styles = useStyles();
-
+  const insets = useSafeAreaInsets();
   const [persona, setPersona] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [memories, setMemories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState<string | null>(null);
+
+  // Colors
+  const bg = theme.background;
+  const surface = theme.surface;
+  const text = theme.textPrimary;
+  const textMuted = theme.textSecondary;
+  const accent = theme.accent;
+  const border = theme.borderMuted;
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -53,14 +63,18 @@ export default function AgentScreen() {
 
   const handleCapability = async (action: string) => {
     if (action === 'export') {
-      router.push('/export');
+      hapticSelection();
+      router.push('/export' as any);
       return;
     }
+    hapticPress();
     setRunning(action);
     try {
       await axios.post(`${BACKEND_URL}/api/agent/${action}`);
+      hapticSuccess();
       Alert.alert('Done', `${action} completed successfully.`);
     } catch (e: any) {
+      hapticWarning();
       Alert.alert('Error', e?.response?.data?.detail || `${action} failed.`);
     } finally {
       setRunning(null);
@@ -69,165 +83,226 @@ export default function AgentScreen() {
 
   if (loading) {
     return (
-      <SafeView>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color={theme.accent} />
-        </View>
-      </SafeView>
+      <View style={[styles.loading, { backgroundColor: bg, paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={accent} />
+      </View>
     );
   }
 
   return (
-    <SafeView>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={[styles.header, { borderBottomColor: theme.border }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <MaterialIcons name="arrow-back" size={22} color={theme.textPrimary} />
-          </TouchableOpacity>
-          <View style={{ flex: 1, marginLeft: spacing.md }}>
-            <Text style={[styles.systemLabel, { color: theme.textSecondary }]}>
-              Cognitive Agent
-            </Text>
-            <ThemedText variant="display" style={{ fontSize: 24 }}>
-              {persona?.name || 'Agent'}
-            </ThemedText>
-          </View>
-          <Badge label={persona?.role || 'AGENT'} variant="status" color={theme.accent} />
+    <View style={[styles.container, { backgroundColor: bg }]}>
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity
+          onPress={() => { hapticLight(); router.back(); }}
+          style={[styles.iconBtn, { backgroundColor: surface }]}
+        >
+          <MaterialIcons name="arrow-back" size={20} color={text} />
+        </TouchableOpacity>
+        <View style={styles.headerText}>
+          <Text style={[styles.title, { color: text }]}>{persona?.name || 'Agent'}</Text>
+          <Text style={[styles.subtitle, { color: textMuted }]}>
+            {persona?.role || 'Cognitive Agent'}
+          </Text>
         </View>
+        <View style={[styles.statusDot, { backgroundColor: accent }]} />
+      </View>
 
-        {/* Stats */}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Stats Card */}
         {stats && (
-          <View style={{ paddingHorizontal: spacing.xl }}>
-            <BentoCard padding="lg" shadow>
-              <View style={styles.statusRow}>
-                <MaterialIcons name="circle" size={10} color={theme.accent} />
-                <Text style={[styles.statusText, { color: theme.textPrimary }]}>
-                  {stats.total_memories ?? 0} Memories · {stats.total_queries ?? 0} Queries
+          <View style={[styles.card, { backgroundColor: surface, borderColor: border }]}>
+            <View style={styles.statsRow}>
+              <View style={styles.statItem}>
+                <Text style={[styles.statValue, { color: text }]}>
+                  {stats.total_memories ?? 0}
                 </Text>
+                <Text style={[styles.statLabel, { color: textMuted }]}>Memories</Text>
               </View>
-              {persona?.focus_areas && persona.focus_areas.length > 0 && (
-                <ThemedText variant="body" color="secondary" style={{ marginTop: spacing.sm }}>
-                  Focus: {persona.focus_areas.join(', ')}
-                </ThemedText>
-              )}
-            </BentoCard>
+              <View style={[styles.statDivider, { backgroundColor: border }]} />
+              <View style={styles.statItem}>
+                <Text style={[styles.statValue, { color: text }]}>
+                  {stats.total_queries ?? 0}
+                </Text>
+                <Text style={[styles.statLabel, { color: textMuted }]}>Queries</Text>
+              </View>
+            </View>
+            {persona?.focus_areas && persona.focus_areas.length > 0 && (
+              <Text style={[styles.focusText, { color: textMuted }]}>
+                Focus: {persona.focus_areas.join(', ')}
+              </Text>
+            )}
           </View>
         )}
 
-        <View style={{ paddingHorizontal: spacing.xl }}>
-          <SectionHeader label="Capabilities" icon="extension" />
-          {CAPABILITIES.map((cap, i) => (
-            <TouchableOpacity key={i} onPress={() => handleCapability(cap.action)}>
-              <BentoCard padding="md" style={{ marginBottom: spacing.sm }}>
-                <View style={styles.capRow}>
-                  <View style={[styles.capIcon, { borderColor: theme.border }]}>
-                    <MaterialIcons name={cap.icon} size={20} color={theme.accent} />
-                  </View>
-                  <View style={{ flex: 1, marginLeft: spacing.md }}>
-                    <Text style={[styles.capLabel, { color: theme.textPrimary }]}>{cap.label}</Text>
-                    <Text style={[styles.capDesc, { color: theme.textSecondary }]}>{cap.desc}</Text>
-                  </View>
-                  {running === cap.action ? (
-                    <ActivityIndicator size="small" color={theme.accent} />
-                  ) : (
-                    <MaterialIcons name="chevron-right" size={20} color={theme.textMuted} />
-                  )}
-                </View>
-              </BentoCard>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Recent Memories */}
-        {memories.length > 0 && (
-          <View style={{ paddingHorizontal: spacing.xl }}>
-            <SectionHeader label="Recent Memories" icon="psychology" />
-            {memories.slice(0, 5).map((mem: any, i: number) => (
-              <BentoCard key={mem.id || i} padding="md" style={{ marginBottom: spacing.sm }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <ThemedText variant="body" style={{ flex: 1 }}>{mem.content}</ThemedText>
-                  <Badge label={mem.memory_type || 'memory'} />
-                </View>
-              </BentoCard>
-            ))}
-          </View>
-        )}
-
-        <View style={{ paddingHorizontal: spacing.xl }}>
+        {/* Capabilities */}
+        <Text style={[styles.sectionTitle, { color: textMuted }]}>CAPABILITIES</Text>
+        {CAPABILITIES.map((cap, i) => (
           <TouchableOpacity
-            style={[styles.chatBtn, { backgroundColor: theme.accent }]}
-            onPress={() => router.push('/chat')}
+            key={i}
+            style={[styles.capCard, { backgroundColor: surface, borderColor: border }]}
+            onPress={() => handleCapability(cap.action)}
+            disabled={running === cap.action}
+            activeOpacity={0.7}
           >
-            <MaterialIcons name="chat" size={18} color={theme.accentContrast} />
-            <Text style={[styles.chatBtnText, { color: theme.accentContrast }]}>
-              Start Conversation
-            </Text>
+            <View style={[styles.capIcon, { backgroundColor: bg }]}>
+              <MaterialIcons name={cap.icon} size={20} color={accent} />
+            </View>
+            <View style={styles.capContent}>
+              <Text style={[styles.capLabel, { color: text }]}>{cap.label}</Text>
+              <Text style={[styles.capDesc, { color: textMuted }]}>{cap.desc}</Text>
+            </View>
+            {running === cap.action ? (
+              <ActivityIndicator size="small" color={accent} />
+            ) : (
+              <MaterialIcons name="chevron-right" size={20} color={textMuted} />
+            )}
           </TouchableOpacity>
-        </View>
+        ))}
 
-        <View style={{ height: 40 }} />
+        {/* Memories */}
+        {memories.length > 0 && (
+          <>
+            <Text style={[styles.sectionTitle, { color: textMuted }]}>RECENT MEMORIES</Text>
+            {memories.slice(0, 5).map((mem: any, i: number) => (
+              <View
+                key={mem.id || i}
+                style={[styles.memCard, { backgroundColor: surface, borderColor: border }]}
+              >
+                <Text style={[styles.memContent, { color: text }]} numberOfLines={2}>
+                  {mem.content}
+                </Text>
+                <View style={[styles.memBadge, { backgroundColor: accent + '20' }]}>
+                  <Text style={[styles.memBadgeText, { color: accent }]}>
+                    {mem.memory_type || 'memory'}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </>
+        )}
+
+        {/* Chat Button */}
+        <TouchableOpacity
+          style={[styles.chatBtn, { backgroundColor: accent }]}
+          onPress={() => { hapticPress(); router.push('/chat' as any); }}
+        >
+          <MaterialIcons name="chat" size={20} color={theme.accentContrast} />
+          <Text style={[styles.chatBtnText, { color: theme.accentContrast }]}>
+            Start Conversation
+          </Text>
+        </TouchableOpacity>
+
+        <View style={{ height: 80 }} />
       </ScrollView>
-    </SafeView>
+    </View>
   );
 }
 
-const useStyles = createThemedStyles((theme) => ({
-  scrollContent: { gap: sw(16) },
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+
+  /* Header */
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: sw(20),
-    paddingVertical: sw(16),
-    borderBottomWidth: 1,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+    gap: spacing.sm,
   },
-  backBtn: { padding: 4 },
-  systemLabel: {
-    fontSize: fs(10),
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    marginBottom: 2,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: sw(8),
-  },
-  statusText: {
-    fontSize: fs(14),
-    fontWeight: '700',
-  },
-  capRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  capIcon: {
-    width: sw(40),
-    height: sw(40),
-    borderWidth: 1,
-    borderRadius: 10,
+  headerText: { flex: 1, marginLeft: spacing.sm },
+  title: { fontSize: fs(20), fontWeight: '700' },
+  subtitle: { fontSize: fs(12), marginTop: 2 },
+  iconBtn: {
+    width: sw(44),
+    height: sw(44),
+    borderRadius: sw(12),
     alignItems: 'center',
     justifyContent: 'center',
   },
-  capLabel: {
-    fontSize: fs(14),
-    fontWeight: '700',
+  statusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
-  capDesc: {
-    fontSize: fs(12),
-    marginTop: 2,
+
+  /* Content */
+  scroll: { flex: 1 },
+  scrollContent: { paddingHorizontal: spacing.lg },
+  sectionTitle: {
+    fontSize: fs(10),
+    fontWeight: '600',
+    letterSpacing: 1,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
   },
+
+  /* Card */
+  card: {
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: spacing.lg,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statItem: { flex: 1, alignItems: 'center' },
+  statValue: { fontSize: fs(24), fontWeight: '700' },
+  statLabel: { fontSize: fs(11), marginTop: 4 },
+  statDivider: { width: 1, height: 40 },
+  focusText: { fontSize: fs(12), marginTop: spacing.md, textAlign: 'center' },
+
+  /* Capabilities */
+  capCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.md,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: spacing.sm,
+    gap: spacing.md,
+  },
+  capIcon: {
+    width: sw(44),
+    height: sw(44),
+    borderRadius: sw(12),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  capContent: { flex: 1 },
+  capLabel: { fontSize: fs(14), fontWeight: '600' },
+  capDesc: { fontSize: fs(12), marginTop: 2 },
+
+  /* Memories */
+  memCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    padding: spacing.md,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: spacing.sm,
+    gap: spacing.sm,
+  },
+  memContent: { flex: 1, fontSize: fs(13), lineHeight: 19 },
+  memBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: 6 },
+  memBadgeText: { fontSize: fs(9), fontWeight: '600' },
+
+  /* Chat Button */
   chatBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: sw(8),
-    paddingVertical: 14,
-    borderRadius: 10,
+    gap: spacing.sm,
+    paddingVertical: spacing.lg,
+    borderRadius: 14,
+    marginTop: spacing.lg,
   },
-  chatBtnText: {
-    fontSize: fs(13),
-    fontWeight: '700',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-}));
+  chatBtnText: { fontSize: fs(14), fontWeight: '700' },
+});

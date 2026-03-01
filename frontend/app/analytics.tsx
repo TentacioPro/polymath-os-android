@@ -1,27 +1,38 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+  StyleSheet,
+} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
-import SafeView from '../components/shared/SafeView';
-import BentoCard from '../components/ui/BentoCard';
-import SectionHeader from '../components/ui/SectionHeader';
-import StatCard from '../components/ui/StatCard';
-import ThemedText from '../components/shared/ThemedText';
-import { useTheme, createThemedStyles, spacing, fs, sw } from '../theme';
+import { useTheme, spacing, fs, sw } from '../theme';
+import { hapticLight, hapticSelection } from '../utils/haptics';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 
 export default function AnalyticsScreen() {
   const { theme } = useTheme();
-  const router = useRouter();
-  const styles = useStyles();
-
+  const insets = useSafeAreaInsets();
   const [stats, setStats] = useState<any>(null);
   const [agentStats, setAgentStats] = useState<any>(null);
   const [health, setHealth] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Colors
+  const bg = theme.background;
+  const surface = theme.surface;
+  const text = theme.textPrimary;
+  const textMuted = theme.textSecondary;
+  const accent = theme.accent;
+  const border = theme.borderMuted;
 
   const fetchStats = async () => {
     try {
@@ -41,165 +52,200 @@ export default function AnalyticsScreen() {
     }
   };
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
+  useEffect(() => { fetchStats(); }, []);
 
   const onRefresh = useCallback(() => {
+    hapticLight();
     setRefreshing(true);
     fetchStats();
   }, []);
 
+  const StatBox = ({ label, value, accent: isAccent }: { label: string; value: string; accent?: boolean }) => (
+    <View style={[styles.statBox, { backgroundColor: isAccent ? accent : surface, borderColor: border }]}>
+      <Text style={[styles.statValue, { color: isAccent ? theme.accentContrast : text }]}>{value}</Text>
+      <Text style={[styles.statLabel, { color: isAccent ? theme.accentContrast : textMuted }]}>{label}</Text>
+    </View>
+  );
+
+  const BarItem = ({ label, value, color }: { label: string; value: number; color?: string }) => (
+    <View style={styles.barRow}>
+      <Text style={[styles.barLabel, { color: text }]} numberOfLines={1}>{label}</Text>
+      <View style={[styles.barTrack, { backgroundColor: border }]}>
+        <View style={[styles.barFill, { backgroundColor: color || accent, width: `${Math.min(value * 10, 100)}%` }]} />
+      </View>
+      <Text style={[styles.barValue, { color: textMuted }]}>{value}</Text>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <View style={[styles.loading, { backgroundColor: bg, paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={accent} />
+      </View>
+    );
+  }
+
   return (
-    <SafeView>
+    <View style={[styles.container, { backgroundColor: bg }]}>
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity
+          onPress={() => { hapticLight(); router.back(); }}
+          style={[styles.iconBtn, { backgroundColor: surface }]}
+        >
+          <MaterialIcons name="arrow-back" size={20} color={text} />
+        </TouchableOpacity>
+        <View style={styles.headerText}>
+          <Text style={[styles.title, { color: text }]}>Analytics</Text>
+          <Text style={[styles.subtitle, { color: textMuted }]}>System diagnostics</Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => { hapticSelection(); onRefresh(); }}
+          style={[styles.iconBtn, { backgroundColor: surface }]}
+        >
+          <MaterialIcons name="refresh" size={20} color={text} />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
+        style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accent} />
         }
+        showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.header, { borderBottomColor: theme.border }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <MaterialIcons name="arrow-back" size={22} color={theme.textPrimary} />
-          </TouchableOpacity>
-          <View style={{ flex: 1, marginLeft: spacing.md }}>
-            <Text style={[styles.systemLabel, { color: theme.textSecondary }]}>
-              System Diagnostics
-            </Text>
-            <ThemedText variant="display" style={{ fontSize: 24 }}>
-              Analytics
-            </ThemedText>
-          </View>
+        {/* Overview */}
+        <Text style={[styles.sectionTitle, { color: textMuted }]}>OVERVIEW</Text>
+        <View style={styles.statsRow}>
+          <StatBox label="ACTIVITIES" value={stats?.total_activities?.toString() ?? '0'} />
+          <StatBox label="CONNECTIONS" value={stats?.total_connections?.toString() ?? '0'} />
+          <StatBox label="JOURNALS" value={stats?.total_journals?.toString() ?? '0'} accent />
         </View>
 
-        {loading ? (
-          <View style={{ padding: 40, alignItems: 'center' }}>
-            <ActivityIndicator size="large" color={theme.accent} />
-          </View>
-        ) : (
+        {/* Agent */}
+        {agentStats && (
           <>
-            <View style={{ paddingHorizontal: spacing.xl }}>
-              <SectionHeader label="Overview" icon="bar-chart" />
-              <View style={styles.statsGrid}>
-                <StatCard label="ACTIVITIES" value={stats?.total_activities?.toString() ?? '0'} />
-                <StatCard label="CONNECTIONS" value={stats?.total_connections?.toString() ?? '0'} />
-                <StatCard label="JOURNALS" value={stats?.total_journals?.toString() ?? '0'} inverted />
-              </View>
+            <Text style={[styles.sectionTitle, { color: textMuted }]}>AGENT</Text>
+            <View style={styles.statsRow}>
+              <StatBox label="MEMORIES" value={agentStats.total_memories?.toString() ?? '0'} />
+              <StatBox label="QUERIES" value={agentStats.total_queries?.toString() ?? '0'} />
+              <StatBox label="PERSONA" value={agentStats.persona_name ?? '—'} accent />
             </View>
-
-            {agentStats && (
-              <View style={{ paddingHorizontal: spacing.xl }}>
-                <SectionHeader label="Agent" icon="memory" />
-                <View style={styles.statsGrid}>
-                  <StatCard label="MEMORIES" value={agentStats.total_memories?.toString() ?? '0'} />
-                  <StatCard label="QUERIES" value={agentStats.total_queries?.toString() ?? '0'} />
-                  <StatCard label="PERSONA" value={agentStats.persona_name ?? '—'} inverted />
-                </View>
-              </View>
-            )}
-
-            <View style={{ paddingHorizontal: spacing.xl }}>
-              <SectionHeader label="Topic Distribution" icon="donut-large" />
-              <BentoCard padding="lg">
-                {stats?.topic_distribution && stats.topic_distribution.length > 0 ? (
-                  <View style={{ gap: 8 }}>
-                    {stats.topic_distribution.map((topic: [string, number], i: number) => (
-                      <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <ThemedText variant="body" style={{ flex: 1 }}>{topic[0]}</ThemedText>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                          <View style={{ width: 60, height: 4, backgroundColor: theme.border, overflow: 'hidden' }}>
-                            <View style={{ height: '100%', backgroundColor: theme.accent, width: `${Math.min(topic[1] * 10, 100)}%` }} />
-                          </View>
-                          <ThemedText variant="caption" color="muted" style={{ width: 20, textAlign: 'right' }}>{topic[1]}</ThemedText>
-                        </View>
-                      </View>
-                    ))}
-                  </View>
-                ) : (
-                  <View style={styles.placeholder}>
-                    <MaterialIcons name="insights" size={40} color={theme.textMuted} />
-                    <ThemedText variant="body" color="muted" style={{ marginTop: spacing.md, textAlign: 'center' }}>
-                      Add more content to see topic distribution.
-                    </ThemedText>
-                  </View>
-                )}
-              </BentoCard>
-            </View>
-
-            {/* Source Distribution */}
-            {stats?.source_distribution && stats.source_distribution.length > 0 && (
-              <View style={{ paddingHorizontal: spacing.xl }}>
-                <SectionHeader label="Source Distribution" icon="pie-chart" />
-                <BentoCard padding="lg">
-                  <View style={{ gap: 8 }}>
-                    {stats.source_distribution.map((src: [string, number], i: number) => (
-                      <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <ThemedText variant="body" style={{ flex: 1 }}>{src[0] || 'unknown'}</ThemedText>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                          <View style={{ width: 60, height: 4, backgroundColor: theme.border, overflow: 'hidden' }}>
-                            <View style={{ height: '100%', backgroundColor: '#FFB800', width: `${Math.min(src[1] * 10, 100)}%` }} />
-                          </View>
-                          <ThemedText variant="caption" color="muted" style={{ width: 20, textAlign: 'right' }}>{src[1]}</ThemedText>
-                        </View>
-                      </View>
-                    ))}
-                  </View>
-                </BentoCard>
-              </View>
-            )}
-
-            {/* System Health */}
-            {health && (
-              <View style={{ paddingHorizontal: spacing.xl }}>
-                <SectionHeader label="System Health" icon="monitor-heart" />
-                <View style={styles.statsGrid}>
-                  <StatCard
-                    label="STATUS"
-                    value={health.status === 'healthy' ? 'OK' : 'WARN'}
-                  />
-                  <StatCard
-                    label="DATABASE"
-                    value={health.database?.status === 'connected' ? 'UP' : 'DOWN'}
-                  />
-                  <StatCard
-                    label="AI"
-                    value={health.ai?.configured ? 'ON' : 'OFF'}
-                    inverted
-                  />
-                </View>
-              </View>
-            )}
           </>
         )}
 
-        <View style={{ height: 40 }} />
+        {/* Topic Distribution */}
+        <Text style={[styles.sectionTitle, { color: textMuted }]}>TOPICS</Text>
+        <View style={[styles.card, { backgroundColor: surface, borderColor: border }]}>
+          {stats?.topic_distribution && stats.topic_distribution.length > 0 ? (
+            stats.topic_distribution.map((topic: [string, number], i: number) => (
+              <BarItem key={i} label={topic[0]} value={topic[1]} />
+            ))
+          ) : (
+            <View style={styles.emptyCard}>
+              <MaterialIcons name="insights" size={32} color={border} />
+              <Text style={[styles.emptyText, { color: textMuted }]}>
+                Add content to see topics
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Source Distribution */}
+        {stats?.source_distribution && stats.source_distribution.length > 0 && (
+          <>
+            <Text style={[styles.sectionTitle, { color: textMuted }]}>SOURCES</Text>
+            <View style={[styles.card, { backgroundColor: surface, borderColor: border }]}>
+              {stats.source_distribution.map((src: [string, number], i: number) => (
+                <BarItem key={i} label={src[0] || 'unknown'} value={src[1]} color="#FFB800" />
+              ))}
+            </View>
+          </>
+        )}
+
+        {/* System Health */}
+        {health && (
+          <>
+            <Text style={[styles.sectionTitle, { color: textMuted }]}>SYSTEM</Text>
+            <View style={styles.statsRow}>
+              <StatBox label="STATUS" value={health.status === 'healthy' ? 'OK' : 'WARN'} />
+              <StatBox label="DATABASE" value={health.database?.status === 'connected' ? 'UP' : 'DOWN'} />
+              <StatBox label="AI" value={health.ai?.configured ? 'ON' : 'OFF'} accent />
+            </View>
+          </>
+        )}
+
+        <View style={{ height: 80 }} />
       </ScrollView>
-    </SafeView>
+    </View>
   );
 }
 
-const useStyles = createThemedStyles((theme) => ({
-  scrollContent: { gap: sw(16) },
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+
+  /* Header */
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: sw(20),
-    paddingVertical: sw(16),
-    borderBottomWidth: 1,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+    gap: spacing.sm,
   },
-  backBtn: { padding: 4 },
-  systemLabel: {
-    fontSize: fs(10),
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    marginBottom: 2,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    gap: sw(8),
-  },
-  placeholder: {
+  headerText: { flex: 1, marginLeft: spacing.sm },
+  title: { fontSize: fs(20), fontWeight: '700' },
+  subtitle: { fontSize: fs(12), marginTop: 2 },
+  iconBtn: {
+    width: sw(44),
+    height: sw(44),
+    borderRadius: sw(12),
     alignItems: 'center',
-    paddingVertical: 40,
+    justifyContent: 'center',
   },
-}));
+
+  /* Content */
+  scroll: { flex: 1 },
+  scrollContent: { paddingHorizontal: spacing.lg },
+  sectionTitle: {
+    fontSize: fs(10),
+    fontWeight: '600',
+    letterSpacing: 1,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+
+  /* Stats */
+  statsRow: { flexDirection: 'row', gap: spacing.sm },
+  statBox: {
+    flex: 1,
+    padding: spacing.md,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  statValue: { fontSize: fs(18), fontWeight: '700' },
+  statLabel: { fontSize: fs(9), letterSpacing: 0.5, marginTop: 4 },
+
+  /* Card */
+  card: {
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  emptyCard: { alignItems: 'center', paddingVertical: spacing.xl },
+  emptyText: { fontSize: fs(13), marginTop: spacing.sm },
+
+  /* Bars */
+  barRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  barLabel: { flex: 1, fontSize: fs(13) },
+  barTrack: { width: 60, height: 4, borderRadius: 2, overflow: 'hidden' },
+  barFill: { height: '100%', borderRadius: 2 },
+  barValue: { width: 24, fontSize: fs(11), textAlign: 'right' },
+});

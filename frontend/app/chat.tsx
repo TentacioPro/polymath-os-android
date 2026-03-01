@@ -9,15 +9,14 @@ import {
   Platform,
   ActivityIndicator,
   Animated,
-  Keyboard,
+  StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
-import SafeView from '../components/shared/SafeView';
-import ThemedText from '../components/shared/ThemedText';
-import { useTheme, createThemedStyles, spacing, fs, sw } from '../theme';
+import { useTheme, spacing, fs, sw } from '../theme';
+import { hapticPress, hapticLight, hapticSuccess, hapticWarning } from '../utils/haptics';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -30,8 +29,7 @@ interface Message {
 
 export default function ChatScreen() {
   const { theme } = useTheme();
-  const router = useRouter();
-  const styles = useStyles();
+  const insets = useSafeAreaInsets();
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -43,8 +41,15 @@ export default function ChatScreen() {
     },
   ]);
   const flatListRef = useRef<FlatList>(null);
-  const insets = useSafeAreaInsets();
   const dotAnim = useRef(new Animated.Value(0)).current;
+
+  // Colors
+  const bg = theme.background;
+  const surface = theme.surface;
+  const text = theme.textPrimary;
+  const textMuted = theme.textSecondary;
+  const accent = theme.accent;
+  const border = theme.borderMuted;
 
   // Typing indicator animation
   useEffect(() => {
@@ -62,6 +67,8 @@ export default function ChatScreen() {
 
   const sendMessage = async () => {
     if (!input.trim() || sending) return;
+    hapticPress();
+    
     const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
@@ -77,6 +84,7 @@ export default function ChatScreen() {
       const res = await axios.get(`${BACKEND_URL}/api/agent/chat`, {
         params: { message: query },
       });
+      hapticSuccess();
       setMessages((prev) => [
         ...prev,
         {
@@ -87,6 +95,7 @@ export default function ChatScreen() {
         },
       ]);
     } catch (error: any) {
+      hapticWarning();
       setMessages((prev) => [
         ...prev,
         {
@@ -101,63 +110,65 @@ export default function ChatScreen() {
     }
   };
 
-  const renderMessage = ({ item }: { item: Message }) => (
-    <View
-      style={[
-        styles.messageBubble,
-        item.role === 'user' ? styles.userBubble : styles.assistantBubble,
-        {
-          backgroundColor:
-            item.role === 'user' ? theme.accent : theme.surface,
-          borderColor: theme.border,
-        },
-      ]}
-    >
-      <Text
-        style={{
-          color: item.role === 'user' ? theme.accentContrast : theme.textPrimary,
-          fontSize: 13,
-          lineHeight: 20,
-        }}
+  const renderMessage = ({ item }: { item: Message }) => {
+    const isUser = item.role === 'user';
+    return (
+      <View
+        style={[
+          styles.bubble,
+          isUser ? styles.userBubble : styles.assistantBubble,
+          {
+            backgroundColor: isUser ? accent : surface,
+            borderColor: border,
+          },
+        ]}
       >
-        {item.content}
-      </Text>
-      <Text
-        style={{
-          color: item.role === 'user' ? theme.accentContrast : theme.textMuted,
-          fontSize: 9,
-          marginTop: 6,
-          letterSpacing: 0.5,
-          textTransform: 'uppercase',
-        }}
-      >
-        {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-      </Text>
-    </View>
-  );
+        <Text
+          style={[
+            styles.bubbleText,
+            { color: isUser ? theme.accentContrast : text },
+          ]}
+        >
+          {item.content}
+        </Text>
+        <Text
+          style={[
+            styles.timestamp,
+            { color: isUser ? theme.accentContrast : textMuted },
+          ]}
+        >
+          {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </Text>
+      </View>
+    );
+  };
 
   return (
-    <SafeView edges={['top']}>
+    <View style={[styles.container, { backgroundColor: bg }]}>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={styles.kav}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
       >
         {/* Header */}
-        <View style={[styles.header, { borderBottomColor: theme.border }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <MaterialIcons name="arrow-back" size={22} color={theme.textPrimary} />
+        <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: border }]}>
+          <TouchableOpacity
+            onPress={() => { hapticLight(); router.back(); }}
+            style={[styles.iconBtn, { backgroundColor: surface }]}
+          >
+            <MaterialIcons name="arrow-back" size={20} color={text} />
           </TouchableOpacity>
-          <View style={{ flex: 1, marginLeft: spacing.md }}>
-            <Text style={[styles.systemLabel, { color: theme.textSecondary }]}>
-              Agent Thread
+          <View style={styles.headerText}>
+            <Text style={[styles.title, { color: text }]}>Agent Chat</Text>
+            <Text style={[styles.subtitle, { color: textMuted }]}>
+              {sending ? 'Thinking...' : 'Online'}
             </Text>
-            <ThemedText variant="heading" style={{ fontSize: 18 }}>
-              Chat
-            </ThemedText>
           </View>
-          <TouchableOpacity>
-            <MaterialIcons name="more-vert" size={22} color={theme.textPrimary} />
+          <TouchableOpacity
+            onPress={() => { hapticLight(); }}
+            style={[styles.iconBtn, { backgroundColor: surface }]}
+          >
+            <MaterialIcons name="more-vert" size={20} color={text} />
           </TouchableOpacity>
         </View>
 
@@ -168,18 +179,17 @@ export default function ChatScreen() {
           renderItem={renderMessage}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.messageList}
-          onContentSizeChange={() =>
-            flatListRef.current?.scrollToEnd({ animated: true })
-          }
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
+          showsVerticalScrollIndicator={false}
           ListFooterComponent={
             sending ? (
-              <View style={[styles.messageBubble, styles.assistantBubble, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <Animated.View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, opacity: Animated.add(0.4, Animated.multiply(dotAnim, 0.6)) }}>
-                  <MaterialIcons name="psychology" size={14} color={theme.accent} />
-                  <Text style={{ color: theme.textSecondary, fontSize: 12, fontStyle: 'italic' }}>Thinking...</Text>
+              <View style={[styles.bubble, styles.assistantBubble, { backgroundColor: surface, borderColor: border }]}>
+                <Animated.View style={[styles.thinkingRow, { opacity: Animated.add(0.4, Animated.multiply(dotAnim, 0.6)) }]}>
+                  <MaterialIcons name="psychology" size={14} color={accent} />
+                  <Text style={[styles.thinkingText, { color: textMuted }]}>Thinking...</Text>
                 </Animated.View>
               </View>
             ) : null
@@ -187,13 +197,22 @@ export default function ChatScreen() {
         />
 
         {/* Input */}
-        <View style={[styles.inputBar, { borderTopColor: theme.border, backgroundColor: theme.surface, paddingBottom: Math.max(insets.bottom, 8) }]}>
+        <View
+          style={[
+            styles.inputBar,
+            {
+              backgroundColor: surface,
+              borderTopColor: border,
+              paddingBottom: Math.max(insets.bottom, 12),
+            },
+          ]}
+        >
           <TextInput
             value={input}
             onChangeText={setInput}
             placeholder={sending ? 'Agent is thinking...' : 'Type a message...'}
-            placeholderTextColor={theme.textMuted}
-            style={[styles.textInput, { color: theme.textPrimary, borderColor: theme.border }]}
+            placeholderTextColor={textMuted}
+            style={[styles.textInput, { color: text, backgroundColor: bg, borderColor: border }]}
             onSubmitEditing={sendMessage}
             returnKeyType="send"
             editable={!sending}
@@ -201,7 +220,10 @@ export default function ChatScreen() {
           <TouchableOpacity
             onPress={sendMessage}
             disabled={sending || !input.trim()}
-            style={[styles.sendBtn, { backgroundColor: theme.accent, opacity: sending || !input.trim() ? 0.4 : 1 }]}
+            style={[
+              styles.sendBtn,
+              { backgroundColor: accent, opacity: sending || !input.trim() ? 0.4 : 1 },
+            ]}
           >
             {sending ? (
               <ActivityIndicator size="small" color={theme.accentContrast} />
@@ -211,61 +233,96 @@ export default function ChatScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-    </SafeView>
+    </View>
   );
 }
 
-const useStyles = createThemedStyles((theme) => ({
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  kav: { flex: 1 },
+
+  /* Header */
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: sw(20),
-    paddingVertical: sw(12),
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+    gap: spacing.sm,
     borderBottomWidth: 1,
   },
-  backBtn: { padding: 4 },
-  systemLabel: {
-    fontSize: fs(10),
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    marginBottom: 2,
+  headerText: { flex: 1, marginLeft: spacing.sm },
+  title: { fontSize: fs(18), fontWeight: '700' },
+  subtitle: { fontSize: fs(11), marginTop: 2 },
+  iconBtn: {
+    width: sw(44),
+    height: sw(44),
+    borderRadius: sw(12),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+
+  /* Messages */
   messageList: {
-    padding: sw(20),
-    gap: sw(12),
+    padding: spacing.lg,
+    gap: spacing.sm,
   },
-  messageBubble: {
-    padding: sw(12),
+  bubble: {
+    padding: spacing.md,
     borderWidth: 1,
-    borderRadius: 12,
-    maxWidth: '80%',
+    borderRadius: 16,
+    maxWidth: '85%',
   },
   userBubble: {
     alignSelf: 'flex-end',
+    borderBottomRightRadius: 4,
   },
   assistantBubble: {
     alignSelf: 'flex-start',
+    borderBottomLeftRadius: 4,
   },
+  bubbleText: {
+    fontSize: fs(14),
+    lineHeight: 21,
+  },
+  timestamp: {
+    fontSize: fs(9),
+    marginTop: spacing.xs,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  thinkingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  thinkingText: {
+    fontSize: fs(12),
+    fontStyle: 'italic',
+  },
+
+  /* Input */
   inputBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: sw(12),
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
     borderTopWidth: 1,
-    gap: sw(8),
+    gap: spacing.sm,
   },
   textInput: {
     flex: 1,
     borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: sw(12),
-    paddingVertical: 10,
+    borderRadius: 14,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
     fontSize: fs(14),
+    minHeight: sw(48),
   },
   sendBtn: {
-    width: sw(40),
-    height: sw(40),
+    width: sw(48),
+    height: sw(48),
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 10,
+    borderRadius: 14,
   },
-}));
+});

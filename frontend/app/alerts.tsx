@@ -1,25 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+  StyleSheet,
+} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
-import SafeView from '../components/shared/SafeView';
-import BentoCard from '../components/ui/BentoCard';
-import SectionHeader from '../components/ui/SectionHeader';
-import ThemedText from '../components/shared/ThemedText';
-import Badge from '../components/ui/Badge';
-import { useTheme, createThemedStyles, spacing, fs, sw } from '../theme';
+import { useTheme, spacing, fs, sw } from '../theme';
+import { hapticLight, hapticSelection } from '../utils/haptics';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 
 export default function AlertsScreen() {
   const { theme } = useTheme();
-  const router = useRouter();
-  const styles = useStyles();
-
+  const insets = useSafeAreaInsets();
   const [alerts, setAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Colors
+  const bg = theme.background;
+  const surface = theme.surface;
+  const text = theme.textPrimary;
+  const textMuted = theme.textSecondary;
+  const accent = theme.accent;
+  const border = theme.borderMuted;
 
   const fetchAlerts = async () => {
     try {
@@ -33,16 +44,15 @@ export default function AlertsScreen() {
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { fetchAlerts(); }, []);
+
+  const onRefresh = useCallback(() => {
+    hapticLight();
+    setRefreshing(true);
     fetchAlerts();
   }, []);
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchAlerts();
-  };
-
-  const getAlertIcon = (type: string) => {
+  const getAlertIcon = (type: string): keyof typeof MaterialIcons.glyphMap => {
     switch (type) {
       case 'success': return 'check-circle';
       case 'warning': return 'warning';
@@ -54,7 +64,7 @@ export default function AlertsScreen() {
     switch (type) {
       case 'success': return '#00FF94';
       case 'warning': return '#FFB800';
-      default: return theme.accent;
+      default: return accent;
     }
   };
 
@@ -74,100 +84,131 @@ export default function AlertsScreen() {
     }
   };
 
-  return (
-    <SafeView>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
-        }
+  const renderAlert = ({ item }: { item: any }) => {
+    const color = getAlertColor(item.type);
+    return (
+      <TouchableOpacity
+        style={[styles.alertCard, { backgroundColor: surface, borderColor: border }]}
+        onPress={() => hapticSelection()}
+        activeOpacity={0.7}
       >
-        <View style={[styles.header, { borderBottomColor: theme.border }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <MaterialIcons name="arrow-back" size={22} color={theme.textPrimary} />
-          </TouchableOpacity>
-          <View style={{ flex: 1, marginLeft: spacing.md }}>
-            <Text style={[styles.systemLabel, { color: theme.textSecondary }]}>
-              Notifications
-            </Text>
-            <ThemedText variant="display" style={{ fontSize: 24 }}>
-              Alerts
-            </ThemedText>
-          </View>
-          <Badge label={`${alerts.length}`} variant="filled" />
+        <View style={[styles.alertIcon, { backgroundColor: color + '20' }]}>
+          <MaterialIcons name={getAlertIcon(item.type)} size={18} color={color} />
         </View>
+        <View style={styles.alertContent}>
+          <Text style={[styles.alertTitle, { color: text }]} numberOfLines={1}>
+            {item.title}
+          </Text>
+          <Text style={[styles.alertDesc, { color: textMuted }]} numberOfLines={2}>
+            {item.desc}
+          </Text>
+        </View>
+        <Text style={[styles.alertTime, { color: textMuted }]}>
+          {formatTime(item.timestamp)}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
-        {loading ? (
-          <View style={{ padding: 40, alignItems: 'center' }}>
-            <ActivityIndicator size="large" color={theme.accent} />
-          </View>
-        ) : alerts.length === 0 ? (
-          <View style={{ paddingHorizontal: spacing.xl, alignItems: 'center', paddingVertical: 40 }}>
-            <MaterialIcons name="notifications-none" size={48} color={theme.textMuted} />
-            <ThemedText variant="body" color="muted" style={{ marginTop: 12 }}>
-              No notifications yet. Activity will appear here.
-            </ThemedText>
-          </View>
-        ) : (
-          <View style={{ paddingHorizontal: spacing.xl }}>
-            <SectionHeader label="Recent" icon="notifications" />
-            {alerts.map((alert: any, i: number) => (
-              <BentoCard key={alert.id || i} padding="md" style={{ marginBottom: spacing.sm }}>
-                <View style={styles.alertRow}>
-                  <MaterialIcons
-                    name={getAlertIcon(alert.type) as any}
-                    size={20}
-                    color={getAlertColor(alert.type)}
-                  />
-                  <View style={{ flex: 1, marginLeft: spacing.md }}>
-                    <Text style={[styles.alertTitle, { color: theme.textPrimary }]}>{alert.title}</Text>
-                    <Text style={[styles.alertDesc, { color: theme.textSecondary }]}>{alert.desc}</Text>
-                  </View>
-                  <Text style={[styles.alertTime, { color: theme.textMuted }]}>
-                    {formatTime(alert.timestamp)}
-                  </Text>
-                </View>
-              </BentoCard>
-            ))}
-          </View>
-        )}
+  if (loading) {
+    return (
+      <View style={[styles.loading, { backgroundColor: bg, paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={accent} />
+      </View>
+    );
+  }
 
-        <View style={{ height: 40 }} />
-      </ScrollView>
-    </SafeView>
+  return (
+    <View style={[styles.container, { backgroundColor: bg }]}>
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity
+          onPress={() => { hapticLight(); router.back(); }}
+          style={[styles.iconBtn, { backgroundColor: surface }]}
+        >
+          <MaterialIcons name="arrow-back" size={20} color={text} />
+        </TouchableOpacity>
+        <View style={styles.headerText}>
+          <Text style={[styles.title, { color: text }]}>Alerts</Text>
+          <Text style={[styles.subtitle, { color: textMuted }]}>
+            {alerts.length} notification{alerts.length !== 1 ? 's' : ''}
+          </Text>
+        </View>
+      </View>
+
+      {/* List */}
+      <FlatList
+        data={alerts}
+        keyExtractor={(item, i) => item.id || i.toString()}
+        renderItem={renderAlert}
+        contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accent} />
+        }
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <MaterialIcons name="notifications-none" size={48} color={border} />
+            <Text style={[styles.emptyTitle, { color: textMuted }]}>No notifications</Text>
+            <Text style={[styles.emptyHint, { color: textMuted }]}>
+              Activity will appear here
+            </Text>
+          </View>
+        }
+        ListFooterComponent={<View style={{ height: 80 }} />}
+        showsVerticalScrollIndicator={false}
+      />
+    </View>
   );
 }
 
-const useStyles = createThemedStyles((theme) => ({
-  scrollContent: { gap: sw(16) },
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+
+  /* Header */
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: sw(20),
-    paddingVertical: sw(16),
-    borderBottomWidth: 1,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+    gap: spacing.sm,
   },
-  backBtn: { padding: 4 },
-  systemLabel: {
-    fontSize: fs(10),
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    marginBottom: 2,
+  headerText: { flex: 1, marginLeft: spacing.sm },
+  title: { fontSize: fs(20), fontWeight: '700' },
+  subtitle: { fontSize: fs(12), marginTop: 2 },
+  iconBtn: {
+    width: sw(44),
+    height: sw(44),
+    borderRadius: sw(12),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  alertRow: {
+
+  /* List */
+  listContent: { paddingHorizontal: spacing.lg },
+  alertCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    padding: spacing.md,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: spacing.sm,
+    gap: spacing.sm,
   },
-  alertTitle: {
-    fontSize: fs(13),
-    fontWeight: '700',
-    marginBottom: 2,
+  alertIcon: {
+    width: sw(40),
+    height: sw(40),
+    borderRadius: sw(10),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  alertDesc: {
-    fontSize: fs(12),
-  },
-  alertTime: {
-    fontSize: fs(10),
-    letterSpacing: 0.5,
-  },
-}));
+  alertContent: { flex: 1 },
+  alertTitle: { fontSize: fs(14), fontWeight: '600' },
+  alertDesc: { fontSize: fs(12), marginTop: 2, lineHeight: 17 },
+  alertTime: { fontSize: fs(10) },
+
+  /* Empty */
+  empty: { alignItems: 'center', paddingVertical: spacing.xxxl },
+  emptyTitle: { fontSize: fs(16), fontWeight: '600', marginTop: spacing.md },
+  emptyHint: { fontSize: fs(13), marginTop: spacing.xs },
+});

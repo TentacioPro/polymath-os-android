@@ -7,28 +7,32 @@ import {
   ActivityIndicator,
   Linking,
   RefreshControl,
+  StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
-import SafeView from '../components/shared/SafeView';
-import BentoCard from '../components/ui/BentoCard';
-import SectionHeader from '../components/ui/SectionHeader';
-import Badge from '../components/ui/Badge';
-import ThemedText from '../components/shared/ThemedText';
-import { useTheme, createThemedStyles, spacing, fs, sw } from '../theme';
+import { useTheme, spacing, fs, sw } from '../theme';
+import { hapticLight, hapticSelection } from '../utils/haptics';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 
 export default function ActivityDetailScreen() {
   const { theme } = useTheme();
-  const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const styles = useStyles();
-
   const [activity, setActivity] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Colors
+  const bg = theme.background;
+  const surface = theme.surface;
+  const text = theme.textPrimary;
+  const textMuted = theme.textSecondary;
+  const accent = theme.accent;
+  const border = theme.borderMuted;
 
   const fetchDetail = async () => {
     if (!id) return;
@@ -43,11 +47,10 @@ export default function ActivityDetailScreen() {
     }
   };
 
-  useEffect(() => {
-    fetchDetail();
-  }, [id]);
+  useEffect(() => { fetchDetail(); }, [id]);
 
   const onRefresh = () => {
+    hapticLight();
     setRefreshing(true);
     fetchDetail();
   };
@@ -56,7 +59,6 @@ export default function ActivityDetailScreen() {
     try {
       const d = new Date(ts);
       return d.toLocaleDateString(undefined, {
-        weekday: 'short',
         month: 'short',
         day: 'numeric',
         year: 'numeric',
@@ -70,32 +72,29 @@ export default function ActivityDetailScreen() {
 
   if (loading) {
     return (
-      <SafeView>
-        <View style={styles.loadingWrap}>
-          <ActivityIndicator size="large" color={theme.accent} />
-        </View>
-      </SafeView>
+      <View style={[styles.loading, { backgroundColor: bg, paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={accent} />
+      </View>
     );
   }
 
   if (!activity) {
     return (
-      <SafeView>
-        <View style={[styles.header, { borderBottomColor: theme.border }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <MaterialIcons name="arrow-back" size={22} color={theme.textPrimary} />
+      <View style={[styles.container, { backgroundColor: bg }]}>
+        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+          <TouchableOpacity
+            onPress={() => { hapticLight(); router.back(); }}
+            style={[styles.iconBtn, { backgroundColor: surface }]}
+          >
+            <MaterialIcons name="arrow-back" size={20} color={text} />
           </TouchableOpacity>
-          <ThemedText variant="display" style={{ fontSize: 20, marginLeft: spacing.md }}>
-            Not Found
-          </ThemedText>
+          <Text style={[styles.title, { color: text, marginLeft: spacing.sm }]}>Not Found</Text>
         </View>
-        <View style={styles.loadingWrap}>
-          <MaterialIcons name="error-outline" size={48} color={theme.textMuted} />
-          <ThemedText variant="body" color="muted" style={{ marginTop: 12 }}>
-            Activity not found.
-          </ThemedText>
+        <View style={styles.centerContent}>
+          <MaterialIcons name="error-outline" size={48} color={border} />
+          <Text style={[styles.centerText, { color: textMuted }]}>Activity not found</Text>
         </View>
-      </SafeView>
+      </View>
     );
   }
 
@@ -103,191 +102,222 @@ export default function ActivityDetailScreen() {
   const connections = activity.related_connections || [];
 
   return (
-    <SafeView>
+    <View style={[styles.container, { backgroundColor: bg }]}>
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity
+          onPress={() => { hapticLight(); router.back(); }}
+          style={[styles.iconBtn, { backgroundColor: surface }]}
+        >
+          <MaterialIcons name="arrow-back" size={20} color={text} />
+        </TouchableOpacity>
+        <View style={styles.headerText}>
+          <Text style={[styles.title, { color: text }]} numberOfLines={1}>
+            {activity.title}
+          </Text>
+          <Text style={[styles.subtitle, { color: textMuted }]}>
+            {formatDate(activity.timestamp)}
+          </Text>
+        </View>
+      </View>
+
       <ScrollView
+        style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accent} />
         }
+        showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={[styles.header, { borderBottomColor: theme.border }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <MaterialIcons name="arrow-back" size={22} color={theme.textPrimary} />
-          </TouchableOpacity>
-          <View style={{ flex: 1, marginLeft: spacing.md }}>
-            <Text style={[styles.systemLabel, { color: theme.textSecondary }]}>
-              Activity Detail
+        {/* Meta Card */}
+        <View style={[styles.card, { backgroundColor: surface, borderColor: border }]}>
+          <View style={styles.metaRow}>
+            <View style={[styles.badge, { backgroundColor: accent }]}>
+              <Text style={[styles.badgeText, { color: theme.accentContrast }]}>
+                {(activity.content_type || activity.category || 'FILE').toUpperCase()}
+              </Text>
+            </View>
+            <Text style={[styles.source, { color: textMuted }]}>
+              {activity.source || 'manual'}
             </Text>
-            <ThemedText variant="display" style={{ fontSize: 20 }} numberOfLines={2}>
-              {activity.title}
-            </ThemedText>
           </View>
-        </View>
-
-        {/* Meta info */}
-        <View style={{ paddingHorizontal: spacing.xl }}>
-          <BentoCard padding="md">
-            <View style={styles.metaRow}>
-              <Badge label={(activity.content_type || activity.category || 'FILE').toUpperCase()} variant="filled" />
-              <Text style={[styles.dateText, { color: theme.textMuted }]}>
-                {formatDate(activity.timestamp)}
+          {activity.url && (
+            <TouchableOpacity
+              style={styles.urlRow}
+              onPress={() => { hapticSelection(); Linking.openURL(activity.url); }}
+            >
+              <MaterialIcons name="link" size={16} color={accent} />
+              <Text style={[styles.urlText, { color: accent }]} numberOfLines={1}>
+                {activity.url}
               </Text>
-            </View>
-            <View style={styles.metaRow}>
-              <MaterialIcons name="source" size={14} color={theme.textSecondary} />
-              <Text style={[styles.metaValue, { color: theme.textSecondary }]}>
-                Source: {activity.source || 'manual'}
-              </Text>
-            </View>
-            {activity.url && (
-              <TouchableOpacity
-                style={styles.metaRow}
-                onPress={() => Linking.openURL(activity.url)}
-              >
-                <MaterialIcons name="link" size={14} color={theme.accent} />
-                <Text
-                  style={[styles.metaValue, { color: theme.accent }]}
-                  numberOfLines={1}
-                >
-                  {activity.url}
-                </Text>
-              </TouchableOpacity>
-            )}
-          </BentoCard>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Notes */}
         {activity.notes && (
-          <View style={{ paddingHorizontal: spacing.xl }}>
-            <SectionHeader label="Notes" icon="notes" />
-            <BentoCard padding="md">
-              <ThemedText variant="body">{activity.notes}</ThemedText>
-            </BentoCard>
-          </View>
+          <>
+            <Text style={[styles.sectionTitle, { color: textMuted }]}>NOTES</Text>
+            <View style={[styles.card, { backgroundColor: surface, borderColor: border }]}>
+              <Text style={[styles.bodyText, { color: text }]}>{activity.notes}</Text>
+            </View>
+          </>
         )}
 
         {/* AI Analysis */}
         {analysis && (
-          <View style={{ paddingHorizontal: spacing.xl }}>
-            <SectionHeader label="AI Analysis" icon="psychology" />
-            <BentoCard padding="md">
+          <>
+            <Text style={[styles.sectionTitle, { color: textMuted }]}>AI ANALYSIS</Text>
+            <View style={[styles.card, { backgroundColor: surface, borderColor: border }]}>
               {analysis.summary && (
-                <View style={{ marginBottom: spacing.md }}>
-                  <Text style={[styles.analysisLabel, { color: theme.textSecondary }]}>
-                    SUMMARY
-                  </Text>
-                  <ThemedText variant="body">{analysis.summary}</ThemedText>
+                <View style={styles.analysisSection}>
+                  <Text style={[styles.analysisLabel, { color: textMuted }]}>SUMMARY</Text>
+                  <Text style={[styles.bodyText, { color: text }]}>{analysis.summary}</Text>
                 </View>
               )}
               {analysis.key_concepts && analysis.key_concepts.length > 0 && (
-                <View style={{ marginBottom: spacing.md }}>
-                  <Text style={[styles.analysisLabel, { color: theme.textSecondary }]}>
-                    KEY CONCEPTS
-                  </Text>
+                <View style={styles.analysisSection}>
+                  <Text style={[styles.analysisLabel, { color: textMuted }]}>KEY CONCEPTS</Text>
                   <View style={styles.tagsRow}>
                     {analysis.key_concepts.map((concept: string, i: number) => (
-                      <Badge key={i} label={concept} variant="filled" />
+                      <View key={i} style={[styles.tagBadge, { backgroundColor: accent + '20' }]}>
+                        <Text style={[styles.tagText, { color: accent }]}>{concept}</Text>
+                      </View>
                     ))}
                   </View>
                 </View>
               )}
               {analysis.category && (
-                <View>
-                  <Text style={[styles.analysisLabel, { color: theme.textSecondary }]}>
-                    CATEGORY
-                  </Text>
-                  <Badge label={analysis.category} />
+                <View style={styles.analysisSection}>
+                  <Text style={[styles.analysisLabel, { color: textMuted }]}>CATEGORY</Text>
+                  <View style={[styles.tagBadge, { backgroundColor: accent + '20' }]}>
+                    <Text style={[styles.tagText, { color: accent }]}>{analysis.category}</Text>
+                  </View>
                 </View>
               )}
-            </BentoCard>
-          </View>
+            </View>
+          </>
         )}
 
-        {/* Related Connections */}
+        {/* Connections */}
         {connections.length > 0 && (
-          <View style={{ paddingHorizontal: spacing.xl }}>
-            <SectionHeader label={`${connections.length} Connections`} icon="device-hub" />
+          <>
+            <Text style={[styles.sectionTitle, { color: textMuted }]}>
+              {connections.length} CONNECTION{connections.length > 1 ? 'S' : ''}
+            </Text>
             {connections.map((conn: any, i: number) => (
-              <BentoCard key={conn.id || i} padding="sm" style={{ marginBottom: spacing.sm }}>
-                <View style={styles.connRow}>
-                  <MaterialIcons name="compare-arrows" size={16} color={theme.accent} />
-                  <View style={{ flex: 1, marginLeft: spacing.sm }}>
-                    <Text style={[styles.connType, { color: theme.textPrimary }]}>
-                      {conn.connection_type || 'Related'}
-                    </Text>
-                    <Text style={[styles.connReasoning, { color: theme.textSecondary }]} numberOfLines={2}>
-                      {conn.ai_reasoning || 'Semantic link'}
-                    </Text>
-                  </View>
-                  <Badge label={`${Math.round((conn.strength || 0.5) * 100)}%`} />
+              <View
+                key={conn.id || i}
+                style={[styles.connCard, { backgroundColor: surface, borderColor: border }]}
+              >
+                <View style={[styles.connIcon, { backgroundColor: bg }]}>
+                  <MaterialIcons name="compare-arrows" size={16} color={accent} />
                 </View>
-              </BentoCard>
+                <View style={styles.connContent}>
+                  <Text style={[styles.connType, { color: text }]}>
+                    {conn.connection_type || 'Related'}
+                  </Text>
+                  <Text style={[styles.connReasoning, { color: textMuted }]} numberOfLines={2}>
+                    {conn.ai_reasoning || 'Semantic link'}
+                  </Text>
+                </View>
+                <View style={[styles.strengthBadge, { backgroundColor: accent + '20' }]}>
+                  <Text style={[styles.strengthText, { color: accent }]}>
+                    {Math.round((conn.strength || 0.5) * 100)}%
+                  </Text>
+                </View>
+              </View>
             ))}
-          </View>
+          </>
         )}
 
-        <View style={{ height: 40 }} />
+        <View style={{ height: 80 }} />
       </ScrollView>
-    </SafeView>
+    </View>
   );
 }
 
-const useStyles = createThemedStyles((theme) => ({
-  loadingWrap: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scrollContent: { gap: sw(16) },
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+
+  /* Header */
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: sw(20),
-    paddingVertical: sw(16),
-    borderBottomWidth: 1,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+    gap: spacing.sm,
   },
-  backBtn: { padding: 4 },
-  systemLabel: {
+  headerText: { flex: 1, marginLeft: spacing.sm },
+  title: { fontSize: fs(18), fontWeight: '700' },
+  subtitle: { fontSize: fs(12), marginTop: 2 },
+  iconBtn: {
+    width: sw(44),
+    height: sw(44),
+    borderRadius: sw(12),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  /* Content */
+  scroll: { flex: 1 },
+  scrollContent: { paddingHorizontal: spacing.lg },
+  centerContent: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  centerText: { fontSize: fs(14), marginTop: spacing.md },
+  sectionTitle: {
     fontSize: fs(10),
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    marginBottom: 2,
+    fontWeight: '600',
+    letterSpacing: 1,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+
+  /* Card */
+  card: {
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: spacing.md,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  badge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: 6 },
+  badgeText: { fontSize: fs(10), fontWeight: '600', letterSpacing: 0.5 },
+  source: { fontSize: fs(12) },
+  urlRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginTop: spacing.sm },
+  urlText: { flex: 1, fontSize: fs(13) },
+  bodyText: { fontSize: fs(14), lineHeight: 21 },
+
+  /* Analysis */
+  analysisSection: { marginBottom: spacing.md },
+  analysisLabel: { fontSize: fs(9), letterSpacing: 1, marginBottom: spacing.xs },
+  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
+  tagBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: 6 },
+  tagText: { fontSize: fs(11), fontWeight: '600' },
+
+  /* Connections */
+  connCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    padding: spacing.md,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: spacing.sm,
     gap: spacing.sm,
-    marginBottom: spacing.xs,
   },
-  metaValue: {
-    fontSize: fs(12),
-    flex: 1,
-  },
-  dateText: {
-    fontSize: fs(11),
-  },
-  analysisLabel: {
-    fontSize: fs(10),
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    marginBottom: spacing.xs,
-  },
-  tagsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-  },
-  connRow: {
-    flexDirection: 'row',
+  connIcon: {
+    width: sw(36),
+    height: sw(36),
+    borderRadius: sw(10),
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  connType: {
-    fontSize: fs(13),
-    fontWeight: '700',
-  },
-  connReasoning: {
-    fontSize: fs(11),
-    marginTop: 2,
-  },
-}));
+  connContent: { flex: 1 },
+  connType: { fontSize: fs(14), fontWeight: '600' },
+  connReasoning: { fontSize: fs(12), marginTop: 2 },
+  strengthBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: 6 },
+  strengthText: { fontSize: fs(10), fontWeight: '600' },
+});

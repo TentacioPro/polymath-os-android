@@ -18,17 +18,17 @@ Full UI/UX revamp for mobile-first, native-feel experience with haptic feedback.
 - [x] Revamp Knowledge screen (`app/(tabs)/knowledge.tsx`) - mobile-first list view, haptics
 - [x] Revamp Mesh screen (`app/(tabs)/mesh.tsx`) - mobile-first graph, haptics
 
-### Phase 4: Stack Screens
-- [ ] Revamp Chat screen (`app/chat.tsx`)
-- [ ] Revamp Journal screen (`app/journal.tsx`)
-- [ ] Revamp Search screen (`app/search.tsx`)
-- [ ] Revamp Analytics screen (`app/analytics.tsx`)
-- [ ] Revamp Agent screen (`app/agent.tsx`)
-- [ ] Revamp Profile screen (`app/profile.tsx`)
-- [ ] Revamp Activity Detail screen (`app/activity-detail.tsx`)
-- [ ] Revamp Export screen (`app/export.tsx`)
-- [ ] Revamp Integrations screen (`app/integrations.tsx`)
-- [ ] Revamp Alerts screen (`app/alerts.tsx`)
+### Phase 4: Stack Screens ✅
+- [x] Revamp Chat screen (`app/chat.tsx`) - mobile-first with haptics
+- [x] Revamp Journal screen (`app/journal.tsx`) - mobile-first with haptics
+- [x] Revamp Search screen (`app/search.tsx`) - mobile-first with haptics
+- [x] Revamp Analytics screen (`app/analytics.tsx`) - mobile-first with haptics
+- [x] Revamp Agent screen (`app/agent.tsx`) - mobile-first with haptics
+- [x] Revamp Profile screen (`app/profile.tsx`) - mobile-first with haptics
+- [x] Revamp Activity Detail screen (`app/activity-detail.tsx`) - mobile-first with haptics
+- [x] Revamp Export screen (`app/export.tsx`) - mobile-first with haptics
+- [x] Revamp Integrations screen (`app/integrations.tsx`) - mobile-first with haptics
+- [x] Revamp Alerts screen (`app/alerts.tsx`) - mobile-first with haptics
 
 ### Phase 5: UI Components
 - [ ] Revamp StatCard

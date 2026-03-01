@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, Share, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  Share,
+  ActivityIndicator,
+  StyleSheet,
+} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import SafeView from '../components/shared/SafeView';
-import BentoCard from '../components/ui/BentoCard';
-import ArchitectButton from '../components/ui/ArchitectButton';
-import SectionHeader from '../components/ui/SectionHeader';
-import ThemedText from '../components/shared/ThemedText';
-import { useTheme, createThemedStyles, spacing, fs, sw } from '../theme';
+import { useTheme, spacing, fs, sw } from '../theme';
+import { hapticLight, hapticPress, hapticSuccess, hapticWarning, hapticSelection } from '../utils/haptics';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -18,19 +24,27 @@ const EXPORT_FORMATS = [
   { icon: 'description' as const, label: 'Markdown', ext: '.md', endpoint: '/api/export/markdown' },
   { icon: 'code' as const, label: 'JSON', ext: '.json', endpoint: '/api/export/json' },
   { icon: 'grid-on' as const, label: 'CSV', ext: '.csv', endpoint: '/api/export/csv' },
-  { icon: 'text-snippet' as const, label: 'Plain Text', ext: '.txt', endpoint: '/api/export/markdown' },
+  { icon: 'text-snippet' as const, label: 'Text', ext: '.txt', endpoint: '/api/export/markdown' },
 ];
 
 export default function ExportScreen() {
   const { theme } = useTheme();
-  const router = useRouter();
-  const styles = useStyles();
+  const insets = useSafeAreaInsets();
   const [selectedFormat, setSelectedFormat] = useState(0);
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
 
+  // Colors
+  const bg = theme.background;
+  const surface = theme.surface;
+  const text = theme.textPrimary;
+  const textMuted = theme.textSecondary;
+  const accent = theme.accent;
+  const border = theme.borderMuted;
+
   const handleExport = async () => {
     const fmt = EXPORT_FORMATS[selectedFormat];
+    hapticPress();
     setExporting(true);
     try {
       const res = await axios.post(`${BACKEND_URL}${fmt.endpoint}`);
@@ -43,8 +57,10 @@ export default function ExportScreen() {
       } else {
         await Share.share({ message: content, title: `Polymath Export (${fmt.label})` });
       }
+      hapticSuccess();
       Alert.alert('Export Complete', `Exported as ${fmt.label} successfully.`);
     } catch (err: any) {
+      hapticWarning();
       Alert.alert('Export Failed', err?.message || 'Could not export data.');
     } finally {
       setExporting(false);
@@ -56,12 +72,15 @@ export default function ExportScreen() {
       const { File } = await import('expo-file-system/next');
       const file = await File.pickFileAsync({ types: ['application/json'] });
       if (!file) return;
+      hapticPress();
       setImporting(true);
       const content = await file.text();
       const data = JSON.parse(content);
       const res = await axios.post(`${BACKEND_URL}/api/import/restore`, data);
+      hapticSuccess();
       Alert.alert('Import Complete', `Restored: ${JSON.stringify(res.data)}`);
     } catch (err: any) {
+      hapticWarning();
       Alert.alert('Import Failed', err?.message || 'Could not import data.');
     } finally {
       setImporting(false);
@@ -69,143 +88,197 @@ export default function ExportScreen() {
   };
 
   return (
-    <SafeView>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={[styles.header, { borderBottomColor: theme.border }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <MaterialIcons name="arrow-back" size={22} color={theme.textPrimary} />
-          </TouchableOpacity>
-          <View style={{ flex: 1, marginLeft: spacing.md }}>
-            <Text style={[styles.systemLabel, { color: theme.textSecondary }]}>
-              Knowledge Package
-            </Text>
-            <ThemedText variant="display" style={{ fontSize: 24 }}>
-              Export
-            </ThemedText>
-          </View>
+    <View style={[styles.container, { backgroundColor: bg }]}>
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity
+          onPress={() => { hapticLight(); router.back(); }}
+          style={[styles.iconBtn, { backgroundColor: surface }]}
+        >
+          <MaterialIcons name="arrow-back" size={20} color={text} />
+        </TouchableOpacity>
+        <View style={styles.headerText}>
+          <Text style={[styles.title, { color: text }]}>Export</Text>
+          <Text style={[styles.subtitle, { color: textMuted }]}>Knowledge package</Text>
         </View>
+      </View>
 
-        <View style={{ paddingHorizontal: spacing.xl }}>
-          <SectionHeader label="Format" icon="file-copy" />
-          <View style={styles.formatGrid}>
-            {EXPORT_FORMATS.map((fmt, i) => (
-              <TouchableOpacity
-                key={i}
-                onPress={() => setSelectedFormat(i)}
-                style={{ flex: 1 }}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Format Selection */}
+        <Text style={[styles.sectionTitle, { color: textMuted }]}>FORMAT</Text>
+        <View style={styles.formatGrid}>
+          {EXPORT_FORMATS.map((fmt, i) => (
+            <TouchableOpacity
+              key={i}
+              style={[
+                styles.formatCard,
+                {
+                  backgroundColor: selectedFormat === i ? accent : surface,
+                  borderColor: border,
+                },
+              ]}
+              onPress={() => { hapticSelection(); setSelectedFormat(i); }}
+            >
+              <MaterialIcons
+                name={fmt.icon}
+                size={24}
+                color={selectedFormat === i ? theme.accentContrast : accent}
+              />
+              <Text
+                style={[
+                  styles.formatLabel,
+                  { color: selectedFormat === i ? theme.accentContrast : text },
+                ]}
               >
-                <BentoCard
-                  padding="md"
-                  inverted={selectedFormat === i}
-                >
-                  <View style={styles.formatCard}>
-                    <MaterialIcons
-                      name={fmt.icon}
-                      size={24}
-                      color={selectedFormat === i ? theme.accentContrast : theme.accent}
-                    />
-                    <Text
-                      style={[
-                        styles.formatLabel,
-                        {
-                          color: selectedFormat === i
-                            ? theme.accentContrast
-                            : theme.textPrimary,
-                        },
-                      ]}
-                    >
-                      {fmt.label}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.formatExt,
-                        {
-                          color: selectedFormat === i
-                            ? theme.accentContrast
-                            : theme.textMuted,
-                        },
-                      ]}
-                    >
-                      {fmt.ext}
-                    </Text>
-                  </View>
-                </BentoCard>
-              </TouchableOpacity>
-            ))}
-          </View>
+                {fmt.label}
+              </Text>
+              <Text
+                style={[
+                  styles.formatExt,
+                  { color: selectedFormat === i ? theme.accentContrast : textMuted },
+                ]}
+              >
+                {fmt.ext}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
-        <View style={{ paddingHorizontal: spacing.xl }}>
-          <SectionHeader label="Scope" icon="filter-alt" />
-          <BentoCard padding="lg">
-            <ThemedText variant="body" color="secondary">
-              Export will include all ingested activities, journals, connections, and synthesis data from your knowledge graph.
-            </ThemedText>
-          </BentoCard>
+        {/* Scope */}
+        <Text style={[styles.sectionTitle, { color: textMuted }]}>SCOPE</Text>
+        <View style={[styles.card, { backgroundColor: surface, borderColor: border }]}>
+          <Text style={[styles.scopeText, { color: textMuted }]}>
+            Export includes all activities, journals, connections, and synthesis data.
+          </Text>
         </View>
 
-        <View style={{ paddingHorizontal: spacing.xl }}>
-          <ArchitectButton
-            label={exporting ? 'Exporting...' : 'Generate Export'}
-            onPress={handleExport}
-            variant="primary"
-            disabled={exporting}
-          />
+        {/* Export Button */}
+        <TouchableOpacity
+          style={[styles.exportBtn, { backgroundColor: accent, opacity: exporting ? 0.6 : 1 }]}
+          onPress={handleExport}
+          disabled={exporting}
+        >
+          {exporting ? (
+            <ActivityIndicator size="small" color={theme.accentContrast} />
+          ) : (
+            <>
+              <MaterialIcons name="file-download" size={18} color={theme.accentContrast} />
+              <Text style={[styles.exportBtnText, { color: theme.accentContrast }]}>
+                Generate Export
+              </Text>
+            </>
+          )}
+        </TouchableOpacity>
+
+        {/* Import Section */}
+        <Text style={[styles.sectionTitle, { color: textMuted }]}>IMPORT</Text>
+        <View style={[styles.card, { backgroundColor: surface, borderColor: border }]}>
+          <Text style={[styles.scopeText, { color: textMuted, marginBottom: spacing.md }]}>
+            Restore your knowledge graph from a previous JSON export.
+          </Text>
+          <TouchableOpacity
+            style={[styles.importBtn, { borderColor: accent, opacity: importing ? 0.6 : 1 }]}
+            onPress={handleImport}
+            disabled={importing}
+          >
+            {importing ? (
+              <ActivityIndicator size="small" color={accent} />
+            ) : (
+              <>
+                <MaterialIcons name="file-upload" size={18} color={accent} />
+                <Text style={[styles.importBtnText, { color: accent }]}>Import JSON Backup</Text>
+              </>
+            )}
+          </TouchableOpacity>
         </View>
 
-        <View style={{ paddingHorizontal: spacing.xl }}>
-          <SectionHeader label="Import / Restore" icon="upload-file" />
-          <BentoCard padding="lg">
-            <ThemedText variant="body" color="secondary" style={{ marginBottom: spacing.md }}>
-              Restore your full knowledge graph from a previous JSON export.
-            </ThemedText>
-            <ArchitectButton
-              label={importing ? 'Importing...' : 'Import JSON Backup'}
-              onPress={handleImport}
-              variant="outline"
-              disabled={importing}
-            />
-          </BentoCard>
-        </View>
-
-        <View style={{ height: 40 }} />
+        <View style={{ height: 80 }} />
       </ScrollView>
-    </SafeView>
+    </View>
   );
 }
 
-const useStyles = createThemedStyles((theme) => ({
-  scrollContent: { gap: sw(16) },
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+
+  /* Header */
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: sw(20),
-    paddingVertical: sw(16),
-    borderBottomWidth: 1,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+    gap: spacing.sm,
   },
-  backBtn: { padding: 4 },
-  systemLabel: {
+  headerText: { flex: 1, marginLeft: spacing.sm },
+  title: { fontSize: fs(20), fontWeight: '700' },
+  subtitle: { fontSize: fs(12), marginTop: 2 },
+  iconBtn: {
+    width: sw(44),
+    height: sw(44),
+    borderRadius: sw(12),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  /* Content */
+  scroll: { flex: 1 },
+  scrollContent: { paddingHorizontal: spacing.lg },
+  sectionTitle: {
     fontSize: fs(10),
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    marginBottom: 2,
+    fontWeight: '600',
+    letterSpacing: 1,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
   },
+
+  /* Format Grid */
   formatGrid: {
     flexDirection: 'row',
-    gap: sw(8),
+    flexWrap: 'wrap',
+    gap: spacing.sm,
   },
   formatCard: {
+    width: '48%',
     alignItems: 'center',
-    gap: 6,
-    paddingVertical: sw(8),
+    padding: spacing.lg,
+    borderRadius: 14,
+    borderWidth: 1,
+    gap: spacing.xs,
   },
-  formatLabel: {
-    fontSize: fs(11),
-    fontWeight: '700',
+  formatLabel: { fontSize: fs(13), fontWeight: '600' },
+  formatExt: { fontSize: fs(11) },
+
+  /* Card */
+  card: {
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: spacing.md,
   },
-  formatExt: {
-    fontSize: fs(9),
-    letterSpacing: 1,
-    textTransform: 'uppercase',
+  scopeText: { fontSize: fs(13), lineHeight: 19 },
+
+  /* Buttons */
+  exportBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.lg,
+    borderRadius: 14,
+    marginTop: spacing.lg,
   },
-}));
+  exportBtnText: { fontSize: fs(14), fontWeight: '700' },
+  importBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+    borderRadius: 12,
+    borderWidth: 2,
+  },
+  importBtnText: { fontSize: fs(13), fontWeight: '600' },
+});

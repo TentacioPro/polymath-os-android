@@ -6,37 +6,42 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  FlatList,
+  StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
-import SafeView from '../components/shared/SafeView';
-import BentoCard from '../components/ui/BentoCard';
-import Badge from '../components/ui/Badge';
-import ThemedText from '../components/shared/ThemedText';
-import SectionHeader from '../components/ui/SectionHeader';
-import { useTheme, createThemedStyles, spacing, fs, sw } from '../theme';
+import { useTheme, spacing, fs, sw } from '../theme';
+import { hapticPress, hapticLight, hapticSelection, hapticWarning } from '../utils/haptics';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 
 export default function SearchScreen() {
   const { theme } = useTheme();
-  const router = useRouter();
-  const styles = useStyles();
-
+  const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any>(null);
   const [searching, setSearching] = useState(false);
 
+  // Colors
+  const bg = theme.background;
+  const surface = theme.surface;
+  const text = theme.textPrimary;
+  const textMuted = theme.textSecondary;
+  const accent = theme.accent;
+  const border = theme.borderMuted;
+
   const handleSearch = useCallback(async () => {
     const q = query.trim();
     if (q.length < 2) return;
+    hapticPress();
     setSearching(true);
     try {
       const res = await axios.get(`${BACKEND_URL}/api/search`, { params: { q, limit: 30 } });
       setResults(res.data);
     } catch (e) {
+      hapticWarning();
       console.error('Search failed:', e);
     } finally {
       setSearching(false);
@@ -54,18 +59,21 @@ export default function SearchScreen() {
   const hasResults = results && results.total > 0;
 
   return (
-    <SafeView>
+    <View style={[styles.container, { backgroundColor: bg }]}>
       {/* Header */}
-      <View style={[styles.header, { borderBottomColor: theme.border }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <MaterialIcons name="arrow-back" size={22} color={theme.textPrimary} />
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity
+          onPress={() => { hapticLight(); router.back(); }}
+          style={[styles.iconBtn, { backgroundColor: surface }]}
+        >
+          <MaterialIcons name="arrow-back" size={20} color={text} />
         </TouchableOpacity>
-        <View style={[styles.searchBar, { borderColor: theme.border }]}>
-          <MaterialIcons name="search" size={18} color={theme.textMuted} />
+        <View style={[styles.searchBar, { backgroundColor: surface, borderColor: border }]}>
+          <MaterialIcons name="search" size={18} color={textMuted} />
           <TextInput
-            style={[styles.searchInput, { color: theme.textPrimary }]}
+            style={[styles.searchInput, { color: text }]}
             placeholder="Search knowledge..."
-            placeholderTextColor={theme.textMuted}
+            placeholderTextColor={textMuted}
             value={query}
             onChangeText={setQuery}
             onSubmitEditing={handleSearch}
@@ -73,177 +81,223 @@ export default function SearchScreen() {
             autoFocus
           />
           {query.length > 0 && (
-            <TouchableOpacity onPress={() => { setQuery(''); setResults(null); }}>
-              <MaterialIcons name="close" size={18} color={theme.textMuted} />
+            <TouchableOpacity onPress={() => { hapticLight(); setQuery(''); setResults(null); }}>
+              <MaterialIcons name="close" size={18} color={textMuted} />
             </TouchableOpacity>
           )}
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Loading */}
         {searching && (
-          <View style={{ padding: 40, alignItems: 'center' }}>
-            <ActivityIndicator size="large" color={theme.accent} />
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color={accent} />
           </View>
         )}
 
+        {/* No results */}
         {!searching && results && !hasResults && (
-          <View style={{ padding: 40, alignItems: 'center' }}>
-            <MaterialIcons name="search-off" size={48} color={theme.textMuted} />
-            <ThemedText variant="body" color="muted" style={{ marginTop: 12 }}>
-              No results for "{query}"
-            </ThemedText>
+          <View style={styles.center}>
+            <MaterialIcons name="search-off" size={48} color={border} />
+            <Text style={[styles.centerText, { color: textMuted }]}>No results for "{query}"</Text>
           </View>
         )}
 
+        {/* Results */}
         {!searching && hasResults && (
           <>
-            <View style={{ paddingHorizontal: spacing.xl }}>
-              <ThemedText variant="caption" color="muted" style={{ marginBottom: spacing.sm }}>
-                {results.total} result{results.total !== 1 ? 's' : ''} found
-              </ThemedText>
-            </View>
+            <Text style={[styles.resultCount, { color: textMuted }]}>
+              {results.total} result{results.total !== 1 ? 's' : ''} found
+            </Text>
 
             {/* Activities */}
             {results.activities?.length > 0 && (
-              <View style={{ paddingHorizontal: spacing.xl }}>
-                <SectionHeader label={`Activities (${results.activities.length})`} icon="folder" />
+              <>
+                <Text style={[styles.sectionTitle, { color: textMuted }]}>
+                  ACTIVITIES ({results.activities.length})
+                </Text>
                 {results.activities.map((item: any) => (
                   <TouchableOpacity
                     key={item.id}
-                    onPress={() => router.push({ pathname: '/activity-detail', params: { id: item.id } })}
+                    style={[styles.resultCard, { backgroundColor: surface, borderColor: border }]}
+                    onPress={() => { hapticSelection(); router.push(`/activity-detail?id=${item.id}` as any); }}
+                    activeOpacity={0.7}
                   >
-                    <BentoCard padding="sm" style={{ marginBottom: spacing.sm }}>
-                      <View style={styles.resultRow}>
-                        <MaterialIcons name="description" size={16} color={theme.accent} />
-                        <View style={{ flex: 1, marginLeft: spacing.sm }}>
-                          <Text style={[styles.resultTitle, { color: theme.textPrimary }]} numberOfLines={1}>
-                            {item.title}
-                          </Text>
-                          {item.notes && (
-                            <Text style={[styles.resultDesc, { color: theme.textSecondary }]} numberOfLines={2}>
-                              {item.notes}
-                            </Text>
-                          )}
-                        </View>
-                        <Badge label={(item.content_type || item.category || 'FILE').toUpperCase().slice(0, 4)} />
-                      </View>
-                    </BentoCard>
+                    <View style={[styles.resultIcon, { backgroundColor: bg }]}>
+                      <MaterialIcons name="description" size={16} color={accent} />
+                    </View>
+                    <View style={styles.resultContent}>
+                      <Text style={[styles.resultTitle, { color: text }]} numberOfLines={1}>
+                        {item.title}
+                      </Text>
+                      {item.notes && (
+                        <Text style={[styles.resultDesc, { color: textMuted }]} numberOfLines={2}>
+                          {item.notes}
+                        </Text>
+                      )}
+                    </View>
+                    <View style={[styles.badge, { backgroundColor: accent + '20' }]}>
+                      <Text style={[styles.badgeText, { color: accent }]}>
+                        {(item.content_type || item.category || 'FILE').toUpperCase().slice(0, 4)}
+                      </Text>
+                    </View>
                   </TouchableOpacity>
                 ))}
-              </View>
+              </>
             )}
 
             {/* Journals */}
             {results.journals?.length > 0 && (
-              <View style={{ paddingHorizontal: spacing.xl }}>
-                <SectionHeader label={`Journals (${results.journals.length})`} icon="menu-book" />
+              <>
+                <Text style={[styles.sectionTitle, { color: textMuted }]}>
+                  JOURNALS ({results.journals.length})
+                </Text>
                 {results.journals.map((item: any) => (
                   <TouchableOpacity
                     key={item.id}
-                    onPress={() => router.push('/journal')}
+                    style={[styles.resultCard, { backgroundColor: surface, borderColor: border }]}
+                    onPress={() => { hapticSelection(); router.push('/journal' as any); }}
+                    activeOpacity={0.7}
                   >
-                    <BentoCard padding="sm" style={{ marginBottom: spacing.sm }}>
-                      <View style={styles.resultRow}>
-                        <MaterialIcons name="menu-book" size={16} color={theme.accent} />
-                        <View style={{ flex: 1, marginLeft: spacing.sm }}>
-                          <Text style={[styles.resultTitle, { color: theme.textPrimary }]} numberOfLines={1}>
-                            {item.title}
-                          </Text>
-                          <Text style={[styles.resultDesc, { color: theme.textSecondary }]} numberOfLines={2}>
-                            {item.content}
-                          </Text>
-                        </View>
-                        <Text style={[styles.dateText, { color: theme.textMuted }]}>
-                          {formatDate(item.timestamp)}
-                        </Text>
-                      </View>
-                    </BentoCard>
+                    <View style={[styles.resultIcon, { backgroundColor: bg }]}>
+                      <MaterialIcons name="menu-book" size={16} color={accent} />
+                    </View>
+                    <View style={styles.resultContent}>
+                      <Text style={[styles.resultTitle, { color: text }]} numberOfLines={1}>
+                        {item.title}
+                      </Text>
+                      <Text style={[styles.resultDesc, { color: textMuted }]} numberOfLines={2}>
+                        {item.content}
+                      </Text>
+                    </View>
+                    <Text style={[styles.dateText, { color: textMuted }]}>
+                      {formatDate(item.timestamp)}
+                    </Text>
                   </TouchableOpacity>
                 ))}
-              </View>
+              </>
             )}
 
             {/* Connections */}
             {results.connections?.length > 0 && (
-              <View style={{ paddingHorizontal: spacing.xl }}>
-                <SectionHeader label={`Connections (${results.connections.length})`} icon="device-hub" />
+              <>
+                <Text style={[styles.sectionTitle, { color: textMuted }]}>
+                  CONNECTIONS ({results.connections.length})
+                </Text>
                 {results.connections.map((item: any, i: number) => (
-                  <BentoCard key={item.id || i} padding="sm" style={{ marginBottom: spacing.sm }}>
-                    <View style={styles.resultRow}>
-                      <MaterialIcons name="compare-arrows" size={16} color={theme.accent} />
-                      <View style={{ flex: 1, marginLeft: spacing.sm }}>
-                        <Text style={[styles.resultTitle, { color: theme.textPrimary }]} numberOfLines={1}>
-                          {item.connection_type || 'Semantic Link'}
-                        </Text>
-                        <Text style={[styles.resultDesc, { color: theme.textSecondary }]} numberOfLines={2}>
-                          {item.ai_reasoning || 'Related knowledge items'}
-                        </Text>
-                      </View>
+                  <View
+                    key={item.id || i}
+                    style={[styles.resultCard, { backgroundColor: surface, borderColor: border }]}
+                  >
+                    <View style={[styles.resultIcon, { backgroundColor: bg }]}>
+                      <MaterialIcons name="compare-arrows" size={16} color={accent} />
                     </View>
-                  </BentoCard>
+                    <View style={styles.resultContent}>
+                      <Text style={[styles.resultTitle, { color: text }]} numberOfLines={1}>
+                        {item.connection_type || 'Semantic Link'}
+                      </Text>
+                      <Text style={[styles.resultDesc, { color: textMuted }]} numberOfLines={2}>
+                        {item.ai_reasoning || 'Related knowledge items'}
+                      </Text>
+                    </View>
+                  </View>
                 ))}
-              </View>
+              </>
             )}
           </>
         )}
 
         {/* Initial state */}
         {!searching && !results && (
-          <View style={{ padding: 40, alignItems: 'center' }}>
-            <MaterialIcons name="manage-search" size={48} color={theme.textMuted} />
-            <ThemedText variant="body" color="muted" style={{ marginTop: 12, textAlign: 'center' }}>
-              Search across all your knowledge sources, journals & connections.
-            </ThemedText>
+          <View style={styles.center}>
+            <MaterialIcons name="manage-search" size={48} color={border} />
+            <Text style={[styles.centerText, { color: textMuted }]}>
+              Search all knowledge, journals & connections
+            </Text>
           </View>
         )}
 
-        <View style={{ height: 40 }} />
+        <View style={{ height: 80 }} />
       </ScrollView>
-    </SafeView>
+    </View>
   );
 }
 
-const useStyles = createThemedStyles((theme) => ({
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+
+  /* Header */
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: sw(20),
-    paddingVertical: sw(12),
-    borderBottomWidth: 1,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
     gap: spacing.sm,
   },
-  backBtn: { padding: 4 },
+  iconBtn: {
+    width: sw(44),
+    height: sw(44),
+    borderRadius: sw(12),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   searchBar: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: sw(12),
-    paddingVertical: sw(8),
+    borderRadius: 14,
+    paddingHorizontal: spacing.md,
+    height: sw(48),
     gap: spacing.sm,
   },
   searchInput: {
     flex: 1,
-    fontSize: fs(14),
+    fontSize: fs(15),
     padding: 0,
   },
-  scrollContent: { gap: sw(12), paddingTop: sw(8) },
-  resultRow: {
+
+  /* Content */
+  scroll: { flex: 1 },
+  scrollContent: { paddingHorizontal: spacing.lg },
+  center: { alignItems: 'center', paddingVertical: spacing.xxxl },
+  centerText: { fontSize: fs(14), marginTop: spacing.md, textAlign: 'center' },
+  resultCount: { fontSize: fs(12), marginBottom: spacing.md },
+  sectionTitle: {
+    fontSize: fs(10),
+    fontWeight: '600',
+    letterSpacing: 1,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+
+  /* Result cards */
+  resultCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    padding: spacing.md,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: spacing.sm,
+    gap: spacing.sm,
   },
-  resultTitle: {
-    fontSize: fs(13),
-    fontWeight: '700',
-    marginBottom: 2,
+  resultIcon: {
+    width: sw(36),
+    height: sw(36),
+    borderRadius: sw(10),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  resultDesc: {
-    fontSize: fs(11),
-    lineHeight: 15,
-  },
-  dateText: {
-    fontSize: fs(10),
-  },
-}));
+  resultContent: { flex: 1 },
+  resultTitle: { fontSize: fs(14), fontWeight: '600', marginBottom: 2 },
+  resultDesc: { fontSize: fs(12), lineHeight: 17 },
+  badge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: 6 },
+  badgeText: { fontSize: fs(9), fontWeight: '600', letterSpacing: 0.5 },
+  dateText: { fontSize: fs(10) },
+});
