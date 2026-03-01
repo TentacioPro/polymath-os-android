@@ -12,54 +12,50 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useTheme, spacing } from '../../theme';
+import { useTheme, spacing, sw, fs } from '../../theme';
 import { useStore } from '../../store/useStore';
 import { router } from 'expo-router';
+import { hapticDrawer, hapticPress, hapticSelection } from '../../utils/haptics';
 
-const DRAWER_WIDTH_RATIO = 0.72;
-const MAX_DRAWER_WIDTH = 320;
+const DRAWER_WIDTH_RATIO = 0.78;
+const MAX_DRAWER_WIDTH = 300;
 
 interface DrawerLink {
   label: string;
   icon: keyof typeof MaterialIcons.glyphMap;
   route: string;
-  badge?: number;
 }
 
 const NAV_LINKS: DrawerLink[] = [
-  { label: 'Dashboard', icon: 'dashboard', route: '/(tabs)' },
-  { label: 'Knowledge', icon: 'hub', route: '/(tabs)/knowledge' },
-  { label: 'Neural Mesh', icon: 'grain', route: '/(tabs)/mesh' },
-  { label: 'Journal', icon: 'menu-book', route: '/journal' },
-  { label: 'Agent', icon: 'psychology', route: '/agent' },
-  { label: 'Chat', icon: 'chat', route: '/chat' },
+  { label: 'Dashboard', icon: 'home', route: '/(tabs)' },
+  { label: 'Knowledge', icon: 'folder-open', route: '/(tabs)/knowledge' },
+  { label: 'Neural Mesh', icon: 'hub', route: '/(tabs)/mesh' },
+  { label: 'Journal', icon: 'edit-note', route: '/journal' },
+  { label: 'Chat', icon: 'chat-bubble-outline', route: '/chat' },
 ];
 
-const SECONDARY_LINKS: DrawerLink[] = [
-  { label: 'Analytics', icon: 'analytics', route: '/analytics' },
-  { label: 'Integrations', icon: 'extension', route: '/integrations' },
-  { label: 'Alerts', icon: 'notifications', route: '/alerts' },
-  { label: 'Export', icon: 'download', route: '/export' },
+const TOOL_LINKS: DrawerLink[] = [
+  { label: 'Search', icon: 'search', route: '/search' },
+  { label: 'Analytics', icon: 'bar-chart', route: '/analytics' },
+  { label: 'Export', icon: 'file-download', route: '/export' },
+  { label: 'Settings', icon: 'settings', route: '/profile' },
 ];
 
 /**
- * App drawer content. Always dark background, theme-aware accents.
- * Maps to Stitch prd_14 system navigation drawer.
+ * Full-screen slide-in drawer — mobile-first, clean, no harsh borders.
  */
 export default function AppDrawer() {
-  const { theme, cycleTheme, themeName } = useTheme();
+  const { theme, cycleTheme } = useTheme();
   const insets = useSafeAreaInsets();
   const drawerOpen = useStore((s) => s.drawerOpen);
   const setDrawerOpen = useStore((s) => s.setDrawerOpen);
   const activities = useStore((s) => s.activities);
   const connections = useStore((s) => s.connections);
 
-  const drawerWidth = Math.min(
-    Dimensions.get('window').width * DRAWER_WIDTH_RATIO,
-    MAX_DRAWER_WIDTH,
-  );
+  const screenWidth = Dimensions.get('window').width;
+  const drawerWidth = Math.min(screenWidth * DRAWER_WIDTH_RATIO, MAX_DRAWER_WIDTH);
 
-  // Slide + fade animations
+  // Animations
   const slideAnim = useRef(new Animated.Value(-drawerWidth)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -69,12 +65,12 @@ export default function AppDrawer() {
         Animated.spring(slideAnim, {
           toValue: 0,
           useNativeDriver: true,
-          damping: 20,
-          stiffness: 200,
+          damping: 22,
+          stiffness: 180,
         }),
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 200,
+          duration: 180,
           useNativeDriver: true,
         }),
       ]).start();
@@ -83,12 +79,12 @@ export default function AppDrawer() {
         Animated.spring(slideAnim, {
           toValue: -drawerWidth,
           useNativeDriver: true,
-          damping: 20,
-          stiffness: 200,
+          damping: 22,
+          stiffness: 180,
         }),
         Animated.timing(fadeAnim, {
           toValue: 0,
-          duration: 150,
+          duration: 120,
           useNativeDriver: true,
         }),
       ]).start();
@@ -97,158 +93,125 @@ export default function AppDrawer() {
 
   if (!drawerOpen) return null;
 
-  const close = () => setDrawerOpen(false);
-
-  const navigate = (route: string) => {
-    close();
-    setTimeout(() => router.push(route as any), 150);
+  const close = () => {
+    hapticDrawer();
+    setDrawerOpen(false);
   };
 
-  const d = theme.drawer;
+  const navigate = (route: string) => {
+    hapticPress();
+    close();
+    setTimeout(() => router.push(route as any), 120);
+  };
+
+  const bg = '#0A0A0A';
+  const textPrimary = '#FFFFFF';
+  const textSecondary = '#888888';
+  const accent = theme.accent;
+  const surfaceMuted = '#161616';
 
   return (
-    <View style={[StyleSheet.absoluteFill, styles.overlay, { zIndex: 100 }]}>
-      {/* Animated Backdrop */}
-      <Animated.View
-        style={[StyleSheet.absoluteFillObject, { opacity: fadeAnim }]}
-      >
+    <View style={[StyleSheet.absoluteFill, styles.overlay]}>
+      {/* Backdrop */}
+      <Animated.View style={[StyleSheet.absoluteFillObject, { opacity: fadeAnim }]}>
         <Pressable
-          style={[styles.backdrop, { backgroundColor: d.overlay }]}
+          style={[styles.backdrop, { backgroundColor: 'rgba(0,0,0,0.6)' }]}
           onPress={close}
         />
       </Animated.View>
 
-      {/* Animated Drawer panel */}
+      {/* Drawer */}
       <Animated.View
         style={[
           styles.drawer,
           {
             width: drawerWidth,
-            backgroundColor: d.background,
-            borderRightColor: d.border,
-            paddingTop: insets.top,
+            backgroundColor: bg,
+            paddingTop: insets.top + 8,
+            paddingBottom: insets.bottom + 8,
             transform: [{ translateX: slideAnim }],
           },
         ]}
       >
         {/* Header */}
-        <View style={[styles.header, { borderBottomColor: d.border }]}>
-          <View style={styles.headerRow}>
-            <View style={[styles.logo, { backgroundColor: d.textPrimary }]}>
-              <MaterialIcons name="grid-view" size={18} color={d.background} />
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <View style={[styles.logoBox, { backgroundColor: accent }]}>
+              <MaterialIcons name="auto-awesome" size={18} color="#000" />
             </View>
-            <TouchableOpacity onPress={close} style={styles.closeBtn}>
-              <MaterialIcons name="close" size={22} color={d.textPrimary} />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Text style={[styles.statLabel, { color: d.textSecondary }]}>Activities</Text>
-              <Text style={[styles.statValue, { color: d.textPrimary }]}>
-                {activities.length}
+            <View>
+              <Text style={[styles.brandText, { color: textPrimary }]}>PolymathOS</Text>
+              <Text style={[styles.brandSub, { color: textSecondary }]}>
+                {activities.length} items · {connections.length} links
               </Text>
             </View>
-            <View style={styles.statItem}>
-              <Text style={[styles.statLabel, { color: d.textSecondary }]}>Mesh</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <View style={[styles.statusDot, { backgroundColor: theme.status.success }]} />
-                <Text style={[styles.statValue, { color: d.textPrimary }]}>
-                  {connections.length}
-                </Text>
-              </View>
-            </View>
           </View>
-        </View>
-
-        {/* Quick Actions */}
-        <View style={[styles.quickActions, { borderBottomColor: d.border }]}>
           <TouchableOpacity
-            style={[styles.quickAction, { borderRightColor: d.border }]}
-            onPress={() => navigate('/chat')}
+            onPress={close}
+            style={[styles.closeBtn, { backgroundColor: surfaceMuted }]}
+            activeOpacity={0.7}
           >
-            <MaterialIcons name="add-circle" size={18} color={d.textPrimary} />
-            <Text style={[styles.quickActionLabel, { color: d.textPrimary }]}>New Thread</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.quickAction}
-            onPress={() => navigate('/search')}
-          >
-            <MaterialIcons name="search" size={18} color={d.textPrimary} />
-            <Text style={[styles.quickActionLabel, { color: d.textPrimary }]}>Search</Text>
+            <MaterialIcons name="close" size={20} color={textPrimary} />
           </TouchableOpacity>
         </View>
 
-        {/* Nav Links */}
-        <ScrollView style={styles.navScroll} showsVerticalScrollIndicator={false}>
-          <Text style={[styles.sectionLabel, { color: d.textSecondary }]}>NAVIGATE</Text>
-          {NAV_LINKS.map((link) => (
-            <TouchableOpacity
-              key={link.route}
-              style={[styles.navLink, { borderBottomColor: d.border + '33' }]}
-              onPress={() => navigate(link.route)}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <MaterialIcons name={link.icon} size={18} color={d.textSecondary} />
-                <Text style={[styles.navLinkText, { color: d.textPrimary }]}>
-                  {link.label}
-                </Text>
-              </View>
-              {link.badge !== undefined && (
-                <View style={[styles.navBadge, { backgroundColor: d.textPrimary }]}>
-                  <Text style={[styles.navBadgeText, { color: d.background }]}>
-                    {link.badge}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          ))}
+        {/* Navigation */}
+        <ScrollView
+          style={styles.navScroll}
+          contentContainerStyle={styles.navContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Main Nav */}
+          <View style={styles.navSection}>
+            {NAV_LINKS.map((link, i) => (
+              <TouchableOpacity
+                key={link.route}
+                style={[styles.navItem, { backgroundColor: surfaceMuted }]}
+                onPress={() => navigate(link.route)}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name={link.icon} size={20} color={textSecondary} />
+                <Text style={[styles.navLabel, { color: textPrimary }]}>{link.label}</Text>
+                <MaterialIcons name="chevron-right" size={18} color={textSecondary} />
+              </TouchableOpacity>
+            ))}
+          </View>
 
-          <Text style={[styles.sectionLabel, { color: d.textSecondary, marginTop: 20 }]}>
-            MORE
-          </Text>
-          {SECONDARY_LINKS.map((link) => (
-            <TouchableOpacity
-              key={link.route}
-              style={[styles.navLink, { borderBottomColor: d.border + '33' }]}
-              onPress={() => navigate(link.route)}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <MaterialIcons name={link.icon} size={18} color={d.textSecondary} />
-                <Text style={[styles.navLinkText, { color: d.textPrimary }]}>
-                  {link.label}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+          {/* Tools Section */}
+          <Text style={[styles.sectionTitle, { color: textSecondary }]}>TOOLS</Text>
+          <View style={styles.navSection}>
+            {TOOL_LINKS.map((link) => (
+              <TouchableOpacity
+                key={link.route}
+                style={[styles.navItem, { backgroundColor: surfaceMuted }]}
+                onPress={() => navigate(link.route)}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name={link.icon} size={20} color={textSecondary} />
+                <Text style={[styles.navLabel, { color: textPrimary }]}>{link.label}</Text>
+                <MaterialIcons name="chevron-right" size={18} color={textSecondary} />
+              </TouchableOpacity>
+            ))}
+          </View>
         </ScrollView>
 
-        {/* Footer */}
-        <View style={[styles.footer, { borderTopColor: d.border }]}>
-          {/* Theme swap card */}
+        {/* Footer — Theme Toggle */}
+        <View style={styles.footer}>
           <TouchableOpacity
-            style={[styles.themeCard, { borderColor: d.border }]}
-            onPress={cycleTheme}
+            style={[styles.themeBtn, { backgroundColor: surfaceMuted }]}
+            onPress={() => {
+              hapticSelection();
+              cycleTheme();
+            }}
+            activeOpacity={0.7}
           >
-            <MaterialIcons name="contrast" size={18} color={d.textPrimary} />
+            <MaterialIcons name="palette" size={20} color={accent} />
             <View style={{ flex: 1 }}>
-              <Text style={[styles.themeLabel, { color: d.textPrimary }]}>Swap Theme</Text>
-              <Text style={[styles.themeCurrent, { color: d.textSecondary }]}>
-                CURRENT: {theme.label}
-              </Text>
+              <Text style={[styles.themeBtnLabel, { color: textPrimary }]}>Theme</Text>
+              <Text style={[styles.themeBtnValue, { color: accent }]}>{theme.label}</Text>
             </View>
-            <MaterialIcons name="chevron-right" size={18} color={d.textSecondary} />
+            <MaterialIcons name="sync" size={18} color={textSecondary} />
           </TouchableOpacity>
-
-          {/* Settings & logout */}
-          <View style={styles.footerActions}>
-            <TouchableOpacity
-              style={styles.footerBtn}
-              onPress={() => navigate('/profile')}
-            >
-              <MaterialIcons name="settings" size={18} color={d.textSecondary} />
-              <Text style={[styles.footerBtnText, { color: d.textSecondary }]}>Settings</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </Animated.View>
     </View>
@@ -257,152 +220,119 @@ export default function AppDrawer() {
 
 const styles = StyleSheet.create({
   overlay: {
-    flexDirection: 'row',
+    zIndex: 1000,
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
   },
   drawer: {
-    borderRightWidth: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 10, height: 0 },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
+        shadowOffset: { width: 8, height: 0 },
+        shadowOpacity: 0.25,
+        shadowRadius: 16,
       },
-      android: { elevation: 16 },
+      android: { elevation: 24 },
     }),
   },
+
+  /* Header */
   header: {
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xl,
-    borderBottomWidth: 1,
-  },
-  headerRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
   },
-  logo: {
-    width: 32,
-    height: 32,
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  logoBox: {
+    width: sw(36),
+    height: sw(36),
+    borderRadius: sw(10),
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  brandText: {
+    fontSize: fs(15),
+    fontWeight: '700',
+    letterSpacing: -0.3,
+  },
+  brandSub: {
+    fontSize: fs(11),
+    marginTop: 1,
   },
   closeBtn: {
-    padding: 4,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: spacing.xl,
-  },
-  statItem: {
-    gap: 2,
-  },
-  statLabel: {
-    fontSize: 10,
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-  },
-  statValue: {
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 0.3,
-  },
-  statusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  quickActions: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-  },
-  quickAction: {
-    flex: 1,
-    flexDirection: 'row',
+    width: sw(36),
+    height: sw(36),
+    borderRadius: sw(10),
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    paddingVertical: spacing.lg,
-    borderRightWidth: 1,
   },
-  quickActionLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
+
+  /* Navigation */
   navScroll: {
     flex: 1,
-    paddingHorizontal: spacing.xl,
   },
-  sectionLabel: {
-    fontSize: 10,
-    fontWeight: '500',
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    marginTop: spacing.lg,
-    marginBottom: spacing.sm,
+  navContent: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
   },
-  navLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-    borderBottomWidth: 1,
+  navSection: {
+    gap: spacing.sm,
   },
-  navLinkText: {
-    fontSize: 13,
+  sectionTitle: {
+    fontSize: fs(10),
     fontWeight: '600',
-    letterSpacing: 0.3,
+    letterSpacing: 2,
+    marginTop: spacing.xl,
+    marginBottom: spacing.sm,
+    marginLeft: spacing.sm,
   },
-  navBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  navBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  footer: {
-    borderTopWidth: 1,
-    padding: spacing.xl,
-    gap: spacing.md,
-  },
-  themeCard: {
+  navItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderRadius: 10,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: 12,
   },
-  themeLabel: {
-    fontSize: 12,
+  navLabel: {
+    flex: 1,
+    fontSize: fs(14),
+    fontWeight: '500',
+  },
+
+  /* Footer */
+  footer: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+  },
+  themeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: 12,
+  },
+  themeBtnLabel: {
+    fontSize: fs(13),
+    fontWeight: '600',
+  },
+  themeBtnValue: {
+    fontSize: fs(10),
     fontWeight: '700',
-    letterSpacing: 0.3,
-  },
-  themeCurrent: {
-    fontSize: 9,
     letterSpacing: 1,
     textTransform: 'uppercase',
-    marginTop: 2,
-  },
-  footerActions: {
-    flexDirection: 'row',
-    gap: spacing.lg,
-  },
-  footerBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  footerBtnText: {
-    fontSize: 12,
-    fontWeight: '500',
-    letterSpacing: 0.3,
+    marginTop: 1,
   },
 });

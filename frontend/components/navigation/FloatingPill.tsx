@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme, spacing } from '../../theme';
 import QuickCapture from './QuickCapture';
+import { hapticTab, hapticPress } from '../../utils/haptics';
 
 const PILL_MAX_WIDTH = 360;
 const PILL_BOTTOM_OFFSET = 24;
@@ -47,6 +48,7 @@ export default function FloatingPill({ state, descriptors, navigation }: Floatin
   const bottomOffset = PILL_BOTTOM_OFFSET + insets.bottom;
 
   const handleCapture = () => {
+    hapticPress();
     setCaptureVisible(true);
   };
 
@@ -87,6 +89,7 @@ export default function FloatingPill({ state, descriptors, navigation }: Floatin
               <TouchableOpacity
                 key={tab.name}
                 onPress={() => {
+                  hapticTab();
                   const route = state.routes[index];
                   const event = navigation.emit({
                     type: 'tabPress',

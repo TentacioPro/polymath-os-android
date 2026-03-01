@@ -6,21 +6,17 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  StyleSheet,
   Animated,
   Easing,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import axios from 'axios';
-import SafeView from '../../components/shared/SafeView';
-import StatCard from '../../components/ui/StatCard';
-import BentoCard from '../../components/ui/BentoCard';
-import SectionHeader from '../../components/ui/SectionHeader';
-import ArchitectButton from '../../components/ui/ArchitectButton';
-import Badge from '../../components/ui/Badge';
-import ThemedText from '../../components/shared/ThemedText';
-import { useTheme, createThemedStyles, spacing, fs, sw } from '../../theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme, spacing, fs, sw } from '../../theme';
 import { useStore } from '../../store/useStore';
+import { hapticPress, hapticRefresh, hapticLight } from '../../utils/haptics';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -35,37 +31,25 @@ function getGreeting(): string {
 
 export default function Dashboard() {
   const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
   const toggleDrawer = useStore((s) => s.toggleDrawer);
   const { activities, setActivities, setJournals } = useStore();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const styles = useStyles();
 
-  // Pulse animation for live dot
+  // Pulse animation
   const pulseAnim = useRef(new Animated.Value(1)).current;
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 0.3,
-          duration: 1200,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1200,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
+        Animated.timing(pulseAnim, { toValue: 0.4, duration: 1000, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 1000, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
       ]),
     ).start();
   }, []);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
     try {
@@ -79,692 +63,365 @@ export default function Dashboard() {
       setActivities(activitiesRes.data);
       setJournals(journalsRes.data);
     } catch (error) {
-      console.error('Failed to load dashboard data:', error);
+      console.error('Dashboard load error:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const onRefresh = useCallback(() => {
+    hapticRefresh();
     setRefreshing(true);
     loadData().finally(() => setRefreshing(false));
   }, []);
 
+  // Colors
+  const bg = theme.background;
+  const surface = theme.surface;
+  const text = theme.textPrimary;
+  const textMuted = theme.textSecondary;
+  const accent = theme.accent;
+  const border = theme.borderMuted;
+
   if (loading) {
     return (
-      <SafeView>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.accent} />
-          <ThemedText variant="caption" color="secondary" style={{ marginTop: 16 }}>
-            Loading your polymath journey...
-          </ThemedText>
-        </View>
-      </SafeView>
+      <View style={[styles.loading, { backgroundColor: bg, paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={accent} />
+        <Text style={[styles.loadingText, { color: textMuted }]}>Loading...</Text>
+      </View>
     );
   }
 
-  const totalKnowledge = (stats?.total_activities || 0) + (stats?.total_journals || 0);
-  const categoryCount = Object.keys(stats?.categories || {}).length || 0;
+  const totalActivities = stats?.total_activities || 0;
+  const totalJournals = stats?.total_journals || 0;
+  const totalConnections = stats?.total_connections || 0;
+  const categories = stats?.categories || {};
+  const topCategories = Object.entries(categories).slice(0, 4);
 
   return (
-    <SafeView>
+    <View style={[styles.container, { backgroundColor: bg }]}>
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
-        }
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + 8, paddingBottom: 120 }]}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accent} />
+        }
       >
-        {/* ─── Header ─── */}
+        {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={toggleDrawer} style={styles.menuBtn}>
-            <View style={[styles.menuIcon, { borderColor: theme.textPrimary }]}>
-              <MaterialIcons name="menu" size={20} color={theme.textPrimary} />
-            </View>
+          <TouchableOpacity
+            onPress={() => { hapticLight(); toggleDrawer(); }}
+            style={[styles.menuBtn, { backgroundColor: surface }]}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons name="menu" size={22} color={text} />
           </TouchableOpacity>
-          <View style={styles.headerCenter}>
-            <Text style={[styles.greeting, { color: theme.textSecondary }]}>
-              {getGreeting()}
-            </Text>
-            <Text style={[styles.title, { color: theme.textPrimary }]}>
-              Polymath<Text style={{ color: theme.accent }}>OS</Text>
-            </Text>
+          <View style={styles.headerText}>
+            <Text style={[styles.greeting, { color: textMuted }]}>{getGreeting()}</Text>
+            <Text style={[styles.title, { color: text }]}>Dashboard</Text>
           </View>
-          <View style={styles.headerRight}>
-            <Text style={[styles.dateLabel, { color: theme.textSecondary }]}>
-              {new Date().toLocaleDateString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-              }).toUpperCase()}
-            </Text>
-            <TouchableOpacity
-              onPress={() => router.push('/profile' as any)}
-              style={[styles.avatar, { backgroundColor: theme.accent }]}
-            >
-              <MaterialIcons name="person" size={16} color={theme.accentContrast} />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            onPress={() => { hapticPress(); router.push('/profile' as any); }}
+            style={[styles.avatarBtn, { backgroundColor: accent }]}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons name="person" size={20} color={theme.accentContrast} />
+          </TouchableOpacity>
         </View>
 
-        {/* ─── Quick Actions ─── */}
-        <View style={styles.quickActionsRow}>
+        {/* Quick Actions */}
+        <View style={styles.quickActions}>
           {[
-            { icon: 'chat' as const, label: 'Chat', route: '/chat' },
-            { icon: 'edit-note' as const, label: 'Journal', route: '/journal' },
-            { icon: 'search' as const, label: 'Search', route: '/search' },
-            { icon: 'analytics' as const, label: 'Insights', route: '/analytics' },
-          ].map((action) => (
+            { icon: 'add', label: 'Add', route: '/chat', color: accent },
+            { icon: 'chat-bubble-outline', label: 'Chat', route: '/chat', color: text },
+            { icon: 'search', label: 'Search', route: '/search', color: text },
+            { icon: 'edit-note', label: 'Journal', route: '/journal', color: text },
+          ].map((action, i) => (
             <TouchableOpacity
               key={action.label}
-              style={[styles.quickActionBtn, { borderColor: theme.borderMuted }]}
-              onPress={() => router.push(action.route as any)}
+              onPress={() => { hapticPress(); router.push(action.route as any); }}
+              style={[styles.quickActionBtn, { backgroundColor: i === 0 ? accent : surface }]}
               activeOpacity={0.7}
             >
-              <View style={[styles.quickActionIcon, { backgroundColor: theme.surfaceElevated }]}>
-                <MaterialIcons name={action.icon} size={18} color={theme.accent} />
-              </View>
-              <Text style={[styles.quickActionLabel, { color: theme.textSecondary }]}>
-                {action.label}
-              </Text>
+              <MaterialIcons
+                name={action.icon as any}
+                size={22}
+                color={i === 0 ? theme.accentContrast : text}
+              />
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* ─── Stat cards — 3-col bento grid ─── */}
-        <View style={styles.statsGrid}>
-          <StatCard
-            value={stats?.total_activities || 0}
-            label="Activities"
-            icon={<MaterialIcons name="layers" size={16} color={theme.textPrimary} />}
-          />
-          <StatCard
-            value={stats?.total_journals || 0}
-            label="Journals"
-            icon={<MaterialIcons name="menu-book" size={16} color={theme.textPrimary} />}
-          />
-          <StatCard
-            value={stats?.total_connections || 0}
-            label="Mesh"
-            inverted
-            icon={
-              <MaterialIcons name="hub" size={16} color={theme.accentContrast} />
-            }
-          />
+        {/* Stats Row */}
+        <View style={styles.statsRow}>
+          <TouchableOpacity
+            style={[styles.statCard, { backgroundColor: surface, borderColor: border }]}
+            onPress={() => { hapticLight(); router.push('/(tabs)/knowledge' as any); }}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons name="layers" size={20} color={accent} />
+            <Text style={[styles.statValue, { color: text }]}>{totalActivities}</Text>
+            <Text style={[styles.statLabel, { color: textMuted }]}>Activities</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.statCard, { backgroundColor: surface, borderColor: border }]}
+            onPress={() => { hapticLight(); router.push('/journal' as any); }}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons name="menu-book" size={20} color={accent} />
+            <Text style={[styles.statValue, { color: text }]}>{totalJournals}</Text>
+            <Text style={[styles.statLabel, { color: textMuted }]}>Journals</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.statCard, { backgroundColor: accent }]}
+            onPress={() => { hapticLight(); router.push('/(tabs)/mesh' as any); }}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons name="hub" size={20} color={theme.accentContrast} />
+            <Text style={[styles.statValue, { color: theme.accentContrast }]}>{totalConnections}</Text>
+            <Text style={[styles.statLabel, { color: theme.accentContrast + 'CC' }]}>Mesh</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* ─── Neural Mesh Card ─── */}
-        <View style={{ paddingHorizontal: spacing.xl }}>
-          <BentoCard shadow padding="none">
-            {/* Decorative mesh visualization */}
-            <View style={[styles.meshPreview, { borderBottomColor: theme.borderMuted }]}>
-              {/* Decorative dots grid */}
-              <View style={styles.meshDotsGrid}>
-                {Array.from({ length: 15 }).map((_, i) => (
-                  <Animated.View
-                    key={i}
-                    style={[
-                      styles.meshDot,
-                      {
-                        backgroundColor: i % 3 === 0 ? theme.accent : theme.borderMuted,
-                        opacity: i % 3 === 0 ? pulseAnim : 0.4,
-                      },
-                    ]}
-                  />
-                ))}
-              </View>
-              {/* Floating label */}
-              <View
+        {/* Neural Mesh Card */}
+        <TouchableOpacity
+          style={[styles.meshCard, { backgroundColor: surface, borderColor: border }]}
+          onPress={() => { hapticPress(); router.push('/(tabs)/mesh' as any); }}
+          activeOpacity={0.85}
+        >
+          <View style={styles.meshHeader}>
+            <View style={styles.meshTitleRow}>
+              <Text style={[styles.meshTitle, { color: text }]}>Neural Mesh</Text>
+              <Animated.View style={[styles.liveDot, { backgroundColor: theme.status.success, opacity: pulseAnim }]} />
+            </View>
+            <MaterialIcons name="arrow-forward" size={20} color={textMuted} />
+          </View>
+          <Text style={[styles.meshDesc, { color: textMuted }]}>
+            {totalConnections > 0
+              ? `${totalConnections} connections discovered across your knowledge base.`
+              : 'Start adding content to discover patterns and connections.'}
+          </Text>
+          {/* Mini visualization */}
+          <View style={styles.meshViz}>
+            {Array.from({ length: 12 }).map((_, i) => (
+              <Animated.View
+                key={i}
                 style={[
-                  styles.meshTag,
-                  { backgroundColor: theme.surface, borderColor: theme.border },
-                ]}
-              >
-                <Text style={[styles.meshTagText, { color: theme.textPrimary }]}>
-                  Neural Mesh
-                </Text>
-              </View>
-            </View>
-
-            <View style={{ padding: spacing.xl }}>
-              <View style={styles.statusRow}>
-                <Animated.View
-                  style={[
-                    styles.pulseDot,
-                    {
-                      backgroundColor: theme.status.success,
-                      opacity: pulseAnim,
-                    },
-                  ]}
-                />
-                <Text style={[styles.statusText, { color: theme.textPrimary }]}>
-                  {(stats?.total_connections || 0) > 0 ? 'Connections Active' : 'Ready'}
-                </Text>
-              </View>
-              <ThemedText
-                variant="heading"
-                style={{ marginBottom: spacing.md, textTransform: 'none', fontSize: fs(17) }}
-              >
-                {totalKnowledge > 0
-                  ? `${totalKnowledge} pieces of knowledge across ${categoryCount} domains.`
-                  : 'Ready to build your knowledge mesh.'}
-              </ThemedText>
-              <View style={[styles.quoteBar, { borderLeftColor: theme.accent + '55' }]}>
-                <ThemedText variant="body" color="secondary" style={{ fontSize: fs(13) }}>
-                  {(stats?.total_connections || 0) > 0
-                    ? `${stats.total_connections} connections discovered. Tap to explore the patterns.`
-                    : 'Start adding activities to discover patterns.'}
-                </ThemedText>
-              </View>
-              <ArchitectButton
-                label="Explore Mesh"
-                onPress={() => router.push('/(tabs)/mesh' as any)}
-                variant="outline"
-                fullWidth
-                icon={
-                  <MaterialIcons name="arrow-forward" size={14} color={theme.textPrimary} />
-                }
-                style={{ marginTop: spacing.lg }}
-              />
-            </View>
-          </BentoCard>
-        </View>
-
-        {/* ─── Knowledge Pulse + Topics ─── */}
-        <View style={styles.dualGrid}>
-          {/* Mini insight card instead of redundant circle */}
-          <BentoCard style={{ flex: 2 }} padding="md" elevated>
-            <View style={styles.insightContainer}>
-              <MaterialIcons name="auto-awesome" size={20} color={theme.accent} />
-              <Text style={[styles.insightValue, { color: theme.textPrimary }]}>
-                {totalKnowledge}
-              </Text>
-              <Text style={[styles.insightLabel, { color: theme.textSecondary }]}>
-                Total{'\n'}Knowledge
-              </Text>
-              <View style={[styles.insightBar, { backgroundColor: theme.borderMuted }]}>
-                <View
-                  style={[
-                    styles.insightBarFill,
-                    {
-                      backgroundColor: theme.accent,
-                      width: `${Math.min((totalKnowledge / Math.max(totalKnowledge + 10, 20)) * 100, 100)}%`,
-                    },
-                  ]}
-                />
-              </View>
-            </View>
-          </BentoCard>
-
-          <BentoCard style={{ flex: 3 }} padding="md">
-            <SectionHeader label="Top Domains" />
-            {(stats?.categories && Object.keys(stats.categories).length > 0
-              ? Object.entries(stats.categories).slice(0, 3)
-              : [
-                  ['Start', 0],
-                  ['Adding', 0],
-                  ['Data', 0],
-                ]
-            ).map(([name, count]: any, i: number) => (
-              <View key={name} style={styles.topicRow}>
-                <View style={styles.topicLeft}>
-                  <View
-                    style={[
-                      styles.topicDot,
-                      {
-                        backgroundColor: i === 0 ? theme.accent : 'transparent',
-                        borderWidth: i === 0 ? 0 : 1,
-                        borderColor: theme.borderMuted,
-                      },
-                    ]}
-                  />
-                  <Text style={[styles.topicName, { color: theme.textPrimary }]}>{name}</Text>
-                </View>
-                <Text
-                  style={[
-                    styles.topicCount,
-                    { color: i === 0 ? theme.accent : theme.textSecondary },
-                  ]}
-                >
-                  {String(count).padStart(2, '0')}
-                </Text>
-              </View>
-            ))}
-          </BentoCard>
-        </View>
-
-        {/* ─── Ingestion Log ─── */}
-        <View style={{ paddingHorizontal: spacing.xl }}>
-          <BentoCard padding="lg">
-            <View style={styles.logHeader}>
-              <ThemedText variant="heading" style={{ textTransform: 'none', fontSize: fs(16) }}>
-                Recent Activity
-              </ThemedText>
-              <View style={styles.liveBadge}>
-                <Animated.View
-                  style={[
-                    styles.liveDot,
-                    { backgroundColor: theme.status.success, opacity: pulseAnim },
-                  ]}
-                />
-                <Text style={[styles.liveText, { color: theme.status.success }]}>LIVE</Text>
-              </View>
-            </View>
-
-            {activities.slice(0, 6).map((activity: any, i: number) => (
-              <TouchableOpacity
-                key={activity.id}
-                onPress={() => router.push(`/activity-detail?id=${activity.id}` as any)}
-                activeOpacity={0.7}
-                style={[
-                  styles.logItem,
-                  i < Math.min(activities.length, 6) - 1 && {
-                    borderBottomWidth: 1,
-                    borderBottomColor: theme.borderMuted,
+                  styles.meshDot,
+                  {
+                    backgroundColor: i % 4 === 0 ? accent : border,
+                    opacity: i % 4 === 0 ? pulseAnim : 0.5,
                   },
                 ]}
-              >
-                <View style={styles.logTimeline}>
-                  <View
-                    style={[
-                      styles.logDot,
-                      {
-                        backgroundColor: i === 0 ? theme.accent : theme.borderMuted,
-                      },
-                    ]}
-                  />
-                  {i < Math.min(activities.length, 6) - 1 && (
-                    <View style={[styles.logLine, { backgroundColor: theme.borderMuted }]} />
-                  )}
-                </View>
-                <View style={styles.logContent}>
-                  <View style={styles.logTitleRow}>
-                    <Text
-                      style={[styles.logTitle, { color: theme.textPrimary }]}
-                      numberOfLines={1}
-                    >
-                      {activity.title}
-                    </Text>
-                    <Text style={[styles.logTime, { color: theme.textMuted }]}>
-                      {new Date(activity.timestamp).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false,
-                      })}
-                    </Text>
-                  </View>
-                  <Text style={[styles.logSource, { color: theme.textSecondary }]}>
-                    {activity.source}
-                    {activity.category ? ` · ${activity.category}` : ''}
-                  </Text>
-                </View>
-                <MaterialIcons
-                  name="chevron-right"
-                  size={16}
-                  color={theme.textMuted}
-                  style={{ alignSelf: 'center' }}
-                />
-              </TouchableOpacity>
+              />
             ))}
+          </View>
+        </TouchableOpacity>
 
-            {activities.length === 0 && (
-              <View style={styles.emptyState}>
-                <MaterialIcons name="inbox" size={32} color={theme.textMuted} />
-                <ThemedText variant="body" color="muted" style={{ marginTop: 8 }}>
-                  No activities yet
-                </ThemedText>
-                <ThemedText variant="caption" color="muted">
-                  Tap + to add your first knowledge entry
-                </ThemedText>
+        {/* Top Categories */}
+        {topCategories.length > 0 && (
+          <View style={[styles.section, { borderColor: border }]}>
+            <Text style={[styles.sectionTitle, { color: text }]}>Top Domains</Text>
+            {topCategories.map(([name, count]: any, i) => (
+              <View key={name} style={styles.categoryRow}>
+                <View style={styles.categoryLeft}>
+                  <View style={[styles.categoryDot, { backgroundColor: i === 0 ? accent : border }]} />
+                  <Text style={[styles.categoryName, { color: text }]}>{name}</Text>
+                </View>
+                <Text style={[styles.categoryCount, { color: i === 0 ? accent : textMuted }]}>
+                  {count}
+                </Text>
               </View>
-            )}
+            ))}
+          </View>
+        )}
 
-            {activities.length > 6 && (
+        {/* Recent Activity */}
+        <View style={[styles.section, { borderColor: border }]}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: text }]}>Recent Activity</Text>
+            <Animated.View style={[styles.liveBadge, { borderColor: theme.status.success + '44' }]}>
+              <Animated.View style={[styles.liveDotSmall, { backgroundColor: theme.status.success, opacity: pulseAnim }]} />
+              <Text style={[styles.liveText, { color: theme.status.success }]}>LIVE</Text>
+            </Animated.View>
+          </View>
+
+          {activities.length === 0 ? (
+            <View style={styles.emptyState}>
+              <MaterialIcons name="inbox" size={40} color={border} />
+              <Text style={[styles.emptyText, { color: textMuted }]}>No activities yet</Text>
+              <Text style={[styles.emptyHint, { color: textMuted }]}>Tap + to add your first entry</Text>
+            </View>
+          ) : (
+            activities.slice(0, 5).map((activity: any, i: number) => (
               <TouchableOpacity
-                onPress={() => router.push('/(tabs)/knowledge' as any)}
-                style={styles.viewAllBtn}
+                key={activity.id}
+                style={[
+                  styles.activityItem,
+                  i < Math.min(activities.length, 5) - 1 && { borderBottomWidth: 1, borderBottomColor: border },
+                ]}
+                onPress={() => { hapticLight(); router.push(`/activity-detail?id=${activity.id}` as any); }}
                 activeOpacity={0.7}
               >
-                <Text style={[styles.viewAllText, { color: theme.accent }]}>
-                  View all activity
+                <View style={[styles.activityDot, { backgroundColor: i === 0 ? accent : border }]} />
+                <View style={styles.activityContent}>
+                  <Text style={[styles.activityTitle, { color: text }]} numberOfLines={1}>
+                    {activity.title}
+                  </Text>
+                  <Text style={[styles.activityMeta, { color: textMuted }]}>
+                    {activity.source}{activity.category ? ` · ${activity.category}` : ''}
+                  </Text>
+                </View>
+                <Text style={[styles.activityTime, { color: textMuted }]}>
+                  {new Date(activity.timestamp).toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                  })}
                 </Text>
-                <MaterialIcons name="arrow-forward" size={14} color={theme.accent} />
               </TouchableOpacity>
-            )}
-          </BentoCard>
-        </View>
+            ))
+          )}
 
-        {/* Bottom spacer for floating pill */}
-        <View style={{ height: 100 }} />
+          {activities.length > 5 && (
+            <TouchableOpacity
+              style={[styles.viewAllBtn, { borderTopColor: border }]}
+              onPress={() => { hapticPress(); router.push('/(tabs)/knowledge' as any); }}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.viewAllText, { color: accent }]}>View all</Text>
+              <MaterialIcons name="arrow-forward" size={16} color={accent} />
+            </TouchableOpacity>
+          )}
+        </View>
       </ScrollView>
-    </SafeView>
+    </View>
   );
 }
 
-const useStyles = createThemedStyles((theme) => ({
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingTop: 0,
-    gap: sw(14),
-    paddingBottom: sw(20),
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  scroll: { flex: 1 },
+  content: { paddingHorizontal: spacing.lg },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loadingText: { marginTop: spacing.md, fontSize: fs(13) },
 
-  /* ─── Header ─── */
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: sw(20),
-    paddingVertical: sw(14),
-  },
+  /* Header */
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.lg },
   menuBtn: {
-    padding: 2,
-  },
-  menuIcon: {
-    width: sw(36),
-    height: sw(36),
-    borderRadius: sw(10),
-    borderWidth: 1,
+    width: sw(44),
+    height: sw(44),
+    borderRadius: sw(12),
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerCenter: {
-    flex: 1,
-    marginLeft: sw(14),
-  },
-  greeting: {
-    fontSize: fs(11),
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-    marginBottom: 2,
-    fontWeight: '500',
-  },
-  title: {
-    fontSize: fs(22),
-    fontWeight: '700',
-    letterSpacing: -0.5,
-    textTransform: 'uppercase',
-  },
-  headerRight: {
-    alignItems: 'flex-end',
-    gap: 6,
-  },
-  dateLabel: {
-    fontSize: fs(10),
-    fontWeight: '500',
-    letterSpacing: 1,
-  },
-  avatar: {
-    width: sw(32),
-    height: sw(32),
-    borderRadius: sw(10),
+  headerText: { flex: 1, marginLeft: spacing.md },
+  greeting: { fontSize: fs(11), textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 2 },
+  title: { fontSize: fs(22), fontWeight: '700' },
+  avatarBtn: {
+    width: sw(44),
+    height: sw(44),
+    borderRadius: sw(12),
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
   },
 
-  /* ─── Quick Actions ─── */
-  quickActionsRow: {
-    flexDirection: 'row',
-    paddingHorizontal: sw(20),
-    gap: sw(10),
-  },
+  /* Quick Actions */
+  quickActions: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
   quickActionBtn: {
     flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    borderRadius: 10,
-    borderWidth: 1,
-    gap: 6,
-  },
-  quickActionIcon: {
-    width: sw(36),
-    height: sw(36),
-    borderRadius: sw(18),
+    height: sw(52),
+    borderRadius: sw(14),
     alignItems: 'center',
     justifyContent: 'center',
   },
-  quickActionLabel: {
-    fontSize: fs(10),
-    fontWeight: '600',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-  },
 
-  /* ─── Stats Grid ─── */
-  statsGrid: {
-    flexDirection: 'row',
-    paddingHorizontal: sw(20),
-    gap: sw(10),
-  },
-
-  /* ─── Neural Mesh Card ─── */
-  meshPreview: {
-    height: 90,
-    borderBottomWidth: 1,
-    backgroundColor: theme.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    overflow: 'hidden',
-  },
-  meshDotsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: sw(18),
-    paddingHorizontal: sw(20),
-    paddingTop: sw(12),
-  },
-  meshDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  meshTag: {
-    position: 'absolute',
-    top: sw(10),
-    left: sw(10),
-    borderWidth: 1,
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
-  meshTagText: {
-    fontSize: fs(9),
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-    fontWeight: '600',
-  },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: spacing.sm,
-  },
-  pulseDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  statusText: {
-    fontSize: fs(10),
-    fontWeight: '700',
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-  },
-  quoteBar: {
-    borderLeftWidth: 2,
-    paddingLeft: sw(12),
-    marginBottom: spacing.sm,
-  },
-
-  /* ─── Dual Grid (Insight + Topics) ─── */
-  dualGrid: {
-    flexDirection: 'row',
-    paddingHorizontal: sw(20),
-    gap: sw(10),
-  },
-  insightContainer: {
+  /* Stats */
+  statsRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
+  statCard: {
     flex: 1,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
+    borderRadius: 14,
+    borderWidth: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.md,
     gap: 4,
   },
-  insightValue: {
-    fontSize: fs(28),
-    fontWeight: '700',
-    letterSpacing: -1,
-    marginTop: 4,
-  },
-  insightLabel: {
-    fontSize: fs(9),
-    fontWeight: '600',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    textAlign: 'center',
-    lineHeight: 14,
-  },
-  insightBar: {
-    width: '80%',
-    height: 3,
-    borderRadius: 2,
-    marginTop: 8,
-    overflow: 'hidden',
-  },
-  insightBarFill: {
-    height: '100%',
-    borderRadius: 2,
-  },
+  statValue: { fontSize: fs(24), fontWeight: '700' },
+  statLabel: { fontSize: fs(10), textTransform: 'uppercase', letterSpacing: 1 },
 
-  /* ─── Topics ─── */
-  topicRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 7,
-  },
-  topicLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  topicDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  topicName: {
-    fontSize: fs(12),
-    fontWeight: '500',
-  },
-  topicCount: {
-    fontSize: fs(12),
-    fontWeight: '700',
-    fontVariant: ['tabular-nums'],
-  },
-
-  /* ─── Activity Log ─── */
-  logHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  /* Mesh Card */
+  meshCard: {
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: spacing.lg,
     marginBottom: spacing.lg,
   },
+  meshHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
+  meshTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  meshTitle: { fontSize: fs(16), fontWeight: '700' },
+  liveDot: { width: 8, height: 8, borderRadius: 4 },
+  meshDesc: { fontSize: fs(13), lineHeight: 20, marginBottom: spacing.md },
+  meshViz: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+    justifyContent: 'center',
+    paddingTop: spacing.sm,
+  },
+  meshDot: { width: 6, height: 6, borderRadius: 3 },
+
+  /* Sections */
+  section: {
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
+  sectionTitle: { fontSize: fs(14), fontWeight: '700', marginBottom: spacing.md },
   liveBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
+    paddingVertical: 4,
+    borderRadius: 6,
     borderWidth: 1,
-    borderColor: theme.status.success + '44',
   },
-  liveDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  liveText: {
-    fontSize: fs(9),
-    fontWeight: '700',
-    letterSpacing: 1.5,
-  },
-  logItem: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-  },
-  logTimeline: {
-    alignItems: 'center',
-    width: 16,
-  },
-  logDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginTop: 6,
-  },
-  logLine: {
-    width: 1,
-    flex: 1,
-    marginTop: 4,
-  },
-  logContent: {
-    flex: 1,
-  },
-  logTitleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 3,
-  },
-  logTitle: {
-    fontSize: fs(13),
-    fontWeight: '700',
-    flex: 1,
-    marginRight: 8,
-  },
-  logTime: {
-    fontSize: fs(10),
-    letterSpacing: 0.5,
-    fontVariant: ['tabular-nums'],
-  },
-  logSource: {
-    fontSize: fs(11),
-    letterSpacing: 0.3,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: spacing.xxl,
-    gap: 4,
-  },
+  liveDotSmall: { width: 6, height: 6, borderRadius: 3 },
+  liveText: { fontSize: fs(9), fontWeight: '700', letterSpacing: 1 },
+
+  /* Categories */
+  categoryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing.sm },
+  categoryLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  categoryDot: { width: 8, height: 8, borderRadius: 4 },
+  categoryName: { fontSize: fs(13) },
+  categoryCount: { fontSize: fs(13), fontWeight: '600' },
+
+  /* Activity Items */
+  activityItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.md, gap: spacing.md },
+  activityDot: { width: 8, height: 8, borderRadius: 4 },
+  activityContent: { flex: 1 },
+  activityTitle: { fontSize: fs(14), fontWeight: '600', marginBottom: 2 },
+  activityMeta: { fontSize: fs(11) },
+  activityTime: { fontSize: fs(11) },
+
+  /* Empty State */
+  emptyState: { alignItems: 'center', paddingVertical: spacing.xxl },
+  emptyText: { fontSize: fs(14), marginTop: spacing.md },
+  emptyHint: { fontSize: fs(12), marginTop: spacing.xs },
+
+  /* View All */
   viewAllBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: spacing.sm,
     paddingTop: spacing.lg,
     marginTop: spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: theme.borderMuted,
   },
-  viewAllText: {
-    fontSize: fs(12),
-    fontWeight: '700',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-  },
-}));
+  viewAllText: { fontSize: fs(13), fontWeight: '700' },
+});
