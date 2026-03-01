@@ -169,7 +169,8 @@ Frontend: `expo start --tunnel`
 ## 🎨 Design Principles
 
 - **Mobile-First**: Native feel with proper touch targets
-- **Dark Theme**: Easy on the eyes for extended use
+- **7 Theme Options**: Void, Nova, Amber, Ocean, Forest, Sunset, Midnight with dedicated Appearance screen
+- **Quick Capture**: Fast knowledge capture from floating pill with Voice, Link, Scan, File actions
 - **Data Ownership**: Complete export/import capability
 - **AI-Enhanced**: Smart categorization and insights
 - **Cross-Platform**: Works on iOS, Android, and Web

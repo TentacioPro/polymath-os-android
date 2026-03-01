@@ -127,7 +127,7 @@
 | Feature | Backend | Web | Mobile |
 |---------|---------|-----|--------|
 | User profile | ❌ No auth system | ❌ No page | 🧱 Hardcoded "Polymath User" |
-| Theme switching | ❌ Client-side only | ✅ 3 themes + persistence | ✅ 3 themes + persistence |
+| Theme switching | ❌ Client-side only | ✅ 3 themes + persistence | ✅ 7 themes + Appearance screen |
 | Data & Storage settings | ❌ | ❌ | 🧱 Button does nothing |
 | Sync settings | ❌ | ❌ | 🧱 Button does nothing |
 
@@ -139,7 +139,7 @@
 | Theme switcher in nav | — | ✅ AppSidebar + Drawer | ✅ AppDrawer + Profile |
 | System status in nav | ❌ | 🎭 Always "Connected" (fake) | 🎭 Always "Online"/"Stable" (fake) |
 | Search | ❌ | ❌ | 🧱 Drawer search button — dead |
-| Quick capture | ❌ No endpoint | ❌ | 🧱 Text goes nowhere, action buttons dead |
+| Quick capture | ✅ `POST /api/activities/manual` | ❌ | ✅ Wired to backend, modern drawer UI |
 
 ---
 
