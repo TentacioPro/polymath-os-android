@@ -49,6 +49,17 @@ db = client[os.environ['DB_NAME']]
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 
+def _strip_json_fences(text: str) -> str:
+    """Strip markdown code fences from LLM responses so json.loads works."""
+    t = text.strip()
+    if t.startswith("```json"):
+        t = t[7:]
+    elif t.startswith("```"):
+        t = t[3:]
+    if t.endswith("```"):
+        t = t[:-3]
+    return t.strip()
+
 async def ai_chat(system_message: str, user_prompt: str, model: str = "gpt-4o-mini") -> str:
     """Send a chat completion request to OpenAI directly."""
     completion = await openai_client.chat.completions.create(
@@ -58,7 +69,7 @@ async def ai_chat(system_message: str, user_prompt: str, model: str = "gpt-4o-mi
             {"role": "user", "content": user_prompt},
         ],
     )
-    return completion.choices[0].message.content
+    return completion.choices[0].message.content or ""
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -201,7 +212,7 @@ Respond with ONLY this JSON structure (no other text):
         
         # Parse AI response
         try:
-            analysis = json.loads(response.strip())
+            analysis = json.loads(_strip_json_fences(response))
         except:
             analysis = {
                 "category": "Other",
@@ -253,7 +264,7 @@ Identify up to 3 strongest connections. Respond with ONLY this JSON array (no ot
         )
         
         try:
-            connections_data = json.loads(response.strip())
+            connections_data = json.loads(_strip_json_fences(response))
             connections = []
             for conn in connections_data:
                 connection = Connection(
@@ -342,7 +353,7 @@ Respond with ONLY JSON array:
             user_prompt=prompt
         )
         
-        insights = json.loads(response.strip())
+        insights = json.loads(_strip_json_fences(response))
         return insights
     except Exception as e:
         logging.error(f"Insight extraction failed: {e}")
@@ -364,7 +375,7 @@ Respond with ONLY JSON:
             user_prompt=prompt
         )
         
-        learned = json.loads(response.strip())
+        learned = json.loads(_strip_json_fences(response))
         
         # Store as learning log
         log = LearningLog(
@@ -414,8 +425,10 @@ Respond with ONLY JSON array of top {limit} relevant memory IDs:
             user_prompt=prompt
         )
         
-        ranked = json.loads(response.strip())
-        relevant_ids = [r["id"] for r in ranked[:limit]]
+        ranked = json.loads(_strip_json_fences(response))
+        if not isinstance(ranked, list):
+            return []
+        relevant_ids = [r["id"] for r in ranked[:limit] if isinstance(r, dict) and "id" in r]
         
         # Update access stats
         for mem_id in relevant_ids:
@@ -456,7 +469,7 @@ Respond with ONLY JSON:
             user_prompt=prompt
         )
         
-        insights = json.loads(response.strip())
+        insights = json.loads(_strip_json_fences(response))
         
         consolidated_count = 0
         for insight_data in insights:
@@ -838,7 +851,7 @@ Respond with ONLY this JSON array (no other text):
             system_message="You are a learning advisor. Always respond with valid JSON only.",
             user_prompt=prompt
         )
-        suggestions = json.loads(response.strip())
+        suggestions = json.loads(_strip_json_fences(response))
         return {"suggestions": suggestions}
     except Exception as e:
         logging.error(f"Suggestions generation failed: {e}")

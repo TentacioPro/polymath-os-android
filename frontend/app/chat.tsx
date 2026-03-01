@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Animated,
+  Keyboard,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
 import SafeView from '../components/shared/SafeView';
 import ThemedText from '../components/shared/ThemedText';
@@ -40,6 +43,22 @@ export default function ChatScreen() {
     },
   ]);
   const flatListRef = useRef<FlatList>(null);
+  const insets = useSafeAreaInsets();
+  const dotAnim = useRef(new Animated.Value(0)).current;
+
+  // Typing indicator animation
+  useEffect(() => {
+    if (sending) {
+      const loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(dotAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+          Animated.timing(dotAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+        ]),
+      );
+      loop.start();
+      return () => loop.stop();
+    }
+  }, [sending, dotAnim]);
 
   const sendMessage = async () => {
     if (!input.trim() || sending) return;
@@ -118,10 +137,11 @@ export default function ChatScreen() {
   );
 
   return (
-    <SafeView>
+    <SafeView edges={['top']}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
       >
         {/* Header */}
         <View style={[styles.header, { borderBottomColor: theme.border }]}>
@@ -151,10 +171,23 @@ export default function ChatScreen() {
           onContentSizeChange={() =>
             flatListRef.current?.scrollToEnd({ animated: true })
           }
+          onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          ListFooterComponent={
+            sending ? (
+              <View style={[styles.messageBubble, styles.assistantBubble, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                <Animated.View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, opacity: Animated.add(0.4, Animated.multiply(dotAnim, 0.6)) }}>
+                  <MaterialIcons name="psychology" size={14} color={theme.accent} />
+                  <Text style={{ color: theme.textSecondary, fontSize: 12, fontStyle: 'italic' }}>Thinking...</Text>
+                </Animated.View>
+              </View>
+            ) : null
+          }
         />
 
         {/* Input */}
-        <View style={[styles.inputBar, { borderTopColor: theme.border, backgroundColor: theme.surface }]}>
+        <View style={[styles.inputBar, { borderTopColor: theme.border, backgroundColor: theme.surface, paddingBottom: Math.max(insets.bottom, 8) }]}>
           <TextInput
             value={input}
             onChangeText={setInput}
