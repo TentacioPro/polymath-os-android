@@ -17,8 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, spacing, fs, sw } from '../../theme';
 import { useStore } from '../../store/useStore';
 import { hapticPress, hapticRefresh, hapticLight } from '../../utils/haptics';
-
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+import { getBackendUrlSync } from '../../utils/backend';
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -55,6 +54,7 @@ export default function Dashboard() {
   const loadData = async () => {
     try {
       setLoading(true);
+      const BACKEND_URL = getBackendUrlSync();
       const [statsRes, activitiesRes, journalsRes] = await Promise.all([
         axios.get(`${BACKEND_URL}/api/stats`),
         axios.get(`${BACKEND_URL}/api/activities?limit=10`),
@@ -63,8 +63,11 @@ export default function Dashboard() {
       setStats(statsRes.data);
       setActivities(activitiesRes.data);
       setJournals(journalsRes.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Dashboard load error:', error);
+      console.error('Backend URL:', BACKEND_URL);
+      if (error?.config?.url) console.error('Request URL:', error.config.url);
+      if (error?.message) console.error('Error message:', error.message);
     } finally {
       setLoading(false);
     }

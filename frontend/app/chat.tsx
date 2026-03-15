@@ -18,7 +18,7 @@ import axios from 'axios';
 import { useTheme, spacing, fs, sw } from '../theme';
 import { hapticPress, hapticLight, hapticSuccess, hapticWarning } from '../utils/haptics';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+import { getBackendUrlSync } from '../utils/backend';
 
 interface Message {
   id: string;
@@ -94,6 +94,7 @@ export default function ChatScreen() {
   }, []);
 
   const sendMessage = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     if (!input.trim() || sending) return;
     hapticPress();
     

@@ -19,7 +19,7 @@ import { useTheme, spacing, fs, sw } from '../../theme';
 import { useStore } from '../../store/useStore';
 import { hapticPress, hapticLight, hapticSuccess, hapticWarning, hapticSelection, hapticMedium } from '../../utils/haptics';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+import { getBackendUrlSync } from '../../utils/backend';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface MeshNode {
@@ -62,6 +62,7 @@ export default function NeuralMesh() {
   useEffect(() => { loadConnections(); }, []);
 
   const loadConnections = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     try {
       setLoading(true);
       const res = await axios.get(`${BACKEND_URL}/api/connections`);
@@ -81,6 +82,7 @@ export default function NeuralMesh() {
   }, []);
 
   const handleGenerateAll = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     if (activities.length === 0) {
       hapticWarning();
       Alert.alert('No Data', 'Add knowledge sources first to generate connections.');
@@ -108,6 +110,7 @@ export default function NeuralMesh() {
   };
 
   const handleLoadSuggestions = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     hapticPress();
     setLoadingSuggestions(true);
     try {

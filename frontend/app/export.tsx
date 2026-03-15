@@ -20,7 +20,7 @@ import * as Sharing from 'expo-sharing';
 import { useTheme, spacing, fs, sw } from '../theme';
 import { hapticLight, hapticPress, hapticSuccess, hapticWarning, hapticSelection } from '../utils/haptics';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+import { getBackendUrlSync } from '../utils/backend';
 
 const EXPORT_FORMATS = [
   { icon: 'description' as const, label: 'Markdown', ext: '.md', endpoint: '/api/export/markdown' },
@@ -45,6 +45,7 @@ export default function ExportScreen() {
   const border = theme.borderMuted;
 
   const handleExport = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     const fmt = EXPORT_FORMATS[selectedFormat];
     hapticPress();
     setExporting(true);
@@ -70,6 +71,7 @@ export default function ExportScreen() {
   };
 
   const handleImport = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: 'application/json',

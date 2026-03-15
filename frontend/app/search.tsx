@@ -15,7 +15,7 @@ import axios from 'axios';
 import { useTheme, spacing, fs, sw } from '../theme';
 import { hapticPress, hapticLight, hapticSelection, hapticWarning } from '../utils/haptics';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
+import { getBackendUrlSync } from '../utils/backend';
 
 export default function SearchScreen() {
   const { theme } = useTheme();
@@ -33,6 +33,7 @@ export default function SearchScreen() {
   const border = theme.borderMuted;
 
   const handleSearch = useCallback(async () => {
+    const BACKEND_URL = getBackendUrlSync();
     const q = query.trim();
     if (q.length < 2) return;
     hapticPress();

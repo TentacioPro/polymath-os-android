@@ -22,7 +22,7 @@ import { useTheme, spacing, fs, sw } from '../../theme';
 import { useStore } from '../../store/useStore';
 import { hapticPress, hapticLight, hapticSuccess, hapticWarning, hapticSelection } from '../../utils/haptics';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+import { getBackendUrlSync } from '../../utils/backend';
 
 const FILTERS = ['All', 'Article', 'PDF', 'Link', 'Audio', 'File'];
 
@@ -61,6 +61,7 @@ export default function Knowledge() {
   useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     try {
       setLoading(true);
       const res = await axios.get(`${BACKEND_URL}/api/activities?limit=100`);
@@ -79,6 +80,7 @@ export default function Knowledge() {
   };
 
   const handleAdd = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     if (!addTitle.trim()) return;
     setSaving(true);
     try {
@@ -103,6 +105,7 @@ export default function Knowledge() {
   };
 
   const handleDelete = useCallback((id: string, title: string) => {
+    const BACKEND_URL = getBackendUrlSync();
     hapticWarning();
     Alert.alert('Delete', `Remove "${title}"?`, [
       { text: 'Cancel', style: 'cancel' },

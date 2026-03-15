@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -10,9 +10,18 @@ import type { ThemeName } from '../theme';
 import { useStore } from '../store/useStore';
 import AppDrawer from '../components/navigation/AppDrawer';
 import ErrorBoundary from '../components/shared/ErrorBoundary';
+import { initBackendUrl } from '../utils/backend';
+import { initSentry } from '../utils/sentry';
+import { initAnalytics } from '../utils/analytics';
 
 // Keep splash visible while fonts load
 SplashScreen.preventAutoHideAsync();
+
+// Initialize Sentry for error tracking (runs early)
+initSentry();
+
+// Initialize analytics
+initAnalytics(true);
 
 // Theme background map to prevent white flash
 const THEME_BACKGROUNDS: Record<ThemeName, string> = {
@@ -71,6 +80,7 @@ export default function RootLayout() {
 
   const onLayoutReady = useCallback(async () => {
     if (fontsLoaded) {
+      await initBackendUrl();
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);

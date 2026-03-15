@@ -14,7 +14,7 @@ import { useTheme, spacing, fs, sw } from '../theme';
 import { useStore } from '../store/useStore';
 import { hapticLight, hapticPress, hapticSelection } from '../utils/haptics';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
+import { getBackendUrlSync } from '../utils/backend';
 
 export default function ProfileScreen() {
   const { theme, cycleTheme, themeName } = useTheme();
@@ -33,6 +33,7 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const BACKEND_URL = getBackendUrlSync();
       try {
         const [pRes, sRes] = await Promise.all([
           axios.get(`${BACKEND_URL}/api/agent/persona`).catch(() => ({ data: null })),

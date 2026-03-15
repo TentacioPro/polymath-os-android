@@ -15,7 +15,7 @@ import axios from 'axios';
 import { useTheme, spacing, fs, sw } from '../theme';
 import { hapticLight, hapticSelection } from '../utils/haptics';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
+import { getBackendUrlSync } from '../utils/backend';
 
 export default function AlertsScreen() {
   const { theme } = useTheme();
@@ -33,6 +33,7 @@ export default function AlertsScreen() {
   const border = theme.borderMuted;
 
   const fetchAlerts = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     try {
       const res = await axios.get(`${BACKEND_URL}/api/notifications?limit=20`);
       setAlerts(res.data || []);

@@ -14,6 +14,9 @@ import {
   ScrollView,
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+import * as DocumentPicker from 'expo-document-picker';
+import * as ImagePicker from 'expo-image-picker';
+import { AudioModule } from 'expo-audio';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
@@ -153,7 +156,9 @@ export default function QuickCapture({ visible, onClose, onSubmit }: QuickCaptur
 
   const handleAction = async (action: typeof ACTION_BUTTONS[0]) => {
     hapticPress();
+    
     if (action.label === 'Link') {
+      // Paste link from clipboard
       try {
         const clipText = await Clipboard.getStringAsync();
         if (clipText && /^https?:\/\//i.test(clipText)) {
@@ -165,11 +170,175 @@ export default function QuickCapture({ visible, onClose, onSubmit }: QuickCaptur
         Alert.alert('Clipboard', 'Could not read clipboard.');
       }
     } else if (action.label === 'Voice') {
-      Alert.alert('Voice Capture', 'Voice recording coming soon.');
+      // Voice recording
+      await handleVoiceCapture();
     } else if (action.label === 'Scan') {
-      Alert.alert('Scan', 'Camera scanning coming soon.');
+      // Camera/image capture
+      await handleScanCapture();
     } else if (action.label === 'File') {
-      Alert.alert('File Upload', 'Document picker coming soon.');
+      // Document picker
+      await handleFileCapture();
+    }
+  };
+
+  const handleVoiceCapture = async () => {
+    try {
+      // Request audio permissions
+      const { status } = await AudioModule.requestRecordingPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please grant microphone access to use voice capture.');
+        return;
+      }
+
+      // For now, show a simplified voice note dialog
+      // Full implementation would include recording UI with waveform
+      Alert.alert(
+        'Voice Note',
+        'Voice recording requires additional setup. For now, you can type your note or use the other capture methods.',
+        [
+          { text: 'OK', style: 'default' },
+        ]
+      );
+      
+      // TODO: Implement full voice recording with:
+      // - Start/stop recording UI
+      // - Waveform visualization
+      // - Transcription via backend API (if desired)
+      // - Save as audio note or transcribed text
+    } catch (e: any) {
+      hapticWarning();
+      Alert.alert('Voice Error', e.message || 'Failed to access microphone.');
+    }
+  };
+
+  const handleScanCapture = async () => {
+    try {
+      // Request camera permissions
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please grant camera access to scan documents.');
+        return;
+      }
+
+      // Launch camera to take a photo
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        
+        // For now, create an activity with the image URI
+        // Full implementation would include OCR/barcode scanning via backend
+        setSubmitting(true);
+        try {
+          await axios.post(`${BACKEND_URL}/api/activities/manual`, {
+            title: `Scanned image ${new Date().toLocaleString()}`,
+            source: 'scan',
+            url: asset.uri,
+            notes: `Captured via camera scan. Image dimensions: ${asset.width}x${asset.height}`,
+          });
+          
+          hapticSuccess();
+          Alert.alert('Success', 'Image captured and saved to your knowledge base.');
+          onClose();
+        } catch (e: any) {
+          hapticWarning();
+          Alert.alert('Save Error', e?.response?.data?.detail || 'Failed to save scanned image.');
+        } finally {
+          setSubmitting(false);
+        }
+      }
+    } catch (e: any) {
+      hapticWarning();
+      Alert.alert('Camera Error', e.message || 'Failed to access camera.');
+    }
+  };
+
+  const handleFileCapture = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['application/json', 'text/*', 'application/pdf'],
+        copyToCacheDirectory: true,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const file = result.assets[0];
+        
+        // Check if it's a JSON file (potential history import)
+        if (file.name?.toLowerCase().endsWith('.json')) {
+          Alert.alert(
+            'JSON File Detected',
+            'Would you like to import this as activity history or save as a reference?',
+            [
+              {
+                text: 'Import History',
+                onPress: () => handleHistoryImport(file),
+              },
+              {
+                text: 'Save as Reference',
+                onPress: () => handleFileSaveAsActivity(file),
+              },
+              { text: 'Cancel', style: 'cancel' },
+            ]
+          );
+        } else {
+          // Non-JSON files - save as activity
+          await handleFileSaveAsActivity(file);
+        }
+      }
+    } catch (e: any) {
+      hapticWarning();
+      Alert.alert('File Error', e.message || 'Failed to pick document.');
+    }
+  };
+
+  const handleHistoryImport = async (file: DocumentPicker.DocumentPickerAsset) => {
+    setSubmitting(true);
+    try {
+      // Create form data for upload
+      const formData = new FormData();
+      formData.append('file', {
+        uri: file.uri,
+        name: file.name || 'history.json',
+        type: file.mimeType || 'application/json',
+      } as any);
+
+      await axios.post(`${BACKEND_URL}/api/activities/upload`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      hapticSuccess();
+      Alert.alert('Success', 'History file imported successfully!');
+      onClose();
+    } catch (e: any) {
+      hapticWarning();
+      Alert.alert('Import Error', e?.response?.data?.detail || 'Failed to import history file.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleFileSaveAsActivity = async (file: DocumentPicker.DocumentPickerAsset) => {
+    setSubmitting(true);
+    try {
+      await axios.post(`${BACKEND_URL}/api/activities/manual`, {
+        title: file.name || 'Uploaded file',
+        source: 'upload',
+        url: file.uri,
+        notes: `File type: ${file.mimeType || 'unknown'}, Size: ${file.size ? Math.round(file.size / 1024) + ' KB' : 'unknown'}`,
+      });
+
+      hapticSuccess();
+      Alert.alert('Success', 'File saved to your knowledge base.');
+      onClose();
+    } catch (e: any) {
+      hapticWarning();
+      Alert.alert('Save Error', e?.response?.data?.detail || 'Failed to save file.');
+    } finally {
+      setSubmitting(false);
     }
   };
 

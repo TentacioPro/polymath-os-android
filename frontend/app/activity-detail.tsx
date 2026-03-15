@@ -16,7 +16,7 @@ import axios from 'axios';
 import { useTheme, spacing, fs, sw } from '../theme';
 import { hapticLight, hapticSelection } from '../utils/haptics';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
+import { getBackendUrlSync } from '../utils/backend';
 
 export default function ActivityDetailScreen() {
   const { theme } = useTheme();
@@ -35,6 +35,7 @@ export default function ActivityDetailScreen() {
   const border = theme.borderMuted;
 
   const fetchDetail = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     if (!id) return;
     try {
       const res = await axios.get(`${BACKEND_URL}/api/activities/${id}`);

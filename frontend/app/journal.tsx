@@ -21,7 +21,7 @@ import { useTheme, spacing, fs, sw } from '../theme';
 import { useStore } from '../store/useStore';
 import { hapticPress, hapticLight, hapticSuccess, hapticWarning, hapticSelection } from '../utils/haptics';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
+import { getBackendUrlSync } from '../utils/backend';
 
 interface JournalEntry {
   id: string;
@@ -57,6 +57,7 @@ export default function JournalScreen() {
   useEffect(() => { loadJournals(); }, []);
 
   const loadJournals = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     try {
       setLoading(true);
       const res = await axios.get(`${BACKEND_URL}/api/journals`);
@@ -75,6 +76,7 @@ export default function JournalScreen() {
   }, []);
 
   const handleSave = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     if (!title.trim() || !content.trim()) return;
     hapticPress();
     setSaving(true);
@@ -119,6 +121,7 @@ export default function JournalScreen() {
   };
 
   const handleDelete = useCallback((id: string, entryTitle: string) => {
+    const BACKEND_URL = getBackendUrlSync();
     hapticWarning();
     Alert.alert('Delete Journal', `Remove "${entryTitle}"?`, [
       { text: 'Cancel', style: 'cancel' },

@@ -20,9 +20,10 @@ import axios from 'axios';
 import { useTheme, spacing, fs, sw } from '../theme';
 import { hapticLight, hapticPress, hapticSuccess, hapticWarning } from '../utils/haptics';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
+import { getBackendUrlSync, setBackendUrl, resetBackendUrl } from '../utils/backend';
 
 export default function IntegrationsScreen() {
+  const BACKEND_URL = getBackendUrlSync();
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
   const [config, setConfig] = useState<any>(null);
@@ -32,6 +33,7 @@ export default function IntegrationsScreen() {
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [apiKey, setApiKey] = useState('');
   const [model, setModel] = useState('gpt-4o-mini');
+  const [backendUrlInput, setBackendUrlInput] = useState(BACKEND_URL);
   const [saving, setSaving] = useState(false);
 
   // Colors
@@ -43,6 +45,7 @@ export default function IntegrationsScreen() {
   const border = theme.borderMuted;
 
   const fetchData = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     try {
       const [configRes, healthRes] = await Promise.all([
         axios.get(`${BACKEND_URL}/api/ai-config`).catch(() => ({ data: null })),
@@ -67,6 +70,7 @@ export default function IntegrationsScreen() {
   }, []);
 
   const handleSaveConfig = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     if (!apiKey.trim()) return;
     hapticPress();
     setSaving(true);
@@ -190,9 +194,35 @@ export default function IntegrationsScreen() {
         <View style={[styles.infoCard, { backgroundColor: surface, borderColor: border }]}>
           <View style={styles.infoRow}>
             <Text style={[styles.infoLabel, { color: textMuted }]}>Backend URL</Text>
-            <Text style={[styles.infoValue, { color: text }]} numberOfLines={1}>
-              {BACKEND_URL}
-            </Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingBottom: 12 }}>
+            <TextInput
+              style={[styles.infoValue, { color: text, flex: 1, borderWidth: 1, borderColor: border, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, fontSize: 13 }]}
+              value={backendUrlInput}
+              onChangeText={setBackendUrlInput}
+              placeholder="https://your-tunnel-url.trycloudflare.com"
+              placeholderTextColor={textMuted}
+              autoCapitalize="none"
+              autoCorrect={false}
+              onSubmitEditing={async () => {
+                if (backendUrlInput && backendUrlInput !== BACKEND_URL) {
+                  await setBackendUrl(backendUrlInput);
+                  hapticSuccess();
+                  Alert.alert('Backend URL Updated', 'The app will now use the new URL. Pull to refresh any screen.');
+                }
+              }}
+            />
+            <TouchableOpacity
+              onPress={async () => {
+                await resetBackendUrl();
+                setBackendUrlInput(getBackendUrlSync());
+                hapticLight();
+                Alert.alert('Reset', 'Backend URL reset to default.');
+              }}
+              style={{ padding: 6 }}
+            >
+              <MaterialIcons name="refresh" size={22} color={textMuted} />
+            </TouchableOpacity>
           </View>
           <View style={styles.infoRow}>
             <Text style={[styles.infoLabel, { color: textMuted }]}>Version</Text>

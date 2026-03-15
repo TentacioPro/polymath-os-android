@@ -15,7 +15,7 @@ import axios from 'axios';
 import { useTheme, spacing, fs, sw } from '../theme';
 import { hapticLight, hapticPress, hapticSuccess, hapticWarning, hapticSelection } from '../utils/haptics';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
+import { getBackendUrlSync } from '../utils/backend';
 
 const CAPABILITIES = [
   { icon: 'auto-awesome' as const, label: 'Synthesize', desc: 'Generate connections', action: 'learn' },
@@ -43,6 +43,7 @@ export default function AgentScreen() {
 
   useEffect(() => {
     const fetchAll = async () => {
+      const BACKEND_URL = getBackendUrlSync();
       try {
         const [pRes, sRes, mRes] = await Promise.all([
           axios.get(`${BACKEND_URL}/api/agent/persona`).catch(() => ({ data: null })),
@@ -62,6 +63,7 @@ export default function AgentScreen() {
   }, []);
 
   const handleCapability = async (action: string) => {
+    const BACKEND_URL = getBackendUrlSync();
     if (action === 'export') {
       hapticSelection();
       router.push('/export' as any);

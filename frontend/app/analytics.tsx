@@ -15,7 +15,7 @@ import axios from 'axios';
 import { useTheme, spacing, fs, sw } from '../theme';
 import { hapticLight, hapticSelection } from '../utils/haptics';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
+import { getBackendUrlSync } from '../utils/backend';
 
 export default function AnalyticsScreen() {
   const { theme } = useTheme();
@@ -35,6 +35,7 @@ export default function AnalyticsScreen() {
   const border = theme.borderMuted;
 
   const fetchStats = async () => {
+    const BACKEND_URL = getBackendUrlSync();
     try {
       const [sRes, aRes, hRes] = await Promise.all([
         axios.get(`${BACKEND_URL}/api/stats`),
