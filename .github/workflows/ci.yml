@@ -37,11 +37,10 @@ jobs:
           pip install flake8
           flake8 server.py --max-line-length 120 --ignore E501,W503
 
-      - name: Type check (optional)
-        continue-on-error: true
+      - name: Type check with mypy
         run: |
-          pip install mypy
-          mypy server.py --ignore-missing-imports --no-error-summary || true
+          pip install mypy types-requests
+          mypy server.py --ignore-missing-imports --no-error-summary || echo "::warning::Type check completed with issues"
 
   # ── Web App (Next.js) ──────────────────────────────────
   web:
@@ -64,7 +63,6 @@ jobs:
 
       - name: Lint
         run: bun run lint
-        continue-on-error: true
 
       - name: Build
         env:
@@ -92,8 +90,6 @@ jobs:
 
       - name: Lint
         run: bun run lint
-        continue-on-error: true
 
       - name: Typecheck
         run: bunx tsc --noEmit
-        continue-on-error: true

@@ -91,3 +91,7 @@ apikey
 # Emergent Agent artifacts (from original cloud build)
 .emergent/
 .gitconfig
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
