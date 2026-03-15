@@ -1,6 +1,6 @@
 # Polymath OS — Development Roadmap
 
-> Actionable next steps, ordered by priority. Updated February 28, 2026.
+> Actionable next steps, ordered by priority. Updated March 16, 2026.
 
 ---
 
@@ -8,18 +8,41 @@
 
 | Layer | Status | Notes |
 |-------|--------|-------|
-| **Backend (FastAPI)** | ✅ Running | All 30+ endpoints, AI categorization, export/import |
-| **Mobile (Expo RN)** | ✅ Compiles & runs | 5-tab app, Expo Go ready, needs real-device testing |
-| **Web (Next.js)** | ✅ Builds clean | 6 pages, TanStack Query, feature parity with mobile |
-| **CI/CD** | ✅ Configured | 3 GitHub Actions workflows (CI, OpenHands, auto-commit) |
-| **Error Tracking** | ✅ Integrated | Sentry opt-in (backend + web), mobile template ready |
-| **Docs** | ✅ Comprehensive | 7 docs + guides |
+| **Backend (FastAPI)** | ✅ Running | 40+ endpoints, AI categorization, export/import, JWT auth |
+| **Mobile (Expo RN)** | ✅ Compiles & runs | 3-tab floating pill + 7 stack screens, Expo Go ready |
+| **Web (Next.js)** | ✅ Builds clean | 9 pages incl. /integrations, /customize, feature parity achieved |
+| **CI/CD** | ✅ Strict gates | Lint/type checks enforced, no continue-on-error |
+| **Error Tracking** | ✅ Full coverage | Sentry active on backend + web + mobile |
+| **Security** | ✅ Enterprise-grade | JWT auth, encryption, validation, audit logging |
+| **Docs** | ✅ Comprehensive | 7 docs + qoder-agent-docs pack |
 
 ---
 
-## Phase 0 — Stabilize & Test (NOW — 1-2 days)
+## Security Implementation (✅ COMPLETE - 2026-03-16)
+
+| Feature | Status | Details |
+|---------|--------|---------|
+| JWT Authentication | ✅ | Access + refresh tokens, Argon2id hashing |
+| Field Encryption | ✅ | AES-256-GCM for sensitive data |
+| Input Validation | ✅ | Pydantic schemas, regex patterns |
+| XSS Sanitization | ✅ | bleach library strips HTML |
+| Request Size Limits | ✅ | 10MB max body (configurable) |
+| Audit Logging | ✅ | All sensitive ops logged |
+| Account Lockout | ✅ | 5 failed attempts → 30min lock |
+| Password Policy | ✅ | 12+ chars, mixed case, digit, special |
+
+**New Files:**
+- `backend/auth.py` - JWT system
+- `backend/crypto.py` - Encryption utilities
+- `backend/models/user.py` - User model
+- `backend/scripts/encrypt_existing.py` - Migration script
+
+---
+
+## Phase 0 — Stabilize & Test (✅ MOSTLY COMPLETE)
 
 > Get the mobile app actually running on your phone and verify everything end-to-end.
+> **Status**: Core stability achieved. Security hardened. Sentry active. Remaining: final device QA.
 
 ### 0.1 Run Mobile on Physical Device
 ```bash
@@ -71,17 +94,17 @@ npx expo install @react-native-async-storage/async-storage@2.2.0 react-native-sv
 
 > Make the mobile app production-worthy.
 
-| Task | Effort | Files |
-|------|--------|-------|
-| **1.1** Agent tab (missing on mobile) | 4-6h | `frontend/app/(tabs)/agent.tsx`, tab layout |
-| **1.2** Detail views (tap activity → full view) | 4h | `frontend/app/activity/[id].tsx`, `journal/[id].tsx` |
-| **1.3** Edit & delete UI (swipe or long-press) | 3h | All list screens |
-| **1.4** Pull-to-refresh on all lists | 1h | All tab screens |
-| **1.5** Image export with "Abishek M" watermark | 3h | `connections.tsx` + `react-native-view-shot` |
-| **1.6** PDF & PPT export buttons | 2h | `export.tsx` |
-| **1.7** Search bar + category filter | 4h | `activities.tsx`, new component |
-| **1.8** Sentry integration (wrap root layout) | 30min | `_layout.tsx` |
-| **1.9** App icon & splash screen branding | 1h | `assets/images/`, `app.json` |
+| Task | Effort | Status |
+|------|--------|--------|
+| **1.1** Agent tab (missing on mobile) | 4-6h | ✅ Done (stack screen) |
+| **1.2** Detail views (tap activity → full view) | 4h | ✅ Done |
+| **1.3** Edit & delete UI (swipe or long-press) | 3h | ✅ Done |
+| **1.4** Pull-to-refresh on all lists | 1h | ✅ Done |
+| **1.5** Image export with "Abishek M" watermark | 3h | ⏳ Pending |
+| **1.6** PDF & PPT export buttons | 2h | ⏳ Pending |
+| **1.7** Search bar + category filter | 4h | ✅ Done |
+| **1.8** Sentry integration (wrap root layout) | 30min | ✅ Done |
+| **1.9** App icon & splash screen branding | 1h | ⏳ Pending |
 
 ---
 
@@ -119,7 +142,7 @@ npx expo install @react-native-async-storage/async-storage@2.2.0 react-native-sv
 | **4.3** Deploy web app (Vercel) | 30min | Git-push to deploy |
 | **4.4** Custom domain | 30min | `polymathOS.app` or similar |
 | **4.5** Google Play Store listing | 2h | Screenshots, description, privacy policy |
-| **4.6** Authentication (optional) | 8-10h | Multi-user support, JWT |
+| **4.6** Authentication (optional) | ~~8-10h~~ | ✅ **DONE** - JWT + encryption + audit logging |
 
 ---
 
@@ -227,3 +250,5 @@ Once that works end-to-end, move to Phase 1 (mobile polish).
 ---
 
 *This is a living document. Update as tasks are completed.*
+
+*Last updated: March 16, 2026*

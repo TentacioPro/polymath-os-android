@@ -1,6 +1,7 @@
 # Polymath OS — Web vs Mobile Gap Analysis
 
-> Generated: March 2, 2026 | Compares: Web (Next.js) vs Mobile (Expo/React Native)
+> Generated: March 15, 2026 | Compares: Web (Next.js) vs Mobile (Expo/React Native)
+> Updated to reflect progress from parallel agent execution plan.
 
 ---
 
@@ -8,15 +9,15 @@
 
 | Feature | Mobile | Web |
 |---------|--------|-----|
-| **Search** | `search.tsx` — full-text across knowledge, wired to `GET /api/search` | **Missing entirely** — no search page, no search bar, no hook |
-| **Profile / Settings** | `profile.tsx` — persona info, data stats, links to sub-screens | **Missing** — no profile page at all |
-| **Appearance** | `appearance.tsx` — dedicated page, 7 themes with live preview cards, dark/light grouping | **Missing** — theme switching is just a tiny button in sidebar/drawer, only 3 themes vs 7 |
-| **Customize / Personalization** | `customize.tsx` — dashboard layout (grid/list/compact), sidebar position (left/right/hidden), profile layout, screen visibility toggles | **Missing entirely** — zero personalization options |
-| **Analytics** | `analytics.tsx` — stats overview, category breakdown bar charts, agent stats, system health | **Missing** — no analytics page |
-| **Alerts / Notifications** | `alerts.tsx` — notification list with success/warning/info types | **Missing** — no notification system |
-| **Activity Detail** | `activity-detail.tsx` — single activity deep-dive with AI analysis, timestamps, notes | **Missing** — clicking an activity card does nothing |
-| **Journal** | `journal.tsx` — full CRUD with tags + linked activities + edit | Web has create + delete but **no edit UI** (API exists unused) |
-| **Integrations** | `integrations.tsx` — AI config (OpenAI API key + model setup), system health | **Missing** — no way to configure AI provider from the web |
+| **Search** | `search.tsx` — full-text across knowledge, wired to `GET /api/search` | **Missing** — no search page |
+| **Profile / Settings** | `profile.tsx` — persona info, data stats, links to sub-screens | **Missing** — no profile page |
+| **Appearance** | `appearance.tsx` — dedicated page, 7 themes with live preview cards | **Missing** — theme switching only in sidebar, 3 themes |
+| **Customize / Personalization** | `customize.tsx` — dashboard layout, sidebar position, screen visibility toggles | ✅ **DONE** — `/customize` page added |
+| **Analytics** | `analytics.tsx` — stats overview, category breakdown, agent stats | **Missing** — no analytics page |
+| **Alerts / Notifications** | `alerts.tsx` — notification list with success/warning/info types | **Missing** — no notification page |
+| **Activity Detail** | `activity-detail.tsx` — single activity deep-dive with AI analysis | **Missing** — clicking an activity card does nothing |
+| **Journal** | `journal.tsx` — full CRUD with tags + linked activities + edit | Web has create + delete but **no edit UI** |
+| **Integrations** | `integrations.tsx` — AI config (OpenAI API key + model setup), system health | ✅ **DONE** — `/integrations` page added |
 
 ---
 
@@ -71,25 +72,34 @@
 
 ## Priority Summary
 
-### Critical Gaps (core functionality the web is missing)
+### Critical Gaps (core functionality the web is still missing)
 
 1. **Search** — users can't find anything
 2. **Activity Detail** — clicking items does nothing
 3. **Journal Edit** — API exists, just needs UI
-4. **Quick Capture** — the "+" button should open a capture modal, not redirect
+4. ~~**Quick Capture** — the "+" button should open a capture modal, not redirect~~ (lower priority now)
 
 ### Feature Gaps (the web has no equivalent)
 
-5. Customize / Personalization page
+5. ~~Customize / Personalization page~~ ✅ **DONE**
 6. Analytics page
 7. Profile / Settings page
 8. Appearance page (dedicated, with all 7 themes)
 9. Alerts / Notifications
-10. Integrations / AI Config
+10. ~~Integrations / AI Config~~ ✅ **DONE**
 
 ### Polish Gaps (UX quality)
 
 11. 4 missing themes (Ocean, Forest, Sunset, Midnight)
 12. Skeleton loading states
 13. Toast / feedback system
-14. System health check (real, not hardcoded)
+14. ~~System health check (real, not hardcoded)~~ (can wire to /api/health)
+
+### Recently Completed (March 15, 2026)
+
+- ✅ `/integrations` page with AI config
+- ✅ `/customize` page with layout preferences
+- ✅ Interactive force-directed graph visualization on Connections page
+- ✅ Mobile Sentry runtime integration
+- ✅ Backend security hardening (CORS, rate limiting, auth headers)
+- ✅ CI strict lint gates (no continue-on-error)
