@@ -1,14 +1,17 @@
-from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File
+from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Request, Depends, Security
+from fastapi.security import APIKeyHeader
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, EmailStr
 from typing import List, Optional, Dict, Any
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
 import json
 import io
@@ -22,9 +25,54 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import tempfile
 import sentry_sdk
+import time
+from collections import defaultdict
+import asyncio
+import re
+import bleach
+
+# Local imports
+from auth import (
+    hash_password, verify_password, create_token_pair, decode_access_token,
+    verify_refresh_token, get_current_user, get_optional_user, get_client_info,
+    check_account_lockout, should_lock_account, get_lockout_until,
+    ACCESS_TOKEN_EXPIRE_MINUTES
+)
+from crypto import field_encryptor, encrypt_field, decrypt_field
+from models.user import (
+    User as UserModel, UserCreate, UserUpdate, UserInDB, 
+    RefreshToken, TokenPair, LoginRequest, RefreshRequest
+)
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# ── Environment & Security Configuration ────────────────────────────────
+ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')  # development, staging, production
+API_KEY = os.environ.get('API_KEY', '')  # Optional API key for protected routes
+RATE_LIMIT_REQUESTS = int(os.environ.get('RATE_LIMIT_REQUESTS', '100'))  # requests per window
+RATE_LIMIT_WINDOW = int(os.environ.get('RATE_LIMIT_WINDOW', '60'))  # window in seconds
+
+# CORS origins by environment
+CORS_ORIGINS_MAP = {
+    'development': ['*'],  # Allow all in dev
+    'staging': [
+        'http://localhost:3000',
+        'http://localhost:8081',
+        'https://*.vercel.app',
+        'https://*.expo.dev',
+    ],
+    'production': os.environ.get('ALLOWED_ORIGINS', '').split(',') if os.environ.get('ALLOWED_ORIGINS') else [
+        'https://polymath-os.vercel.app',
+        'https://polymath-os.com',
+    ],
+}
+
+def get_cors_origins() -> List[str]:
+    """Get CORS origins based on current environment."""
+    origins = CORS_ORIGINS_MAP.get(ENVIRONMENT, ['*'])
+    # Filter out empty strings
+    return [o.strip() for o in origins if o.strip()]
 
 # ── Sentry Error Tracking ────────────────────────────────
 # Set SENTRY_DSN in your .env to enable. Free tier: 10k events/month.
@@ -35,10 +83,187 @@ if _sentry_dsn:
         dsn=_sentry_dsn,
         traces_sample_rate=0.2,       # 20% of requests get performance traces
         profiles_sample_rate=0.1,     # 10% profiling
-        environment=os.environ.get('SENTRY_ENV', 'development'),
+        environment=ENVIRONMENT,
         release=os.environ.get('SENTRY_RELEASE', 'polymath-backend@0.1.0'),
         send_default_pii=False,       # Don't send user PII
     )
+
+# ── Rate Limiting ────────────────────────────────
+class RateLimiter:
+    """Simple in-memory rate limiter using sliding window."""
+    def __init__(self, requests_limit: int = 100, window_seconds: int = 60):
+        self.requests_limit = requests_limit
+        self.window_seconds = window_seconds
+        self.requests: Dict[str, List[float]] = defaultdict(list)
+        self._lock = asyncio.Lock()
+    
+    async def is_allowed(self, client_id: str) -> bool:
+        """Check if request is allowed for given client."""
+        async with self._lock:
+            now = time.time()
+            window_start = now - self.window_seconds
+            
+            # Clean old requests
+            self.requests[client_id] = [
+                req_time for req_time in self.requests[client_id]
+                if req_time > window_start
+            ]
+            
+            # Check limit
+            if len(self.requests[client_id]) >= self.requests_limit:
+                return False
+            
+            # Record request
+            self.requests[client_id].append(now)
+            return True
+    
+    def get_remaining(self, client_id: str) -> int:
+        """Get remaining requests for client."""
+        now = time.time()
+        window_start = now - self.window_seconds
+        valid_requests = [r for r in self.requests.get(client_id, []) if r > window_start]
+        return max(0, self.requests_limit - len(valid_requests))
+
+rate_limiter = RateLimiter(RATE_LIMIT_REQUESTS, RATE_LIMIT_WINDOW)
+
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    """Middleware to enforce rate limiting."""
+    async def dispatch(self, request: Request, call_next):
+        # Skip rate limiting in development
+        if ENVIRONMENT == 'development':
+            return await call_next(request)
+        
+        # Get client identifier (IP or API key)
+        client_id = request.headers.get('X-API-Key', '') or request.client.host or 'unknown'
+        
+        if not await rate_limiter.is_allowed(client_id):
+            return Response(
+                content=json.dumps({"detail": "Rate limit exceeded. Try again later."}),
+                status_code=429,
+                media_type="application/json",
+                headers={
+                    "X-RateLimit-Limit": str(rate_limiter.requests_limit),
+                    "X-RateLimit-Remaining": "0",
+                    "X-RateLimit-Reset": str(int(time.time()) + rate_limiter.window_seconds),
+                    "Retry-After": str(rate_limiter.window_seconds),
+                }
+            )
+        
+        response = await call_next(request)
+        
+        # Add rate limit headers
+        response.headers["X-RateLimit-Limit"] = str(rate_limiter.requests_limit)
+        response.headers["X-RateLimit-Remaining"] = str(rate_limiter.get_remaining(client_id))
+        
+        return response
+
+# ── Security Headers Middleware ────────────────────────────────
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Add security headers to all responses."""
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        
+        # Security headers
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        
+        # Only add strict transport security in production
+        if ENVIRONMENT == 'production':
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        
+        return response
+
+# ── Request Size Limit Middleware ────────────────────────────────
+MAX_REQUEST_BODY_SIZE = int(os.environ.get('MAX_REQUEST_BODY_SIZE', str(10 * 1024 * 1024)))  # 10MB default
+
+class RequestSizeLimitMiddleware(BaseHTTPMiddleware):
+    """Limit request body size to prevent DoS attacks."""
+    async def dispatch(self, request: Request, call_next):
+        content_length = request.headers.get('content-length')
+        if content_length and int(content_length) > MAX_REQUEST_BODY_SIZE:
+            return Response(
+                content=json.dumps({"detail": "Request body too large"}),
+                status_code=413,
+                media_type="application/json"
+            )
+        return await call_next(request)
+
+# ── Input Sanitization Utilities ────────────────────────────────
+def sanitize_input(text: str) -> str:
+    """Strip potentially dangerous HTML/scripts from user input."""
+    if not text:
+        return text
+    return bleach.clean(text, tags=[], attributes={}, strip=True)
+
+def sanitize_dict_fields(data: dict, fields: list) -> dict:
+    """Sanitize specific string fields in a dictionary."""
+    result = data.copy()
+    for field in fields:
+        if field in result and isinstance(result[field], str):
+            result[field] = sanitize_input(result[field])
+    return result
+
+# ── Audit Logging ────────────────────────────────
+class AuditLog(BaseModel):
+    """Audit log entry for tracking sensitive operations."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: Optional[str] = None
+    action: str  # CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT
+    resource_type: str  # activity, journal, connection, user, auth
+    resource_id: Optional[str] = None
+    ip_address: str
+    user_agent: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    details: Dict[str, Any] = {}
+    success: bool = True
+
+async def log_audit_event(
+    action: str,
+    resource_type: str,
+    request: Request,
+    user_id: Optional[str] = None,
+    resource_id: Optional[str] = None,
+    details: Dict[str, Any] = None,
+    success: bool = True
+):
+    """Log an audit event to the database."""
+    try:
+        ip_address, user_agent = get_client_info(request)
+        audit_entry = AuditLog(
+            user_id=user_id,
+            action=action,
+            resource_type=resource_type,
+            resource_id=resource_id,
+            ip_address=ip_address,
+            user_agent=user_agent,
+            details=details or {},
+            success=success
+        )
+        await db.audit_logs.insert_one(audit_entry.model_dump())
+    except Exception as e:
+        logging.error(f"Failed to log audit event: {e}")
+
+# ── API Key Authentication ────────────────────────────────
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+async def verify_api_key(api_key: str = Security(api_key_header)) -> Optional[str]:
+    """Verify API key if authentication is enabled."""
+    # Skip auth in development or if no API key is configured
+    if ENVIRONMENT == 'development' or not API_KEY:
+        return "development"
+    
+    if not api_key:
+        raise HTTPException(status_code=401, detail="API key required")
+    
+    if api_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid API key")
+    
+    return api_key
+
+# Optional: Use this dependency on routes that need auth
+# Example: @api_router.get("/protected", dependencies=[Depends(verify_api_key)])
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -90,11 +315,29 @@ class Activity(BaseModel):
     hash: str
 
 class ActivityCreate(BaseModel):
-    title: str
-    url: Optional[str] = None
-    source: str
-    notes: Optional[str] = None
+    title: str = Field(..., min_length=1, max_length=500)
+    url: Optional[str] = Field(None, max_length=2048)
+    source: str = Field(..., pattern=r'^(manual|youtube|google|upload|browser|api)$')
+    notes: Optional[str] = Field(None, max_length=10000)
     timestamp: Optional[datetime] = None
+    
+    @field_validator('title', 'notes')
+    @classmethod
+    def sanitize_text_fields(cls, v):
+        if v:
+            return sanitize_input(v.strip())
+        return v
+    
+    @field_validator('url')
+    @classmethod
+    def validate_url(cls, v):
+        if v:
+            v = v.strip()
+            if not re.match(r'^https?://', v):
+                raise ValueError('URL must start with http:// or https://')
+            if len(v) > 2048:
+                raise ValueError('URL too long (max 2048 characters)')
+        return v
 
 class Journal(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -105,10 +348,25 @@ class Journal(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 class JournalCreate(BaseModel):
-    title: str
-    content: str
-    tags: List[str] = []
-    linked_activities: List[str] = []
+    title: str = Field(..., min_length=1, max_length=500)
+    content: str = Field(..., min_length=1, max_length=50000)
+    tags: List[str] = Field(default=[], max_length=20)
+    linked_activities: List[str] = Field(default=[], max_length=50)
+    
+    @field_validator('title', 'content')
+    @classmethod
+    def sanitize_text_fields(cls, v):
+        if v:
+            return sanitize_input(v.strip())
+        return v
+    
+    @field_validator('tags')
+    @classmethod
+    def validate_tags(cls, v):
+        if v:
+            # Sanitize and limit tag length
+            return [sanitize_input(tag.strip())[:50] for tag in v if tag.strip()]
+        return v
 
 class Connection(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -127,12 +385,17 @@ class AIConfig(BaseModel):
     is_active: bool = True
 
 class AIConfigCreate(BaseModel):
-    provider: str
-    model: str
-    api_key: str
+    provider: str = Field(..., pattern=r'^(openai|anthropic|google|custom)$')
+    model: str = Field(..., min_length=1, max_length=100)
+    api_key: str = Field(..., min_length=10, max_length=500)
+    
+    @field_validator('model')
+    @classmethod
+    def sanitize_model(cls, v):
+        return sanitize_input(v.strip()) if v else v
 
 class ExportRequest(BaseModel):
-    format: str  # json, markdown, csv, pdf, ppt
+    format: str = Field(..., pattern=r'^(json|markdown|csv|pdf|ppt|xlsx)$')
     include_journals: bool = True
     include_activities: bool = True
     include_connections: bool = True
@@ -514,12 +777,203 @@ async def health_check():
         "database": db_status,
         "ai": ai_status,
         "version": "1.0.0",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
+        "environment": ENVIRONMENT,
+        "security": {
+            "cors_mode": "open" if get_cors_origins() == ['*'] else "restricted",
+            "rate_limiting": ENVIRONMENT != 'development',
+            "auth_required": bool(API_KEY) and ENVIRONMENT != 'development',
+        }
     }
 
 @api_router.get("/")
 async def root():
     return {"message": "Polymath OS API"}
+
+# ============= AUTHENTICATION ENDPOINTS =============
+
+@api_router.post("/auth/register", response_model=UserModel)
+async def register_user(user_data: UserCreate, request: Request):
+    """Register a new user account."""
+    # Check if email already exists
+    existing = await db.users.find_one({"email": user_data.email.lower()})
+    if existing:
+        await log_audit_event("REGISTER", "user", request, details={"email": user_data.email}, success=False)
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Create user with hashed password
+    user = UserInDB(
+        email=user_data.email.lower(),
+        display_name=user_data.display_name or user_data.email.split('@')[0],
+        password_hash=hash_password(user_data.password),
+        role="user",
+        is_active=True
+    )
+    
+    await db.users.insert_one(user.model_dump())
+    await log_audit_event("REGISTER", "user", request, user_id=user.id, resource_id=user.id)
+    
+    # Return user without sensitive fields
+    return UserModel(**user.model_dump())
+
+@api_router.post("/auth/login", response_model=TokenPair)
+async def login(login_data: LoginRequest, request: Request):
+    """Authenticate user and return JWT tokens."""
+    email = login_data.email.lower()
+    
+    # Find user
+    user_doc = await db.users.find_one({"email": email})
+    if not user_doc:
+        await log_audit_event("LOGIN", "auth", request, details={"email": email}, success=False)
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    user = UserInDB(**user_doc)
+    
+    # Check account lockout
+    if user.lockout_until and datetime.utcnow() < user.lockout_until:
+        remaining = int((user.lockout_until - datetime.utcnow()).total_seconds() / 60)
+        raise HTTPException(status_code=423, detail=f"Account locked. Try again in {remaining} minutes.")
+    
+    # Verify password
+    if not verify_password(login_data.password, user.password_hash):
+        # Increment failed attempts
+        new_attempts = user.failed_login_attempts + 1
+        update_data = {"failed_login_attempts": new_attempts}
+        
+        if should_lock_account(new_attempts):
+            update_data["lockout_until"] = get_lockout_until()
+        
+        await db.users.update_one({"id": user.id}, {"$set": update_data})
+        await log_audit_event("LOGIN", "auth", request, user_id=user.id, details={"reason": "invalid_password"}, success=False)
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Check if user is active
+    if not user.is_active:
+        await log_audit_event("LOGIN", "auth", request, user_id=user.id, details={"reason": "inactive"}, success=False)
+        raise HTTPException(status_code=403, detail="Account is deactivated")
+    
+    # Create token pair
+    access_token, refresh_token, refresh_hash, refresh_expires = create_token_pair(user.id, user.email)
+    
+    # Store refresh token
+    ip_address, user_agent = get_client_info(request)
+    refresh_doc = RefreshToken(
+        user_id=user.id,
+        token_hash=refresh_hash,
+        device_info=user_agent[:200],
+        ip_address=ip_address,
+        expires_at=refresh_expires
+    )
+    await db.refresh_tokens.insert_one(refresh_doc.model_dump())
+    
+    # Reset failed attempts and update last login
+    await db.users.update_one(
+        {"id": user.id},
+        {"$set": {
+            "failed_login_attempts": 0,
+            "lockout_until": None,
+            "last_login": datetime.utcnow()
+        }}
+    )
+    
+    await log_audit_event("LOGIN", "auth", request, user_id=user.id)
+    
+    return TokenPair(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    )
+
+@api_router.post("/auth/refresh", response_model=TokenPair)
+async def refresh_tokens(refresh_data: RefreshRequest, request: Request):
+    """Refresh access token using refresh token."""
+    # Find the refresh token
+    import hashlib
+    token_hash = hashlib.sha256(refresh_data.refresh_token.encode()).hexdigest()
+    
+    token_doc = await db.refresh_tokens.find_one({
+        "token_hash": token_hash,
+        "revoked": False
+    })
+    
+    if not token_doc:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+    
+    token = RefreshToken(**token_doc)
+    
+    # Check if expired
+    if datetime.utcnow() > token.expires_at:
+        await db.refresh_tokens.update_one({"id": token.id}, {"$set": {"revoked": True}})
+        raise HTTPException(status_code=401, detail="Refresh token expired")
+    
+    # Get user
+    user_doc = await db.users.find_one({"id": token.user_id})
+    if not user_doc or not user_doc.get("is_active"):
+        raise HTTPException(status_code=401, detail="User not found or inactive")
+    
+    # Revoke old refresh token (rotation)
+    await db.refresh_tokens.update_one(
+        {"id": token.id},
+        {"$set": {"revoked": True, "revoked_at": datetime.utcnow()}}
+    )
+    
+    # Create new token pair
+    access_token, new_refresh_token, refresh_hash, refresh_expires = create_token_pair(
+        token.user_id, user_doc["email"]
+    )
+    
+    # Store new refresh token
+    ip_address, user_agent = get_client_info(request)
+    new_refresh_doc = RefreshToken(
+        user_id=token.user_id,
+        token_hash=refresh_hash,
+        device_info=user_agent[:200],
+        ip_address=ip_address,
+        expires_at=refresh_expires
+    )
+    await db.refresh_tokens.insert_one(new_refresh_doc.model_dump())
+    
+    await log_audit_event("REFRESH", "auth", request, user_id=token.user_id)
+    
+    return TokenPair(
+        access_token=access_token,
+        refresh_token=new_refresh_token,
+        expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    )
+
+@api_router.post("/auth/logout")
+async def logout(refresh_data: RefreshRequest, request: Request):
+    """Logout by revoking refresh token."""
+    import hashlib
+    token_hash = hashlib.sha256(refresh_data.refresh_token.encode()).hexdigest()
+    
+    result = await db.refresh_tokens.update_one(
+        {"token_hash": token_hash},
+        {"$set": {"revoked": True, "revoked_at": datetime.utcnow()}}
+    )
+    
+    if result.modified_count > 0:
+        # Get user_id for audit log
+        token_doc = await db.refresh_tokens.find_one({"token_hash": token_hash})
+        if token_doc:
+            await log_audit_event("LOGOUT", "auth", request, user_id=token_doc.get("user_id"))
+    
+    return {"message": "Logged out successfully"}
+
+@api_router.get("/auth/me", response_model=UserModel)
+async def get_current_user_profile(request: Request, user: dict = Depends(get_current_user)):
+    """Get current authenticated user's profile."""
+    user_doc = await db.users.find_one({"id": user["id"]})
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Remove sensitive fields
+    if "_id" in user_doc:
+        del user_doc["_id"]
+    if "password_hash" in user_doc:
+        del user_doc["password_hash"]
+    
+    return UserModel(**user_doc)
 
 # ACTIVITIES
 @api_router.post("/activities/manual", response_model=Activity)
@@ -819,6 +1273,10 @@ async def create_connections(activity_id: str):
 async def get_all_connections():
     """Get all connections"""
     connections = await db.connections.find().to_list(1000)
+    # Remove MongoDB ObjectId fields
+    for conn in connections:
+        if "_id" in conn:
+            del conn["_id"]
     return connections
 
 @api_router.get("/ai/suggestions")
@@ -1282,12 +1740,26 @@ async def get_agent_stats():
 
 app.include_router(api_router)
 
+# ── Middleware Stack (order matters: last added = first executed) ────────────────────────────────
+# 1. Security headers (outermost)
+app.add_middleware(SecurityHeadersMiddleware)
+
+# 2. Rate limiting
+app.add_middleware(RateLimitMiddleware)
+
+# 3. Request size limit
+app.add_middleware(RequestSizeLimitMiddleware)
+
+# 4. CORS (environment-aware)
+cors_origins = get_cors_origins()
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=cors_origins if cors_origins != ['*'] else ["*"],
+    allow_origin_regex=r"https://.*\.vercel\.app" if ENVIRONMENT in ['staging', 'production'] else None,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"],
 )
 
 logging.basicConfig(
@@ -1295,6 +1767,17 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Log security configuration on startup
+@app.on_event("startup")
+async def log_security_config():
+    logger.info(f"Environment: {ENVIRONMENT}")
+    logger.info(f"CORS origins: {cors_origins}")
+    logger.info(f"Rate limiting: {RATE_LIMIT_REQUESTS} requests per {RATE_LIMIT_WINDOW}s")
+    logger.info(f"API key auth: {'enabled' if API_KEY else 'disabled'}")
+    logger.info(f"JWT auth: {'enabled' if os.environ.get('JWT_SECRET_KEY') else 'dev mode'}")
+    logger.info(f"Field encryption: {'enabled' if field_encryptor.is_enabled else 'disabled'}")
+    logger.info(f"Max request body: {MAX_REQUEST_BODY_SIZE / 1024 / 1024:.1f}MB")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
