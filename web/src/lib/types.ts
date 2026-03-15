@@ -31,7 +31,8 @@ export interface Connection {
   from_id: string;
   to_id: string;
   connection_type: string;
-  reasoning: string;
+  reasoning?: string;
+  ai_reasoning?: string;  // Backend uses this field
   strength: number;
   timestamp: string;
 }

@@ -76,16 +76,17 @@ export default function AgentPage() {
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="font-display text-xl font-bold text-poly-text uppercase tracking-tight">
+          <h1 className="font-display text-xl font-bold text-poly-text tracking-tight">
             Agent Memory
           </h1>
-          <p className="text-[10px] font-mono text-poly-muted uppercase tracking-widest mt-1">
+          <p className="text-[10px] text-poly-muted tracking-widest mt-1">
             System // Neural Core
           </p>
         </div>
         <Link
           href="/chat"
           className="bg-poly-accent text-poly-accent-text px-3 py-2 flex items-center gap-2 transition-colors hover:opacity-80"
+          style={{ borderRadius: 12 }}
         >
           <span className="material-symbols-outlined text-[16px]">chat</span>
           <span className="text-[10px] font-mono uppercase tracking-wider font-bold">
@@ -95,7 +96,7 @@ export default function AgentPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-0 border border-poly-border">
+      <div className="flex gap-0 border border-poly-border overflow-hidden" style={{ borderRadius: 12 }}>
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -116,30 +117,30 @@ export default function AgentPage() {
       {view === 'memories' && (
         <div className="flex flex-col gap-4">
           {/* Stats */}
-          <div className="border border-poly-border bg-poly-surface p-4">
+          <div className="border border-poly-border bg-poly-surface p-4" style={{ borderRadius: 14 }}>
             <div className="flex justify-between items-center mb-3">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-poly-muted">
+              <span className="text-[10px] tracking-widest text-poly-muted">
                 Memory Allocation
               </span>
             </div>
             <div className="grid grid-cols-3 gap-3">
-              <div className="border border-poly-border-muted p-3 text-center">
+              <div className="border border-poly-border-muted p-3 text-center" style={{ borderRadius: 10 }}>
                 <span className="text-xl font-display font-bold text-poly-accent block">
                   {agentStats?.total_memories || memories?.length || 0}
                 </span>
-                <p className="text-[9px] font-mono text-poly-muted mt-1 uppercase">Total</p>
+                <p className="text-[9px] text-poly-muted mt-1">Total</p>
               </div>
-              <div className="border border-poly-border-muted p-3 text-center">
+              <div className="border border-poly-border-muted p-3 text-center" style={{ borderRadius: 10 }}>
                 <span className="text-xl font-display font-bold text-poly-accent block">
                   {agentStats?.long_term || 0}
                 </span>
-                <p className="text-[9px] font-mono text-poly-muted mt-1 uppercase">Long-term</p>
+                <p className="text-[9px] text-poly-muted mt-1">Long-term</p>
               </div>
-              <div className="border border-poly-border-muted p-3 text-center">
+              <div className="border border-poly-border-muted p-3 text-center" style={{ borderRadius: 10 }}>
                 <span className="text-xl font-display font-bold text-poly-accent block">
                   {agentStats?.events || 0}
                 </span>
-                <p className="text-[9px] font-mono text-poly-muted mt-1 uppercase">Events</p>
+                <p className="text-[9px] text-poly-muted mt-1">Events</p>
               </div>
             </div>
           </div>
@@ -150,6 +151,7 @@ export default function AgentPage() {
               onClick={() => learnFromData.mutate()}
               disabled={learnFromData.isPending}
               className="bg-poly-accent text-poly-accent-text py-3 flex items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-widest font-bold hover:opacity-80 transition-opacity disabled:opacity-50"
+              style={{ borderRadius: 12 }}
             >
               {learnFromData.isPending ? (
                 <span className="material-symbols-outlined text-[16px] animate-spin">
@@ -166,6 +168,7 @@ export default function AgentPage() {
               onClick={() => consolidateMemories.mutate()}
               disabled={consolidateMemories.isPending}
               className="border border-poly-border text-poly-text py-3 flex items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-widest font-bold hover:bg-poly-accent hover:text-poly-accent-text transition-colors disabled:opacity-50"
+              style={{ borderRadius: 12 }}
             >
               {consolidateMemories.isPending ? (
                 <span className="material-symbols-outlined text-[16px] animate-spin">
@@ -191,6 +194,7 @@ export default function AgentPage() {
                 <div
                   key={memory.id}
                   className="border border-poly-border bg-poly-surface p-4 group flex flex-col"
+                  style={{ borderRadius: 14 }}
                 >
                   <div className="flex justify-between items-center mb-3">
                     <span
@@ -198,6 +202,7 @@ export default function AgentPage() {
                       style={{
                         backgroundColor: getMemoryTypeColor(memory.memory_type),
                         color: '#FFFFFF',
+                        borderRadius: 6,
                       }}
                     >
                       {memory.memory_type.replace('_', ' ')}
@@ -231,7 +236,7 @@ export default function AgentPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 border border-poly-border-muted">
+            <div className="text-center py-16 border border-poly-border-muted" style={{ borderRadius: 14 }}>
               <span className="material-symbols-outlined text-[48px] text-poly-dim mb-4 block">
                 memory
               </span>
@@ -263,6 +268,7 @@ export default function AgentPage() {
                 <button
                   onClick={openEditPersona}
                   className="w-8 h-8 flex items-center justify-center border border-poly-border hover:bg-poly-accent hover:text-poly-accent-text transition-colors text-poly-muted"
+                  style={{ borderRadius: 10 }}
                 >
                   <span className="material-symbols-outlined text-[16px]">edit</span>
                 </button>
@@ -278,6 +284,7 @@ export default function AgentPage() {
                       <span
                         key={i}
                         className="bg-poly-accent text-poly-accent-text text-[10px] font-mono font-bold px-3 py-1.5 uppercase"
+                        style={{ borderRadius: 6 }}
                       >
                         {area}
                       </span>
@@ -296,6 +303,7 @@ export default function AgentPage() {
                       <span
                         key={i}
                         className="border border-poly-border text-poly-text text-[10px] font-mono font-bold px-3 py-1.5 uppercase"
+                        style={{ borderRadius: 6 }}
                       >
                         {trait}
                       </span>
@@ -309,7 +317,7 @@ export default function AgentPage() {
                   <h3 className="text-[10px] font-mono font-bold text-poly-muted mb-2 uppercase tracking-widest">
                     Directives
                   </h3>
-                  <div className="border border-poly-border bg-poly-surface p-4">
+                  <div className="border border-poly-border bg-poly-surface p-4" style={{ borderRadius: 14 }}>
                     <p className="text-xs text-poly-light leading-relaxed font-mono">
                       {persona.custom_instructions}
                     </p>
@@ -324,7 +332,7 @@ export default function AgentPage() {
               )}
             </>
           ) : (
-            <div className="text-center py-16 border border-poly-border-muted">
+            <div className="text-center py-16 border border-poly-border-muted" style={{ borderRadius: 14 }}>
               <span className="material-symbols-outlined text-[48px] text-poly-dim mb-4 block">
                 person
               </span>
@@ -337,6 +345,7 @@ export default function AgentPage() {
               <button
                 onClick={openEditPersona}
                 className="bg-poly-accent text-poly-accent-text px-6 py-3 font-mono text-[10px] uppercase tracking-widest font-bold hover:opacity-80 transition-opacity"
+                style={{ borderRadius: 12 }}
               >
                 Create Persona
               </button>
@@ -367,6 +376,7 @@ export default function AgentPage() {
                 <div
                   key={log.id}
                   className="border border-poly-border bg-poly-surface p-4"
+                  style={{ borderRadius: 14 }}
                 >
                   <div className="flex justify-between items-center mb-3">
                     <span className="material-symbols-outlined text-[20px] text-poly-amber">
@@ -388,7 +398,7 @@ export default function AgentPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 border border-poly-border-muted">
+            <div className="text-center py-16 border border-poly-border-muted" style={{ borderRadius: 14 }}>
               <span className="material-symbols-outlined text-[48px] text-poly-dim mb-4 block">
                 school
               </span>
@@ -418,6 +428,7 @@ export default function AgentPage() {
                   }
                   placeholder="Learning Assistant"
                   className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-sm text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-accent font-mono"
+                  style={{ borderRadius: 12 }}
                 />
               </div>
 
@@ -432,6 +443,7 @@ export default function AgentPage() {
                   }
                   placeholder="Polymath Guide"
                   className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-sm text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-accent font-mono"
+                  style={{ borderRadius: 12 }}
                 />
               </div>
             </div>
@@ -447,6 +459,7 @@ export default function AgentPage() {
                   }
                   placeholder="AI, Technology, Learning"
                   className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-sm text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-accent font-mono"
+                  style={{ borderRadius: 12 }}
                 />
               </div>
 
@@ -464,6 +477,7 @@ export default function AgentPage() {
                   }
                   placeholder="Curious, Analytical, Supportive"
                   className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-sm text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-accent font-mono"
+                  style={{ borderRadius: 12 }}
                 />
               </div>
 
@@ -482,13 +496,15 @@ export default function AgentPage() {
                   placeholder="How should the agent behave?"
                   rows={6}
                   className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-sm text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-accent resize-none font-mono"
+                  style={{ borderRadius: 12 }}
                 />
               </div>
 
               <button
                 onClick={handleUpdatePersona}
                 disabled={updatePersona.isPending}
-                className="w-full bg-poly-accent text-poly-accent-text py-3 font-mono text-xs uppercase tracking-widest font-bold hover:opacity-80 transition-opacity disabled:opacity-50 architect-shadow-sm"
+                className="w-full bg-poly-accent text-poly-accent-text py-3 font-mono text-xs uppercase tracking-widest font-bold hover:opacity-80 transition-opacity disabled:opacity-50"
+                style={{ borderRadius: 12 }}
               >
                 {updatePersona.isPending ? 'Saving...' : 'Save Persona'}
               </button>

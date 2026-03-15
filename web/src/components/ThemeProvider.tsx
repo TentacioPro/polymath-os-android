@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { ThemeContext } from '@/hooks/useTheme';
-import { DEFAULT_THEME, THEME_STORAGE_KEY, THEMES, type ThemeId } from '@/lib/theme';
+import { DEFAULT_THEME, THEME_STORAGE_KEY, THEMES, THEME_CLASSES, type ThemeId } from '@/lib/theme';
 
 export default function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeId>(DEFAULT_THEME);
@@ -20,7 +20,7 @@ export default function ThemeProvider({ children }: { children: ReactNode }) {
     if (!mounted) return;
     const root = document.documentElement;
     // Remove all theme classes
-    root.classList.remove('theme-black', 'theme-amber', 'theme-nova');
+    THEME_CLASSES.forEach((c) => root.classList.remove(c));
     // Add current
     root.classList.add(`theme-${theme}`);
     localStorage.setItem(THEME_STORAGE_KEY, theme);

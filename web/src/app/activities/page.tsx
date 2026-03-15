@@ -9,6 +9,27 @@ import {
 } from '@/hooks/useActivities';
 import { getCategoryColor } from '@/lib/constants';
 import ResponsiveModal from '@/components/ResponsiveModal';
+import Link from 'next/link';
+
+const FILTERS = ['All', 'Article', 'PDF', 'Link', 'Audio', 'File'];
+
+const TYPE_ICONS: Record<string, string> = {
+  article: 'article',
+  pdf: 'picture_as_pdf',
+  link: 'link',
+  audio: 'mic',
+  video: 'videocam',
+  file: 'folder',
+  default: 'description',
+};
+
+function getTypeIcon(item: any): string {
+  const type = (item.content_type || item.source || '').toLowerCase();
+  for (const [key, icon] of Object.entries(TYPE_ICONS)) {
+    if (type.includes(key)) return icon;
+  }
+  return TYPE_ICONS.default;
+}
 
 export default function ActivitiesPage() {
   const { data: activities, isLoading } = useActivities();
@@ -21,6 +42,7 @@ export default function ActivitiesPage() {
   const [url, setUrl] = useState('');
   const [notes, setNotes] = useState('');
   const [dragOver, setDragOver] = useState(false);
+  const [filter, setFilter] = useState('All');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async () => {
@@ -57,6 +79,12 @@ export default function ActivitiesPage() {
     [handleFileUpload]
   );
 
+  const filtered = filter === 'All'
+    ? activities
+    : activities?.filter((a) =>
+        (a.content_type || a.source || '').toLowerCase().includes(filter.toLowerCase())
+      );
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -66,35 +94,34 @@ export default function ActivitiesPage() {
   }
 
   return (
-    <div className="pt-6 flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="pt-4 flex flex-col gap-4">
+      {/* Header — matching mobile Knowledge screen */}
+      <div className="flex items-center justify-between px-1">
         <div>
-          <h1 className="font-display text-xl font-bold text-poly-text uppercase tracking-tight">
-            Learning Activities
-          </h1>
-          <p className="text-[10px] font-mono text-poly-muted uppercase tracking-widest mt-1">
-            {activities?.length || 0} entries tracked
-          </p>
+          <h1 className="text-[20px] font-bold text-poly-text tracking-tight">Knowledge</h1>
+          <p className="text-[12px] text-poly-muted mt-0.5">{activities?.length || 0} sources</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="border border-poly-border bg-poly-surface px-3 py-2 flex items-center gap-2 text-poly-muted hover:text-poly-text hover:bg-poly-accent hover:text-poly-accent-text transition-colors"
+            className="w-11 h-11 flex items-center justify-center text-poly-text transition-colors hover:text-poly-accent"
+            style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '12px' }}
           >
-            <span className="material-symbols-outlined text-[16px]">upload</span>
-            <span className="text-[10px] font-mono uppercase tracking-wider font-bold">
-              Upload
-            </span>
+            <span className="material-symbols-outlined text-[20px]">upload</span>
           </button>
+          <Link
+            href="/search"
+            className="w-11 h-11 flex items-center justify-center text-poly-text"
+            style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '12px' }}
+          >
+            <span className="material-symbols-outlined text-[20px]">search</span>
+          </Link>
           <button
             onClick={() => setShowModal(true)}
-            className="bg-poly-accent text-poly-accent-text px-3 py-2 flex items-center gap-2 transition-colors hover:opacity-80"
+            className="w-11 h-11 flex items-center justify-center bg-poly-accent"
+            style={{ borderRadius: '12px' }}
           >
-            <span className="material-symbols-outlined text-[16px]">add</span>
-            <span className="text-[10px] font-mono uppercase tracking-wider font-bold">
-              Add
-            </span>
+            <span className="material-symbols-outlined text-[20px]" style={{ color: 'var(--poly-accent-text)' }}>add</span>
           </button>
           <input
             ref={fileInputRef}
@@ -109,116 +136,104 @@ export default function ActivitiesPage() {
         </div>
       </div>
 
-      {/* Drag-and-Drop Zone */}
-      <div
-        className={`border-2 border-dashed p-6 text-center transition-colors ${
-          dragOver
-            ? 'border-poly-accent bg-poly-accent/10'
-            : 'border-poly-border-muted'
-        }`}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragOver(true);
-        }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={handleDrop}
-      >
-        <span className="material-symbols-outlined text-[24px] text-poly-dim mb-2 block">
-          upload_file
-        </span>
-        <p className="text-[10px] font-mono text-poly-dim uppercase tracking-wider">
-          Drop JSON file to import
-        </p>
-      </div>
-
-      {/* Activity List — responsive grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {activities?.map((activity) => (
-          <div
-            key={activity.id}
-            className="border border-poly-border bg-poly-surface p-4 group flex flex-col"
+      {/* Filter Chips — matching mobile horizontal scroll */}
+      <div className="flex gap-2 overflow-x-auto no-scrollbar px-1">
+        {FILTERS.map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className="px-4 py-2 text-[12px] font-semibold shrink-0 transition-colors border"
+            style={{
+              backgroundColor: filter === f ? 'var(--poly-accent)' : 'var(--poly-surface)',
+              color: filter === f ? 'var(--poly-accent-text)' : 'var(--poly-text)',
+              borderColor: 'var(--poly-border-muted)',
+              borderRadius: '10px',
+            }}
           >
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="text-sm font-display font-bold text-poly-text flex-1 mr-3 uppercase">
-                {activity.title}
-              </h3>
-              <div className="flex items-center gap-2 shrink-0">
-                {activity.category && (
-                  <span
-                    className="text-[8px] font-mono font-bold px-1.5 py-0.5 uppercase"
-                    style={{
-                      backgroundColor: getCategoryColor(activity.category),
-                      color: '#FFFFFF',
-                    }}
-                  >
-                    {activity.category}
-                  </span>
-                )}
-                <button
-                  onClick={() => deleteActivity.mutate(activity.id)}
-                  className="opacity-0 group-hover:opacity-100 text-poly-red hover:text-red-400 transition-all"
-                >
-                  <span className="material-symbols-outlined text-[16px]">
-                    delete
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            {activity.url && (
-              <a
-                href={activity.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[11px] font-mono text-poly-accent hover:underline flex items-center gap-1 mb-2"
-              >
-                <span className="material-symbols-outlined text-[14px]">
-                  open_in_new
-                </span>
-                {activity.url.length > 50
-                  ? activity.url.slice(0, 50) + '...'
-                  : activity.url}
-              </a>
-            )}
-
-            {activity.notes && (
-              <p className="text-xs text-poly-muted mb-2 line-clamp-2">
-                {activity.notes}
-              </p>
-            )}
-
-            <div className="flex items-center justify-between mt-auto pt-2">
-              <p className="text-[10px] font-mono text-poly-dim">
-                {new Date(activity.timestamp).toLocaleDateString()} &middot;{' '}
-                {activity.source}
-              </p>
-              <span className="material-symbols-outlined text-[14px] text-poly-dim">
-                chevron_right
-              </span>
-            </div>
-          </div>
+            {f}
+          </button>
         ))}
       </div>
 
-      {activities?.length === 0 && (
-        <div className="text-center py-16 border border-poly-border-muted">
-          <span className="material-symbols-outlined text-[48px] text-poly-dim mb-4 block">
-            description
-          </span>
-          <p className="text-sm font-display font-bold text-poly-muted uppercase">
-            No activities yet
-          </p>
-          <p className="text-[10px] font-mono text-poly-dim mt-2">
-            Add your first learning activity or upload a JSON file
-          </p>
+      {/* Drag-and-Drop Zone (web only) */}
+      <div
+        className={`border-2 border-dashed p-4 text-center transition-colors ${
+          dragOver ? 'border-poly-accent bg-poly-accent/10' : 'border-poly-border-muted'
+        }`}
+        style={{ borderRadius: '12px' }}
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={handleDrop}
+      >
+        <span className="material-symbols-outlined text-[20px] text-poly-muted mb-1 block">upload_file</span>
+        <p className="text-[10px] text-poly-muted uppercase tracking-wider">Drop JSON file to import</p>
+      </div>
+
+      {/* Activity List — matching mobile card style with icon */}
+      <div className="flex flex-col gap-2">
+        {filtered?.map((activity) => (
+          <Link
+            key={activity.id}
+            href={`/activity-detail?id=${activity.id}`}
+            className="flex items-center gap-3 p-3 border border-poly-border-muted transition-opacity hover:opacity-80 group"
+            style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '14px' }}
+          >
+            {/* Type icon — matching mobile itemIcon */}
+            <div
+              className="w-10 h-10 shrink-0 flex items-center justify-center"
+              style={{ backgroundColor: 'var(--poly-bg)', borderRadius: '10px' }}
+            >
+              <span className="material-symbols-outlined text-[20px] text-poly-accent">
+                {getTypeIcon(activity)}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[14px] font-semibold text-poly-text truncate">{activity.title}</p>
+              <p className="text-[11px] text-poly-muted truncate">
+                {activity.source}{activity.category ? ` · ${activity.category}` : ''}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {activity.category && (
+                <span
+                  className="text-[8px] font-bold px-1.5 py-0.5 uppercase hidden md:inline-block"
+                  style={{
+                    backgroundColor: getCategoryColor(activity.category),
+                    color: '#FFFFFF',
+                    borderRadius: '4px',
+                  }}
+                >
+                  {activity.category}
+                </span>
+              )}
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  deleteActivity.mutate(activity.id);
+                }}
+                className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-all"
+              >
+                <span className="material-symbols-outlined text-[16px]">delete</span>
+              </button>
+              <span className="material-symbols-outlined text-[20px] text-poly-muted">chevron_right</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {filtered?.length === 0 && (
+        <div className="flex flex-col items-center py-16">
+          <span className="material-symbols-outlined text-[48px] text-poly-border-muted">folder_open</span>
+          <p className="text-[14px] text-poly-muted mt-3">No sources found</p>
         </div>
       )}
 
-      {/* Add Modal */}
-      <ResponsiveModal open={showModal} onClose={() => setShowModal(false)} title="Add Activity">
+      {/* Add Modal — matching mobile bottom sheet style */}
+      <ResponsiveModal open={showModal} onClose={() => setShowModal(false)} title="Add Knowledge">
         <div className="flex flex-col gap-4">
           <div>
-            <label className="text-[10px] font-mono font-bold text-poly-muted mb-2 block uppercase tracking-widest">
+            <label className="text-[11px] uppercase tracking-[1px] text-poly-muted mb-2 block font-semibold">
               Title *
             </label>
             <input
@@ -226,12 +241,13 @@ export default function ActivitiesPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="What did you learn?"
-              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-sm text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-accent font-mono"
+              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-[15px] text-poly-text placeholder:text-poly-muted focus:outline-none focus:border-poly-accent"
+              style={{ borderRadius: '12px' }}
             />
           </div>
 
           <div>
-            <label className="text-[10px] font-mono font-bold text-poly-muted mb-2 block uppercase tracking-widest">
+            <label className="text-[11px] uppercase tracking-[1px] text-poly-muted mb-2 block font-semibold">
               URL
             </label>
             <input
@@ -239,12 +255,13 @@ export default function ActivitiesPage() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://..."
-              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-sm text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-accent font-mono"
+              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-[15px] text-poly-text placeholder:text-poly-muted focus:outline-none focus:border-poly-accent"
+              style={{ borderRadius: '12px' }}
             />
           </div>
 
           <div>
-            <label className="text-[10px] font-mono font-bold text-poly-muted mb-2 block uppercase tracking-widest">
+            <label className="text-[11px] uppercase tracking-[1px] text-poly-muted mb-2 block font-semibold">
               Notes
             </label>
             <textarea
@@ -252,16 +269,18 @@ export default function ActivitiesPage() {
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Key takeaways..."
               rows={3}
-              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-sm text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-accent resize-none font-mono"
+              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-[15px] text-poly-text placeholder:text-poly-muted focus:outline-none focus:border-poly-accent resize-none"
+              style={{ borderRadius: '12px' }}
             />
           </div>
 
           <button
             onClick={handleSubmit}
             disabled={!title.trim() || createActivity.isPending}
-            className="w-full bg-poly-accent text-poly-accent-text py-3 font-mono text-xs uppercase tracking-widest font-bold hover:opacity-80 transition-opacity disabled:opacity-50 architect-shadow-sm"
+            className="w-full bg-poly-accent py-3 text-[14px] font-bold hover:opacity-80 transition-opacity disabled:opacity-50"
+            style={{ color: 'var(--poly-accent-text)', borderRadius: '12px' }}
           >
-            {createActivity.isPending ? 'Adding...' : 'Add Activity'}
+            {createActivity.isPending ? 'Adding...' : 'Add'}
           </button>
         </div>
       </ResponsiveModal>

@@ -72,6 +72,25 @@ function createApiClient(baseUrl: string) {
       client.post('/import/restore', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       }),
+
+    // Search
+    search: (q: string, limit = 30) =>
+      client.get('/search', { params: { q, limit } }),
+
+    // Notifications
+    getNotifications: (limit = 20) =>
+      client.get('/notifications', { params: { limit } }),
+
+    // Health
+    getHealth: () => client.get('/health'),
+
+    // Single Activity
+    getActivity: (id: string) => client.get<Activity>(`/activities/${id}`),
+
+    // AI Config
+    getAiConfig: () => client.get('/ai-config'),
+    setAiConfig: (data: { provider: string; model: string; api_key: string }) =>
+      client.post('/ai-config', data),
   };
 }
 

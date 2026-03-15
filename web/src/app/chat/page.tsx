@@ -223,13 +223,13 @@ export default function ChatPage() {
         {/* Chat Header */}
         <div className="border-b border-poly-border bg-poly-bg px-5 md:px-6 py-3 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 border border-poly-accent flex items-center justify-center bg-poly-accent/10">
+            <div className="w-9 h-9 border border-poly-accent flex items-center justify-center bg-poly-accent/10" style={{ borderRadius: 12 }}>
               <span className="material-symbols-outlined text-[20px] text-poly-accent">
                 smart_toy
               </span>
             </div>
             <div>
-              <h1 className="font-display text-sm font-bold text-poly-text uppercase tracking-tight leading-none">
+              <h1 className="font-display text-sm font-bold text-poly-text tracking-tight leading-none">
                 {persona?.name || 'Polymath Agent'}
               </h1>
               <div className="flex items-center gap-1.5 mt-0.5">
@@ -271,13 +271,13 @@ export default function ChatPage() {
             <div className="h-full flex flex-col items-center justify-center max-w-3xl mx-auto">
               {/* Compact agent badge */}
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 border border-poly-accent flex items-center justify-center bg-poly-accent/10">
+                <div className="w-10 h-10 border border-poly-accent flex items-center justify-center bg-poly-accent/10" style={{ borderRadius: 12 }}>
                   <span className="material-symbols-outlined text-[20px] text-poly-accent">
                     smart_toy
                   </span>
                 </div>
                 <div>
-                  <h2 className="font-display text-sm font-bold text-poly-text uppercase tracking-tight leading-none">
+                  <h2 className="font-display text-sm font-bold text-poly-text tracking-tight leading-none">
                     {persona?.name || 'Polymath Agent'}
                   </h2>
                   <p className="text-[9px] font-mono text-poly-muted uppercase tracking-widest mt-0.5">
@@ -293,6 +293,7 @@ export default function ChatPage() {
                     onClick={() => sendMessage(prompt.text)}
                     disabled={chatWithAgent.isPending}
                     className="border border-poly-border/60 bg-poly-surface/50 p-3 flex items-start gap-2.5 hover:border-poly-accent hover:bg-poly-accent/5 transition-all text-left group disabled:opacity-50"
+                    style={{ borderRadius: 14 }}
                   >
                     <span className="material-symbols-outlined text-[14px] text-poly-accent/70 group-hover:text-poly-accent shrink-0 mt-px transition-colors">
                       {prompt.icon}
@@ -329,6 +330,7 @@ export default function ChatPage() {
                           ? 'border-poly-border bg-poly-surface'
                           : 'border-poly-accent bg-poly-accent/10'
                       }`}
+                      style={{ borderRadius: 12 }}
                     >
                       <span
                         className={`material-symbols-outlined text-[16px] ${
@@ -344,9 +346,10 @@ export default function ChatPage() {
                       <div
                         className={`border p-4 ${
                           msg.role === 'user'
-                            ? 'bg-poly-accent text-poly-accent-text border-poly-accent architect-shadow-sm'
+                            ? 'bg-poly-accent text-poly-accent-text border-poly-accent'
                             : 'bg-poly-surface text-poly-text border-poly-border'
                         }`}
+                        style={msg.role === 'user' ? { borderRadius: '16px 16px 4px 16px' } : { borderRadius: '16px 16px 16px 4px' }}
                       >
                         <p className="text-[13px] leading-[1.7] font-mono whitespace-pre-wrap">
                           {msg.content}
@@ -369,12 +372,12 @@ export default function ChatPage() {
               {chatWithAgent.isPending && (
                 <div className="flex justify-start">
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 shrink-0 border border-poly-accent bg-poly-accent/10 flex items-center justify-center mt-0.5">
+                    <div className="w-8 h-8 shrink-0 border border-poly-accent bg-poly-accent/10 flex items-center justify-center mt-0.5" style={{ borderRadius: 12 }}>
                       <span className="material-symbols-outlined text-[16px] text-poly-accent">
                         smart_toy
                       </span>
                     </div>
-                    <div className="border border-poly-border bg-poly-surface p-4">
+                    <div className="border border-poly-border bg-poly-surface p-4" style={{ borderRadius: '16px 16px 16px 4px' }}>
                       <div className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 bg-poly-accent rounded-full animate-bounce [animation-delay:0ms]" />
                         <span className="w-1.5 h-1.5 bg-poly-accent rounded-full animate-bounce [animation-delay:150ms]" />
@@ -405,6 +408,7 @@ export default function ChatPage() {
                   placeholder="Ask anything about your knowledge base..."
                   rows={1}
                   className="w-full bg-poly-surface border border-poly-border px-4 py-3.5 pr-12 text-sm text-poly-text placeholder:text-poly-dim focus:outline-none focus:border-poly-accent resize-none font-mono max-h-[160px]"
+                  style={{ borderRadius: 14 }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -416,6 +420,7 @@ export default function ChatPage() {
                   onClick={() => sendMessage()}
                   disabled={chatWithAgent.isPending || !input.trim()}
                   className="absolute right-2 bottom-2 bg-poly-accent text-poly-accent-text w-9 h-9 flex items-center justify-center hover:opacity-80 transition-opacity disabled:opacity-30 shrink-0"
+                  style={{ borderRadius: 12 }}
                 >
                   {chatWithAgent.isPending ? (
                     <span className="material-symbols-outlined text-[16px] animate-spin">
@@ -449,6 +454,7 @@ export default function ChatPage() {
           <button
             onClick={startNewChat}
             className="flex items-center gap-1 px-2 py-1 border border-poly-border hover:border-poly-accent text-poly-muted hover:text-poly-accent transition-colors"
+            style={{ borderRadius: 8 }}
           >
             <span className="material-symbols-outlined text-[14px]">add</span>
             <span className="text-[10px] font-mono uppercase tracking-wider font-bold">New</span>
@@ -526,12 +532,12 @@ export default function ChatPage() {
         {/* Stats Footer */}
         <div className="border-t border-poly-border px-5 py-3">
           <div className="grid grid-cols-2 gap-2">
-            <div className="border border-poly-border bg-poly-surface p-2.5">
-              <span className="text-[10px] font-mono text-poly-dim uppercase tracking-wider block mb-0.5">Memories</span>
+            <div className="border border-poly-border bg-poly-surface p-2.5" style={{ borderRadius: 10 }}>
+              <span className="text-[10px] text-poly-dim tracking-wider block mb-0.5">Memories</span>
               <span className="text-base font-display font-bold text-poly-text">{agentStats?.total_memories ?? '—'}</span>
             </div>
-            <div className="border border-poly-border bg-poly-surface p-2.5">
-              <span className="text-[10px] font-mono text-poly-dim uppercase tracking-wider block mb-0.5">Sessions</span>
+            <div className="border border-poly-border bg-poly-surface p-2.5" style={{ borderRadius: 10 }}>
+              <span className="text-[10px] text-poly-dim tracking-wider block mb-0.5">Sessions</span>
               <span className="text-base font-display font-bold text-poly-text">{sessions.length}</span>
             </div>
           </div>
@@ -539,7 +545,7 @@ export default function ChatPage() {
 
         {/* Agent badge */}
         <div className="border-t border-poly-border px-5 py-3 flex items-center gap-2.5">
-          <div className="w-7 h-7 border border-poly-accent flex items-center justify-center bg-poly-accent/10 shrink-0">
+          <div className="w-7 h-7 border border-poly-accent flex items-center justify-center bg-poly-accent/10 shrink-0" style={{ borderRadius: 10 }}>
             <span className="material-symbols-outlined text-[14px] text-poly-accent">smart_toy</span>
           </div>
           <div className="min-w-0">
@@ -550,7 +556,7 @@ export default function ChatPage() {
               {persona?.role || 'Learning Assistant'}
             </p>
           </div>
-          <Link href="/agent" className="ml-auto text-poly-dim hover:text-poly-accent transition-colors shrink-0" title="Agent Memory">
+          <Link href="/agent" className="ml-auto text-poly-dim hover:text-poly-accent transition-colors shrink-0" title="Agent Memory" style={{ borderRadius: 8 }}>
             <span className="material-symbols-outlined text-[16px]">open_in_new</span>
           </Link>
         </div>

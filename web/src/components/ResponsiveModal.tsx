@@ -26,14 +26,15 @@ export default function ResponsiveModal({
       onClick={onClose}
     >
       <div
-        className={`bg-poly-bg w-full ${maxWidth} border-t md:border border-poly-border p-6 max-h-[90vh] overflow-y-auto md:[box-shadow:6px_6px_0px_var(--poly-shadow)]`}
+        className={`bg-poly-bg w-full ${maxWidth} border-t md:border border-poly-border p-6 max-h-[90vh] overflow-y-auto`}
+        style={{ borderRadius: 16 }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-display text-lg font-bold text-poly-text uppercase">
+          <h2 className="font-display text-lg font-bold text-poly-text">
             {title}
           </h2>
-          <button onClick={onClose}>
+          <button onClick={onClose} style={{ borderRadius: 10, padding: 4 }}>
             <span className="material-symbols-outlined text-[24px] text-poly-muted hover:text-poly-text transition-colors">
               close
             </span>

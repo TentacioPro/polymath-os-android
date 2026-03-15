@@ -91,20 +91,20 @@ export default function ExportPage() {
   ];
 
   return (
-    <div className="pt-6 flex flex-col gap-6">
-      {/* Header */}
-      <div>
-        <h1 className="font-display text-xl font-bold text-poly-text uppercase tracking-tight">
+    <div className="pt-4 flex flex-col gap-5">
+      {/* Header — matching mobile */}
+      <div className="px-1">
+        <h1 className="text-[20px] font-bold text-poly-text tracking-tight">
           Export & Import
         </h1>
-        <p className="text-[10px] font-mono text-poly-muted uppercase tracking-widest mt-1">
-          Data // Portability
+        <p className="text-[12px] text-poly-muted mt-0.5">
+          Data portability
         </p>
       </div>
 
       {/* Export Section */}
       <div>
-        <h2 className="text-[10px] font-mono font-bold text-poly-muted uppercase tracking-widest mb-3">
+        <h2 className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-3 px-1">
           Export Data
         </h2>
 
@@ -114,22 +114,20 @@ export default function ExportPage() {
               key={card.format}
               onClick={() => handleExport(card.format)}
               disabled={loading}
-              className="w-full border border-poly-border bg-poly-surface p-4 flex items-center gap-4 md:flex-col md:items-start md:gap-3 hover:bg-poly-accent hover:text-poly-accent-text transition-colors text-left disabled:opacity-50 group"
+              className="w-full border border-poly-border-muted p-4 flex flex-col items-center gap-3 transition-opacity hover:opacity-80 text-center disabled:opacity-50"
+              style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '14px' }}
             >
-              <span className="material-symbols-outlined text-[24px] text-poly-accent group-hover:text-poly-accent-text">
+              <span className="material-symbols-outlined text-[28px] text-poly-accent">
                 {card.icon}
               </span>
-              <div className="flex-1">
-                <h3 className="text-sm font-display font-bold text-poly-text group-hover:text-poly-accent-text uppercase">
+              <div>
+                <h3 className="text-[14px] font-bold text-poly-text">
                   {card.title}
                 </h3>
-                <p className="text-[10px] font-mono text-poly-muted group-hover:text-poly-accent-text/70 mt-0.5">
+                <p className="text-[11px] text-poly-muted mt-0.5">
                   {card.description}
                 </p>
               </div>
-              <span className="material-symbols-outlined text-[20px] text-poly-dim group-hover:text-poly-accent-text">
-                download
-              </span>
             </button>
           ))}
         </div>
@@ -138,22 +136,23 @@ export default function ExportPage() {
       {/* Restore + Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <h2 className="text-[10px] font-mono font-bold text-poly-muted uppercase tracking-widest mb-3">
+          <h2 className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-3 px-1">
             Restore Data
           </h2>
 
           <button
             onClick={() => setShowImportModal(true)}
-            className="w-full h-full border-2 border-dashed border-poly-border bg-poly-surface p-6 flex flex-col items-center gap-3 hover:border-poly-accent transition-colors group"
+            className="w-full h-full border-2 border-dashed border-poly-border-muted p-6 flex flex-col items-center gap-3 hover:border-poly-accent transition-colors group"
+            style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '14px' }}
           >
             <span className="material-symbols-outlined text-[32px] text-poly-accent">
               upload_file
             </span>
             <div className="text-center">
-              <h3 className="text-sm font-display font-bold text-poly-text uppercase">
+              <h3 className="text-[14px] font-bold text-poly-text">
                 Import from JSON
               </h3>
-              <p className="text-[10px] font-mono text-poly-muted mt-1">
+              <p className="text-[11px] text-poly-muted mt-1">
                 Restore from a previously exported backup
               </p>
             </div>
@@ -161,15 +160,15 @@ export default function ExportPage() {
         </div>
 
         {/* Info Box */}
-        <div className="border border-poly-accent bg-poly-surface p-4 flex gap-3 h-fit">
+        <div className="border border-poly-accent p-4 flex gap-3 h-fit" style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '14px' }}>
         <span className="material-symbols-outlined text-[20px] text-poly-accent shrink-0 mt-0.5">
           info
         </span>
         <div>
-          <h3 className="text-[10px] font-mono font-bold text-poly-accent mb-1 uppercase tracking-widest">
+          <h3 className="text-[11px] font-bold text-poly-accent mb-1 uppercase tracking-[1px]">
             Data Portability
           </h3>
-          <p className="text-[11px] text-poly-muted leading-relaxed font-mono">
+          <p className="text-[12px] text-poly-muted leading-relaxed">
             Your data is yours. Export anytime in the format that works best for
             you. JSON exports contain all metadata and can be used to fully
             restore your knowledge base.
@@ -184,10 +183,10 @@ export default function ExportPage() {
           <span className="material-symbols-outlined text-[48px] text-poly-accent mb-4">
             warning
           </span>
-          <h3 className="text-sm font-display font-bold text-poly-text mb-2 uppercase">
+          <h3 className="text-[14px] font-bold text-poly-text mb-2">
             Warning
           </h3>
-          <p className="text-[11px] font-mono text-poly-muted text-center leading-relaxed mb-6">
+          <p className="text-[12px] text-poly-muted text-center leading-relaxed mb-6">
             Importing data will merge with your existing data. Make sure the
             file is a valid Polymath OS JSON export.
           </p>
@@ -195,7 +194,8 @@ export default function ExportPage() {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={loading}
-            className="w-full bg-poly-accent text-poly-accent-text py-3 flex items-center justify-center gap-2 font-mono text-xs uppercase tracking-widest font-bold hover:opacity-80 transition-opacity disabled:opacity-50 architect-shadow-sm"
+            className="w-full bg-poly-accent py-3 flex items-center justify-center gap-2 text-[14px] font-bold hover:opacity-80 transition-opacity disabled:opacity-50"
+            style={{ color: 'var(--poly-accent-text)', borderRadius: '14px' }}
           >
             {loading ? (
               <span className="material-symbols-outlined text-[20px] animate-spin">

@@ -7,19 +7,26 @@ import { useTheme } from '@/hooks/useTheme';
 import { THEMES } from '@/lib/theme';
 
 const NAV_LINKS = [
-  { href: '/', icon: 'dashboard', label: 'Dashboard' },
-  { href: '/activities', icon: 'list', label: 'Activities' },
-  { href: '/journal', icon: 'menu_book', label: 'Journal' },
+  { href: '/', icon: 'home', label: 'Dashboard' },
+  { href: '/activities', icon: 'folder_open', label: 'Knowledge' },
   { href: '/connections', icon: 'hub', label: 'Neural Mesh' },
-  { href: '/agent', icon: 'memory', label: 'Agent Memory' },
-  { href: '/chat', icon: 'chat', label: 'Chat' },
-  { href: '/export', icon: 'download', label: 'Export & Import' },
+  { href: '/journal', icon: 'edit_note', label: 'Journal' },
+  { href: '/chat', icon: 'chat_bubble_outline', label: 'Chat' },
+];
+
+const TOOL_LINKS = [
+  { href: '/search', icon: 'search', label: 'Search' },
+  { href: '/analytics', icon: 'bar_chart', label: 'Analytics' },
+  { href: '/integrations', icon: 'extension', label: 'Integrations' },
+  { href: '/export', icon: 'file_download', label: 'Export' },
+  { href: '/customize', icon: 'tune', label: 'Customize' },
+  { href: '/profile', icon: 'settings', label: 'Settings' },
 ];
 
 export default function Drawer() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, cycleTheme } = useTheme();
 
   // Listen for toggle event from header
   useEffect(() => {
@@ -35,124 +42,100 @@ export default function Drawer() {
 
   if (!open) return null;
 
+  const currentTheme = THEMES.find((t) => t.id === theme);
+
   return (
     <div className="fixed inset-0 z-[60] md:hidden" onClick={() => setOpen(false)}>
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-[var(--poly-overlay)] backdrop-blur-sm" />
+      {/* Overlay — matching mobile 60% opacity */}
+      <div className="absolute inset-0 bg-black/60" />
 
-      {/* Drawer panel */}
+      {/* Drawer panel — matching mobile dark bg #0A0A0A */}
       <aside
-        className="absolute top-0 left-0 w-[85%] max-w-sm min-h-screen bg-poly-bg border-r border-poly-border flex flex-col"
+        className="absolute top-0 left-0 w-[78%] max-w-[300px] min-h-screen flex flex-col"
+        style={{ backgroundColor: '#0A0A0A' }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="p-6 border-b border-poly-border flex justify-between items-center">
-          <div>
-            <h1 className="font-display text-xl font-bold text-poly-text uppercase tracking-tight">
-              Polymath OS
-            </h1>
-            <p className="text-[10px] font-mono text-poly-muted uppercase tracking-widest mt-1">
-              System // Navigation
-            </p>
+        {/* Header — matches mobile AppDrawer */}
+        <div className="px-4 pt-[env(safe-area-inset-top,16px)] pb-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-poly-accent flex items-center justify-center" style={{ borderRadius: '10px' }}>
+              <span className="material-symbols-outlined text-[18px]" style={{ color: '#000' }}>auto_awesome</span>
+            </div>
+            <div>
+              <h1 className="text-[15px] font-bold text-white tracking-tight">
+                PolymathOS
+              </h1>
+              <p className="text-[11px] text-[#888888] mt-0.5">
+                Knowledge base
+              </p>
+            </div>
           </div>
           <button
             onClick={() => setOpen(false)}
-            className="w-8 h-8 flex items-center justify-center border border-poly-border hover:bg-poly-accent hover:text-poly-accent-text transition-colors text-poly-text"
+            className="w-9 h-9 flex items-center justify-center text-white"
+            style={{ backgroundColor: '#161616', borderRadius: '10px' }}
           >
-            <span className="material-symbols-outlined text-lg">close</span>
+            <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
         </div>
 
-        {/* Quick Actions */}
-        <div className="p-4 border-b border-poly-border-muted">
-          <div className="grid grid-cols-2 gap-2">
-            <Link
-              href="/activities"
-              className="border border-poly-border p-3 flex flex-col items-center gap-1.5 hover:bg-poly-accent hover:text-poly-accent-text transition-colors text-poly-text"
-            >
-              <span className="material-symbols-outlined text-[20px]">add</span>
-              <span className="text-[10px] font-mono uppercase tracking-wider">
-                New Entry
-              </span>
-            </Link>
-            <Link
-              href="/chat"
-              className="border border-poly-border p-3 flex flex-col items-center gap-1.5 hover:bg-poly-accent hover:text-poly-accent-text transition-colors text-poly-text"
-            >
-              <span className="material-symbols-outlined text-[20px]">
-                chat
-              </span>
-              <span className="text-[10px] font-mono uppercase tracking-wider">
-                Agent Chat
-              </span>
-            </Link>
+        {/* Navigation — matching mobile style */}
+        <nav className="flex-1 px-4 py-2 overflow-y-auto no-scrollbar">
+          {/* Main Nav */}
+          <div className="space-y-2">
+            {NAV_LINKS.map((item) => {
+              const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-3 px-3 py-3 transition-colors text-white"
+                  style={{ backgroundColor: '#161616', borderRadius: '12px' }}
+                >
+                  <span className="material-symbols-outlined text-[20px] text-[#888888]">{item.icon}</span>
+                  <span className="flex-1 text-[14px] font-medium">{item.label}</span>
+                  <span className="material-symbols-outlined text-[18px] text-[#888888]">chevron_right</span>
+                </Link>
+              );
+            })}
           </div>
-        </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 py-4 px-3 space-y-0.5 overflow-y-auto no-scrollbar">
-          <p className="text-[9px] font-mono uppercase tracking-widest text-poly-dim px-3 mb-2">
-            Navigation
+          {/* Tools Section */}
+          <p className="text-[10px] font-semibold tracking-[2px] text-[#888888] mt-5 mb-2 ml-2 uppercase">
+            TOOLS
           </p>
-          {NAV_LINKS.map((item) => {
-            const isActive =
-              item.href === '/'
-                ? pathname === '/'
-                : pathname.startsWith(item.href);
-            return (
+          <div className="space-y-2">
+            {TOOL_LINKS.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-colors ${
-                  isActive
-                    ? 'border-l-2 border-l-poly-accent bg-poly-border-muted/30 text-poly-text font-bold'
-                    : 'border-l-2 border-l-transparent text-poly-muted hover:text-poly-text hover:bg-poly-border-muted/20'
-                }`}
+                className="flex items-center gap-3 px-3 py-3 transition-colors text-white"
+                style={{ backgroundColor: '#161616', borderRadius: '12px' }}
               >
-                <span className="material-symbols-outlined text-[20px]">
-                  {item.icon}
-                </span>
-                {item.label}
+                <span className="material-symbols-outlined text-[20px] text-[#888888]">{item.icon}</span>
+                <span className="flex-1 text-[14px] font-medium">{item.label}</span>
+                <span className="material-symbols-outlined text-[18px] text-[#888888]">chevron_right</span>
               </Link>
-            );
-          })}
-        </nav>
-
-        {/* Theme Switcher */}
-        <div className="p-4 border-t border-poly-border">
-          <p className="text-[9px] font-mono uppercase tracking-widest text-poly-dim mb-3">
-            Theme
-          </p>
-          <div className="flex gap-2">
-            {THEMES.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTheme(t.id)}
-                className={`flex-1 border p-2 text-center transition-colors ${
-                  theme === t.id
-                    ? 'border-poly-accent bg-poly-accent text-poly-accent-text'
-                    : 'border-poly-border text-poly-muted hover:text-poly-text'
-                }`}
-              >
-                <span className="text-[10px] font-mono uppercase tracking-wider font-bold">
-                  {t.label}
-                </span>
-              </button>
             ))}
           </div>
-        </div>
+        </nav>
 
-        {/* Footer */}
-        <div className="p-4 border-t border-poly-border-muted flex justify-between items-center">
-          <span className="text-[9px] font-mono text-poly-dim uppercase tracking-widest">
-            Current: {THEMES.find((t) => t.id === theme)?.label}
-          </span>
-          <Link
-            href="/export"
-            className="text-[9px] font-mono text-poly-muted hover:text-poly-text uppercase tracking-widest"
+        {/* Footer — Theme Toggle (matching mobile) */}
+        <div className="px-4 py-3">
+          <button
+            onClick={cycleTheme}
+            className="flex items-center gap-3 w-full px-3 py-3 transition-colors text-white"
+            style={{ backgroundColor: '#161616', borderRadius: '12px' }}
           >
-            Settings
-          </Link>
+            <span className="material-symbols-outlined text-[20px] text-poly-accent">palette</span>
+            <div className="flex-1 text-left">
+              <span className="block text-[13px] font-semibold text-white">Theme</span>
+              <span className="block text-[10px] font-bold tracking-[1px] text-poly-accent uppercase mt-0.5">
+                {currentTheme?.label}
+              </span>
+            </div>
+            <span className="material-symbols-outlined text-[18px] text-[#888888]">sync</span>
+          </button>
         </div>
       </aside>
     </div>
