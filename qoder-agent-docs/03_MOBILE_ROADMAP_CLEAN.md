@@ -1,6 +1,6 @@
 # Clean Mobile Roadmap (Qoder Execution)
 
-Date: 2026-03-21
+Date: 2026-03-21 (updated — V4 complete)
 
 ## Phase M0 — Stub Completion (✅ COMPLETE)
 
@@ -90,3 +90,24 @@ Tasks:
 - Agent M-B: Device matrix QA + safe-area/keyboard edge cases
 - Agent M-C: EAS build verification (preview + production profiles)
 - Agent M-D: Crash-free/session KPI tracking (Sentry release tags)
+
+---
+
+## Phase M5 — V4 UI Revamp (✅ COMPLETE — feat/ui-revamp-v4)
+
+Goal: Kole Jain Design System × Material You M3 compliance across all mobile screens.
+
+9 phases (all DONE):
+1. ✅ Token precision audit — verified M3 tokens against design-tokens.ts (7a22a15)
+2. ✅ Spacing + icon audit — 8pt grid enforced, Ionicons → semantic naming audit (cfe6164)
+3. ✅ M3 8-state component matrix — all M3 components cover default/focused/hovered/pressed/error/disabled/loading/empty (7909e53)
+4. ✅ Optimistic UI — all mutations (add/delete) use optimistic list updates with rollback (45112aa)
+5. ✅ Animation performance audit — Reanimated useSharedValue, removed JS-thread animations (8adc49c)
+6. ✅ Empty states — all data screens wired to EmptyState component (11ef783)
+7. ✅ Interruption routing — Popover.tsx (long-press → rename/delete), M3BottomSheet rename flow, optimistic rename with rollback (76f972b)
+8. ✅ Bento dashboard — F-pattern reorder: hero → stat rings → 2-col bento (streak + quick capture) → activity feed → mesh → top domains (861a3cf)
+
+New components/hooks added:
+- `frontend/components/ui/Popover.tsx` — RN Modal-based contextual menu
+- EmptyState `empty-export` variant
+- Dashboard streak computation (useMemo over activities)

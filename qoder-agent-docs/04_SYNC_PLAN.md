@@ -65,3 +65,8 @@ Required rows:
 3. ~~Mobile quick capture stubs~~ **DONE (2026-03-15)** - File/Scan implemented, Voice permission-ready
 4. ~~Mobile Sentry runtime not fully integrated~~ **DONE (2026-03-15)**
 5. ~~No shared product analytics taxonomy~~ **DONE (2026-03-15)** - Event taxonomy defined, tracking utilities created
+6. ~~Empty states inconsistent / missing on data screens~~ **DONE (2026-03-21)** - All 6 web + all mobile data screens wired to EmptyState component
+7. ~~No activity rename UX on either platform~~ **DONE (2026-03-21)** - Web: three-dot Popover + inline rename; Mobile: long-press Popover + bottom sheet rename
+8. ~~Dashboard layout not following F-pattern~~ **DONE (2026-03-21)** - Mobile bento F-pattern (streak + quick-capture row); Web 12-col bento grid
+9. ~~No Popover / non-blocking contextual menu component~~ **DONE (2026-03-21)** - `Popover.tsx` added for both web and mobile
+10. ~~No optimistic UI for rename mutations~~ **DONE (2026-03-21)** - useUpdateActivity hook with optimistic update + rollback on both platforms

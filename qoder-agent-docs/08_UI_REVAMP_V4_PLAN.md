@@ -393,5 +393,5 @@ Phase 8  [Day 11]     Bento dashboard revamp (mobile + web)
 | 4 — Container Queries | DONE | da686eb |
 | 5 — Animation Audit | DONE | 8adc49c |
 | 6 — Empty States | DONE | 11ef783 |
-| 7 — Interruption Routing | DONE | — |
-| 8 — Bento Dashboard | PARTIAL (web ✓ da686eb, mobile pending) | — |
+| 7 — Interruption Routing | DONE | 76f972b |
+| 8 — Bento Dashboard | DONE (web ✓ da686eb, mobile ✓ 861a3cf) | 861a3cf |

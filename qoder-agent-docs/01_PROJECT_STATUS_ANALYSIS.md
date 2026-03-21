@@ -1,13 +1,13 @@
 # Project Status Analysis (Web + Mobile + Backend)
 
-Date: 2026-03-21 (updated)
+Date: 2026-03-21 (updated — V4 revamp complete)
 
 ## 1) What is working (verified in code)
 
 ### Backend (FastAPI)
 Working endpoint groups:
 - Health/system: `/api/health`, `/api/`
-- Activities: create/manual, upload, list, detail, delete
+- Activities: create/manual, upload, list, detail, delete, update/rename (`PATCH /activities/{id}`)
 - Search + notifications: `/api/search`, `/api/notifications`
 - Journals: create/list/update/delete
 - Connections/AI: analyze, generate-connections, suggestions, list connections
@@ -25,6 +25,7 @@ Working capabilities in mobile code:
 - Real API wiring for dashboard, activities CRUD, journal CRUD, connections + suggestions, chat, export/import, analytics, alerts, profile, search, activity detail, integrations/ai-config, agent learn/consolidate/stats/memory read
 - Theme/appearance system with 7 themes
 - Customization state and drawer/nav patterns
+- **V4 UI Revamp complete (feat/ui-revamp-v4)**: 9 phases — token audit, spacing/icon audit, full 8-state M3 component matrix, optimistic UI mutations, animation audit, empty states on all screens, Popover interruption routing (rename + delete via long-press), bento dashboard (F-pattern: hero → stat rings → streak/quick-capture row → activity feed → mesh)
 
 ### Web app (Next.js)
 Present routes/pages:
@@ -35,6 +36,7 @@ Working capabilities in web code:
 - Theme system now supports 7 themes (class-based)
 - Sidebar + drawer + bottom nav wired to expanded route map
 - Sentry-enabled global error path and optional build integration
+- **V4 UI Revamp complete (feat/ui-revamp-v4)**: 9 phases — token audit, spacing/icon audit, M3 state matrix, optimistic UI (useOptimisticList + useUpdateActivity), container queries, animation audit, EmptyState on all 6 data screens, Popover three-dot menu with inline rename, bento web dashboard
 
 ---
 
@@ -101,14 +103,18 @@ Working capabilities in web code:
 Because roadmap docs are from multiple phases/timestamps, practical current status is:
 
 ### Mobile status (real code)
-- Core app feature set: **M1 complete — Material You M3 revamp done** (`feat/ui-revamp-v3`)
+- Core app feature set: **M1 + V4 revamp complete** (`feat/ui-revamp-v4`)
 - Full M3 component library (16 components), capture components (VoiceRecorder/ScanOverlay/FileUpload/LinkPreview), navigation overhaul (CollapsibleHeader + FAB tabs)
+- **V4 complete (9 phases)**: token precision, 8pt grid spacing, M3 8-state matrix, optimistic UI, animation audit, empty states (all screens), Popover + rename UX, bento dashboard (F-pattern)
+- New components: Popover.tsx (mobile + web), EmptyState `empty-export` variant
 - Jest suite expanded: **303 tests across 9 suites**
 - Remaining: wire VoiceRecorder to expo-audio AudioModule, device QA matrix, EAS build verification
 
 ### Web status (real code)
-- Core app feature set: **M3 revamp complete** (`feat/ui-revamp-v3`)
+- Core app feature set: **M3 + V4 revamp complete** (`feat/ui-revamp-v4`)
 - Full M3 component library (14 components + M3Avatar/M3Select), auth pages (login/register + useAuth hook), all 15 routes revamped
+- **V4 complete (9 phases)**: container queries throughout, EmptyState on all 6 data screens, Popover with three-dot rename/delete on activities, inline rename form, bento dashboard (12-col web)
+- New: `Popover.tsx` + `PopoverItem`, `useUpdateActivity` hook, `updateActivity` API client, `PATCH /activities/:id` backend endpoint
 - New Playwright test suites: m3-web-components + navigation
 - Backend `/api/metadata/extract` endpoint added for link preview feature
 
@@ -147,13 +153,14 @@ Why medium:
 
 ## 8) UI/UX similarity perfection (mobile vs web)
 
-Estimated parity score (as of 2026-03-21): **~93/100**
+Estimated parity score (as of 2026-03-21): **~97/100**
 
 Strong alignment:
 - Shared M3 design token system (`shared/design-tokens.ts`)
 - Matching M3 component libraries on both platforms
 - Navigation architecture patterns aligned
 - All 15 routes present on both platforms
+- V4 revamp complete on both: empty states, Popover, rename UX, bento dashboard, optimistic UI
 
 Remaining mismatch areas:
 - VoiceRecorder: UI present on both, audio API wiring pending on mobile
@@ -208,9 +215,9 @@ Remaining optional hardening:
 ---
 
 ## Executive summary
-- Backend is feature-rich, security-hardened, and now includes `/api/metadata/extract` for link preview support.
-- Mobile: **M1 + M3 + M4 complete** — full Material You M3 revamp (feat/ui-revamp-v3), 303 Jest tests, CollapsibleHeader + FAB navigation, 16 M3 components + 4 capture components.
-- Web: **M3 revamp complete** — matching M3 component library, auth pages (login/register), all 15 routes updated, new Playwright test suites.
+- Backend is feature-rich, security-hardened, now includes `PATCH /activities/{id}` (rename) + `/api/metadata/extract` (link preview).
+- Mobile: **M1 + V4 complete** (`feat/ui-revamp-v4`) — full Material You M3 revamp, 303 Jest tests, V4 9-phase Kole Jain revamp (empty states, Popover rename UX, bento F-pattern dashboard, full optimistic UI).
+- Web: **M3 + V4 complete** (`feat/ui-revamp-v4`) — matching M3 component library, auth pages, all 15 routes, V4 9-phase revamp (container queries, EmptyState all screens, Popover three-dot menu, inline rename, bento dashboard).
 - Shared design token system established (`shared/design-tokens.ts`).
-- UI/UX parity score: **~93/100** (up from 82/100).
-- Next milestone: **wire VoiceRecorder audio API → merge feat/ui-revamp-v3 to main → M2 device QA + production deployment validation**.
+- UI/UX parity score: **~97/100** (up from 93/100).
+- Next milestone: **wire VoiceRecorder audio API → merge feat/ui-revamp-v4 to main → M2 device QA + production deployment validation**.
