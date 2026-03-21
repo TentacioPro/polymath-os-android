@@ -95,22 +95,8 @@ export default function Dashboard() {
     loadData().finally(() => setRefreshing(false));
   }, []);
 
-  if (loading) {
-    return (
-      <View style={[styles.loading, { backgroundColor: theme.surface }]}>
-        <M3Progress variant="circular" size="large" />
-      </View>
-    );
-  }
-
-  const totalActivities = stats?.total_activities || 0;
-  const totalJournals = stats?.total_journals || 0;
-  const totalConnections = stats?.total_connections || 0;
-  const categories = stats?.categories || {};
-  const topCategories = Object.entries(categories).slice(0, 4);
-  const maxCat = Math.max(...Object.values(categories).map((v: any) => Number(v) || 1), 1);
-
   // Compute consecutive day streak from loaded activities
+  // Must be declared before any early returns to satisfy Rules of Hooks
   const streak = useMemo(() => {
     if (!activities.length) return 0;
     const uniqueDates = [...new Set(
@@ -128,6 +114,21 @@ export default function Dashboard() {
     }
     return count;
   }, [activities]);
+
+  if (loading) {
+    return (
+      <View style={[styles.loading, { backgroundColor: theme.surface }]}>
+        <M3Progress variant="circular" size="large" />
+      </View>
+    );
+  }
+
+  const totalActivities = stats?.total_activities || 0;
+  const totalJournals = stats?.total_journals || 0;
+  const totalConnections = stats?.total_connections || 0;
+  const categories = stats?.categories || {};
+  const topCategories = Object.entries(categories).slice(0, 4);
+  const maxCat = Math.max(...Object.values(categories).map((v: any) => Number(v) || 1), 1);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.surface }]}>

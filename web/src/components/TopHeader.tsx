@@ -49,13 +49,15 @@ export default function TopHeader() {
         <div className="flex items-center gap-3">
           {/* Hamburger */}
           <button
+            aria-label="Open navigation menu"
+            aria-haspopup="true"
             className="flex items-center justify-center w-10 h-10 rounded-xl bg-m3-surface-container hover:bg-m3-surface-container-high transition-standard text-m3-on-surface"
             onClick={() => {
               const event = new CustomEvent('toggle-drawer');
               window.dispatchEvent(event);
             }}
           >
-            <span className="material-symbols-outlined text-[20px]">menu</span>
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">menu</span>
           </button>
           <span className="text-[14px] font-semibold text-m3-on-surface tracking-tight">
             {title}

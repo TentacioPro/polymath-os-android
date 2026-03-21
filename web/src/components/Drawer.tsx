@@ -98,9 +98,10 @@ export default function Drawer() {
           </div>
           <button
             onClick={() => setOpen(false)}
+            aria-label="Close navigation drawer"
             className="w-10 h-10 rounded-xl flex items-center justify-center bg-m3-surface-container-high hover:bg-m3-surface-container-highest transition-standard text-m3-on-surface"
           >
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
           </button>
         </div>
 

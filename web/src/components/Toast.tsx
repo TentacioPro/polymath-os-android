@@ -119,10 +119,11 @@ function ToastItem({
       {/* Dismiss */}
       <button
         onClick={handleDismiss}
+        aria-label="Dismiss notification"
         className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center
                    hover:bg-m3-surface-container-high transition-standard"
       >
-        <span className="material-symbols-outlined text-[18px] text-m3-on-surface-variant">
+        <span className="material-symbols-outlined text-[18px] text-m3-on-surface-variant" aria-hidden="true">
           close
         </span>
       </button>

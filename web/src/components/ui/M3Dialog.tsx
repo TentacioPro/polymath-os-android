@@ -44,11 +44,16 @@ export function M3Dialog({
   if (!visible) return null;
 
   return (
-    <div className="m3-dialog-wrapper">
-      <div className="m3-dialog-scrim" onClick={onClose} />
+    <div
+      className="m3-dialog-wrapper"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={title ? 'm3-dialog-title' : undefined}
+    >
+      <div className="m3-dialog-scrim glass-overlay" onClick={onClose} aria-hidden="true" />
       <div className="m3-dialog-content">
         {icon && <div className="m3-dialog-icon">{icon}</div>}
-        {title && <h2 className="m3-dialog-title">{title}</h2>}
+        {title && <h2 id="m3-dialog-title" className="m3-dialog-title">{title}</h2>}
         {body && <p className="m3-dialog-body">{body}</p>}
         {actions.length > 0 && (
           <div className="m3-dialog-actions">
@@ -77,8 +82,6 @@ export function M3Dialog({
         .m3-dialog-scrim {
           position: absolute;
           inset: 0;
-          background-color: var(--m3-surface-dim);
-          opacity: 0.6;
           animation: scrim-fade-in 200ms cubic-bezier(0.2, 0, 0, 1) forwards;
         }
         @keyframes scrim-fade-in {

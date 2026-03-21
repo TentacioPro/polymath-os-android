@@ -57,9 +57,9 @@ export default function AppSidebar() {
         {!collapsed && (
           <span className="truncate text-[13px] tracking-tight">{item.label}</span>
         )}
-        {/* Collapsed tooltip */}
+        {/* Collapsed tooltip — 300ms hover delay (Kole Jain Phase 4.4) */}
         {collapsed && (
-          <span className="absolute left-full ml-3 px-3 py-1.5 bg-m3-inverse-surface text-m3-inverse-on-surface text-[11px] font-medium rounded-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-standard z-60 elevation-3">
+          <span className="tooltip-delayed absolute left-full ml-3 px-3 py-1.5 bg-m3-inverse-surface text-m3-inverse-on-surface text-[11px] font-medium rounded-lg whitespace-nowrap z-60 elevation-3 theme-nova:elevation-transient">
             {item.label}
           </span>
         )}

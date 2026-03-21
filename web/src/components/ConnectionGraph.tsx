@@ -228,9 +228,10 @@ export default function ConnectionGraph({ connections, activities, onNodeClick }
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
                 className="absolute right-2 top-1/2 -translate-y-1/2"
               >
-                <span className="material-symbols-outlined text-[16px] text-m3-on-surface-variant">close</span>
+                <span className="material-symbols-outlined text-[16px] text-m3-on-surface-variant" aria-hidden="true">close</span>
               </button>
             )}
           </div>
@@ -250,10 +251,11 @@ export default function ConnectionGraph({ connections, activities, onNodeClick }
             <button
               key={ctrl.icon}
               onClick={ctrl.action}
+              aria-label={ctrl.label}
               title={ctrl.label}
               className="w-9 h-9 flex items-center justify-center rounded-xl bg-m3-surface-container/90 backdrop-blur border border-m3-outline-variant hover:bg-m3-surface-container-high transition-standard"
             >
-              <span className="material-symbols-outlined text-[18px] text-m3-on-surface">{ctrl.icon}</span>
+              <span className="material-symbols-outlined text-[18px] text-m3-on-surface" aria-hidden="true">{ctrl.icon}</span>
             </button>
           ))}
         </div>
@@ -304,9 +306,10 @@ export default function ConnectionGraph({ connections, activities, onNodeClick }
             </div>
             <button
               onClick={() => setSelectedNode(null)}
+              aria-label="Close node details"
               className="text-m3-on-surface-variant hover:text-m3-on-surface transition-standard"
             >
-              <span className="material-symbols-outlined text-[18px]">close</span>
+              <span className="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
             </button>
           </div>
 

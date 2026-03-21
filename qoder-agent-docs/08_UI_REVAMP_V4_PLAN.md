@@ -361,7 +361,98 @@ Phase 5  [Day 8]      Animation performance audit
 Phase 6  [Days 9-10]  Empty state completeness
 Phase 7  [Day 10]     Cognitive interruption routing + Popover component
 Phase 8  [Day 11]     Bento dashboard revamp (mobile + web)
+Phase 9  [Day 12]     Kole Jain completeness audit — 12 gaps closed
 ```
+
+---
+
+## Phase 9: Kole Jain Completeness Audit
+
+**Goal**: Close all 12 gaps identified in the March 21 Kole Jain deep-research vs V4 plan audit.
+**Source**: `design/Kole Jain - March 21 Design deepresearch/KOLE JAIN Agent Skills JSON MARCH 21.txt`
+
+### Gap 1 — Prose Line Length Cap (Phase 2 of KJ)
+**File**: `web/src/app/globals.css`
+- Added `.prose-line-cap { max-width: 72ch }` and `.prose-line-cap-tight { max-width: 60ch }`
+- Apply to flowing text containers (descriptions, journal entries, agent summaries)
+
+### Gap 2 — Display Text Kerning (Phase 2 of KJ)
+**File**: `web/src/app/globals.css`
+- Added `.display-kerning { letter-spacing: -0.025em }` (−2.5%)
+- Added `.display-kerning-tight { letter-spacing: -0.030em }` (−3.0%)
+- Applies ONLY to display-scale text; body/label tracking remains positive
+- `m3Typography.display*` in `shared/design-tokens.ts` already had `letterSpacing: -0.50` to `-1.00px` (RN px values)
+
+### Gap 3 — Light Mode Depth / Nova Shadows (Phase 3 of KJ)
+**Files**: `web/src/app/globals.css`, `shared/design-tokens.ts`
+- Replaced all dark elevation classes with `box-shadow: none` (HSL-encoded via surface tinting)
+- Nova `.theme-nova .elevation-1..5` get feather-weight shadows ≤8% opacity, max blur radius
+- `.theme-nova .elevation-transient` for popovers/dropdowns (slightly more pronounced)
+- Added `m3ElevationLight` const in `shared/design-tokens.ts` for mobile Nova theme
+
+### Gap 4 — Glassmorphism System (Phase 3.4 of KJ)
+**Files**: `web/src/app/globals.css`, `web/src/components/ui/M3Dialog.tsx`, `web/src/components/ConfirmDialog.tsx`, `web/src/components/ResponsiveModal.tsx`
+- Added `.glass-overlay` (backdrop-filter blur 12px + saturate 160%)
+- Added `.glass-surface` (blur 16px + saturate 180% + 1px inset white border)
+- Nova variant `.theme-nova .glass-surface` for light mode
+- `@supports` fallback: solid `surfaceContainerHighest` when `backdrop-filter` unavailable
+- Wired into M3Dialog scrim, ConfirmDialog scrim, ResponsiveModal overlay
+
+### Gap 5 — 3 Container Query Variants per Component (Phase 1.3 of KJ)
+**File**: `web/src/app/globals.css`
+- Added `@container (max-width: 300px)` — Compact: `.cq-compact-hide`, `.cq-compact-stack`, `.cq-compact-text`, `.cq-compact-pad`
+- Added `@container (max-width: 600px)` — Medium: `.cq-medium-stack`, `.cq-medium-compress`, `.cq-medium-hide`
+- Added `@container (min-width: 601px)` — Expanded: `.cq-expanded-show`, `.cq-expanded-inline`, `.cq-expanded-grid`
+- All require parent with `.cq-root` (already defined: `container-type: inline-size`)
+
+### Gap 6 — aria-label / accessibilityLabel on Icon-Only Buttons (Phase 5 of KJ)
+**Files**: `TopHeader.tsx`, `Drawer.tsx`, `Toast.tsx`, `ConnectionGraph.tsx`, `ResponsiveModal.tsx`
+- Hamburger: `aria-label="Open navigation menu"` + `aria-haspopup="true"`
+- Drawer close: `aria-label="Close navigation drawer"`
+- Toast dismiss: `aria-label="Dismiss notification"`
+- Graph search clear: `aria-label="Clear search"`
+- Graph controls: `aria-label={ctrl.label}` (Zoom in/out, Reset, Fullscreen)
+- Graph panel close: `aria-label="Close node details"`
+- All material-symbol icons: `aria-hidden="true"` added throughout
+
+### Gap 7 — Keyboard Tab-Index & ARIA Dialog Roles (Phase 5 of KJ)
+**Files**: `web/src/components/ui/M3Dialog.tsx`, `web/src/components/ConfirmDialog.tsx`, `web/src/components/ResponsiveModal.tsx`
+- M3Dialog: `role="dialog"`, `aria-modal="true"`, `aria-labelledby="m3-dialog-title"`, scrim `aria-hidden="true"`
+- ConfirmDialog: `role="dialog"`, `aria-modal="true"`, `aria-labelledby="confirm-dialog-title"`, `id` on title `h2`, scrim `aria-hidden="true"`, `onClick` stop-propagation on panel
+- ResponsiveModal: `role="dialog"`, `aria-modal="true"`, `aria-labelledby="responsive-modal-title"`, `id` on title `h2`, overlay `aria-hidden="true"`
+
+### Gap 8 — 300ms Hover Tooltip Delay (Phase 4.4 of KJ)
+**Files**: `web/src/app/globals.css`, `web/src/components/AppSidebar.tsx`
+- Added `.tooltip-delayed` CSS class: `opacity: 0`, `transition-delay: 0ms` base; `transition-delay: 300ms` on `.group:hover`
+- Instant hide (delay-0), 300ms delay before show — prevents accidental rapid-fire triggers
+- AppSidebar collapsed tooltip updated to use `.tooltip-delayed`
+
+### Gap 9 — Cubic-Bezier Exact Values (Phase 4.4 of KJ)
+**File**: `web/src/app/globals.css` (`:root` block)
+- Added `--m3-ease-standard: cubic-bezier(0.2, 0, 0, 1)`
+- Added `--m3-ease-decel: cubic-bezier(0.05, 0.7, 0.1, 1)` (ease-out, entering)
+- Added `--m3-ease-accel: cubic-bezier(0.3, 0, 0.8, 0.15)` (ease-in, exiting)
+- Added `--m3-duration-micro: 150ms`, `--m3-duration-transition: 250ms`, `--m3-duration-standard: 300ms`
+- Added `.transition-micro`, `.transition-enter`, `.transition-exit` utility classes
+
+### Gap 10 — Triadic Color Harmony + Accent Desaturation Docs (Phase 3 of KJ)
+**File**: `shared/design-tokens.ts`
+- Added full triadic color harmony documentation comment (H → H+120° → H+240°)
+- Documented dark mode accent desaturation rule (15-20% saturation reduction)
+- Listed current theme hue anchors (void: 0°, amber: 42°, ocean: 211°, forest: 161°, sunset: 24°, midnight: 276°)
+
+### Gap 11 — Token-to-Component Traceability Matrix (Phase 6 of KJ)
+**File**: `shared/design-tokens.ts`
+- Added comprehensive `Token → Component Traceability Matrix` comment block
+- Covers: Primary, Surface (elevation ladder), Text/Icon, Boundary, Status, Inverse, Category groups
+- Maps every M3Palette token to consuming components with context
+
+### Gap 12 — backdrop-filter Viewport Cap <50% Enforcement (Phase 5.2 of KJ)
+**File**: `web/src/app/globals.css`
+- Added `@supports not (backdrop-filter: blur(1px))` fallback block
+- Added engineering comments documenting the 50% viewport rule
+- `.glass-overlay` and `.glass-surface` are mutually exclusive per z-index stacking context
+- `--m3-ease-standard` CSS var added so timing can be tuned centrally
 
 ---
 
@@ -395,3 +486,4 @@ Phase 8  [Day 11]     Bento dashboard revamp (mobile + web)
 | 6 — Empty States | DONE | 11ef783 |
 | 7 — Interruption Routing | DONE | 76f972b |
 | 8 — Bento Dashboard | DONE (web ✓ da686eb, mobile ✓ 861a3cf) | 861a3cf |
+| 9 — KJ Completeness Audit | DONE (12/12 gaps closed) | TBD |

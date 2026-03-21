@@ -79,15 +79,19 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
         <div
           ref={scrimRef}
           className={`fixed inset-0 z-9998 flex items-center justify-center p-4
-                      transition-standard
+                      glass-overlay transition-standard
                       ${visible ? 'opacity-100' : 'opacity-0'}`}
-          style={{ backgroundColor: 'var(--m3-scrim)' }}
           onClick={(e) => e.target === scrimRef.current && handleResult(false)}
+          aria-hidden="true"
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="confirm-dialog-title"
             className={`bg-m3-surface-container-highest rounded-3xl w-full max-w-95
                         elevation-3 transition-standard
                         ${visible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Icon */}
             {state.icon && (
@@ -110,6 +114,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
 
             {/* Title */}
             <h2
+              id="confirm-dialog-title"
               className={`text-m3-on-surface text-lg font-medium text-center px-6 ${
                 state.icon ? 'pt-4' : 'pt-6'
               }`}

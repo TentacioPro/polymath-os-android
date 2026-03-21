@@ -132,15 +132,34 @@ export const m3Radii = {
   full: 9999,   // Pills, FABs, chips
 } as const;
 
-// ─── Elevation ──────────────────────────────────────────────────────────────
+// ─── Elevation (Dark themes — M3 tonal) ─────────────────────────────────────
+// Dark mode: elevation via RN shadow for cross-platform compat (iOS uses shadow,
+// Android uses elevation). Dark themes should keep shadowOpacity very low since
+// surface tinting already encodes Z-axis via HSL lightness (Kole Jain rule).
 
 export const m3Elevation = {
-  level0: { shadowOpacity: 0, shadowRadius: 0, shadowOffset: { width: 0, height: 0 }, elevation: 0 },
-  level1: { shadowOpacity: 0.15, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 1 },
-  level2: { shadowOpacity: 0.15, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 3 },
-  level3: { shadowOpacity: 0.20, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
-  level4: { shadowOpacity: 0.25, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
-  level5: { shadowOpacity: 0.30, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 12 },
+  level0: { shadowOpacity: 0,    shadowRadius: 0,  shadowOffset: { width: 0, height: 0 },  elevation: 0 },
+  level1: { shadowOpacity: 0.05, shadowRadius: 3,  shadowOffset: { width: 0, height: 1 },  elevation: 1 },
+  level2: { shadowOpacity: 0.06, shadowRadius: 6,  shadowOffset: { width: 0, height: 2 },  elevation: 3 },
+  level3: { shadowOpacity: 0.08, shadowRadius: 8,  shadowOffset: { width: 0, height: 4 },  elevation: 6 },
+  level4: { shadowOpacity: 0.09, shadowRadius: 12, shadowOffset: { width: 0, height: 6 },  elevation: 8 },
+  level5: { shadowOpacity: 0.10, shadowRadius: 16, shadowOffset: { width: 0, height: 8 },  elevation: 12 },
+} as const;
+
+// ─── Elevation — Light Mode / Nova Theme (Kole Jain Phase 3.3) ───────────────
+// Nova (light theme): near-invisible shadows, opacity ≤8%, maximum blur radius.
+// Reserve pronounced shadows for transient elements (dropdowns, popovers) only.
+// Use isDarkTheme(name) to pick the correct elevation set per active theme.
+
+export const m3ElevationLight = {
+  level0: { shadowOpacity: 0,    shadowRadius: 0,  shadowOffset: { width: 0, height: 0 },  elevation: 0  },
+  level1: { shadowOpacity: 0.03, shadowRadius: 8,  shadowOffset: { width: 0, height: 2 },  elevation: 1  },
+  level2: { shadowOpacity: 0.04, shadowRadius: 16, shadowOffset: { width: 0, height: 4 },  elevation: 3  },
+  level3: { shadowOpacity: 0.05, shadowRadius: 24, shadowOffset: { width: 0, height: 6 },  elevation: 6  },
+  level4: { shadowOpacity: 0.06, shadowRadius: 40, shadowOffset: { width: 0, height: 8 },  elevation: 8  },
+  level5: { shadowOpacity: 0.07, shadowRadius: 56, shadowOffset: { width: 0, height: 10 }, elevation: 12 },
+  // Transient elevated surfaces — popovers, dropdowns, tooltips (more pronounced)
+  transient: { shadowOpacity: 0.10, shadowRadius: 48, shadowOffset: { width: 0, height: 16 }, elevation: 16 },
 } as const;
 
 // ─── Motion (M3 easing & duration) ─────────────────────────────────────────
@@ -580,3 +599,64 @@ export function hexLuminance(hex: string): number {
   });
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
+
+// ─── Color Harmony — Triadic System (Kole Jain Phase 3 — Gap 10) ────────────
+// Polymath OS uses a triadic color scheme for palette harmony.
+// Secondary and tertiary accents derive from 120° hue rotations of primary.
+//
+//   Primary hue H → Secondary H+120° → Tertiary H+240°
+//
+// Dark mode accent desaturation rule (prevents retina halation):
+//   Reduce accent saturation by 15-20% in dark contexts.
+//   Example: Forest primary hsl(161, 70%, 52%) → dark-safe hsl(161, 55%, 52%)
+//
+// Text inside chips/containers: always invert vs container background.
+// Minimum contrast: 4.5:1 for text (WCAG AA), 3:1 for component boundaries.
+//
+// Current theme hue anchors:
+//   void:     achromatic (0°)    — desaturated monochrome
+//   nova:     achromatic (0°)    — desaturated monochrome (light)
+//   amber:    hue 42° (yellow-orange)
+//   ocean:    hue 211° (cool blue)
+//   forest:   hue 161° (green)
+//   sunset:   hue 24° (orange)
+//   midnight: hue 276° (purple)
+
+// ─── Token → Component Traceability Matrix (Kole Jain Phase 6 — Gap 11) ─────
+// Maps every M3Palette token to its consuming components.
+// Update this when adding tokens to new components.
+//
+// PRIMARY GROUP
+//   primary              → M3Button[filled], FAB bg, active NavRail indicator
+//   onPrimary            → text/icons inside filled buttons, FAB, active states
+//   primaryContainer     → M3Chip[active] bg, nav active bg, quick-action bg
+//   onPrimaryContainer   → text on primaryContainer surfaces
+//
+// SURFACE GROUP (tonal elevation ladder — Z-axis encoded via HSL lightness)
+//   surface              → page bg, sidebar bg, screen bg (Layer 1)
+//   surfaceDim           → dialog/sheet scrim overlay tint
+//   surfaceContainer     → list items at rest, card default bg (Layer 2a)
+//   surfaceContainerHigh → card hover bg, input bg, collapsed-nav hover (Layer 2b)
+//   surfaceContainerHighest → modal bg, dialog bg, tooltip bg, bottom sheet (Layer 2c)
+//
+// TEXT / ICON GROUP (Layer 3 — opacity cascade)
+//   onSurface            → primary text 87%, filled icon tint
+//   onSurfaceVariant     → secondary text 60%, inactive nav icons, placeholders
+//
+// BOUNDARY GROUP
+//   outline              → input focus border, card border active/hover
+//   outlineVariant       → card border at rest, dividers, separator lines
+//
+// STATUS GROUP
+//   error / errorContainer    → M3TextField[error], Dialog[destructive], Toast[error]
+//   success / successContainer → M3Button[success], SuccessAnimation, Toast[success]
+//   warning / warningContainer → Toast[warning], alert badge
+//   info / infoContainer       → Toast[info], StatRing[info variant]
+//
+// INVERSE GROUP
+//   inverseSurface       → tooltip bg (always contrasts with surface)
+//   inverseOnSurface     → tooltip text
+//
+// CATEGORY COLORS
+//   categories.AI|News|Tools|Market|Research|Tutorial|Other
+//                        → ActivityCard category badge, M3Chip[category]

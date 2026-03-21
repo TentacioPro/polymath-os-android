@@ -327,6 +327,7 @@ class ActivityCreate(BaseModel):
 
 class ActivityUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=1, max_length=500)
+    url: Optional[str] = Field(None, max_length=2048)
     notes: Optional[str] = Field(None, max_length=10000)
     
     @field_validator('title', 'notes')
