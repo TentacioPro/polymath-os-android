@@ -15,6 +15,7 @@ import {
 import ResponsiveModal from '@/components/ResponsiveModal';
 import { useToast } from '@/components/Toast';
 import { useConfirm } from '@/components/ConfirmDialog';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type View = 'memories' | 'persona' | 'learning';
 
@@ -272,17 +273,11 @@ export default function AgentPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 rounded-2xl border border-m3-outline-variant">
-              <span className="material-symbols-outlined text-[48px] text-m3-on-surface-variant mb-4 block">
-                memory
-              </span>
-              <p className="text-sm font-bold text-m3-on-surface-variant uppercase">
-                No memories yet
-              </p>
-              <p className="text-[10px] text-m3-on-surface-variant mt-2">
-                Click &quot;Learn&quot; to start building agent memory
-              </p>
-            </div>
+            <EmptyState
+              variant="empty-memories"
+              onCTA={handleLearn}
+              ctaLabel="Learn Now"
+            />
           )}
         </div>
       )}

@@ -15,6 +15,7 @@ import { useTheme, spacing } from '../theme';
 import { m3Typography, m3Radii } from '../../shared/design-tokens';
 import M3Progress from '../components/ui/M3Progress';
 import M3Button from '../components/ui/M3Button';
+import { EmptyState } from '../components/ui/EmptyState';
 import { hapticLight, hapticPress, hapticSuccess, hapticWarning, hapticSelection } from '../utils/haptics';
 import { getBackendUrlSync } from '../utils/backend';
 
@@ -171,7 +172,7 @@ export default function AgentScreen() {
         ))}
 
         {/* Memories */}
-        {memories.length > 0 && (
+        {memories.length > 0 ? (
           <>
             <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>Recent Memories</Text>
             {memories.slice(0, 5).map((mem: any, i: number) => (
@@ -189,6 +190,11 @@ export default function AgentScreen() {
               </Animated.View>
             ))}
           </>
+        ) : (
+          <EmptyState
+            variant="empty-memories"
+            onCTA={() => { hapticPress(); router.push('/chat' as any); }}
+          />
         )}
 
         {/* Chat Button */}

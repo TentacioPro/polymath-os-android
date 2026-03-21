@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const SEARCH_TYPES = ['All', 'Activities', 'Journals', 'Connections'];
 
@@ -267,13 +268,11 @@ export default function SearchPage() {
 
       {/* Empty State - No Results */}
       {query && !isLoading && !isFetching && filteredResults.length === 0 && (
-        <div className="flex flex-col items-center py-16 px-4">
-          <span className="material-symbols-outlined text-[48px] text-m3-outline-variant">search_off</span>
-          <p className="text-[14px] text-m3-on-surface-variant mt-3">No results found for "{query}"</p>
-          <p className="text-[12px] text-m3-on-surface-variant mt-1 opacity-70">
-            Try different keywords or filters
-          </p>
-        </div>
+        <EmptyState
+          variant="empty-search"
+          title={`No results for "${query}"`}
+          onCTA={() => setQuery('')}
+        />
       )}
 
       {/* Quick Actions */}

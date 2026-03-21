@@ -2,7 +2,14 @@
 
 import React from 'react';
 
-type EmptyVariant = 'empty-activities' | 'empty-journals' | 'empty-connections' | 'empty-search' | 'empty-alerts' | 'empty-memories';
+type EmptyVariant =
+  | 'empty-activities'
+  | 'empty-journals'
+  | 'empty-connections'
+  | 'empty-search'
+  | 'empty-alerts'
+  | 'empty-memories'
+  | 'empty-export';
 
 interface EmptyStateProps {
   variant?: EmptyVariant;
@@ -13,100 +20,90 @@ interface EmptyStateProps {
 }
 
 const DEFAULTS: Record<EmptyVariant, { icon: string; title: string; description: string; cta: string }> = {
-  'empty-activities': { icon: '📚', title: 'No activities yet', description: 'Start capturing your thoughts, links, and discoveries.', cta: 'Add Activity' },
-  'empty-journals': { icon: '📝', title: 'Your journal is empty', description: 'Begin writing journal entries to reflect on your ideas.', cta: 'New Entry' },
-  'empty-connections': { icon: '🔗', title: 'No connections found', description: 'Connections will emerge as you add more activities.', cta: 'Explore Knowledge' },
-  'empty-search': { icon: '🔍', title: 'No results found', description: 'Try adjusting your search terms or exploring different categories.', cta: 'Clear Search' },
-  'empty-alerts': { icon: '🔔', title: 'All caught up', description: "You don't have any notifications right now.", cta: '' },
-  'empty-memories': { icon: '✨', title: 'No memories yet', description: 'Your AI agent will create memories as it learns.', cta: 'Talk to Agent' },
+  'empty-activities': {
+    icon: 'layers',
+    title: 'No activities yet',
+    description: 'Start capturing your thoughts, links, and discoveries to build your knowledge base.',
+    cta: 'Add Activity',
+  },
+  'empty-journals': {
+    icon: 'menu_book',
+    title: 'Your journal is empty',
+    description: 'Begin writing journal entries to reflect on your experiences and ideas.',
+    cta: 'New Entry',
+  },
+  'empty-connections': {
+    icon: 'hub',
+    title: 'No connections found',
+    description: 'Connections will emerge as you add more activities to your knowledge base.',
+    cta: 'Explore Knowledge',
+  },
+  'empty-search': {
+    icon: 'search',
+    title: 'No results found',
+    description: 'Try adjusting your search terms or exploring different categories.',
+    cta: 'Clear Search',
+  },
+  'empty-alerts': {
+    icon: 'notifications',
+    title: 'All caught up',
+    description: "You don't have any notifications right now.",
+    cta: '',
+  },
+  'empty-memories': {
+    icon: 'auto_awesome',
+    title: 'No memories yet',
+    description: 'Your AI agent will create memories as it learns from your interactions.',
+    cta: 'Talk to Agent',
+  },
+  'empty-export': {
+    icon: 'file_download',
+    title: 'Nothing to export yet',
+    description: 'Add some activities or journal entries first, then export your knowledge base.',
+    cta: 'Add Activities',
+  },
 };
 
-export function EmptyState({ variant = 'empty-activities', title, description, ctaLabel, onCTA }: EmptyStateProps) {
+export function EmptyState({
+  variant = 'empty-activities',
+  title,
+  description,
+  ctaLabel,
+  onCTA,
+}: EmptyStateProps) {
   const d = DEFAULTS[variant];
 
   return (
-    <div className="empty-state">
-      <div className="illustration">
-        <span className="icon">{d.icon}</span>
+    <div className="flex flex-col items-center py-12 px-8 gap-4">
+      {/* Floating illustration */}
+      <div className="w-24 h-24 rounded-full bg-m3-primary-container flex items-center justify-center mb-2 animate-float">
+        <span className="material-symbols-outlined text-[48px] text-m3-on-primary-container">
+          {d.icon}
+        </span>
       </div>
-      <div className="dots">
-        <span className="dot dot-1" />
-        <span className="dot dot-2" />
-        <span className="dot dot-3" />
-      </div>
-      <h3 className="title">{title || d.title}</h3>
-      <p className="description">{description || d.description}</p>
-      {(ctaLabel || d.cta) && onCTA && (
-        <button className="cta-btn" onClick={onCTA}>{ctaLabel || d.cta}</button>
-      )}
 
-      <style jsx>{`
-        .empty-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 48px 32px;
-          gap: 16px;
-        }
-        .illustration {
-          width: 96px;
-          height: 96px;
-          border-radius: 50%;
-          background: var(--m3-primary-container);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 8px;
-          animation: float 4s ease-in-out infinite;
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
-        }
-        .icon { font-size: 40px; }
-        .dots {
-          display: flex;
-          gap: 8px;
-          margin-bottom: 8px;
-        }
-        .dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: var(--m3-primary);
-        }
-        .dot-1 { opacity: 0.3; }
-        .dot-2 { opacity: 0.5; width: 8px; height: 8px; border-radius: 50%; background: var(--m3-primary-container); }
-        .dot-3 { opacity: 0.2; }
-        .title {
-          font-size: 22px;
-          font-weight: 600;
-          color: var(--m3-on-surface);
-          margin: 0;
-          text-align: center;
-        }
-        .description {
-          font-size: 14px;
-          color: var(--m3-on-surface-variant);
-          margin: 0;
-          text-align: center;
-          line-height: 1.6;
-          max-width: 320px;
-        }
-        .cta-btn {
-          margin-top: 8px;
-          padding: 16px 32px;
-          border-radius: 9999px;
-          background: var(--m3-primary);
-          color: var(--m3-on-primary);
-          border: none;
-          font-weight: 600;
-          font-size: 14px;
-          cursor: pointer;
-          transition: opacity 150ms;
-        }
-        .cta-btn:hover { opacity: 0.9; }
-      `}</style>
+      {/* Decorative dots */}
+      <div className="flex gap-2 mb-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-m3-primary opacity-30 inline-block" />
+        <span className="w-2 h-2 rounded-full bg-m3-primary-container opacity-50 inline-block" />
+        <span className="w-1.5 h-1.5 rounded-full bg-m3-primary opacity-20 inline-block" />
+      </div>
+
+      <h3 className="text-[22px] font-semibold text-m3-on-surface text-center">
+        {title || d.title}
+      </h3>
+      <p className="text-[14px] text-m3-on-surface-variant text-center leading-relaxed max-w-80">
+        {description || d.description}
+      </p>
+
+      {(ctaLabel || d.cta) && onCTA && (
+        <button
+          onClick={onCTA}
+          className="mt-2 px-8 py-4 rounded-full bg-m3-primary text-m3-on-primary font-semibold text-[14px] hover:opacity-90 active:scale-[0.97] transition-standard"
+        >
+          {ctaLabel || d.cta}
+        </button>
+      )}
     </div>
   );
 }

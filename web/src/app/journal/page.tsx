@@ -5,6 +5,7 @@ import { useJournals, useCreateJournal, useDeleteJournal } from '@/hooks/useJour
 import ResponsiveModal from '@/components/ResponsiveModal';
 import { useToast } from '@/components/Toast';
 import { useConfirm } from '@/components/ConfirmDialog';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export default function JournalPage() {
   const { data: journals, isLoading } = useJournals();
@@ -129,11 +130,10 @@ export default function JournalPage() {
       </div>
 
       {journals?.length === 0 && (
-        <div className="flex flex-col items-center py-16">
-          <span className="material-symbols-outlined text-[48px] text-m3-outline-variant">menu_book</span>
-          <p className="text-[14px] text-m3-on-surface-variant mt-3">No journal entries yet</p>
-          <p className="text-[12px] text-m3-on-surface-variant mt-1">Start journaling your learning journey</p>
-        </div>
+        <EmptyState
+          variant="empty-journals"
+          onCTA={() => setShowModal(true)}
+        />
       )}
 
       {/* Create Modal */}

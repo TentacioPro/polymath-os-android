@@ -386,12 +386,12 @@ Phase 8  [Day 11]     Bento dashboard revamp (mobile + web)
 
 | Phase | Status | Commit |
 |---|---|---|
-| 0 — Token Precision Audit | PENDING | — |
-| 1 — Spacing + Icon Audit | PENDING | — |
-| 2 — State Matrix | PENDING | — |
-| 3 — Optimistic UI | PENDING | — |
-| 4 — Container Queries | PENDING | — |
-| 5 — Animation Audit | PENDING | — |
-| 6 — Empty States | PENDING | — |
+| 0 — Token Precision Audit | DONE | 7a22a15 |
+| 1 — Spacing + Icon Audit | DONE | cfe6164 |
+| 2 — State Matrix | DONE | 7909e53 + d29b262 |
+| 3 — Optimistic UI | DONE | 45112aa |
+| 4 — Container Queries | DONE | da686eb |
+| 5 — Animation Audit | DONE | 8adc49c |
+| 6 — Empty States | DONE | — |
 | 7 — Interruption Routing | PENDING | — |
-| 8 — Bento Dashboard | PENDING | — |
+| 8 — Bento Dashboard | PARTIAL (web ✓ da686eb, mobile pending) | — |

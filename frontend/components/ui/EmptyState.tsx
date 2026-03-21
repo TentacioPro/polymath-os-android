@@ -19,7 +19,8 @@ type EmptyVariant =
   | 'empty-connections'
   | 'empty-search'
   | 'empty-alerts'
-  | 'empty-memories';
+  | 'empty-memories'
+  | 'empty-export';
 
 interface EmptyStateProps {
   variant?: EmptyVariant;
@@ -66,6 +67,12 @@ const VARIANT_DEFAULTS: Record<EmptyVariant, { icon: string; title: string; desc
     title: 'No memories yet',
     description: 'Your AI agent will create memories as it learns from your interactions.',
     cta: 'Talk to Agent',
+  },
+  'empty-export': {
+    icon: 'download-outline',
+    title: 'Nothing to export yet',
+    description: 'Add some activities or journal entries first, then export your knowledge base.',
+    cta: 'Add Activities',
   },
 };
 

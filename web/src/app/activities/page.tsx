@@ -11,6 +11,7 @@ import ResponsiveModal from '@/components/ResponsiveModal';
 import Link from 'next/link';
 import { useToast } from '@/components/Toast';
 import { useConfirm } from '@/components/ConfirmDialog';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const FILTERS = ['All', 'Article', 'PDF', 'Link', 'Audio', 'File'];
 
@@ -251,10 +252,10 @@ export default function ActivitiesPage() {
       </div>
 
       {filtered?.length === 0 && (
-        <div className="flex flex-col items-center py-16">
-          <span className="material-symbols-outlined text-[48px] text-m3-outline-variant">folder_open</span>
-          <p className="text-[14px] text-m3-on-surface-variant mt-3">No sources found</p>
-        </div>
+        <EmptyState
+          variant="empty-activities"
+          onCTA={() => setShowModal(true)}
+        />
       )}
 
       {/* Add Modal */}

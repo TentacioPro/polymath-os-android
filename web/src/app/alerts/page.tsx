@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 function timeAgo(ts: string): string {
   const diff = Date.now() - new Date(ts).getTime();
@@ -54,10 +55,7 @@ export default function AlertsPage() {
       </div>
 
       {alerts.length === 0 ? (
-        <div className="flex flex-col items-center py-20">
-          <span className="material-symbols-outlined text-[48px] text-m3-outline-variant">notifications_none</span>
-          <p className="text-[14px] text-m3-on-surface-variant mt-3">No notifications</p>
-        </div>
+        <EmptyState variant="empty-alerts" />
       ) : (
         <div className="flex flex-col gap-2">
           {alerts.map((alert, i) => {

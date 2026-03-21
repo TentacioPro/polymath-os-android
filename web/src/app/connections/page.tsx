@@ -9,6 +9,7 @@ import {
 import { useActivities } from '@/hooks/useActivities';
 import ConnectionGraph from '@/components/ConnectionGraph';
 import { useToast } from '@/components/Toast';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type View = 'timeline' | 'graph' | 'suggestions';
 
@@ -130,11 +131,7 @@ export default function ConnectionsPage() {
           ))}
 
           {sortedActivities.length === 0 && (
-            <div className="flex flex-col items-center py-16">
-              <span className="material-symbols-outlined text-[48px] text-m3-outline-variant">hub</span>
-              <p className="text-[14px] text-m3-on-surface-variant mt-3">No activities yet</p>
-              <p className="text-[12px] text-m3-on-surface-variant mt-1">Add some activities first to discover connections</p>
-            </div>
+            <EmptyState variant="empty-connections" />
           )}
         </div>
       )}
