@@ -1,6 +1,9 @@
 # Polymath OS — Web App Plan
 
-> Architecture plan for a **web companion app** that mirrors the mobile app pixel-for-pixel, shares the same backend/data, and supports seamless cross-device continuity.
+> **STATUS: ARCHIVED — IMPLEMENTED** — Original web app architecture plan from Feb 2026.
+> The Next.js companion web app described here was fully built and has since gone through V3 (M3 revamp) and V4 (Kole Jain × M3, 9-phase revamp) — all complete as of March 2026.
+> **Current status**: `qoder-agent-docs/01_PROJECT_STATUS_ANALYSIS.md` | **Web roadmap**: `qoder-agent-docs/02_WEB_ROADMAP_CLEAN.md`
+> Kept for historical traceability of architecture decisions.
 
 ---
 

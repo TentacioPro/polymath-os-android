@@ -1,8 +1,8 @@
 # Polymath OS — Mobile UI Revamp Plan
 
-> **Source of truth:** Google Stitch designs (`design/GOOGLE STITCH/`)  
-> **Target:** Expo/React Native mobile app (`frontend/`)  
-> **Date:** 2026-02-28
+> **STATUS: ARCHIVED** — This was the V1/V2 mobile revamp plan (brutalist/Stitch design era, Feb 2026).
+> **Superseded by**: `qoder-agent-docs/08_UI_REVAMP_V4_PLAN.md` (Material You M3 × Kole Jain, V4 complete March 2026).
+> Kept for historical traceability.
 
 ---
 

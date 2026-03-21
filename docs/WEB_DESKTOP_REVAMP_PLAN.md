@@ -1,9 +1,9 @@
 # Polymath OS — Web Desktop/Tablet Revamp Plan
 
-> **Problem:** Current web app is a mobile-wrapper — 672px max-width, single-column, bottom-sheet modals, bottom nav bar. On a 1920px screen, ~60% is empty.  
-> **Goal:** Make the web app feel desktop/tablet-native while keeping the brutalist design language and 3-theme color system intact.  
-> **Scope:** Layout shell, navigation, all 6 pages, modals. Colors/themes are **NOT** changing.  
-> **Date:** 2026-02-28
+> **STATUS: ARCHIVED** — This was the V1/V2 web desktop revamp plan (brutalist design era, Feb 2026).
+> **Superseded by**: `qoder-agent-docs/08_UI_REVAMP_V4_PLAN.md` (Material You M3 × Kole Jain, V4 complete March 2026).
+> The multi-column bento + responsive sidebar described here was implemented as part of V4 Phase 4 (container queries) and Phase 8 (bento dashboard).
+> Kept for historical traceability.
 
 ---
 

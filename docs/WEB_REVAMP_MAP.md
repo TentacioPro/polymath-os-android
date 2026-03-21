@@ -1,8 +1,9 @@
 # Polymath OS — Web Revamp Map
 
-> Date: March 6, 2026
-> Goal: Bring web app to feature + design parity with the mobile app
-> Principle: One ecosystem, identical design language across platforms
+> **STATUS: ARCHIVED** — Web revamp map from March 6, 2026 (V2/V3 era, brutalist token migration).
+> **Superseded by**: `qoder-agent-docs/02_WEB_ROADMAP_CLEAN.md` and `qoder-agent-docs/08_UI_REVAMP_V4_PLAN.md`.
+> All 7 themes, shared design token system, and full V4 revamp are now complete.
+> Kept for historical traceability.
 
 ---
 

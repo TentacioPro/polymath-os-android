@@ -1,5 +1,12 @@
 # Polymath OS - Implementation Complete
 
+> **NOTE (March 21, 2026)**: This document captures the implementation state as of March 16, 2026 (post-V3 M3 revamp).
+> Since then, the **V4 UI Revamp** (9 phases, Kole Jain × Material You M3) has been completed on both platforms.
+> For the current canonical project status, see: `qoder-agent-docs/01_PROJECT_STATUS_ANALYSIS.md`
+> For the V4 revamp plan and commit history, see: `qoder-agent-docs/08_UI_REVAMP_V4_PLAN.md`
+
+---
+
 ## 🎯 Project Overview
 
 **Built**: Comprehensive polymath learning tracker mobile app

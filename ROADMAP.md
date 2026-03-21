@@ -1,6 +1,7 @@
 # Polymath OS — Development Roadmap
 
-> Actionable next steps, ordered by priority. Updated March 16, 2026.
+> Actionable next steps, ordered by priority. Updated March 21, 2026.
+> **Canonical source of truth for detailed phase tracking**: `qoder-agent-docs/`
 
 ---
 
@@ -8,13 +9,31 @@
 
 | Layer | Status | Notes |
 |-------|--------|-------|
-| **Backend (FastAPI)** | ✅ Running | 40+ endpoints, AI categorization, export/import, JWT auth |
-| **Mobile (Expo RN)** | ✅ Compiles & runs | 3-tab floating pill + 7 stack screens, Expo Go ready |
-| **Web (Next.js)** | ✅ Builds clean | 9 pages incl. /integrations, /customize, feature parity achieved |
+| **Backend (FastAPI)** | ✅ Production-ready | 40+ endpoints, PATCH /activities rename, AI categorization, export/import, JWT auth, rate limiting, security headers |
+| **Mobile (Expo RN)** | ✅ V4 complete | M3 component library (16 components), V4 9-phase revamp done, 303 Jest tests |
+| **Web (Next.js)** | ✅ V4 complete | 15 routes, M3 component library (14+ components), V4 9-phase revamp done |
 | **CI/CD** | ✅ Strict gates | Lint/type checks enforced, no continue-on-error |
 | **Error Tracking** | ✅ Full coverage | Sentry active on backend + web + mobile |
 | **Security** | ✅ Enterprise-grade | JWT auth, encryption, validation, audit logging |
-| **Docs** | ✅ Comprehensive | 7 docs + qoder-agent-docs pack |
+| **Design System** | ✅ V4 complete | Kole Jain × Material You M3, 7 themes, shared design-tokens.ts |
+
+---
+
+## V4 UI Revamp — COMPLETE (feat/ui-revamp-v4)
+
+All 9 phases done on both mobile and web. See `qoder-agent-docs/08_UI_REVAMP_V4_PLAN.md`.
+
+| Phase | Status | Commit |
+|-------|--------|--------|
+| 0 — Token Precision Audit | ✅ DONE | 7a22a15 |
+| 1 — Spacing + Icon Audit | ✅ DONE | cfe6164 |
+| 2 — M3 State Matrix | ✅ DONE | 7909e53 + d29b262 |
+| 3 — Optimistic UI | ✅ DONE | 45112aa |
+| 4 — Container Queries | ✅ DONE | da686eb |
+| 5 — Animation Audit | ✅ DONE | 8adc49c |
+| 6 — Empty States | ✅ DONE | 11ef783 |
+| 7 — Interruption Routing (Popover + Rename) | ✅ DONE | 76f972b |
+| 8 — Bento Dashboard | ✅ DONE | 861a3cf |
 
 ---
 
@@ -31,224 +50,80 @@
 | Account Lockout | ✅ | 5 failed attempts → 30min lock |
 | Password Policy | ✅ | 12+ chars, mixed case, digit, special |
 
-**New Files:**
-- `backend/auth.py` - JWT system
-- `backend/crypto.py` - Encryption utilities
-- `backend/models/user.py` - User model
-- `backend/scripts/encrypt_existing.py` - Migration script
-
 ---
 
-## Phase 0 — Stabilize & Test (✅ MOSTLY COMPLETE)
+## Next Milestones
 
-> Get the mobile app actually running on your phone and verify everything end-to-end.
-> **Status**: Core stability achieved. Security hardened. Sentry active. Remaining: final device QA.
-
-### 0.1 Run Mobile on Physical Device
-```bash
-# 1. Start backend
-cd backend && uv run uvicorn server:app --host 0.0.0.0 --port 8001
-
-# 2. Start Expo (already running)
-cd frontend && npx expo start
-
-# 3. Scan QR code with Expo Go app on your Android phone
-#    Make sure phone and PC are on same WiFi network
-
-# 4. Update .env with your PC's local IP (not localhost!)
-#    frontend/.env → EXPO_PUBLIC_BACKEND_URL=http://192.168.0.104:8001
-```
-
-### 0.2 End-to-End Smoke Test
-- [ ] Dashboard loads stats (or shows zeros if DB is empty)
-- [ ] Create a manual activity → appears in list
-- [ ] Create a journal entry → appears with tags
-- [ ] Generate connections → timeline/graph/suggestions populate
-- [ ] Export JSON → download works
-- [ ] Import JSON → restores state
-- [ ] Delete an activity → removed from list
-
-### 0.3 Fix Known Compatibility Warnings
-```bash
-# Expo flagged these version mismatches:
-cd frontend
-npx expo install @react-native-async-storage/async-storage@2.2.0 react-native-svg@15.12.1
-```
-
-### 0.4 MongoDB Setup (if not done)
-```bash
-# Option A: Local MongoDB
-# Download from https://www.mongodb.com/try/download/community
-
-# Option B: Free MongoDB Atlas (recommended)
-# 1. Go to https://cloud.mongodb.com → Create free cluster
-# 2. Get connection string
-# 3. Add to backend/.env:
-#    MONGO_URL=mongodb+srv://user:pass@cluster.mongodb.net
-#    DB_NAME=polymath_os
-```
-
----
-
-## Phase 1 — Mobile Polish (3-5 days)
-
-> Make the mobile app production-worthy.
+### M2 — Device QA + Release Stability (Immediate Priority)
 
 | Task | Effort | Status |
 |------|--------|--------|
-| **1.1** Agent tab (missing on mobile) | 4-6h | ✅ Done (stack screen) |
-| **1.2** Detail views (tap activity → full view) | 4h | ✅ Done |
-| **1.3** Edit & delete UI (swipe or long-press) | 3h | ✅ Done |
-| **1.4** Pull-to-refresh on all lists | 1h | ✅ Done |
-| **1.5** Image export with "Abishek M" watermark | 3h | ⏳ Pending |
-| **1.6** PDF & PPT export buttons | 2h | ⏳ Pending |
-| **1.7** Search bar + category filter | 4h | ✅ Done |
-| **1.8** Sentry integration (wrap root layout) | 30min | ✅ Done |
-| **1.9** App icon & splash screen branding | 1h | ⏳ Pending |
+| Wire VoiceRecorder to expo-audio AudioModule | 3-4h | ⏳ Pending |
+| Device matrix QA (low-end Android + tablet) | 1 day | ⏳ Pending |
+| Offline/poor-network behavior audit | 3h | ⏳ Pending |
+| EAS build verification (preview + production) | 2h | ⏳ Pending |
+| Merge feat/ui-revamp-v4 → main | 30min | ⏳ Pending |
 
----
-
-## Phase 2 — API Integrations (1-2 weeks)
-
-> Automate activity ingestion instead of manual entry.
-
-| Task | Effort | Impact |
-|------|--------|--------|
-| **2.1** YouTube Data API sync | 8-10h | Auto-import watch history |
-| **2.2** Google Search history import | 6-8h | Auto-import search queries |
-| **2.3** Settings screen (API keys, sync config) | 4h | Central configuration UI |
-| **2.4** Background periodic sync | 6h | Set-and-forget automation |
-| **2.5** Browser extension (Chrome) | 10-12h | Real-time browsing capture |
-
----
-
-## Phase 3 — Enhanced Visualizations (1-2 weeks)
-
-| Task | Effort | Impact |
-|------|--------|--------|
-| **3.1** Interactive graph (D3/react-native-graph) | 12-15h | Real node-edge network diagram |
-| **3.2** Learning heatmap (GitHub-style) | 4h | Daily activity intensity grid |
-| **3.3** Category pie/bar charts | 3h | Visual distribution of domains |
-| **3.4** Progressive timeline (zoom in/out) | 6h | Year → Month → Day drill-down |
-
----
-
-## Phase 4 — Production & Distribution (1 week)
+### M3 — Production Deployment
 
 | Task | Effort | Notes |
 |------|--------|-------|
-| **4.1** EAS Build setup (APK/AAB) | 2h | `eas build --platform android` |
-| **4.2** Deploy backend (Railway/Render) | 1h | Free tier, auto-deploy from GitHub |
-| **4.3** Deploy web app (Vercel) | 30min | Git-push to deploy |
-| **4.4** Custom domain | 30min | `polymathOS.app` or similar |
-| **4.5** Google Play Store listing | 2h | Screenshots, description, privacy policy |
-| **4.6** Authentication (optional) | ~~8-10h~~ | ✅ **DONE** - JWT + encryption + audit logging |
+| Deploy backend (Railway/Render) | 1h | Free tier, auto-deploy from GitHub |
+| Deploy web app (Vercel) | 30min | Git-push to deploy |
+| Google Play Store listing | 2h | Screenshots, description, privacy policy |
+| Custom domain | 30min | polymathOS.app or similar |
 
----
+### M4 — Product Analytics & Observability
 
-## Phase 5 — Advanced Features (Ongoing)
+| Task | Effort | Notes |
+|------|--------|-------|
+| Activate analytics provider (Mixpanel/PostHog) | 2-3h | Event taxonomy already defined in utils/analytics.ts |
+| Sentry release tags + environment tags | 1h | Per-platform breadcrumbs |
+| Crash-free session KPI tracking | 2h | Mobile release health |
+
+### M5 — Advanced Features (Future)
 
 | Task | Effort | Impact |
 |------|--------|--------|
-| **5.1** Offline mode + sync queue | 20h | Works without internet |
-| **5.2** Push notifications (daily summary) | 6h | "You learned 5 new topics today" |
-| **5.3** Spaced repetition reminders | 8h | Review connections on schedule |
-| **5.4** Multi-LLM provider UI | 4h | Switch between OpenAI/Anthropic/Gemini |
-| **5.5** Voice journaling (Whisper API) | 6h | Speak → transcribe → journal entry |
-| **5.6** Collaborative mode | 15h | Share learning graphs with others |
+| Voice journaling (expo-audio Whisper) | 6h | Speak → transcribe → journal entry |
+| YouTube / Google history API sync | 8-10h | Auto-import watch/search history |
+| Push notifications (daily summary) | 6h | "You learned 5 topics today" |
+| Spaced repetition reminders | 8h | Review connections on schedule |
+| Multi-LLM provider UI | 4h | Switch OpenAI/Anthropic/Gemini |
+| Collaborative mode | 15h | Share learning graphs |
+| Browser extension (Chrome) | 10-12h | Real-time browsing capture |
 
 ---
 
 ## Mobile Build Guide
 
-### Development (Expo Go — what you're doing now)
-
+### Development (Expo Go)
 ```bash
-# Start Expo dev server
-cd frontend
-npx expo start
-
-# On phone: Install "Expo Go" from Play Store
-# Scan the QR code → app loads instantly
-# Hot reload: edit code → auto-refreshes on phone
+cd frontend && npx expo start
+# Install "Expo Go" on phone → scan QR code
 ```
 
-### Preview Build (APK for testing without Expo Go)
-
+### Preview Build (APK)
 ```bash
-# One-time setup
-npm install -g eas-cli
-eas login  # Create account at expo.dev
-
-# Build APK (runs in Expo's cloud, ~10-15 min)
-cd frontend
-eas build --platform android --profile preview
-
-# Downloads an APK you can install directly on any Android device
-```
-
-Add this to `frontend/eas.json`:
-```json
-{
-  "cli": { "version": ">= 3.0.0" },
-  "build": {
-    "preview": {
-      "distribution": "internal",
-      "android": {
-        "buildType": "apk"
-      }
-    },
-    "production": {
-      "android": {
-        "buildType": "app-bundle"
-      }
-    }
-  }
-}
+npm install -g eas-cli && eas login
+cd frontend && eas build --platform android --profile preview
 ```
 
 ### Production Build (Play Store)
-
 ```bash
-# Build AAB (Android App Bundle) for Play Store
 eas build --platform android --profile production
-
-# Submit to Google Play
 eas submit --platform android
-```
-
-### Local Build (no cloud, no Expo account)
-
-```bash
-# Requires Android Studio + JDK installed
-cd frontend
-
-# Generate native android/ directory
-npx expo prebuild --platform android
-
-# Build APK locally
-cd android && ./gradlew assembleRelease
-
-# APK at: android/app/build/outputs/apk/release/app-release.apk
 ```
 
 ---
 
 ## Immediate Next Action
 
-**Right now**, do this:
-
-1. Make sure MongoDB is running (local or Atlas)
-2. Fill in `backend/.env` with MONGO_URL, DB_NAME, OPENAI_API_KEY
-3. Start the backend: `cd backend && uv run uvicorn server:app --host 0.0.0.0 --port 8001`
-4. Update `frontend/.env` with your PC's IP: `EXPO_PUBLIC_BACKEND_URL=http://<YOUR-PC-IP>:8001`
-5. Open Expo Go on your phone → scan QR code
-6. Test: create an activity, write a journal, generate connections, export data
-
-Once that works end-to-end, move to Phase 1 (mobile polish).
+1. Merge `feat/ui-revamp-v4` → `main` after final QA pass
+2. Wire VoiceRecorder audio API (last M0 gap)
+3. EAS preview build → install on device → full regression test
+4. Deploy backend + web to production
 
 ---
 
-*This is a living document. Update as tasks are completed.*
-
-*Last updated: March 16, 2026*
+*Last updated: March 21, 2026 — V4 revamp complete across mobile + web.*

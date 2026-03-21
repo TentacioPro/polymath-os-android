@@ -1,7 +1,8 @@
 # Polymath OS — Feature Audit & Unified Roadmap
 
-> Updated: March 15, 2026 | Covers: Mobile (Expo), Web (Next.js), Backend (FastAPI)
-> Previous audit (March 6, 2026) is superseded — web parity achieved, security hardened.
+> Updated: March 21, 2026 | Covers: Mobile (Expo), Web (Next.js), Backend (FastAPI)
+> Previous audit (March 15, 2026) — V4 UI revamp (9 phases) complete on both platforms.
+> **For latest status**: `qoder-agent-docs/01_PROJECT_STATUS_ANALYSIS.md`
 
 ---
 
@@ -36,10 +37,12 @@
 | List activities | ✅ `GET /api/activities` | ✅ Full list + filters | ✅ List with filter chips |
 | Create activity (manual) | ✅ `POST /api/activities/manual` | ✅ Modal form | ✅ Modal form |
 | File upload (JSON) | ✅ `POST /api/activities/upload` | ✅ Drag-and-drop | ❌ Not available |
-| Delete activity | ✅ `DELETE /api/activities/{id}` | ✅ | ✅ Long-press delete |
-| Activity detail view | ✅ `GET /api/activities/{id}` | ❌ No detail page | ✅ Full detail + AI analysis |
-| Search activities | ✅ `GET /api/search` | ❌ No search page | ✅ Full-text search |
+| Delete activity | ✅ `DELETE /api/activities/{id}` | ✅ Popover menu | ✅ Long-press Popover |
+| **Rename activity** | ✅ `PATCH /api/activities/{id}` (V4) | ✅ Inline rename (V4 Phase 7) | ✅ Bottom sheet rename (V4 Phase 7) |
+| Activity detail view | ✅ `GET /api/activities/{id}` | ✅ Full detail page | ✅ Full detail + AI analysis |
+| Search activities | ✅ `GET /api/search` | ✅ `/search` page | ✅ Full-text search |
 | Filter by type | ✅ (client-side) | ✅ Client-side | ✅ Client-side filter chips |
+| **Empty state** | — | ✅ EmptyState component (V4 Phase 6) | ✅ EmptyState component (V4 Phase 6) |
 
 ### Journaling
 
@@ -47,7 +50,7 @@
 |---------|---------|-----|--------|
 | List journals | ✅ `GET /api/journals` | ✅ | ✅ |
 | Create journal | ✅ `POST /api/journals` | ✅ Modal form | ✅ Modal form |
-| Edit journal | ✅ `PUT /api/journals/{id}` | ❌ API exists, no UI | ✅ Tap to edit |
+| Edit journal | ✅ `PUT /api/journals/{id}` | ✅ Edit modal | ✅ Tap to edit |
 | Delete journal | ✅ `DELETE /api/journals/{id}` | ✅ | ✅ Long-press delete |
 
 ### Knowledge Connections / Neural Mesh
@@ -57,7 +60,7 @@
 | List connections | ✅ `GET /api/connections` | ✅ | ✅ |
 | Generate connections | ✅ `POST /api/ai/generate-connections/{id}` | ✅ Button per activity | ✅ Wired |
 | AI suggestions | ✅ `GET /api/ai/suggestions` | ✅ Tab with generate button | ✅ Wired |
-| Visual graph | ❌ | 🔶 Flat card list ("Graph" tab) | 🔶 SVG placeholder nodes when empty |
+| Visual graph | ❌ | ✅ Force-directed interactive graph (D3) | 🔶 SVG placeholder nodes when empty |
 | Timeline view | ❌ | ✅ Connection list | ✅ Connection list |
 
 ### Agent System
@@ -95,7 +98,7 @@
 
 | Feature | Backend | Web | Mobile |
 |---------|---------|-----|--------|
-| Alert list | ✅ `GET /api/notifications` | ❌ No page | ✅ Wired to API |
+| Alert list | ✅ `GET /api/notifications` | ✅ `/alerts` page (V4) | ✅ Wired to API |
 | Dismiss/manage alerts | ❌ | ❌ | 🔶 Alert tap has no action |
 | Real-time notifications | ❌ | ❌ | ❌ |
 
@@ -105,23 +108,23 @@
 |---------|---------|-----|--------|
 | Ingestion stats | ✅ via `/api/stats` | ✅ On dashboard | ✅ Dedicated analytics screen |
 | Agent stats | ✅ via `/api/agent/stats` | ✅ On dashboard | ✅ Dedicated analytics screen |
-| System health | ✅ `GET /api/health` | ❌ Cosmetic "LIVE" dot | ✅ Real health check |
+| System health | ✅ `GET /api/health` | ✅ Real health check (V4) | ✅ Real health check |
 
 ### Integrations / AI Config
 
 | Feature | Backend | Web | Mobile |
 |---------|---------|-----|--------|
-| AI config (API key + model) | ✅ `GET/POST /api/ai-config` | ❌ No UI | ✅ Config modal |
-| System health display | ✅ `GET /api/health` | ❌ | ✅ Health view |
+| AI config (API key + model) | ✅ `GET/POST /api/ai-config` | ✅ `/integrations` page | ✅ Config modal |
+| System health display | ✅ `GET /api/health` | ✅ | ✅ Health view |
 
 ### Profile / Settings
 
 | Feature | Backend | Web | Mobile |
 |---------|---------|-----|--------|
-| User profile display | ✅ `GET /api/agent/persona` | ❌ No profile page | ✅ Persona name/role from API |
-| Theme switching | ❌ Client-side only | ✅ 3 themes + persistence | ✅ 7 themes (not persisted across restarts) |
-| Appearance page | — | ❌ | ✅ Dedicated page with 7 theme previews |
-| Customize / Personalization | — | ❌ | ✅ Dashboard layout, sidebar position, screen toggles |
+| User profile display | ✅ `GET /api/agent/persona` | ✅ `/profile` page (V4) | ✅ Persona name/role from API |
+| Theme switching | ❌ Client-side only | ✅ 7 themes + persistence (V4) | ✅ 7 themes + persistence |
+| Appearance page | — | ✅ `/appearance` dedicated page (V4) | ✅ Dedicated page with 7 theme previews |
+| Customize / Personalization | — | ✅ `/customize` page | ✅ Dashboard layout, sidebar position, screen toggles |
 
 ### Navigation & Shell
 

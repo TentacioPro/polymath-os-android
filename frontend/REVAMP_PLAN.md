@@ -1,5 +1,9 @@
 # Polymath OS Mobile Revamp Plan
 
+> **STATUS: ARCHIVED — ALL PHASES COMPLETE** — This was the V2 mobile revamp tracker (haptics + mobile-first era, March 2026).
+> **Superseded by**: `qoder-agent-docs/08_UI_REVAMP_V4_PLAN.md` (V4 Kole Jain × M3, complete March 2026).
+> Kept for historical traceability.
+
 ## Overview
 Full UI/UX revamp for mobile-first, native-feel experience with haptic feedback.
 

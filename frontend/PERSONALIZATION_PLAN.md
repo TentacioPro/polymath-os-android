@@ -1,5 +1,10 @@
 # Polymath OS — Personalization System Plan
 
+> **STATUS: ARCHIVED — IMPLEMENTED** — This was the personalization plan from March 2026.
+> **Implementation status**: All 7 color schemes implemented (`shared/design-tokens.ts`), customize screen built (`/customize`), screen visibility toggles wired, layout preferences stored in Zustand.
+> **Superseded by**: `qoder-agent-docs/01_PROJECT_STATUS_ANALYSIS.md` for current status.
+> Kept for historical traceability.
+
 ## Overview
 Full personalization system with color schemes, layouts, and screen preferences.
 
