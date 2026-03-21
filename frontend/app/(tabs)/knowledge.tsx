@@ -90,19 +90,38 @@ export default function Knowledge() {
     const BACKEND_URL = getBackendUrlSync();
     if (!addTitle.trim()) return;
     setSaving(true);
+
+    // ── Optimistic prepend ─────────────────────────────────────────────
+    const tempId = `__temp__${Date.now()}`;
+    const tempItem = {
+      id: tempId,
+      title: addTitle.trim(),
+      source: 'manual',
+      url: addUrl.trim() || null,
+      notes: addNotes.trim() || null,
+      timestamp: new Date().toISOString(),
+    };
+    const previousActivities = activities;
+    setActivities([tempItem as any, ...activities]);
+    setAddTitle(''); setAddUrl(''); setAddNotes('');
+    setShowAddSheet(false);
+    // ──────────────────────────────────────────────────────────────────
+
     try {
-      await axios.post(`${BACKEND_URL}/api/activities/manual`, {
-        title: addTitle.trim(),
+      const res = await axios.post(`${BACKEND_URL}/api/activities/manual`, {
+        title: tempItem.title,
         source: 'manual',
-        url: addUrl.trim() || undefined,
-        notes: addNotes.trim() || undefined,
+        url: tempItem.url || undefined,
+        notes: tempItem.notes || undefined,
       });
+      // Replace temp item with real item from server
       hapticSuccess();
-      setAddTitle(''); setAddUrl(''); setAddNotes('');
-      setShowAddSheet(false);
-      loadData();
+      const currentList = useStore.getState().activities;
+      setActivities(currentList.map((a) => (a.id === tempId ? res.data : a)));
     } catch (e: any) {
+      // Rollback: restore previous list
       hapticWarning();
+      setActivities(previousActivities);
       if (dialog) dialog.showAlert('Error', e?.response?.data?.detail || 'Failed to add');
     } finally {
       setSaving(false);
@@ -114,16 +133,21 @@ export default function Knowledge() {
     hapticWarning();
     if (dialog) {
       dialog.showDestructive(`Remove "${title}"?`, 'This action cannot be undone.', async () => {
+        // ── Optimistic remove ─────────────────────────────────────────
+        const snapshot = useStore.getState().activities;
+        setActivities(snapshot.filter((a) => a.id !== id));
+        hapticSuccess();
         try {
           await axios.delete(`${BACKEND_URL}/api/activities/${id}`);
-          hapticSuccess();
-          setActivities(activities.filter((a: any) => a.id !== id));
         } catch {
+          // Rollback on API failure
+          setActivities(snapshot);
+          hapticWarning();
           if (dialog) dialog.showAlert('Error', 'Failed to delete');
         }
       });
     }
-  }, [activities, setActivities, dialog]);
+  }, [setActivities, dialog]);
 
   const filtered = filter === 'All'
     ? activities

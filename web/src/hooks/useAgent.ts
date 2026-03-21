@@ -13,7 +13,24 @@ export function useDeleteMemory() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.deleteMemory(id),
-    onSuccess: () => {
+
+    // ── Optimistic: instantly remove memory from list ──────────────────
+    onMutate: async (id) => {
+      await qc.cancelQueries({ queryKey: ['memories'] });
+      const previous = qc.getQueryData(['memories']);
+      qc.setQueryData(['memories'], (old: any[] | undefined) =>
+        old ? old.filter((m) => m.id !== id) : old,
+      );
+      return { previous };
+    },
+
+    onError: (_err, _id, context) => {
+      if (context?.previous !== undefined) {
+        qc.setQueryData(['memories'], context.previous);
+      }
+    },
+
+    onSettled: () => {
       qc.invalidateQueries({ queryKey: ['memories'] });
       qc.invalidateQueries({ queryKey: ['agentStats'] });
     },

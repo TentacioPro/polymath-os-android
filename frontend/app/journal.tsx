@@ -80,26 +80,62 @@ export default function JournalScreen() {
     if (!title.trim() || !content.trim()) return;
     hapticPress();
     setSaving(true);
-    try {
-      const body = {
+
+    // ── Optimistic: close sheet instantly, prepend temp entry ──────────
+    const tempId = `__temp__${Date.now()}`;
+    const now = new Date().toISOString();
+    const isNew = !editingId;
+    if (isNew) {
+      const tempEntry = {
+        id: tempId,
         title: title.trim(),
         content: content.trim(),
         tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
         linked_activities: [],
+        timestamp: now,
       };
-      if (editingId) {
-        await axios.put(`${BACKEND_URL}/api/journals/${editingId}`, body);
-      } else {
-        await axios.post(`${BACKEND_URL}/api/journals`, body);
+      const prevJournals = useStore.getState().journals;
+      setJournals([tempEntry, ...prevJournals] as any[]);
+      resetEditor(); // close sheet immediately
+      // ──────────────────────────────────────────────────────────────
+
+      try {
+        const res = await axios.post(`${BACKEND_URL}/api/journals`, {
+          title: tempEntry.title,
+          content: tempEntry.content,
+          tags: tempEntry.tags,
+          linked_activities: [],
+        });
+        hapticSuccess();
+        // Replace temp with real entry
+        const current = useStore.getState().journals;
+        setJournals(current.map((j: any) => (j.id === tempId ? res.data : j)) as any[]);
+      } catch (e: any) {
+        hapticWarning();
+        // Rollback temp entry
+        const current = useStore.getState().journals;
+        setJournals(current.filter((j: any) => j.id !== tempId) as any[]);
+        if (dialog) dialog.showAlert('Error', e?.response?.data?.detail || 'Failed to save journal');
+      } finally {
+        setSaving(false);
       }
+      return;
+    }
+
+    // ── Edit existing entry (non-optimistic, keep sheet open) ──────────
+    try {
+      await axios.put(`${BACKEND_URL}/api/journals/${editingId}`, {
+        title: title.trim(),
+        content: content.trim(),
+        tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+        linked_activities: [],
+      });
       hapticSuccess();
       resetEditor();
       loadJournals();
     } catch (e: any) {
       hapticWarning();
-      if (dialog) {
-        dialog.showAlert('Error', e?.response?.data?.detail || 'Failed to save journal');
-      }
+      if (dialog) dialog.showAlert('Error', e?.response?.data?.detail || 'Failed to save journal');
     } finally {
       setSaving(false);
     }
@@ -131,17 +167,21 @@ export default function JournalScreen() {
         `Remove "${entryTitle}"?`,
         'Delete',
         async () => {
+          // ── Optimistic remove ───────────────────────────────────────
+          const snapshot = useStore.getState().journals;
+          setJournals(snapshot.filter((j: any) => j.id !== id));
+          hapticSuccess();
           try {
             await axios.delete(`${BACKEND_URL}/api/journals/${id}`);
-            hapticSuccess();
-            setJournals(journals.filter((j: any) => j.id !== id));
           } catch {
+            // Rollback on API failure
+            setJournals(snapshot);
             hapticWarning();
           }
         }
       );
     }
-  }, [journals, setJournals, dialog]);
+  }, [setJournals, dialog]);
 
   const formatDate = (ts: string) => {
     try {
