@@ -4,10 +4,16 @@ import { Platform } from 'react-native';
 const STORAGE_KEY = 'polymath_backend_url';
 
 // Default: env var → platform-appropriate localhost
+//
+// iOS ATS (App Transport Security) notes:
+//   - `localhost` is ATS-exempt on iOS Simulator — works without HTTPS
+//   - LAN IPs (e.g. 192.168.x.x) are NOT exempt — blocked on physical iOS devices
+//   - Android emulator uses 10.0.2.2 to reach the host machine (no ATS)
+//   - For physical iOS testing: use HTTPS tunnel URL or EAS dev client build
 const ENV_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const DEFAULT_URL = Platform.OS === 'android'
   ? 'http://10.0.2.2:8001'   // Android emulator → host machine
-  : 'http://localhost:8001';  // iOS simulator
+  : 'http://localhost:8001';  // iOS simulator (localhost is ATS-exempt)
 
 let _backendUrl: string | null = null;
 let _client: AxiosInstance | null = null;

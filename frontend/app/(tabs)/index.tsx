@@ -4,20 +4,29 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
   RefreshControl,
   StyleSheet,
-  Animated,
-  Easing,
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  withSequence,
+  Easing,
+  FadeInDown,
+} from 'react-native-reanimated';
 import axios from 'axios';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme, spacing, fs, sw } from '../../theme';
+import { useTheme, spacing } from '../../theme';
 import { useStore } from '../../store/useStore';
 import { hapticPress, hapticRefresh, hapticLight } from '../../utils/haptics';
 import { getBackendUrlSync } from '../../utils/backend';
+import { m3Typography, m3Radii } from '../../../shared/design-tokens';
+import StatRing from '../../components/ui/StatRing';
+import M3Progress from '../../components/ui/M3Progress';
+import { EmptyState } from '../../components/ui/EmptyState';
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -28,26 +37,36 @@ function getGreeting(): string {
   return 'Night owl mode';
 }
 
+function getDateString(): string {
+  return new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
 export default function Dashboard() {
   const { theme } = useTheme();
-  const insets = useSafeAreaInsets();
-  const toggleDrawer = useStore((s) => s.toggleDrawer);
   const { activities, setActivities, setJournals } = useStore();
-  const dashboardLayout = useStore((s) => s.preferences.dashboardLayout);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Pulse animation
-  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const pulseAnim = useSharedValue(1);
   useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, { toValue: 0.4, duration: 1000, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
-        Animated.timing(pulseAnim, { toValue: 1, duration: 1000, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
-      ]),
-    ).start();
+    pulseAnim.value = withRepeat(
+      withSequence(
+        withTiming(0.4, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+      ),
+      -1,
+      false,
+    );
   }, []);
+
+  const pulseDotStyle = useAnimatedStyle(() => ({
+    opacity: pulseAnim.value,
+  }));
 
   useEffect(() => { loadData(); }, []);
 
@@ -65,9 +84,6 @@ export default function Dashboard() {
       setJournals(journalsRes.data);
     } catch (error: any) {
       console.error('Dashboard load error:', error);
-      console.error('Backend URL:', BACKEND_URL);
-      if (error?.config?.url) console.error('Request URL:', error.config.url);
-      if (error?.message) console.error('Error message:', error.message);
     } finally {
       setLoading(false);
     }
@@ -79,19 +95,10 @@ export default function Dashboard() {
     loadData().finally(() => setRefreshing(false));
   }, []);
 
-  // Colors
-  const bg = theme.background;
-  const surface = theme.surface;
-  const text = theme.textPrimary;
-  const textMuted = theme.textSecondary;
-  const accent = theme.accent;
-  const border = theme.borderMuted;
-
   if (loading) {
     return (
-      <View style={[styles.loading, { backgroundColor: bg, paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={accent} />
-        <Text style={[styles.loadingText, { color: textMuted }]}>Loading...</Text>
+      <View style={[styles.loading, { backgroundColor: theme.surface }]}>
+        <M3Progress variant="circular" size="large" />
       </View>
     );
   }
@@ -101,223 +108,187 @@ export default function Dashboard() {
   const totalConnections = stats?.total_connections || 0;
   const categories = stats?.categories || {};
   const topCategories = Object.entries(categories).slice(0, 4);
+  const maxCat = Math.max(...Object.values(categories).map((v: any) => Number(v) || 1), 1);
 
   return (
-    <View style={[styles.container, { backgroundColor: bg }]}>
+    <View style={[styles.container, { backgroundColor: theme.surface }]}>
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.content, { paddingTop: insets.top + 8, paddingBottom: 120 }]}
+        contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accent} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} />
         }
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => { hapticLight(); toggleDrawer(); }}
-            style={[styles.menuBtn, { backgroundColor: surface }]}
-            activeOpacity={0.7}
-          >
-            <MaterialIcons name="menu" size={22} color={text} />
-          </TouchableOpacity>
-          <View style={styles.headerText}>
-            <Text style={[styles.greeting, { color: textMuted }]}>{getGreeting()}</Text>
-            <Text style={[styles.title, { color: text }]}>Dashboard</Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => { hapticPress(); router.push('/profile' as any); }}
-            style={[styles.avatarBtn, { backgroundColor: accent }]}
-            activeOpacity={0.7}
-          >
-            <MaterialIcons name="person" size={20} color={theme.accentContrast} />
-          </TouchableOpacity>
-        </View>
+        {/* Hero Section */}
+        <Animated.View entering={FadeInDown.duration(400).delay(50)} style={styles.hero}>
+          <Text style={[styles.greeting, { color: theme.onSurface }]}>
+            {getGreeting()}
+          </Text>
+          <Text style={[styles.dateText, { color: theme.onSurfaceVariant }]}>
+            {getDateString()}
+          </Text>
 
-        {/* Quick Actions */}
-        <View style={styles.quickActions}>
-          {[
-            { icon: 'add', label: 'Add', route: '/chat', color: accent },
-            { icon: 'chat-bubble-outline', label: 'Chat', route: '/chat', color: text },
-            { icon: 'search', label: 'Search', route: '/search', color: text },
-            { icon: 'edit-note', label: 'Journal', route: '/journal', color: text },
-          ].map((action, i) => (
-            <TouchableOpacity
-              key={action.label}
-              onPress={() => { hapticPress(); router.push(action.route as any); }}
-              style={[styles.quickActionBtn, { backgroundColor: i === 0 ? accent : surface }]}
-              activeOpacity={0.7}
-            >
-              <MaterialIcons
-                name={action.icon as any}
-                size={22}
-                color={i === 0 ? theme.accentContrast : text}
-              />
-            </TouchableOpacity>
-          ))}
-        </View>
+          {/* Insight pills */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.insightScroll}
+            contentContainerStyle={styles.insightContent}
+          >
+            {totalActivities > 0 && (
+              <View style={[styles.insightPill, { backgroundColor: theme.primaryContainer }]}>
+                <Ionicons name="layers-outline" size={14} color={theme.onPrimaryContainer} />
+                <Text style={[styles.insightText, { color: theme.onPrimaryContainer }]}>
+                  {totalActivities} activities
+                </Text>
+              </View>
+            )}
+            {totalConnections > 0 && (
+              <View style={[styles.insightPill, { backgroundColor: theme.primaryContainer }]}>
+                <Ionicons name="git-network-outline" size={14} color={theme.onPrimaryContainer} />
+                <Text style={[styles.insightText, { color: theme.onPrimaryContainer }]}>
+                  {totalConnections} connections
+                </Text>
+              </View>
+            )}
+            {totalJournals > 0 && (
+              <View style={[styles.insightPill, { backgroundColor: theme.primaryContainer }]}>
+                <Ionicons name="book-outline" size={14} color={theme.onPrimaryContainer} />
+                <Text style={[styles.insightText, { color: theme.onPrimaryContainer }]}>
+                  {totalJournals} journal entries
+                </Text>
+              </View>
+            )}
+          </ScrollView>
+        </Animated.View>
 
-        {/* Stats Row - Layout responsive */}
-        <View style={[
-          styles.statsRow,
-          dashboardLayout === 'list' && styles.statsRowList,
-          dashboardLayout === 'compact' && styles.statsRowCompact,
-        ]}>
-          <TouchableOpacity
-            style={[
-              styles.statCard,
-              { backgroundColor: surface, borderColor: border },
-              dashboardLayout === 'list' && styles.statCardList,
-              dashboardLayout === 'compact' && styles.statCardCompact,
-            ]}
-            onPress={() => { hapticLight(); router.push('/(tabs)/knowledge' as any); }}
-            activeOpacity={0.8}
-          >
-            <MaterialIcons name="layers" size={dashboardLayout === 'compact' ? 16 : 20} color={accent} />
-            <Text style={[styles.statValue, { color: text }, dashboardLayout === 'compact' && styles.statValueCompact]}>{totalActivities}</Text>
-            <Text style={[styles.statLabel, { color: textMuted }]}>Activities</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.statCard,
-              { backgroundColor: surface, borderColor: border },
-              dashboardLayout === 'list' && styles.statCardList,
-              dashboardLayout === 'compact' && styles.statCardCompact,
-            ]}
-            onPress={() => { hapticLight(); router.push('/journal' as any); }}
-            activeOpacity={0.8}
-          >
-            <MaterialIcons name="menu-book" size={dashboardLayout === 'compact' ? 16 : 20} color={accent} />
-            <Text style={[styles.statValue, { color: text }, dashboardLayout === 'compact' && styles.statValueCompact]}>{totalJournals}</Text>
-            <Text style={[styles.statLabel, { color: textMuted }]}>Journals</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.statCard,
-              { backgroundColor: accent },
-              dashboardLayout === 'list' && styles.statCardList,
-              dashboardLayout === 'compact' && styles.statCardCompact,
-            ]}
-            onPress={() => { hapticLight(); router.push('/(tabs)/mesh' as any); }}
-            activeOpacity={0.8}
-          >
-            <MaterialIcons name="hub" size={dashboardLayout === 'compact' ? 16 : 20} color={theme.accentContrast} />
-            <Text style={[styles.statValue, { color: theme.accentContrast }, dashboardLayout === 'compact' && styles.statValueCompact]}>{totalConnections}</Text>
-            <Text style={[styles.statLabel, { color: theme.accentContrast + 'CC' }]}>Mesh</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Stat Rings */}
+        <Animated.View entering={FadeInDown.duration(400).delay(150)} style={styles.statsSection}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.statsRow}>
+            <StatRing
+              value={totalActivities}
+              total={Math.max(totalActivities, 50)}
+              label="Activities"
+              onPress={() => { hapticLight(); router.push('/(tabs)/knowledge' as any); }}
+            />
+            <StatRing
+              value={totalJournals}
+              total={Math.max(totalJournals, 20)}
+              label="Journals"
+              onPress={() => { hapticLight(); router.push('/journal' as any); }}
+            />
+            <StatRing
+              value={totalConnections}
+              total={Math.max(totalConnections, 30)}
+              label="Connections"
+              onPress={() => { hapticLight(); router.push('/(tabs)/mesh' as any); }}
+            />
+          </ScrollView>
+        </Animated.View>
 
         {/* Neural Mesh Card */}
-        <TouchableOpacity
-          style={[styles.meshCard, { backgroundColor: surface, borderColor: border }]}
-          onPress={() => { hapticPress(); router.push('/(tabs)/mesh' as any); }}
-          activeOpacity={0.85}
-        >
-          <View style={styles.meshHeader}>
-            <View style={styles.meshTitleRow}>
-              <Text style={[styles.meshTitle, { color: text }]}>Neural Mesh</Text>
-              <Animated.View style={[styles.liveDot, { backgroundColor: theme.status.success, opacity: pulseAnim }]} />
+        <Animated.View entering={FadeInDown.duration(400).delay(250)}>
+          <TouchableOpacity
+            style={[styles.meshCard, { backgroundColor: theme.surfaceContainer }]}
+            onPress={() => { hapticPress(); router.push('/(tabs)/mesh' as any); }}
+            activeOpacity={0.85}
+          >
+            <View style={styles.meshHeader}>
+              <View style={styles.meshTitleRow}>
+                <Text style={[styles.meshTitle, { color: theme.onSurface }]}>Neural Mesh</Text>
+                <Animated.View style={[styles.liveDot, { backgroundColor: theme.success }, pulseDotStyle]} />
+              </View>
+              <Ionicons name="arrow-forward" size={20} color={theme.onSurfaceVariant} />
             </View>
-            <MaterialIcons name="arrow-forward" size={20} color={textMuted} />
-          </View>
-          <Text style={[styles.meshDesc, { color: textMuted }]}>
-            {totalConnections > 0
-              ? `${totalConnections} connections discovered across your knowledge base.`
-              : 'Start adding content to discover patterns and connections.'}
-          </Text>
-          {/* Mini visualization */}
-          <View style={styles.meshViz}>
-            {Array.from({ length: 12 }).map((_, i) => (
-              <Animated.View
-                key={i}
-                style={[
-                  styles.meshDot,
-                  {
-                    backgroundColor: i % 4 === 0 ? accent : border,
-                    opacity: i % 4 === 0 ? pulseAnim : 0.5,
-                  },
-                ]}
-              />
-            ))}
-          </View>
-        </TouchableOpacity>
+            <Text style={[styles.meshDesc, { color: theme.onSurfaceVariant }]}>
+              {totalConnections > 0
+                ? `${totalConnections} connections discovered across your knowledge base.`
+                : 'Start adding content to discover patterns and connections.'}
+            </Text>
+            <View style={styles.meshViz}>
+              {Array.from({ length: 16 }).map((_, i) => (
+                <Animated.View
+                  key={i}
+                  style={[
+                    styles.meshDot,
+                    {
+                      backgroundColor: i % 3 === 0 ? theme.primary : theme.outlineVariant,
+                      opacity: i % 3 === 0 ? 0.8 : 0.3,
+                    },
+                  ]}
+                />
+              ))}
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
 
         {/* Top Categories */}
         {topCategories.length > 0 && (
-          <View style={[styles.section, { borderColor: border }]}>
-            <Text style={[styles.sectionTitle, { color: text }]}>Top Domains</Text>
-            {topCategories.map(([name, count]: any, i) => (
-              <View key={name} style={styles.categoryRow}>
-                <View style={styles.categoryLeft}>
-                  <View style={[styles.categoryDot, { backgroundColor: i === 0 ? accent : border }]} />
-                  <Text style={[styles.categoryName, { color: text }]}>{name}</Text>
+          <Animated.View entering={FadeInDown.duration(400).delay(350)}>
+            <View style={[styles.sectionCard, { backgroundColor: theme.surfaceContainer }]}>
+              <Text style={[styles.sectionTitle, { color: theme.onSurface }]}>Top Domains</Text>
+              {topCategories.map(([name, count]: any, i) => (
+                <View key={name} style={styles.categoryRow}>
+                  <View style={styles.categoryLeft}>
+                    <View style={[styles.categoryDot, { backgroundColor: i === 0 ? theme.primary : theme.outlineVariant }]} />
+                    <Text style={[styles.categoryName, { color: theme.onSurface }]}>{name}</Text>
+                  </View>
+                  <Text style={[styles.categoryCount, { color: i === 0 ? theme.primary : theme.onSurfaceVariant }]}>
+                    {count}
+                  </Text>
                 </View>
-                <Text style={[styles.categoryCount, { color: i === 0 ? accent : textMuted }]}>
-                  {count}
-                </Text>
-              </View>
-            ))}
-          </View>
+              ))}
+            </View>
+          </Animated.View>
         )}
 
         {/* Recent Activity */}
-        <View style={[styles.section, { borderColor: border }]}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: text }]}>Recent Activity</Text>
-            <Animated.View style={[styles.liveBadge, { borderColor: theme.status.success + '44' }]}>
-              <Animated.View style={[styles.liveDotSmall, { backgroundColor: theme.status.success, opacity: pulseAnim }]} />
-              <Text style={[styles.liveText, { color: theme.status.success }]}>LIVE</Text>
-            </Animated.View>
-          </View>
-
-          {activities.length === 0 ? (
-            <View style={styles.emptyState}>
-              <MaterialIcons name="inbox" size={40} color={border} />
-              <Text style={[styles.emptyText, { color: textMuted }]}>No activities yet</Text>
-              <Text style={[styles.emptyHint, { color: textMuted }]}>Tap + to add your first entry</Text>
+        <Animated.View entering={FadeInDown.duration(400).delay(450)}>
+          <View style={[styles.sectionCard, { backgroundColor: theme.surfaceContainer }]}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: theme.onSurface }]}>Recent Activity</Text>
+              {activities.length > 5 && (
+                <TouchableOpacity onPress={() => { hapticPress(); router.push('/(tabs)/knowledge' as any); }}>
+                  <Text style={[styles.seeAllText, { color: theme.primary }]}>See all</Text>
+                </TouchableOpacity>
+              )}
             </View>
-          ) : (
-            activities.slice(0, 5).map((activity: any, i: number) => (
-              <TouchableOpacity
-                key={activity.id}
-                style={[
-                  styles.activityItem,
-                  i < Math.min(activities.length, 5) - 1 && { borderBottomWidth: 1, borderBottomColor: border },
-                ]}
-                onPress={() => { hapticLight(); router.push(`/activity-detail?id=${activity.id}` as any); }}
-                activeOpacity={0.7}
-              >
-                <View style={[styles.activityDot, { backgroundColor: i === 0 ? accent : border }]} />
-                <View style={styles.activityContent}>
-                  <Text style={[styles.activityTitle, { color: text }]} numberOfLines={1}>
-                    {activity.title}
-                  </Text>
-                  <Text style={[styles.activityMeta, { color: textMuted }]}>
-                    {activity.source}{activity.category ? ` · ${activity.category}` : ''}
-                  </Text>
-                </View>
-                <Text style={[styles.activityTime, { color: textMuted }]}>
-                  {new Date(activity.timestamp).toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false,
-                  })}
-                </Text>
-              </TouchableOpacity>
-            ))
-          )}
 
-          {activities.length > 5 && (
-            <TouchableOpacity
-              style={[styles.viewAllBtn, { borderTopColor: border }]}
-              onPress={() => { hapticPress(); router.push('/(tabs)/knowledge' as any); }}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.viewAllText, { color: accent }]}>View all</Text>
-              <MaterialIcons name="arrow-forward" size={16} color={accent} />
-            </TouchableOpacity>
-          )}
-        </View>
+            {activities.length === 0 ? (
+              <EmptyState variant="empty-activities" onCTA={() => router.push('/chat' as any)} />
+            ) : (
+              activities.slice(0, 5).map((activity: any, i: number) => (
+                <TouchableOpacity
+                  key={activity.id}
+                  style={[
+                    styles.activityCard,
+                    { backgroundColor: theme.surface },
+                  ]}
+                  onPress={() => { hapticLight(); router.push(`/activity-detail?id=${activity.id}` as any); }}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.categoryStrip, { backgroundColor: theme.primary }]} />
+                  <View style={styles.activityContent}>
+                    <Text style={[styles.activityTitle, { color: theme.onSurface }]} numberOfLines={1}>
+                      {activity.title}
+                    </Text>
+                    <Text style={[styles.activityMeta, { color: theme.onSurfaceVariant }]}>
+                      {activity.source}{activity.category ? ` · ${activity.category}` : ''}
+                    </Text>
+                  </View>
+                  <Text style={[styles.activityTime, { color: theme.onSurfaceVariant }]}>
+                    {new Date(activity.timestamp).toLocaleTimeString('en-US', {
+                      hour: '2-digit', minute: '2-digit', hour12: false,
+                    })}
+                  </Text>
+                </TouchableOpacity>
+              ))
+            )}
+          </View>
+        </Animated.View>
+
+        <View style={{ height: 120 }} />
       </ScrollView>
     </View>
   );
@@ -328,130 +299,77 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   content: { paddingHorizontal: spacing.lg },
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { marginTop: spacing.md, fontSize: fs(13) },
 
-  /* Header */
-  header: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.lg },
-  menuBtn: {
-    width: sw(44),
-    height: sw(44),
-    borderRadius: sw(12),
+  /* Hero */
+  hero: { marginBottom: spacing.xl, paddingTop: spacing.sm },
+  greeting: { fontSize: m3Typography.displaySmall.fontSize, fontWeight: '700' },
+  dateText: { fontSize: m3Typography.bodyLarge.fontSize, marginTop: 4 },
+  insightScroll: { marginTop: spacing.lg },
+  insightContent: { gap: spacing.sm },
+  insightPill: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: m3Radii.full,
   },
-  headerText: { flex: 1, marginLeft: spacing.md },
-  greeting: { fontSize: fs(11), textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 2 },
-  title: { fontSize: fs(22), fontWeight: '700' },
-  avatarBtn: {
-    width: sw(44),
-    height: sw(44),
-    borderRadius: sw(12),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  /* Quick Actions */
-  quickActions: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
-  quickActionBtn: {
-    flex: 1,
-    height: sw(52),
-    borderRadius: sw(14),
-    alignItems: 'center',
-    justifyContent: 'center',
+  insightText: {
+    fontSize: m3Typography.labelMedium.fontSize,
+    fontWeight: '500',
   },
 
   /* Stats */
-  statsRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
-  statCard: {
-    flex: 1,
-    paddingVertical: spacing.lg,
-    paddingHorizontal: spacing.md,
-    borderRadius: 14,
-    borderWidth: 1,
-    alignItems: 'center',
-    gap: 4,
-  },
-  statValue: { fontSize: fs(24), fontWeight: '700' },
-  statLabel: { fontSize: fs(10), textTransform: 'uppercase', letterSpacing: 1 },
+  statsSection: { marginBottom: spacing.xl },
+  statsRow: { gap: spacing.xl, paddingHorizontal: spacing.sm },
 
-  /* Mesh Card */
+  /* Mesh card */
   meshCard: {
-    borderRadius: 16,
-    borderWidth: 1,
+    borderRadius: m3Radii.xl,
     padding: spacing.lg,
     marginBottom: spacing.lg,
   },
   meshHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
   meshTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  meshTitle: { fontSize: fs(16), fontWeight: '700' },
+  meshTitle: { fontSize: m3Typography.titleMedium.fontSize, fontWeight: '600' },
   liveDot: { width: 8, height: 8, borderRadius: 4 },
-  meshDesc: { fontSize: fs(13), lineHeight: 20, marginBottom: spacing.md },
-  meshViz: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-    justifyContent: 'center',
-    paddingTop: spacing.sm,
-  },
-  meshDot: { width: 6, height: 6, borderRadius: 3 },
+  meshDesc: { fontSize: m3Typography.bodyMedium.fontSize, lineHeight: 22, marginBottom: spacing.md },
+  meshViz: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, justifyContent: 'center', paddingTop: spacing.sm },
+  meshDot: { width: 8, height: 8, borderRadius: 4 },
 
-  /* Sections */
-  section: {
-    borderRadius: 16,
-    borderWidth: 1,
+  /* Section card */
+  sectionCard: {
+    borderRadius: m3Radii.xl,
     padding: spacing.lg,
     marginBottom: spacing.lg,
   },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
-  sectionTitle: { fontSize: fs(14), fontWeight: '700', marginBottom: spacing.md },
-  liveBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    borderWidth: 1,
-  },
-  liveDotSmall: { width: 6, height: 6, borderRadius: 3 },
-  liveText: { fontSize: fs(9), fontWeight: '700', letterSpacing: 1 },
+  sectionTitle: { fontSize: m3Typography.titleMedium.fontSize, fontWeight: '600', marginBottom: spacing.sm },
+  seeAllText: { fontSize: m3Typography.labelLarge.fontSize, fontWeight: '600' },
 
   /* Categories */
   categoryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing.sm },
   categoryLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   categoryDot: { width: 8, height: 8, borderRadius: 4 },
-  categoryName: { fontSize: fs(13) },
-  categoryCount: { fontSize: fs(13), fontWeight: '600' },
+  categoryName: { fontSize: m3Typography.bodyMedium.fontSize },
+  categoryCount: { fontSize: m3Typography.bodyMedium.fontSize, fontWeight: '600' },
 
-  /* Activity Items */
-  activityItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.md, gap: spacing.md },
-  activityDot: { width: 8, height: 8, borderRadius: 4 },
-  activityContent: { flex: 1 },
-  activityTitle: { fontSize: fs(14), fontWeight: '600', marginBottom: 2 },
-  activityMeta: { fontSize: fs(11) },
-  activityTime: { fontSize: fs(11) },
-
-  /* Empty State */
-  emptyState: { alignItems: 'center', paddingVertical: spacing.xxl },
-  emptyText: { fontSize: fs(14), marginTop: spacing.md },
-  emptyHint: { fontSize: fs(12), marginTop: spacing.xs },
-
-  /* View All */
-  viewAllBtn: {
+  /* Activity cards */
+  activityCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    paddingTop: spacing.lg,
-    marginTop: spacing.sm,
-    borderTopWidth: 1,
+    borderRadius: m3Radii.xl,
+    overflow: 'hidden',
+    marginBottom: spacing.sm,
   },
-  viewAllText: { fontSize: fs(13), fontWeight: '700' },
-
-  /* Layout Variants */
-  statsRowList: { flexDirection: 'column', gap: spacing.sm },
-  statsRowCompact: { gap: spacing.xs },
-  statCardList: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: spacing.md },
-  statCardCompact: { paddingVertical: spacing.sm, paddingHorizontal: spacing.sm },
-  statValueCompact: { fontSize: fs(18) },
+  categoryStrip: {
+    width: 4,
+    alignSelf: 'stretch',
+    borderTopLeftRadius: m3Radii.xl,
+    borderBottomLeftRadius: m3Radii.xl,
+  },
+  activityContent: { flex: 1, paddingVertical: spacing.md, paddingHorizontal: spacing.md },
+  activityTitle: { fontSize: m3Typography.titleSmall.fontSize, fontWeight: '600', marginBottom: 2 },
+  activityMeta: { fontSize: m3Typography.labelMedium.fontSize },
+  activityTime: { fontSize: m3Typography.labelSmall.fontSize, paddingRight: spacing.md },
 });

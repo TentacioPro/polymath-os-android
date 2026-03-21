@@ -9,27 +9,20 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import axios from 'axios';
-import { useTheme, spacing, fs, sw } from '../theme';
+import { useTheme, spacing } from '../theme';
+import { m3Typography, m3Radii } from '../../shared/design-tokens';
 import { useStore } from '../store/useStore';
-import { hapticLight, hapticPress, hapticSelection } from '../utils/haptics';
-
+import { hapticLight, hapticSelection } from '../utils/haptics';
 import { getBackendUrlSync } from '../utils/backend';
 
 export default function ProfileScreen() {
-  const { theme, cycleTheme, themeName } = useTheme();
+  const { theme, themeName } = useTheme();
   const insets = useSafeAreaInsets();
   const { activities, journals, connections } = useStore();
   const [persona, setPersona] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
-
-  // Colors
-  const bg = theme.background;
-  const surface = theme.surface;
-  const text = theme.textPrimary;
-  const textMuted = theme.textSecondary;
-  const accent = theme.accent;
-  const border = theme.borderMuted;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,9 +34,7 @@ export default function ProfileScreen() {
         ]);
         setPersona(pRes.data);
         setStats(sRes.data);
-      } catch (e) {
-        // silent
-      }
+      } catch {}
     };
     fetchData();
   }, []);
@@ -60,42 +51,40 @@ export default function ProfileScreen() {
     onPress?: () => void;
   }) => (
     <TouchableOpacity
-      style={[styles.settingCard, { backgroundColor: surface, borderColor: border }]}
+      style={[styles.settingCard, { backgroundColor: theme.surfaceContainer }]}
       onPress={onPress}
       disabled={!onPress}
       activeOpacity={onPress ? 0.7 : 1}
     >
-      <View style={[styles.settingIcon, { backgroundColor: bg }]}>
-        <MaterialIcons name={icon} size={18} color={accent} />
+      <View style={[styles.settingIcon, { backgroundColor: theme.primaryContainer }]}>
+        <MaterialIcons name={icon} size={18} color={theme.onPrimaryContainer} />
       </View>
       <View style={styles.settingText}>
-        <Text style={[styles.settingLabel, { color: text }]}>{label}</Text>
-        <Text style={[styles.settingDesc, { color: textMuted }]}>{desc}</Text>
+        <Text style={[styles.settingLabel, { color: theme.onSurface }]}>{label}</Text>
+        <Text style={[styles.settingDesc, { color: theme.onSurfaceVariant }]}>{desc}</Text>
       </View>
-      {onPress && <MaterialIcons name="chevron-right" size={20} color={textMuted} />}
+      {onPress && <MaterialIcons name="chevron-right" size={20} color={theme.onSurfaceVariant} />}
     </TouchableOpacity>
   );
 
-  const DataRow = ({ label, value }: { label: string; value: string | number }) => (
-    <View style={styles.dataRow}>
-      <Text style={[styles.dataLabel, { color: textMuted }]}>{label}</Text>
-      <Text style={[styles.dataValue, { color: text }]}>{value}</Text>
-    </View>
-  );
+  const statItems = [
+    { label: 'Activities', value: stats?.total_activities ?? activities.length },
+    { label: 'Journals', value: stats?.total_journals ?? journals.length },
+    { label: 'Connections', value: stats?.total_connections ?? connections.length },
+  ];
 
   return (
-    <View style={[styles.container, { backgroundColor: bg }]}>
+    <View style={[styles.container, { backgroundColor: theme.surface }]}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.iconBtn, { backgroundColor: surface }]}
+          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
         >
-          <MaterialIcons name="arrow-back" size={20} color={text} />
+          <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
         </TouchableOpacity>
         <View style={styles.headerText}>
-          <Text style={[styles.title, { color: text }]}>Profile</Text>
-          <Text style={[styles.subtitle, { color: textMuted }]}>Settings</Text>
+          <Text style={[styles.headerTitle, { color: theme.onSurface }]}>Profile</Text>
         </View>
       </View>
 
@@ -104,65 +93,78 @@ export default function ProfileScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Avatar Card */}
-        <View style={[styles.avatarCard, { backgroundColor: surface, borderColor: border }]}>
-          <View style={[styles.avatar, { backgroundColor: accent }]}>
-            <MaterialIcons name="person" size={28} color={theme.accentContrast} />
+        {/* Avatar Hero */}
+        <Animated.View entering={FadeInDown.delay(100).springify()} style={styles.heroSection}>
+          <View style={[styles.avatar, { backgroundColor: theme.primaryContainer }]}>
+            <MaterialIcons name="person" size={36} color={theme.onPrimaryContainer} />
           </View>
-          <View style={styles.avatarText}>
-            <Text style={[styles.avatarName, { color: text }]}>
-              {persona?.name || 'Polymath User'}
-            </Text>
-            <Text style={[styles.avatarRole, { color: textMuted }]}>
-              {persona?.role || 'Polymath Guide'}
-            </Text>
-          </View>
-        </View>
+          <Text style={[styles.userName, { color: theme.onSurface }]}>
+            {persona?.name || 'Polymath User'}
+          </Text>
+          <Text style={[styles.userRole, { color: theme.onSurfaceVariant }]}>
+            {persona?.role || 'Polymath Guide'}
+          </Text>
+        </Animated.View>
 
-        {/* Data Summary */}
-        <Text style={[styles.sectionTitle, { color: textMuted }]}>DATA</Text>
-        <View style={[styles.dataCard, { backgroundColor: surface, borderColor: border }]}>
-          <DataRow label="Activities" value={stats?.total_activities ?? activities.length} />
-          <DataRow label="Journals" value={stats?.total_journals ?? journals.length} />
-          <DataRow label="Connections" value={stats?.total_connections ?? connections.length} />
-        </View>
+        {/* Stat Pills */}
+        <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.statRow}>
+          {statItems.map((item, i) => (
+            <View
+              key={i}
+              style={[styles.statPill, { backgroundColor: theme.surfaceContainer }]}
+            >
+              <Text style={[styles.statValue, { color: theme.onSurface }]}>{item.value}</Text>
+              <Text style={[styles.statLabel, { color: theme.onSurfaceVariant }]}>{item.label}</Text>
+            </View>
+          ))}
+        </Animated.View>
 
         {/* Appearance */}
-        <Text style={[styles.sectionTitle, { color: textMuted }]}>APPEARANCE</Text>
-        <SettingItem
-          icon="palette"
-          label="Themes"
-          desc={`${themeName.charAt(0).toUpperCase() + themeName.slice(1)} (7 themes available)`}
-          onPress={() => { hapticSelection(); router.push('/appearance' as any); }}
-        />
-        <SettingItem
-          icon="tune"
-          label="Customize"
-          desc="Layouts, screens & visibility"
-          onPress={() => { hapticSelection(); router.push('/customize' as any); }}
-        />
+        <Animated.View entering={FadeInDown.delay(300)}>
+          <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>Appearance</Text>
+          <SettingItem
+            icon="palette"
+            label="Themes"
+            desc={`${themeName.charAt(0).toUpperCase() + themeName.slice(1)} (7 themes)`}
+            onPress={() => { hapticSelection(); router.push('/appearance' as any); }}
+          />
+          <SettingItem
+            icon="tune"
+            label="Customize"
+            desc="Layouts, screens & visibility"
+            onPress={() => { hapticSelection(); router.push('/customize' as any); }}
+          />
+        </Animated.View>
 
         {/* System */}
-        <Text style={[styles.sectionTitle, { color: textMuted }]}>SYSTEM</Text>
-        <SettingItem
-          icon="file-download"
-          label="Export Data"
-          desc="Export your knowledge"
-          onPress={() => { hapticSelection(); router.push('/export' as any); }}
-        />
-        <SettingItem
-          icon="analytics"
-          label="Analytics"
-          desc="System diagnostics"
-          onPress={() => { hapticSelection(); router.push('/analytics' as any); }}
-        />
-        <SettingItem
-          icon="info-outline"
-          label="About"
-          desc="Polymath OS v1.0"
-        />
+        <Animated.View entering={FadeInDown.delay(400)}>
+          <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>System</Text>
+          <SettingItem
+            icon="file-download"
+            label="Export Data"
+            desc="Export your knowledge"
+            onPress={() => { hapticSelection(); router.push('/export' as any); }}
+          />
+          <SettingItem
+            icon="analytics"
+            label="Analytics"
+            desc="System diagnostics"
+            onPress={() => { hapticSelection(); router.push('/analytics' as any); }}
+          />
+          <SettingItem
+            icon="extension"
+            label="Integrations"
+            desc="Backend & AI configuration"
+            onPress={() => { hapticSelection(); router.push('/integrations' as any); }}
+          />
+          <SettingItem
+            icon="info-outline"
+            label="About"
+            desc="Polymath OS v1.0"
+          />
+        </Animated.View>
 
-        <View style={{ height: 80 }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
     </View>
   );
@@ -179,80 +181,97 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     gap: spacing.sm,
   },
-  headerText: { flex: 1, marginLeft: spacing.sm },
-  title: { fontSize: fs(20), fontWeight: '700' },
-  subtitle: { fontSize: fs(12), marginTop: 2 },
-  iconBtn: {
-    width: sw(44),
-    height: sw(44),
-    borderRadius: sw(12),
+  backBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  headerText: { flex: 1, marginLeft: spacing.sm },
+  headerTitle: {
+    fontSize: m3Typography.titleLarge.fontSize,
+    fontWeight: '700',
   },
 
   /* Content */
   scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: spacing.lg },
-  sectionTitle: {
-    fontSize: fs(10),
-    fontWeight: '600',
-    letterSpacing: 1,
-    marginTop: spacing.xl,
-    marginBottom: spacing.sm,
-  },
 
-  /* Avatar */
-  avatarCard: {
-    flexDirection: 'row',
+  /* Hero */
+  heroSection: {
     alignItems: 'center',
-    padding: spacing.lg,
-    borderRadius: 16,
-    borderWidth: 1,
+    paddingVertical: spacing.xl,
   },
   avatar: {
-    width: sw(56),
-    height: sw(56),
-    borderRadius: sw(14),
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: spacing.md,
   },
-  avatarText: { flex: 1, marginLeft: spacing.md },
-  avatarName: { fontSize: fs(18), fontWeight: '700' },
-  avatarRole: { fontSize: fs(13), marginTop: 2 },
+  userName: {
+    fontSize: m3Typography.headlineMedium.fontSize,
+    fontWeight: '700',
+  },
+  userRole: {
+    fontSize: m3Typography.bodyLarge.fontSize,
+    marginTop: 4,
+  },
 
-  /* Data */
-  dataCard: {
-    borderRadius: 14,
-    borderWidth: 1,
-    padding: spacing.md,
-    gap: spacing.sm,
-  },
-  dataRow: {
+  /* Stats */
+  statRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
   },
-  dataLabel: { fontSize: fs(14) },
-  dataValue: { fontSize: fs(14), fontWeight: '600' },
+  statPill: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: spacing.lg,
+    borderRadius: m3Radii.xl,
+  },
+  statValue: {
+    fontSize: m3Typography.headlineSmall.fontSize,
+    fontWeight: '700',
+  },
+  statLabel: {
+    fontSize: m3Typography.labelSmall.fontSize,
+    marginTop: 4,
+  },
+
+  /* Sections */
+  sectionTitle: {
+    fontSize: m3Typography.labelLarge.fontSize,
+    fontWeight: '600',
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+  },
 
   /* Settings */
   settingCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing.md,
-    borderRadius: 14,
-    borderWidth: 1,
+    padding: spacing.lg,
+    borderRadius: m3Radii.xl,
     marginBottom: spacing.sm,
     gap: spacing.md,
   },
   settingIcon: {
-    width: sw(40),
-    height: sw(40),
-    borderRadius: sw(10),
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   settingText: { flex: 1 },
-  settingLabel: { fontSize: fs(14), fontWeight: '600' },
-  settingDesc: { fontSize: fs(12), marginTop: 2 },
+  settingLabel: {
+    fontSize: m3Typography.titleMedium.fontSize,
+    fontWeight: '600',
+  },
+  settingDesc: {
+    fontSize: m3Typography.bodySmall.fontSize,
+    marginTop: 2,
+  },
 });

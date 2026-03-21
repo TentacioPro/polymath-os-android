@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useCallback, useMemo } from 'react';
-import { ThemeTokens, ThemeName, themes, getNextTheme } from './tokens';
+import { ThemeTokens, ThemeName, themeTokens, getNextTheme, isDarkTheme } from './tokens';
 
 interface ThemeContextValue {
   theme: ThemeTokens;
@@ -18,7 +18,7 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ themeName, onThemeChange, children }: ThemeProviderProps) {
-  const theme = useMemo(() => themes[themeName], [themeName]);
+  const theme = useMemo(() => themeTokens[themeName], [themeName]);
 
   const setTheme = useCallback(
     (name: ThemeName) => onThemeChange(name),
@@ -30,7 +30,7 @@ export function ThemeProvider({ themeName, onThemeChange, children }: ThemeProvi
     [themeName, onThemeChange],
   );
 
-  const isDark = themeName !== 'nova';
+  const isDark = isDarkTheme(themeName);
 
   const value = useMemo<ThemeContextValue>(
     () => ({ theme, themeName, setTheme, cycleTheme, isDark }),

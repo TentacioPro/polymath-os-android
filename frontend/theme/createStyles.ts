@@ -2,19 +2,20 @@ import { useMemo } from 'react';
 import { StyleSheet, ViewStyle, TextStyle, ImageStyle } from 'react-native';
 import { useTheme } from './ThemeContext';
 import { ThemeTokens } from './tokens';
+import { m3Elevation } from './tokens';
 
 type NamedStyles<T> = { [P in keyof T]: ViewStyle | TextStyle | ImageStyle };
 
 /**
  * Creates themed styles that automatically update when the theme changes.
- * 
+ *
  * Usage:
  * ```ts
  * const useStyles = createThemedStyles((theme) => ({
- *   container: { backgroundColor: theme.background },
- *   text: { color: theme.textPrimary },
+ *   container: { backgroundColor: theme.surface },
+ *   text: { color: theme.onSurface },
  * }));
- * 
+ *
  * function MyComponent() {
  *   const styles = useStyles();
  *   return <View style={styles.container}><Text style={styles.text}>...</Text></View>;
@@ -31,18 +32,23 @@ export function createThemedStyles<T extends NamedStyles<T>>(
 }
 
 /**
- * Helper to get the architect shadow style for the current theme.
+ * M3 elevation helper — returns shadow style for the given elevation level.
+ * Replaces the old useArchitectShadow.
  */
-export function useArchitectShadow(intense = false) {
+export function useM3Elevation(level: keyof typeof m3Elevation = 'level2') {
   const { theme } = useTheme();
   return useMemo(
     () => ({
-      shadowColor: intense ? theme.pill.shadow : theme.shadow,
-      shadowOffset: theme.shadowOffset,
-      shadowOpacity: 1,
-      shadowRadius: 0,
-      elevation: 4,
+      ...m3Elevation[level],
+      shadowColor: theme.onSurface,
     }),
-    [theme, intense],
+    [theme, level],
   );
+}
+
+/**
+ * @deprecated Use useM3Elevation instead. Kept for migration.
+ */
+export function useArchitectShadow(_intense = false) {
+  return useM3Elevation('level2');
 }

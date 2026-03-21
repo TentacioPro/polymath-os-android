@@ -5,16 +5,18 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  ActivityIndicator,
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import axios from 'axios';
-import { useTheme, spacing, fs, sw } from '../theme';
+import { useTheme, spacing } from '../theme';
+import { m3Typography, m3Radii } from '../../shared/design-tokens';
+import M3Progress from '../components/ui/M3Progress';
+import { EmptyState } from '../components/ui/EmptyState';
 import { hapticPress, hapticLight, hapticSelection, hapticWarning } from '../utils/haptics';
-
 import { getBackendUrlSync } from '../utils/backend';
 
 export default function SearchScreen() {
@@ -23,14 +25,6 @@ export default function SearchScreen() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any>(null);
   const [searching, setSearching] = useState(false);
-
-  // Colors
-  const bg = theme.background;
-  const surface = theme.surface;
-  const text = theme.textPrimary;
-  const textMuted = theme.textSecondary;
-  const accent = theme.accent;
-  const border = theme.borderMuted;
 
   const handleSearch = useCallback(async () => {
     const BACKEND_URL = getBackendUrlSync();
@@ -52,29 +46,55 @@ export default function SearchScreen() {
   const formatDate = (ts: string) => {
     try {
       return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-    } catch {
-      return '';
-    }
+    } catch { return ''; }
   };
 
   const hasResults = results && results.total > 0;
 
+  const ResultCard = ({ icon, title, subtitle, trailing, onPress }: {
+    icon: keyof typeof MaterialIcons.glyphMap;
+    title: string;
+    subtitle?: string;
+    trailing?: React.ReactNode;
+    onPress?: () => void;
+  }) => (
+    <TouchableOpacity
+      style={[styles.resultCard, { backgroundColor: theme.surfaceContainer }]}
+      onPress={onPress}
+      activeOpacity={0.7}
+      disabled={!onPress}
+    >
+      <View style={[styles.resultIcon, { backgroundColor: theme.primaryContainer }]}>
+        <MaterialIcons name={icon} size={16} color={theme.onPrimaryContainer} />
+      </View>
+      <View style={styles.resultContent}>
+        <Text style={[styles.resultTitle, { color: theme.onSurface }]} numberOfLines={1}>{title}</Text>
+        {subtitle && (
+          <Text style={[styles.resultDesc, { color: theme.onSurfaceVariant }]} numberOfLines={2}>
+            {subtitle}
+          </Text>
+        )}
+      </View>
+      {trailing}
+    </TouchableOpacity>
+  );
+
   return (
-    <View style={[styles.container, { backgroundColor: bg }]}>
-      {/* Header */}
+    <View style={[styles.container, { backgroundColor: theme.surface }]}>
+      {/* Header + Search */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.iconBtn, { backgroundColor: surface }]}
+          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
         >
-          <MaterialIcons name="arrow-back" size={20} color={text} />
+          <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
         </TouchableOpacity>
-        <View style={[styles.searchBar, { backgroundColor: surface, borderColor: border }]}>
-          <MaterialIcons name="search" size={18} color={textMuted} />
+        <View style={[styles.searchPill, { backgroundColor: theme.surfaceContainerHigh }]}>
+          <MaterialIcons name="search" size={20} color={theme.onSurfaceVariant} />
           <TextInput
-            style={[styles.searchInput, { color: text }]}
+            style={[styles.searchInput, { color: theme.onSurface }]}
             placeholder="Search knowledge..."
-            placeholderTextColor={textMuted}
+            placeholderTextColor={theme.onSurfaceVariant}
             value={query}
             onChangeText={setQuery}
             onSubmitEditing={handleSearch}
@@ -83,7 +103,7 @@ export default function SearchScreen() {
           />
           {query.length > 0 && (
             <TouchableOpacity onPress={() => { hapticLight(); setQuery(''); setResults(null); }}>
-              <MaterialIcons name="close" size={18} color={textMuted} />
+              <MaterialIcons name="close" size={18} color={theme.onSurfaceVariant} />
             </TouchableOpacity>
           )}
         </View>
@@ -98,133 +118,103 @@ export default function SearchScreen() {
         {/* Loading */}
         {searching && (
           <View style={styles.center}>
-            <ActivityIndicator size="large" color={accent} />
+            <M3Progress size="large" />
           </View>
         )}
 
         {/* No results */}
         {!searching && results && !hasResults && (
-          <View style={styles.center}>
-            <MaterialIcons name="search-off" size={48} color={border} />
-            <Text style={[styles.centerText, { color: textMuted }]}>No results for "{query}"</Text>
-          </View>
+          <EmptyState
+            variant="empty-search"
+            title={`No results for "${query}"`}
+            description="Try different keywords or check spelling"
+          />
         )}
 
         {/* Results */}
         {!searching && hasResults && (
           <>
-            <Text style={[styles.resultCount, { color: textMuted }]}>
+            <Text style={[styles.resultCount, { color: theme.onSurfaceVariant }]}>
               {results.total} result{results.total !== 1 ? 's' : ''} found
             </Text>
 
             {/* Activities */}
             {results.activities?.length > 0 && (
-              <>
-                <Text style={[styles.sectionTitle, { color: textMuted }]}>
-                  ACTIVITIES ({results.activities.length})
+              <Animated.View entering={FadeInDown.delay(100)}>
+                <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>
+                  Activities ({results.activities.length})
                 </Text>
                 {results.activities.map((item: any) => (
-                  <TouchableOpacity
+                  <ResultCard
                     key={item.id}
-                    style={[styles.resultCard, { backgroundColor: surface, borderColor: border }]}
-                    onPress={() => { hapticSelection(); router.push(`/activity-detail?id=${item.id}` as any); }}
-                    activeOpacity={0.7}
-                  >
-                    <View style={[styles.resultIcon, { backgroundColor: bg }]}>
-                      <MaterialIcons name="description" size={16} color={accent} />
-                    </View>
-                    <View style={styles.resultContent}>
-                      <Text style={[styles.resultTitle, { color: text }]} numberOfLines={1}>
-                        {item.title}
-                      </Text>
-                      {item.notes && (
-                        <Text style={[styles.resultDesc, { color: textMuted }]} numberOfLines={2}>
-                          {item.notes}
+                    icon="description"
+                    title={item.title}
+                    subtitle={item.notes}
+                    trailing={
+                      <View style={[styles.badge, { backgroundColor: theme.primaryContainer }]}>
+                        <Text style={[styles.badgeText, { color: theme.onPrimaryContainer }]}>
+                          {(item.content_type || item.category || 'FILE').toUpperCase().slice(0, 4)}
                         </Text>
-                      )}
-                    </View>
-                    <View style={[styles.badge, { backgroundColor: accent + '20' }]}>
-                      <Text style={[styles.badgeText, { color: accent }]}>
-                        {(item.content_type || item.category || 'FILE').toUpperCase().slice(0, 4)}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
+                      </View>
+                    }
+                    onPress={() => { hapticSelection(); router.push(`/activity-detail?id=${item.id}` as any); }}
+                  />
                 ))}
-              </>
+              </Animated.View>
             )}
 
             {/* Journals */}
             {results.journals?.length > 0 && (
-              <>
-                <Text style={[styles.sectionTitle, { color: textMuted }]}>
-                  JOURNALS ({results.journals.length})
+              <Animated.View entering={FadeInDown.delay(200)}>
+                <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>
+                  Journals ({results.journals.length})
                 </Text>
                 {results.journals.map((item: any) => (
-                  <TouchableOpacity
+                  <ResultCard
                     key={item.id}
-                    style={[styles.resultCard, { backgroundColor: surface, borderColor: border }]}
+                    icon="menu-book"
+                    title={item.title}
+                    subtitle={item.content}
+                    trailing={
+                      <Text style={[styles.dateText, { color: theme.onSurfaceVariant }]}>
+                        {formatDate(item.timestamp)}
+                      </Text>
+                    }
                     onPress={() => { hapticSelection(); router.push('/journal' as any); }}
-                    activeOpacity={0.7}
-                  >
-                    <View style={[styles.resultIcon, { backgroundColor: bg }]}>
-                      <MaterialIcons name="menu-book" size={16} color={accent} />
-                    </View>
-                    <View style={styles.resultContent}>
-                      <Text style={[styles.resultTitle, { color: text }]} numberOfLines={1}>
-                        {item.title}
-                      </Text>
-                      <Text style={[styles.resultDesc, { color: textMuted }]} numberOfLines={2}>
-                        {item.content}
-                      </Text>
-                    </View>
-                    <Text style={[styles.dateText, { color: textMuted }]}>
-                      {formatDate(item.timestamp)}
-                    </Text>
-                  </TouchableOpacity>
+                  />
                 ))}
-              </>
+              </Animated.View>
             )}
 
             {/* Connections */}
             {results.connections?.length > 0 && (
-              <>
-                <Text style={[styles.sectionTitle, { color: textMuted }]}>
-                  CONNECTIONS ({results.connections.length})
+              <Animated.View entering={FadeInDown.delay(300)}>
+                <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>
+                  Connections ({results.connections.length})
                 </Text>
                 {results.connections.map((item: any, i: number) => (
-                  <View
+                  <ResultCard
                     key={item.id || i}
-                    style={[styles.resultCard, { backgroundColor: surface, borderColor: border }]}
-                  >
-                    <View style={[styles.resultIcon, { backgroundColor: bg }]}>
-                      <MaterialIcons name="compare-arrows" size={16} color={accent} />
-                    </View>
-                    <View style={styles.resultContent}>
-                      <Text style={[styles.resultTitle, { color: text }]} numberOfLines={1}>
-                        {item.connection_type || 'Semantic Link'}
-                      </Text>
-                      <Text style={[styles.resultDesc, { color: textMuted }]} numberOfLines={2}>
-                        {item.ai_reasoning || 'Related knowledge items'}
-                      </Text>
-                    </View>
-                  </View>
+                    icon="compare-arrows"
+                    title={item.connection_type || 'Semantic Link'}
+                    subtitle={item.ai_reasoning || 'Related knowledge items'}
+                  />
                 ))}
-              </>
+              </Animated.View>
             )}
           </>
         )}
 
         {/* Initial state */}
         {!searching && !results && (
-          <View style={styles.center}>
-            <MaterialIcons name="manage-search" size={48} color={border} />
-            <Text style={[styles.centerText, { color: textMuted }]}>
-              Search all knowledge, journals & connections
-            </Text>
-          </View>
+          <EmptyState
+            variant="empty-search"
+            title="Search all knowledge"
+            description="Find activities, journals & connections"
+          />
         )}
 
-        <View style={{ height: 80 }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
     </View>
   );
@@ -241,26 +231,25 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     gap: spacing.sm,
   },
-  iconBtn: {
-    width: sw(44),
-    height: sw(44),
-    borderRadius: sw(12),
+  backBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  searchBar: {
+  searchPill: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: 14,
-    paddingHorizontal: spacing.md,
-    height: sw(48),
+    borderRadius: m3Radii.full,
+    paddingHorizontal: spacing.lg,
+    height: 52,
     gap: spacing.sm,
   },
   searchInput: {
     flex: 1,
-    fontSize: fs(15),
+    fontSize: m3Typography.bodyLarge.fontSize,
     padding: 0,
   },
 
@@ -268,12 +257,13 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: spacing.lg },
   center: { alignItems: 'center', paddingVertical: spacing.xxxl },
-  centerText: { fontSize: fs(14), marginTop: spacing.md, textAlign: 'center' },
-  resultCount: { fontSize: fs(12), marginBottom: spacing.md },
+  resultCount: {
+    fontSize: m3Typography.labelMedium.fontSize,
+    marginBottom: spacing.md,
+  },
   sectionTitle: {
-    fontSize: fs(10),
+    fontSize: m3Typography.labelLarge.fontSize,
     fontWeight: '600',
-    letterSpacing: 1,
     marginTop: spacing.lg,
     marginBottom: spacing.sm,
   },
@@ -282,23 +272,39 @@ const styles = StyleSheet.create({
   resultCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    padding: spacing.md,
-    borderRadius: 14,
-    borderWidth: 1,
+    padding: spacing.lg,
+    borderRadius: m3Radii.xl,
     marginBottom: spacing.sm,
     gap: spacing.sm,
   },
   resultIcon: {
-    width: sw(36),
-    height: sw(36),
-    borderRadius: sw(10),
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },
   resultContent: { flex: 1 },
-  resultTitle: { fontSize: fs(14), fontWeight: '600', marginBottom: 2 },
-  resultDesc: { fontSize: fs(12), lineHeight: 17 },
-  badge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: 6 },
-  badgeText: { fontSize: fs(9), fontWeight: '600', letterSpacing: 0.5 },
-  dateText: { fontSize: fs(10) },
+  resultTitle: {
+    fontSize: m3Typography.titleMedium.fontSize,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  resultDesc: {
+    fontSize: m3Typography.bodySmall.fontSize,
+    lineHeight: m3Typography.bodySmall.lineHeight,
+  },
+  badge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: m3Radii.full,
+  },
+  badgeText: {
+    fontSize: m3Typography.labelSmall.fontSize - 1,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+  },
+  dateText: {
+    fontSize: m3Typography.labelSmall.fontSize,
+  },
 });

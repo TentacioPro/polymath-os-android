@@ -4,11 +4,6 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  ActivityIndicator,
-  TextInput,
-  Modal,
-  Alert,
-  RefreshControl,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
@@ -16,12 +11,22 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import axios from 'axios';
-import { useTheme, spacing, fs, sw } from '../theme';
+import { useTheme, spacing } from '../theme';
+import { m3Typography, m3Radii } from '../../shared/design-tokens';
 import { useStore } from '../store/useStore';
+import M3Progress from '../components/ui/M3Progress';
+import M3Button from '../components/ui/M3Button';
+import M3BottomSheet from '../components/ui/M3BottomSheet';
+import M3TextField from '../components/ui/M3TextField';
+import { EmptyState } from '../components/ui/EmptyState';
 import { hapticPress, hapticLight, hapticSuccess, hapticWarning, hapticSelection } from '../utils/haptics';
-
 import { getBackendUrlSync } from '../utils/backend';
+
+// Try to use dialog if available
+let useDialog: any;
+try { useDialog = require('../components/ui/DialogProvider').useDialog; } catch {}
 
 interface JournalEntry {
   id: string;
@@ -37,6 +42,9 @@ export default function JournalScreen() {
   const insets = useSafeAreaInsets();
   const { journals, setJournals } = useStore();
 
+  let dialog: any = null;
+  try { if (useDialog) dialog = useDialog(); } catch {}
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
@@ -45,14 +53,6 @@ export default function JournalScreen() {
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
   const [saving, setSaving] = useState(false);
-
-  // Colors
-  const bg = theme.background;
-  const surface = theme.surface;
-  const text = theme.textPrimary;
-  const textMuted = theme.textSecondary;
-  const accent = theme.accent;
-  const border = theme.borderMuted;
 
   useEffect(() => { loadJournals(); }, []);
 
@@ -97,7 +97,9 @@ export default function JournalScreen() {
       loadJournals();
     } catch (e: any) {
       hapticWarning();
-      Alert.alert('Error', e?.response?.data?.detail || 'Failed to save journal');
+      if (dialog) {
+        dialog.showAlert('Error', e?.response?.data?.detail || 'Failed to save journal');
+      }
     } finally {
       setSaving(false);
     }
@@ -123,182 +125,209 @@ export default function JournalScreen() {
   const handleDelete = useCallback((id: string, entryTitle: string) => {
     const BACKEND_URL = getBackendUrlSync();
     hapticWarning();
-    Alert.alert('Delete Journal', `Remove "${entryTitle}"?`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
+    if (dialog) {
+      dialog.showDestructive(
+        'Delete Journal',
+        `Remove "${entryTitle}"?`,
+        'Delete',
+        async () => {
           try {
             await axios.delete(`${BACKEND_URL}/api/journals/${id}`);
             hapticSuccess();
             setJournals(journals.filter((j: any) => j.id !== id));
-          } catch (e) {
+          } catch {
             hapticWarning();
-            Alert.alert('Error', 'Failed to delete');
           }
-        },
-      },
-    ]);
-  }, [journals, setJournals]);
+        }
+      );
+    }
+  }, [journals, setJournals, dialog]);
 
   const formatDate = (ts: string) => {
     try {
       const d = new Date(ts);
       return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-    } catch {
-      return '';
-    }
+    } catch { return ''; }
   };
 
-  const renderEntry = ({ item }: { item: JournalEntry }) => (
-    <TouchableOpacity
-      style={[styles.entryCard, { backgroundColor: surface, borderColor: border }]}
-      onPress={() => handleEdit(item)}
-      onLongPress={() => handleDelete(item.id, item.title)}
-      activeOpacity={0.7}
-    >
-      <View style={styles.entryHeader}>
-        <Text style={[styles.entryTitle, { color: text }]} numberOfLines={1}>
-          {item.title}
-        </Text>
-        <Text style={[styles.entryDate, { color: textMuted }]}>
-          {formatDate(item.timestamp)}
-        </Text>
-      </View>
-      <Text style={[styles.entryContent, { color: textMuted }]} numberOfLines={2}>
-        {item.content}
-      </Text>
-      {item.tags && item.tags.length > 0 && (
-        <View style={styles.tagsRow}>
-          {item.tags.slice(0, 3).map((tag, i) => (
-            <View key={i} style={[styles.tag, { backgroundColor: accent + '20' }]}>
-              <Text style={[styles.tagText, { color: accent }]}>{tag}</Text>
-            </View>
-          ))}
-          {item.tags.length > 3 && (
-            <Text style={[styles.moreTags, { color: textMuted }]}>+{item.tags.length - 3}</Text>
-          )}
+  const formatFullDate = (ts: string) => {
+    try {
+      const d = new Date(ts);
+      return d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+    } catch { return ''; }
+  };
+
+  // Group entries by date
+  const groupedByDate = journals.reduce<Record<string, JournalEntry[]>>((acc, entry: any) => {
+    const dateKey = new Date(entry.timestamp).toLocaleDateString();
+    if (!acc[dateKey]) acc[dateKey] = [];
+    acc[dateKey].push(entry);
+    return acc;
+  }, {});
+
+  const renderEntry = ({ item, index }: { item: JournalEntry; index: number }) => (
+    <Animated.View entering={FadeInRight.delay(index * 60).springify()}>
+      <View style={styles.timelineRow}>
+        {/* Timeline line + dot */}
+        <View style={styles.timelineTrack}>
+          <View style={[styles.timelineDot, { backgroundColor: theme.primary }]} />
+          <View style={[styles.timelineLine, { backgroundColor: theme.outlineVariant }]} />
         </View>
-      )}
-    </TouchableOpacity>
+
+        {/* Entry card */}
+        <TouchableOpacity
+          style={[styles.entryCard, { backgroundColor: theme.surfaceContainer }]}
+          onPress={() => handleEdit(item)}
+          onLongPress={() => handleDelete(item.id, item.title)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.entryHeader}>
+            <Text style={[styles.entryTitle, { color: theme.onSurface }]} numberOfLines={1}>
+              {item.title}
+            </Text>
+            <Text style={[styles.entryDate, { color: theme.onSurfaceVariant }]}>
+              {formatDate(item.timestamp)}
+            </Text>
+          </View>
+          <Text style={[styles.entryContent, { color: theme.onSurfaceVariant }]} numberOfLines={2}>
+            {item.content}
+          </Text>
+          {item.tags && item.tags.length > 0 && (
+            <View style={styles.tagsRow}>
+              {item.tags.slice(0, 3).map((tag, i) => (
+                <View key={i} style={[styles.tag, { backgroundColor: theme.primaryContainer }]}>
+                  <Text style={[styles.tagText, { color: theme.onPrimaryContainer }]}>{tag}</Text>
+                </View>
+              ))}
+              {item.tags.length > 3 && (
+                <Text style={[styles.moreTags, { color: theme.onSurfaceVariant }]}>
+                  +{item.tags.length - 3}
+                </Text>
+              )}
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
+    </Animated.View>
   );
 
   if (loading) {
     return (
-      <View style={[styles.loading, { backgroundColor: bg, paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={accent} />
+      <View style={[styles.loading, { backgroundColor: theme.surface, paddingTop: insets.top }]}>
+        <M3Progress size="large" />
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: bg }]}>
+    <View style={[styles.container, { backgroundColor: theme.surface }]}>
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+      <Animated.View
+        entering={FadeInDown.duration(400)}
+        style={[styles.header, { paddingTop: insets.top + 8 }]}
+      >
         <TouchableOpacity
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.iconBtn, { backgroundColor: surface }]}
+          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
         >
-          <MaterialIcons name="arrow-back" size={20} color={text} />
+          <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
         </TouchableOpacity>
         <View style={styles.headerText}>
-          <Text style={[styles.title, { color: text }]}>Journal</Text>
-          <Text style={[styles.subtitle, { color: textMuted }]}>{journals.length} entries</Text>
+          <Text style={[styles.headerTitle, { color: theme.onSurface }]}>Journal</Text>
+          <Text style={[styles.headerSub, { color: theme.onSurfaceVariant }]}>
+            {journals.length} entr{journals.length === 1 ? 'y' : 'ies'}
+          </Text>
         </View>
         <TouchableOpacity
           onPress={() => { hapticPress(); setShowEditor(true); }}
-          style={[styles.iconBtn, { backgroundColor: accent }]}
+          style={[styles.addBtn, { backgroundColor: theme.primary }]}
         >
-          <MaterialIcons name="add" size={22} color={theme.accentContrast} />
+          <MaterialIcons name="add" size={22} color={theme.onPrimary} />
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
-      {/* List */}
+      {/* Timeline List */}
       <FlatList
-        data={journals}
-        keyExtractor={(item: any) => item.id}
+        data={journals as JournalEntry[]}
+        keyExtractor={(item) => item.id}
         renderItem={renderEntry}
         contentContainerStyle={styles.listContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accent} />
-        }
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <MaterialIcons name="menu-book" size={48} color={border} />
-            <Text style={[styles.emptyText, { color: textMuted }]}>
-              No journal entries yet
-            </Text>
-            <Text style={[styles.emptyHint, { color: textMuted }]}>
-              Tap + to write your first reflection
-            </Text>
-          </View>
+          <EmptyState
+            variant="empty-journals"
+            title="No journal entries yet"
+            description="Tap + to write your first reflection"
+            ctaLabel="New Entry"
+            onCtaPress={() => { hapticPress(); setShowEditor(true); }}
+          />
         }
-        ListFooterComponent={<View style={{ height: 80 }} />}
+        ListFooterComponent={<View style={{ height: 100 }} />}
+        showsVerticalScrollIndicator={false}
       />
 
-      {/* Editor Modal */}
-      <Modal visible={showEditor} animationType="slide" transparent>
+      {/* Editor Bottom Sheet */}
+      <M3BottomSheet
+        visible={showEditor}
+        onDismiss={resetEditor}
+        snapPoints={[0.9]}
+      >
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.editorContainer}
         >
-          <View style={[styles.modalContent, { backgroundColor: surface, paddingBottom: insets.bottom + 16 }]}>
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: text }]}>
-                {editingId ? 'Edit Entry' : 'New Entry'}
-              </Text>
-              <TouchableOpacity onPress={() => { hapticLight(); resetEditor(); }}>
-                <MaterialIcons name="close" size={24} color={text} />
-              </TouchableOpacity>
-            </View>
-
-            <Text style={[styles.label, { color: textMuted }]}>Title *</Text>
-            <TextInput
-              style={[styles.input, { color: text, borderColor: border, backgroundColor: bg }]}
-              placeholder="Entry title"
-              placeholderTextColor={textMuted}
-              value={title}
-              onChangeText={setTitle}
-            />
-
-            <Text style={[styles.label, { color: textMuted }]}>Content *</Text>
-            <TextInput
-              style={[styles.input, styles.textArea, { color: text, borderColor: border, backgroundColor: bg }]}
-              placeholder="Write your reflection..."
-              placeholderTextColor={textMuted}
-              value={content}
-              onChangeText={setContent}
-              multiline
-            />
-
-            <Text style={[styles.label, { color: textMuted }]}>Tags (comma-separated)</Text>
-            <TextInput
-              style={[styles.input, { color: text, borderColor: border, backgroundColor: bg }]}
-              placeholder="learning, ideas, insight"
-              placeholderTextColor={textMuted}
-              value={tags}
-              onChangeText={setTags}
-            />
-
-            <TouchableOpacity
-              style={[styles.saveBtn, { backgroundColor: accent, opacity: title.trim() && content.trim() && !saving ? 1 : 0.5 }]}
-              onPress={handleSave}
-              disabled={!title.trim() || !content.trim() || saving}
-            >
-              {saving ? (
-                <ActivityIndicator size="small" color={theme.accentContrast} />
-              ) : (
-                <Text style={[styles.saveBtnText, { color: theme.accentContrast }]}>
-                  {editingId ? 'Update' : 'Save Entry'}
-                </Text>
-              )}
+          <View style={styles.editorHeader}>
+            <Text style={[styles.editorTitle, { color: theme.onSurface }]}>
+              {editingId ? 'Edit Entry' : 'New Entry'}
+            </Text>
+            <TouchableOpacity onPress={() => { hapticLight(); resetEditor(); }}>
+              <MaterialIcons name="close" size={24} color={theme.onSurface} />
             </TouchableOpacity>
-
-            <Text style={[styles.hint, { color: textMuted }]}>Long-press entries to delete</Text>
           </View>
+
+          <M3TextField
+            label="Title"
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Entry title"
+          />
+
+          <View style={{ height: spacing.md }} />
+
+          <M3TextField
+            label="Content"
+            value={content}
+            onChangeText={setContent}
+            placeholder="Write your reflection..."
+            multiline
+            numberOfLines={6}
+          />
+
+          <View style={{ height: spacing.md }} />
+
+          <M3TextField
+            label="Tags"
+            value={tags}
+            onChangeText={setTags}
+            placeholder="learning, ideas, insight"
+            supportingText="Comma-separated"
+          />
+
+          <View style={{ height: spacing.xl }} />
+
+          <M3Button
+            label={editingId ? 'Update' : 'Save Entry'}
+            variant="filled"
+            onPress={handleSave}
+            disabled={!title.trim() || !content.trim() || saving}
+            loading={saving}
+            fullWidth
+          />
+
+          <Text style={[styles.hint, { color: theme.onSurfaceVariant }]}>
+            Long-press entries to delete
+          </Text>
         </KeyboardAvoidingView>
-      </Modal>
+      </M3BottomSheet>
     </View>
   );
 }
@@ -315,24 +344,61 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     gap: spacing.sm,
   },
+  backBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: m3Radii.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   headerText: { flex: 1, marginLeft: spacing.sm },
-  title: { fontSize: fs(20), fontWeight: '700' },
-  subtitle: { fontSize: fs(12), marginTop: 2 },
-  iconBtn: {
-    width: sw(44),
-    height: sw(44),
-    borderRadius: sw(12),
+  headerTitle: {
+    fontSize: m3Typography.titleLarge.fontSize,
+    fontWeight: '700',
+  },
+  headerSub: {
+    fontSize: m3Typography.labelMedium.fontSize,
+    marginTop: 2,
+  },
+  addBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: m3Radii.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
-  /* List */
-  listContent: { paddingHorizontal: spacing.lg },
+  /* Timeline list */
+  listContent: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+  },
+  timelineRow: {
+    flexDirection: 'row',
+    marginBottom: spacing.md,
+  },
+  timelineTrack: {
+    width: 24,
+    alignItems: 'center',
+    paddingTop: 6,
+  },
+  timelineDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  timelineLine: {
+    width: 2,
+    flex: 1,
+    marginTop: 4,
+  },
+
+  /* Entry card */
   entryCard: {
-    padding: spacing.md,
-    borderRadius: 14,
-    borderWidth: 1,
-    marginBottom: spacing.sm,
+    flex: 1,
+    marginLeft: spacing.sm,
+    padding: spacing.lg,
+    borderRadius: m3Radii.xl,
   },
   entryHeader: {
     flexDirection: 'row',
@@ -340,28 +406,57 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 6,
   },
-  entryTitle: { fontSize: fs(15), fontWeight: '600', flex: 1, marginRight: spacing.sm },
-  entryDate: { fontSize: fs(10), letterSpacing: 0.5 },
-  entryContent: { fontSize: fs(13), lineHeight: 19 },
-  tagsRow: { flexDirection: 'row', gap: spacing.xs, marginTop: spacing.sm, alignItems: 'center' },
-  tag: { paddingHorizontal: spacing.sm, paddingVertical: 3, borderRadius: 6 },
-  tagText: { fontSize: fs(10), fontWeight: '600' },
-  moreTags: { fontSize: fs(10), marginLeft: 4 },
+  entryTitle: {
+    fontSize: m3Typography.titleMedium.fontSize,
+    fontWeight: '600',
+    flex: 1,
+    marginRight: spacing.sm,
+  },
+  entryDate: {
+    fontSize: m3Typography.labelSmall.fontSize,
+    letterSpacing: 0.5,
+  },
+  entryContent: {
+    fontSize: m3Typography.bodyMedium.fontSize,
+    lineHeight: m3Typography.bodyMedium.lineHeight,
+  },
+  tagsRow: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+    alignItems: 'center',
+  },
+  tag: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: m3Radii.full,
+  },
+  tagText: {
+    fontSize: m3Typography.labelSmall.fontSize,
+    fontWeight: '600',
+  },
+  moreTags: {
+    fontSize: m3Typography.labelSmall.fontSize,
+    marginLeft: 4,
+  },
 
-  /* Empty */
-  empty: { alignItems: 'center', paddingVertical: spacing.xxxl },
-  emptyText: { fontSize: fs(16), fontWeight: '600', marginTop: spacing.md },
-  emptyHint: { fontSize: fs(13), marginTop: spacing.xs },
-
-  /* Modal */
-  modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContent: { borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: spacing.lg },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
-  modalTitle: { fontSize: fs(18), fontWeight: '700' },
-  label: { fontSize: fs(11), textTransform: 'uppercase', letterSpacing: 1, marginTop: spacing.md, marginBottom: spacing.xs },
-  input: { borderWidth: 1, borderRadius: 12, paddingHorizontal: spacing.md, paddingVertical: spacing.md, fontSize: fs(15) },
-  textArea: { minHeight: 100, textAlignVertical: 'top' },
-  saveBtn: { paddingVertical: spacing.lg, borderRadius: 12, alignItems: 'center', marginTop: spacing.lg },
-  saveBtnText: { fontSize: fs(14), fontWeight: '700' },
-  hint: { fontSize: fs(11), textAlign: 'center', marginTop: spacing.md },
+  /* Editor */
+  editorContainer: {
+    padding: spacing.lg,
+  },
+  editorHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  editorTitle: {
+    fontSize: m3Typography.headlineSmall.fontSize,
+    fontWeight: '700',
+  },
+  hint: {
+    fontSize: m3Typography.labelSmall.fontSize,
+    textAlign: 'center',
+    marginTop: spacing.md,
+  },
 });

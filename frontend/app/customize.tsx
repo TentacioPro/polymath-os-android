@@ -4,17 +4,19 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  Switch,
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme, spacing, fs, sw } from '../theme';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useTheme, spacing } from '../theme';
+import { m3Typography, m3Radii, resolveFonts, resolveMonoFont } from '../../shared/design-tokens';
+import type { FontFamilyPref, MonoFontPref } from '../../shared/design-tokens';
 import { useStore } from '../store/useStore';
-import { hapticLight, hapticPress, hapticSuccess, hapticSelection } from '../utils/haptics';
+import M3Switch from '../components/ui/M3Switch';
+import { hapticLight, hapticSuccess, hapticSelection } from '../utils/haptics';
 
-// Layout option metadata
 const DASHBOARD_LAYOUTS = [
   { value: 'grid', label: 'Grid', desc: 'Card grid with stats', icon: 'grid-view' as const },
   { value: 'list', label: 'List', desc: 'Vertical feed style', icon: 'view-list' as const },
@@ -26,10 +28,25 @@ const PROFILE_LAYOUTS = [
   { value: 'minimal', label: 'Minimal', desc: 'Essential info only', icon: 'person-outline' as const },
 ];
 
-const SIDEBAR_POSITIONS = [
-  { value: 'left', label: 'Left', desc: 'Drawer from left edge', icon: 'chevron-right' as const },
-  { value: 'right', label: 'Right', desc: 'Drawer from right edge', icon: 'chevron-left' as const },
-  { value: 'hidden', label: 'Hidden', desc: 'No sidebar drawer', icon: 'close' as const },
+const FONT_OPTIONS: { value: FontFamilyPref; label: string; sample: string }[] = [
+  { value: 'dm-sans', label: 'DM Sans', sample: 'The quick brown fox' },
+  { value: 'inter', label: 'Inter', sample: 'The quick brown fox' },
+  { value: 'outfit', label: 'Outfit', sample: 'The quick brown fox' },
+  { value: 'space-grotesk', label: 'Space Grotesk', sample: 'The quick brown fox' },
+];
+
+const MONO_OPTIONS: { value: MonoFontPref; label: string; sample: string }[] = [
+  { value: 'jetbrains-mono', label: 'JetBrains Mono', sample: 'const x = 42;' },
+  { value: 'space-mono', label: 'Space Mono', sample: 'const x = 42;' },
+];
+
+const FONT_SIZES: { value: number; label: string }[] = [
+  { value: 0.85, label: 'S' },
+  { value: 0.92, label: 'M' },
+  { value: 1.0, label: 'Default' },
+  { value: 1.10, label: 'L' },
+  { value: 1.20, label: 'XL' },
+  { value: 1.30, label: '2XL' },
 ];
 
 const SCREENS = [
@@ -48,23 +65,13 @@ export default function CustomizeScreen() {
   const insets = useSafeAreaInsets();
   const { preferences, setPreference, setScreenVisibility } = useStore();
 
-  // Colors
-  const bg = theme.background;
-  const surface = theme.surface;
-  const text = theme.textPrimary;
-  const textMuted = theme.textSecondary;
-  const accent = theme.accent;
-  const border = theme.borderMuted;
-
   const LayoutOption = ({
-    value,
     label,
     desc,
     icon,
     isActive,
     onPress,
   }: {
-    value: string;
     label: string;
     desc: string;
     icon: keyof typeof MaterialIcons.glyphMap;
@@ -75,73 +82,80 @@ export default function CustomizeScreen() {
       style={[
         styles.layoutOption,
         {
-          backgroundColor: isActive ? accent + '20' : surface,
-          borderColor: isActive ? accent : border,
+          backgroundColor: isActive ? theme.primaryContainer : theme.surfaceContainer,
         },
       ]}
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <View style={[styles.layoutIcon, { backgroundColor: isActive ? accent : surface }]}>
+      <View style={[styles.layoutIcon, {
+        backgroundColor: isActive ? theme.primary : theme.surfaceContainerHigh,
+      }]}>
         <MaterialIcons
           name={icon}
           size={18}
-          color={isActive ? theme.accentContrast : textMuted}
+          color={isActive ? theme.onPrimary : theme.onSurfaceVariant}
         />
       </View>
-      <Text style={[styles.layoutLabel, { color: isActive ? accent : text }]}>{label}</Text>
-      <Text style={[styles.layoutDesc, { color: textMuted }]}>{desc}</Text>
+      <Text style={[styles.layoutLabel, {
+        color: isActive ? theme.onPrimaryContainer : theme.onSurface,
+      }]}>
+        {label}
+      </Text>
+      <Text style={[styles.layoutDesc, {
+        color: isActive ? theme.onPrimaryContainer : theme.onSurfaceVariant,
+      }]}>
+        {desc}
+      </Text>
       {isActive && (
-        <View style={[styles.activeCheck, { backgroundColor: accent }]}>
-          <MaterialIcons name="check" size={12} color={theme.accentContrast} />
+        <View style={[styles.activeCheck, { backgroundColor: theme.primary }]}>
+          <MaterialIcons name="check" size={12} color={theme.onPrimary} />
         </View>
       )}
     </TouchableOpacity>
   );
 
   const ScreenToggle = ({
-    screenKey,
     label,
     icon,
     enabled,
     onToggle,
   }: {
-    screenKey: string;
     label: string;
     icon: keyof typeof MaterialIcons.glyphMap;
     enabled: boolean;
     onToggle: (val: boolean) => void;
   }) => (
-    <View style={[styles.toggleRow, { backgroundColor: surface, borderColor: border }]}>
-      <View style={[styles.toggleIcon, { backgroundColor: enabled ? accent + '20' : bg }]}>
-        <MaterialIcons name={icon} size={18} color={enabled ? accent : textMuted} />
+    <View style={[styles.toggleRow, { backgroundColor: theme.surfaceContainer }]}>
+      <View style={[styles.toggleIcon, {
+        backgroundColor: enabled ? theme.primaryContainer : theme.surfaceContainerHigh,
+      }]}>
+        <MaterialIcons name={icon} size={18} color={enabled ? theme.onPrimaryContainer : theme.onSurfaceVariant} />
       </View>
-      <Text style={[styles.toggleLabel, { color: text }]}>{label}</Text>
-      <Switch
+      <Text style={[styles.toggleLabel, { color: theme.onSurface }]}>{label}</Text>
+      <M3Switch
         value={enabled}
         onValueChange={(val) => {
           hapticSelection();
           onToggle(val);
         }}
-        trackColor={{ false: border, true: accent + '60' }}
-        thumbColor={enabled ? accent : textMuted}
       />
     </View>
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: bg }]}>
+    <View style={[styles.container, { backgroundColor: theme.surface }]}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.iconBtn, { backgroundColor: surface }]}
+          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
         >
-          <MaterialIcons name="arrow-back" size={20} color={text} />
+          <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
         </TouchableOpacity>
         <View style={styles.headerText}>
-          <Text style={[styles.title, { color: text }]}>Customize</Text>
-          <Text style={[styles.subtitle, { color: textMuted }]}>Layout & visibility</Text>
+          <Text style={[styles.headerTitle, { color: theme.onSurface }]}>Customize</Text>
+          <Text style={[styles.headerSub, { color: theme.onSurfaceVariant }]}>Layout & visibility</Text>
         </View>
       </View>
 
@@ -150,86 +164,179 @@ export default function CustomizeScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* Typography */}
+        <Animated.View entering={FadeInDown.delay(50)}>
+          <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>Typography</Text>
+
+          {/* Font Family */}
+          <Text style={[styles.subsectionLabel, { color: theme.onSurfaceVariant }]}>Font Family</Text>
+          <View style={styles.fontGrid}>
+            {FONT_OPTIONS.map((opt) => {
+              const isActive = preferences.fontFamily === opt.value;
+              const resolved = resolveFonts(opt.value);
+              return (
+                <TouchableOpacity
+                  key={opt.value}
+                  style={[
+                    styles.fontCard,
+                    { backgroundColor: isActive ? theme.primaryContainer : theme.surfaceContainer },
+                  ]}
+                  onPress={() => { hapticSelection(); setPreference('fontFamily', opt.value); }}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[
+                    styles.fontSample,
+                    { color: isActive ? theme.onPrimaryContainer : theme.onSurface, fontFamily: resolved.regular },
+                  ]}>
+                    {opt.sample}
+                  </Text>
+                  <Text style={[
+                    styles.fontName,
+                    { color: isActive ? theme.onPrimaryContainer : theme.onSurfaceVariant, fontFamily: resolved.medium },
+                  ]}>
+                    {opt.label}
+                  </Text>
+                  {isActive && (
+                    <View style={[styles.activeCheck, { backgroundColor: theme.primary }]}>
+                      <MaterialIcons name="check" size={12} color={theme.onPrimary} />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* Monospace Font */}
+          <Text style={[styles.subsectionLabel, { color: theme.onSurfaceVariant, marginTop: spacing.lg }]}>Monospace Font</Text>
+          <View style={styles.monoGrid}>
+            {MONO_OPTIONS.map((opt) => {
+              const isActive = preferences.monoFont === opt.value;
+              const resolved = resolveMonoFont(opt.value);
+              return (
+                <TouchableOpacity
+                  key={opt.value}
+                  style={[
+                    styles.fontCard,
+                    { flex: 1, backgroundColor: isActive ? theme.primaryContainer : theme.surfaceContainer },
+                  ]}
+                  onPress={() => { hapticSelection(); setPreference('monoFont', opt.value); }}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[
+                    styles.monoSample,
+                    { color: isActive ? theme.onPrimaryContainer : theme.onSurface, fontFamily: resolved.regular },
+                  ]}>
+                    {opt.sample}
+                  </Text>
+                  <Text style={[
+                    styles.fontName,
+                    { color: isActive ? theme.onPrimaryContainer : theme.onSurfaceVariant },
+                  ]}>
+                    {opt.label}
+                  </Text>
+                  {isActive && (
+                    <View style={[styles.activeCheck, { backgroundColor: theme.primary }]}>
+                      <MaterialIcons name="check" size={12} color={theme.onPrimary} />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* Font Size */}
+          <Text style={[styles.subsectionLabel, { color: theme.onSurfaceVariant, marginTop: spacing.lg }]}>Font Size</Text>
+          <View style={[styles.fontSizeRow, { backgroundColor: theme.surfaceContainer }]}>
+            {FONT_SIZES.map((sz) => {
+              const isActive = Math.abs(preferences.fontScale - sz.value) < 0.01;
+              return (
+                <TouchableOpacity
+                  key={sz.value}
+                  style={[
+                    styles.fontSizeBtn,
+                    { backgroundColor: isActive ? theme.primary : 'transparent' },
+                  ]}
+                  onPress={() => { hapticSelection(); setPreference('fontScale', sz.value); }}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[
+                    styles.fontSizeBtnLabel,
+                    { color: isActive ? theme.onPrimary : theme.onSurfaceVariant },
+                  ]}>
+                    {sz.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          <Text style={[styles.fontSizePreview, { color: theme.onSurface, fontSize: 14 * (preferences.fontScale || 1) }]}>
+            Preview: The quick brown fox jumps over the lazy dog
+          </Text>
+        </Animated.View>
+
         {/* Dashboard Layout */}
-        <Text style={[styles.sectionTitle, { color: textMuted }]}>DASHBOARD LAYOUT</Text>
-        <View style={styles.layoutGrid}>
-          {DASHBOARD_LAYOUTS.map((opt) => (
-            <LayoutOption
-              key={opt.value}
-              {...opt}
-              isActive={preferences.dashboardLayout === opt.value}
-              onPress={() => {
-                hapticSuccess();
-                setPreference('dashboardLayout', opt.value as 'grid' | 'list' | 'compact');
-              }}
-            />
-          ))}
-        </View>
+        <Animated.View entering={FadeInDown.delay(100)}>
+          <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>Dashboard Layout</Text>
+          <View style={styles.layoutGrid}>
+            {DASHBOARD_LAYOUTS.map((opt) => (
+              <LayoutOption
+                key={opt.value}
+                {...opt}
+                isActive={preferences.dashboardLayout === opt.value}
+                onPress={() => {
+                  hapticSuccess();
+                  setPreference('dashboardLayout', opt.value as 'grid' | 'list' | 'compact');
+                }}
+              />
+            ))}
+          </View>
+        </Animated.View>
 
         {/* Profile Layout */}
-        <Text style={[styles.sectionTitle, { color: textMuted }]}>PROFILE LAYOUT</Text>
-        <View style={styles.layoutGrid}>
-          {PROFILE_LAYOUTS.map((opt) => (
-            <LayoutOption
-              key={opt.value}
-              {...opt}
-              isActive={preferences.profileLayout === opt.value}
-              onPress={() => {
-                hapticSuccess();
-                setPreference('profileLayout', opt.value as 'full' | 'minimal');
-              }}
-            />
-          ))}
-        </View>
-
-        {/* Sidebar Position */}
-        <Text style={[styles.sectionTitle, { color: textMuted }]}>SIDEBAR POSITION</Text>
-        <View style={styles.layoutGrid}>
-          {SIDEBAR_POSITIONS.map((opt) => (
-            <LayoutOption
-              key={opt.value}
-              {...opt}
-              isActive={preferences.sidebarPosition === opt.value}
-              onPress={() => {
-                hapticSuccess();
-                setPreference('sidebarPosition', opt.value as 'left' | 'right' | 'hidden');
-              }}
-            />
-          ))}
-        </View>
+        <Animated.View entering={FadeInDown.delay(200)}>
+          <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>Profile Layout</Text>
+          <View style={styles.layoutGrid}>
+            {PROFILE_LAYOUTS.map((opt) => (
+              <LayoutOption
+                key={opt.value}
+                {...opt}
+                isActive={preferences.profileLayout === opt.value}
+                onPress={() => {
+                  hapticSuccess();
+                  setPreference('profileLayout', opt.value as 'full' | 'minimal');
+                }}
+              />
+            ))}
+          </View>
+        </Animated.View>
 
         {/* Quick Capture */}
-        <Text style={[styles.sectionTitle, { color: textMuted }]}>QUICK CAPTURE</Text>
-        <ScreenToggle
-          screenKey="quickCaptureHome"
-          label="Show on Home Screen"
-          icon="add-circle"
-          enabled={preferences.showQuickCaptureOnHome}
-          onToggle={(val) => setPreference('showQuickCaptureOnHome', val)}
-        />
-        <ScreenToggle
-          screenKey="quickCaptureSidebar"
-          label="Show in Sidebar"
-          icon="menu"
-          enabled={preferences.showQuickCaptureInSidebar}
-          onToggle={(val) => setPreference('showQuickCaptureInSidebar', val)}
-        />
+        <Animated.View entering={FadeInDown.delay(300)}>
+          <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>Quick Capture</Text>
+          <ScreenToggle
+            label="Show on Home Screen"
+            icon="add-circle"
+            enabled={preferences.showQuickCaptureOnHome}
+            onToggle={(val) => setPreference('showQuickCaptureOnHome', val)}
+          />
+        </Animated.View>
 
         {/* Visible Screens */}
-        <Text style={[styles.sectionTitle, { color: textMuted }]}>VISIBLE SCREENS</Text>
-        <Text style={[styles.sectionHelp, { color: textMuted }]}>
-          Toggle which screens appear in navigation
-        </Text>
-        {SCREENS.map((screen) => (
-          <ScreenToggle
-            key={screen.key}
-            screenKey={screen.key}
-            label={screen.label}
-            icon={screen.icon}
-            enabled={preferences.visibleScreens[screen.key as keyof typeof preferences.visibleScreens]}
-            onToggle={(val) => setScreenVisibility(screen.key as keyof typeof preferences.visibleScreens, val)}
-          />
-        ))}
+        <Animated.View entering={FadeInDown.delay(400)}>
+          <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>Visible Screens</Text>
+          <Text style={[styles.sectionHelp, { color: theme.onSurfaceVariant }]}>
+            Toggle which screens appear in navigation
+          </Text>
+          {SCREENS.map((screen) => (
+            <ScreenToggle
+              key={screen.key}
+              label={screen.label}
+              icon={screen.icon}
+              enabled={preferences.visibleScreens[screen.key as keyof typeof preferences.visibleScreens]}
+              onToggle={(val) => setScreenVisibility(screen.key as keyof typeof preferences.visibleScreens, val)}
+            />
+          ))}
+        </Animated.View>
 
         <View style={{ height: 100 }} />
       </ScrollView>
@@ -248,29 +355,34 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     gap: spacing.sm,
   },
-  headerText: { flex: 1, marginLeft: spacing.sm },
-  title: { fontSize: fs(20), fontWeight: '700' },
-  subtitle: { fontSize: fs(12), marginTop: 2 },
-  iconBtn: {
-    width: sw(44),
-    height: sw(44),
-    borderRadius: sw(12),
+  backBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  headerText: { flex: 1, marginLeft: spacing.sm },
+  headerTitle: {
+    fontSize: m3Typography.titleLarge.fontSize,
+    fontWeight: '700',
+  },
+  headerSub: {
+    fontSize: m3Typography.labelMedium.fontSize,
+    marginTop: 2,
   },
 
   /* Content */
   scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: spacing.lg },
   sectionTitle: {
-    fontSize: fs(10),
+    fontSize: m3Typography.labelLarge.fontSize,
     fontWeight: '600',
-    letterSpacing: 1,
     marginTop: spacing.xl,
     marginBottom: spacing.md,
   },
   sectionHelp: {
-    fontSize: fs(12),
+    fontSize: m3Typography.bodySmall.fontSize,
     marginBottom: spacing.md,
     marginTop: -spacing.sm,
   },
@@ -284,25 +396,25 @@ const styles = StyleSheet.create({
   layoutOption: {
     width: '31%',
     padding: spacing.md,
-    borderRadius: 12,
-    borderWidth: 1,
+    borderRadius: m3Radii.xl,
     alignItems: 'center',
     gap: spacing.xs,
+    position: 'relative',
   },
   layoutIcon: {
     width: 36,
     height: 36,
-    borderRadius: 10,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 4,
   },
   layoutLabel: {
-    fontSize: fs(12),
+    fontSize: m3Typography.labelMedium.fontSize,
     fontWeight: '600',
   },
   layoutDesc: {
-    fontSize: fs(9),
+    fontSize: m3Typography.labelSmall.fontSize - 1,
     textAlign: 'center',
   },
   activeCheck: {
@@ -316,26 +428,83 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
+  /* Typography */
+  subsectionLabel: {
+    fontSize: m3Typography.labelMedium.fontSize,
+    fontWeight: '500',
+    marginBottom: spacing.sm,
+  },
+  fontGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  fontCard: {
+    width: '48%',
+    padding: spacing.md,
+    borderRadius: m3Radii.xl,
+    position: 'relative',
+    gap: 4,
+  },
+  fontSample: {
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  fontName: {
+    fontSize: m3Typography.labelSmall.fontSize,
+    marginTop: 2,
+  },
+  monoGrid: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  monoSample: {
+    fontSize: 13,
+    lineHeight: 20,
+  },
+  fontSizeRow: {
+    flexDirection: 'row',
+    borderRadius: m3Radii.xl,
+    padding: 4,
+    gap: 4,
+  },
+  fontSizeBtn: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: m3Radii.lg,
+  },
+  fontSizeBtnLabel: {
+    fontSize: m3Typography.labelSmall.fontSize,
+    fontWeight: '600',
+  },
+  fontSizePreview: {
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
+    fontStyle: 'italic',
+    opacity: 0.7,
+  },
+
   /* Toggle Rows */
   toggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing.md,
-    borderRadius: 12,
-    borderWidth: 1,
+    padding: spacing.lg,
+    borderRadius: m3Radii.xl,
     marginBottom: spacing.sm,
     gap: spacing.md,
   },
   toggleIcon: {
     width: 36,
     height: 36,
-    borderRadius: 10,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },
   toggleLabel: {
     flex: 1,
-    fontSize: fs(14),
+    fontSize: m3Typography.titleSmall.fontSize,
     fontWeight: '500',
   },
 });

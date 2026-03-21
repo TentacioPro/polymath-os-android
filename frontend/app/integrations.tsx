@@ -4,11 +4,7 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
   TextInput,
-  Modal,
-  Alert,
-  RefreshControl,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
@@ -16,11 +12,19 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import axios from 'axios';
-import { useTheme, spacing, fs, sw } from '../theme';
+import { useTheme, spacing } from '../theme';
+import { m3Typography, m3Radii } from '../../shared/design-tokens';
+import M3Progress from '../components/ui/M3Progress';
+import M3Button from '../components/ui/M3Button';
+import M3TextField from '../components/ui/M3TextField';
+import M3BottomSheet from '../components/ui/M3BottomSheet';
 import { hapticLight, hapticPress, hapticSuccess, hapticWarning } from '../utils/haptics';
-
 import { getBackendUrlSync, setBackendUrl, resetBackendUrl } from '../utils/backend';
+
+let useDialog: any;
+try { useDialog = require('../components/ui/DialogProvider').useDialog; } catch {}
 
 export default function IntegrationsScreen() {
   const BACKEND_URL = getBackendUrlSync();
@@ -36,13 +40,8 @@ export default function IntegrationsScreen() {
   const [backendUrlInput, setBackendUrlInput] = useState(BACKEND_URL);
   const [saving, setSaving] = useState(false);
 
-  // Colors
-  const bg = theme.background;
-  const surface = theme.surface;
-  const text = theme.textPrimary;
-  const textMuted = theme.textSecondary;
-  const accent = theme.accent;
-  const border = theme.borderMuted;
+  let dialog: any = null;
+  try { if (useDialog) dialog = useDialog(); } catch {}
 
   const fetchData = async () => {
     const BACKEND_URL = getBackendUrlSync();
@@ -82,11 +81,11 @@ export default function IntegrationsScreen() {
       hapticSuccess();
       setShowConfigModal(false);
       setApiKey('');
-      Alert.alert('Success', 'AI configuration updated.');
+      if (dialog) dialog.showAlert('Success', 'AI configuration updated.');
       fetchData();
     } catch (e: any) {
       hapticWarning();
-      Alert.alert('Error', e?.response?.data?.detail || 'Failed to save configuration');
+      if (dialog) dialog.showAlert('Error', e?.response?.data?.detail || 'Failed to save configuration');
     } finally {
       setSaving(false);
     }
@@ -101,6 +100,7 @@ export default function IntegrationsScreen() {
     desc,
     status,
     statusColor,
+    containerColor,
     onPress,
   }: {
     icon: keyof typeof MaterialIcons.glyphMap;
@@ -108,22 +108,23 @@ export default function IntegrationsScreen() {
     desc: string;
     status: string;
     statusColor: string;
+    containerColor: string;
     onPress?: () => void;
   }) => (
     <TouchableOpacity
-      style={[styles.statusCard, { backgroundColor: surface, borderColor: border }]}
+      style={[styles.statusCard, { backgroundColor: theme.surfaceContainer }]}
       onPress={onPress}
       disabled={!onPress}
       activeOpacity={onPress ? 0.7 : 1}
     >
-      <View style={[styles.statusIcon, { backgroundColor: bg }]}>
+      <View style={[styles.statusIcon, { backgroundColor: containerColor }]}>
         <MaterialIcons name={icon} size={20} color={statusColor} />
       </View>
       <View style={styles.statusContent}>
-        <Text style={[styles.statusLabel, { color: text }]}>{label}</Text>
-        <Text style={[styles.statusDesc, { color: textMuted }]}>{desc}</Text>
+        <Text style={[styles.statusLabel, { color: theme.onSurface }]}>{label}</Text>
+        <Text style={[styles.statusDesc, { color: theme.onSurfaceVariant }]}>{desc}</Text>
       </View>
-      <View style={[styles.statusBadge, { backgroundColor: statusColor + '20' }]}>
+      <View style={[styles.statusBadge, { backgroundColor: containerColor }]}>
         <Text style={[styles.statusBadgeText, { color: statusColor }]}>{status}</Text>
       </View>
     </TouchableOpacity>
@@ -131,155 +132,159 @@ export default function IntegrationsScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.loading, { backgroundColor: bg, paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={accent} />
+      <View style={[styles.loading, { backgroundColor: theme.surface, paddingTop: insets.top }]}>
+        <M3Progress size="large" />
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: bg }]}>
+    <View style={[styles.container, { backgroundColor: theme.surface }]}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.iconBtn, { backgroundColor: surface }]}
+          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
         >
-          <MaterialIcons name="arrow-back" size={20} color={text} />
+          <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
         </TouchableOpacity>
         <View style={styles.headerText}>
-          <Text style={[styles.title, { color: text }]}>Integrations</Text>
-          <Text style={[styles.subtitle, { color: textMuted }]}>System config</Text>
+          <Text style={[styles.headerTitle, { color: theme.onSurface }]}>Integrations</Text>
+          <Text style={[styles.headerSub, { color: theme.onSurfaceVariant }]}>System config</Text>
         </View>
       </View>
 
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accent} />
-        }
         showsVerticalScrollIndicator={false}
       >
         {/* System Health */}
-        <Text style={[styles.sectionTitle, { color: textMuted }]}>SYSTEM HEALTH</Text>
-        <StatusCard
-          icon="storage"
-          label="Database"
-          desc={`MongoDB — ${health?.database?.status || 'unknown'}`}
-          status={dbStatus ? 'ONLINE' : 'OFFLINE'}
-          statusColor={dbStatus ? '#00FF94' : '#FF4444'}
-        />
-        <StatusCard
-          icon="memory"
-          label="Backend"
-          desc={`v${health?.version || '0.1.0'} — ${health?.status || 'unknown'}`}
-          status={health?.status === 'healthy' ? 'RUNNING' : 'CHECK'}
-          statusColor={health?.status === 'healthy' ? '#00FF94' : '#FFB800'}
-        />
+        <Animated.View entering={FadeInDown.delay(100)}>
+          <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>System Health</Text>
+          <StatusCard
+            icon="storage"
+            label="Database"
+            desc={`MongoDB — ${health?.database?.status || 'unknown'}`}
+            status={dbStatus ? 'ONLINE' : 'OFFLINE'}
+            statusColor={dbStatus ? theme.success : theme.error}
+            containerColor={dbStatus ? theme.successContainer : theme.errorContainer}
+          />
+          <StatusCard
+            icon="memory"
+            label="Backend"
+            desc={`v${health?.version || '0.1.0'} — ${health?.status || 'unknown'}`}
+            status={health?.status === 'healthy' ? 'RUNNING' : 'CHECK'}
+            statusColor={health?.status === 'healthy' ? theme.success : theme.warning}
+            containerColor={health?.status === 'healthy' ? theme.successContainer : theme.warningContainer}
+          />
+        </Animated.View>
 
         {/* AI Configuration */}
-        <Text style={[styles.sectionTitle, { color: textMuted }]}>AI CONFIGURATION</Text>
-        <StatusCard
-          icon="psychology"
-          label="OpenAI"
-          desc={aiConfigured ? `Model: ${config?.model || 'gpt-4o-mini'}` : 'Not configured'}
-          status={aiConfigured ? 'ACTIVE' : 'SETUP'}
-          statusColor={aiConfigured ? '#00FF94' : '#FFB800'}
-          onPress={() => { hapticPress(); setShowConfigModal(true); }}
-        />
+        <Animated.View entering={FadeInDown.delay(200)}>
+          <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>AI Configuration</Text>
+          <StatusCard
+            icon="psychology"
+            label="OpenAI"
+            desc={aiConfigured ? `Model: ${config?.model || 'gpt-4o-mini'}` : 'Not configured'}
+            status={aiConfigured ? 'ACTIVE' : 'SETUP'}
+            statusColor={aiConfigured ? theme.success : theme.warning}
+            containerColor={aiConfigured ? theme.successContainer : theme.warningContainer}
+            onPress={() => { hapticPress(); setShowConfigModal(true); }}
+          />
+        </Animated.View>
 
-        {/* Info */}
-        <Text style={[styles.sectionTitle, { color: textMuted }]}>INFO</Text>
-        <View style={[styles.infoCard, { backgroundColor: surface, borderColor: border }]}>
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: textMuted }]}>Backend URL</Text>
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingBottom: 12 }}>
-            <TextInput
-              style={[styles.infoValue, { color: text, flex: 1, borderWidth: 1, borderColor: border, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, fontSize: 13 }]}
-              value={backendUrlInput}
-              onChangeText={setBackendUrlInput}
-              placeholder="https://your-tunnel-url.trycloudflare.com"
-              placeholderTextColor={textMuted}
-              autoCapitalize="none"
-              autoCorrect={false}
-              onSubmitEditing={async () => {
-                if (backendUrlInput && backendUrlInput !== BACKEND_URL) {
-                  await setBackendUrl(backendUrlInput);
-                  hapticSuccess();
-                  Alert.alert('Backend URL Updated', 'The app will now use the new URL. Pull to refresh any screen.');
-                }
-              }}
-            />
-            <TouchableOpacity
-              onPress={async () => {
-                await resetBackendUrl();
-                setBackendUrlInput(getBackendUrlSync());
-                hapticLight();
-                Alert.alert('Reset', 'Backend URL reset to default.');
-              }}
-              style={{ padding: 6 }}
-            >
-              <MaterialIcons name="refresh" size={22} color={textMuted} />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: textMuted }]}>Version</Text>
-            <Text style={[styles.infoValue, { color: text }]}>{health?.version || '0.1.0'}</Text>
-          </View>
-        </View>
-
-        <View style={{ height: 80 }} />
-      </ScrollView>
-
-      {/* Config Modal */}
-      <Modal visible={showConfigModal} animationType="slide" transparent>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.modalOverlay}
-        >
-          <View style={[styles.modalContent, { backgroundColor: surface, paddingBottom: insets.bottom + 16 }]}>
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: text }]}>AI Configuration</Text>
-              <TouchableOpacity onPress={() => { hapticLight(); setShowConfigModal(false); }}>
-                <MaterialIcons name="close" size={24} color={text} />
+        {/* Backend URL */}
+        <Animated.View entering={FadeInDown.delay(300)}>
+          <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>Connection</Text>
+          <View style={[styles.infoCard, { backgroundColor: theme.surfaceContainer }]}>
+            <Text style={[styles.infoLabel, { color: theme.onSurfaceVariant }]}>Backend URL</Text>
+            <View style={styles.urlRow}>
+              <TextInput
+                style={[styles.urlInput, {
+                  color: theme.onSurface,
+                  backgroundColor: theme.surfaceContainerHigh,
+                }]}
+                value={backendUrlInput}
+                onChangeText={setBackendUrlInput}
+                placeholder="https://your-tunnel-url.trycloudflare.com"
+                placeholderTextColor={theme.onSurfaceVariant}
+                autoCapitalize="none"
+                autoCorrect={false}
+                onSubmitEditing={async () => {
+                  if (backendUrlInput && backendUrlInput !== BACKEND_URL) {
+                    await setBackendUrl(backendUrlInput);
+                    hapticSuccess();
+                    if (dialog) dialog.showAlert('Updated', 'Backend URL updated. Pull to refresh any screen.');
+                  }
+                }}
+              />
+              <TouchableOpacity
+                onPress={async () => {
+                  await resetBackendUrl();
+                  setBackendUrlInput(getBackendUrlSync());
+                  hapticLight();
+                  if (dialog) dialog.showAlert('Reset', 'Backend URL reset to default.');
+                }}
+                style={[styles.resetBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+              >
+                <MaterialIcons name="refresh" size={20} color={theme.onSurfaceVariant} />
               </TouchableOpacity>
             </View>
 
-            <Text style={[styles.label, { color: textMuted }]}>OpenAI API Key *</Text>
-            <TextInput
-              style={[styles.input, { color: text, borderColor: border, backgroundColor: bg }]}
-              placeholder="sk-..."
-              placeholderTextColor={textMuted}
-              value={apiKey}
-              onChangeText={setApiKey}
-              secureTextEntry
-            />
-
-            <Text style={[styles.label, { color: textMuted }]}>Model</Text>
-            <TextInput
-              style={[styles.input, { color: text, borderColor: border, backgroundColor: bg }]}
-              placeholder="gpt-4o-mini"
-              placeholderTextColor={textMuted}
-              value={model}
-              onChangeText={setModel}
-            />
-
-            <TouchableOpacity
-              style={[styles.saveBtn, { backgroundColor: accent, opacity: apiKey.trim() && !saving ? 1 : 0.5 }]}
-              onPress={handleSaveConfig}
-              disabled={!apiKey.trim() || saving}
-            >
-              {saving ? (
-                <ActivityIndicator size="small" color={theme.accentContrast} />
-              ) : (
-                <Text style={[styles.saveBtnText, { color: theme.accentContrast }]}>Save</Text>
-              )}
-            </TouchableOpacity>
+            <View style={styles.infoRow}>
+              <Text style={[styles.infoLabel, { color: theme.onSurfaceVariant }]}>Version</Text>
+              <Text style={[styles.infoValue, { color: theme.onSurface }]}>
+                {health?.version || '0.1.0'}
+              </Text>
+            </View>
           </View>
+        </Animated.View>
+
+        <View style={{ height: 100 }} />
+      </ScrollView>
+
+      {/* Config Bottom Sheet */}
+      <M3BottomSheet
+        visible={showConfigModal}
+        onDismiss={() => setShowConfigModal(false)}
+        snapPoints={[0.6]}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.sheetContent}
+        >
+          <Text style={[styles.sheetTitle, { color: theme.onSurface }]}>AI Configuration</Text>
+
+          <M3TextField
+            label="OpenAI API Key"
+            value={apiKey}
+            onChangeText={setApiKey}
+            placeholder="sk-..."
+            secureTextEntry
+          />
+
+          <View style={{ height: spacing.md }} />
+
+          <M3TextField
+            label="Model"
+            value={model}
+            onChangeText={setModel}
+            placeholder="gpt-4o-mini"
+          />
+
+          <View style={{ height: spacing.xl }} />
+
+          <M3Button
+            label="Save"
+            variant="filled"
+            onPress={handleSaveConfig}
+            disabled={!apiKey.trim() || saving}
+            loading={saving}
+            fullWidth
+          />
         </KeyboardAvoidingView>
-      </Modal>
+      </M3BottomSheet>
     </View>
   );
 }
@@ -296,25 +301,30 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     gap: spacing.sm,
   },
-  headerText: { flex: 1, marginLeft: spacing.sm },
-  title: { fontSize: fs(20), fontWeight: '700' },
-  subtitle: { fontSize: fs(12), marginTop: 2 },
-  iconBtn: {
-    width: sw(44),
-    height: sw(44),
-    borderRadius: sw(12),
+  backBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  headerText: { flex: 1, marginLeft: spacing.sm },
+  headerTitle: {
+    fontSize: m3Typography.titleLarge.fontSize,
+    fontWeight: '700',
+  },
+  headerSub: {
+    fontSize: m3Typography.labelMedium.fontSize,
+    marginTop: 2,
   },
 
   /* Content */
   scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: spacing.lg },
   sectionTitle: {
-    fontSize: fs(10),
+    fontSize: m3Typography.labelLarge.fontSize,
     fontWeight: '600',
-    letterSpacing: 1,
-    marginTop: spacing.lg,
+    marginTop: spacing.xl,
     marginBottom: spacing.sm,
   },
 
@@ -322,47 +332,83 @@ const styles = StyleSheet.create({
   statusCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing.md,
-    borderRadius: 14,
-    borderWidth: 1,
+    padding: spacing.lg,
+    borderRadius: m3Radii.xl,
     marginBottom: spacing.sm,
     gap: spacing.md,
   },
   statusIcon: {
-    width: sw(44),
-    height: sw(44),
-    borderRadius: sw(12),
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
   statusContent: { flex: 1 },
-  statusLabel: { fontSize: fs(14), fontWeight: '600' },
-  statusDesc: { fontSize: fs(12), marginTop: 2 },
-  statusBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: 6 },
-  statusBadgeText: { fontSize: fs(9), fontWeight: '700', letterSpacing: 0.5 },
+  statusLabel: {
+    fontSize: m3Typography.titleMedium.fontSize,
+    fontWeight: '600',
+  },
+  statusDesc: {
+    fontSize: m3Typography.bodySmall.fontSize,
+    marginTop: 2,
+  },
+  statusBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: m3Radii.full,
+  },
+  statusBadgeText: {
+    fontSize: m3Typography.labelSmall.fontSize - 1,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
 
-  /* Info */
+  /* Info Card */
   infoCard: {
-    borderRadius: 14,
-    borderWidth: 1,
-    padding: spacing.md,
-    gap: spacing.sm,
+    borderRadius: m3Radii.xl,
+    padding: spacing.lg,
+    gap: spacing.md,
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  infoLabel: { fontSize: fs(13) },
-  infoValue: { fontSize: fs(13), fontWeight: '600', flex: 1, textAlign: 'right' },
+  infoLabel: {
+    fontSize: m3Typography.labelMedium.fontSize,
+  },
+  infoValue: {
+    fontSize: m3Typography.bodyMedium.fontSize,
+    fontWeight: '600',
+  },
+  urlRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  urlInput: {
+    flex: 1,
+    borderRadius: m3Radii.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    fontSize: m3Typography.bodySmall.fontSize,
+  },
+  resetBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
-  /* Modal */
-  modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContent: { borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: spacing.lg },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
-  modalTitle: { fontSize: fs(18), fontWeight: '700' },
-  label: { fontSize: fs(11), textTransform: 'uppercase', letterSpacing: 1, marginTop: spacing.md, marginBottom: spacing.xs },
-  input: { borderWidth: 1, borderRadius: 12, paddingHorizontal: spacing.md, paddingVertical: spacing.md, fontSize: fs(15) },
-  saveBtn: { paddingVertical: spacing.lg, borderRadius: 12, alignItems: 'center', marginTop: spacing.lg },
-  saveBtnText: { fontSize: fs(14), fontWeight: '700' },
+  /* Sheet */
+  sheetContent: {
+    padding: spacing.lg,
+  },
+  sheetTitle: {
+    fontSize: m3Typography.headlineSmall.fontSize,
+    fontWeight: '700',
+    marginBottom: spacing.lg,
+  },
 });

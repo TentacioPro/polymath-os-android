@@ -4,17 +4,18 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  ActivityIndicator,
-  RefreshControl,
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import axios from 'axios';
-import { useTheme, spacing, fs, sw } from '../theme';
+import { useTheme, spacing } from '../theme';
+import { m3Typography, m3Radii } from '../../shared/design-tokens';
+import M3Progress from '../components/ui/M3Progress';
+import { EmptyState } from '../components/ui/EmptyState';
 import { hapticLight, hapticSelection } from '../utils/haptics';
-
 import { getBackendUrlSync } from '../utils/backend';
 
 export default function AlertsScreen() {
@@ -23,14 +24,6 @@ export default function AlertsScreen() {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
-  // Colors
-  const bg = theme.background;
-  const surface = theme.surface;
-  const text = theme.textPrimary;
-  const textMuted = theme.textSecondary;
-  const accent = theme.accent;
-  const border = theme.borderMuted;
 
   const fetchAlerts = async () => {
     const BACKEND_URL = getBackendUrlSync();
@@ -63,9 +56,17 @@ export default function AlertsScreen() {
 
   const getAlertColor = (type: string) => {
     switch (type) {
-      case 'success': return '#00FF94';
-      case 'warning': return '#FFB800';
-      default: return accent;
+      case 'success': return theme.success;
+      case 'warning': return theme.warning;
+      default: return theme.info;
+    }
+  };
+
+  const getAlertBg = (type: string) => {
+    switch (type) {
+      case 'success': return theme.successContainer;
+      case 'warning': return theme.warningContainer;
+      default: return theme.infoContainer;
     }
   };
 
@@ -80,58 +81,61 @@ export default function AlertsScreen() {
       const diffH = Math.floor(diffM / 60);
       if (diffH < 24) return `${diffH}h ago`;
       return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-    } catch {
-      return '';
-    }
+    } catch { return ''; }
   };
 
-  const renderAlert = ({ item }: { item: any }) => {
+  const renderAlert = ({ item, index }: { item: any; index: number }) => {
     const color = getAlertColor(item.type);
+    const bg = getAlertBg(item.type);
     return (
-      <TouchableOpacity
-        style={[styles.alertCard, { backgroundColor: surface, borderColor: border }]}
-        onPress={() => hapticSelection()}
-        activeOpacity={0.7}
-      >
-        <View style={[styles.alertIcon, { backgroundColor: color + '20' }]}>
-          <MaterialIcons name={getAlertIcon(item.type)} size={18} color={color} />
-        </View>
-        <View style={styles.alertContent}>
-          <Text style={[styles.alertTitle, { color: text }]} numberOfLines={1}>
-            {item.title}
+      <Animated.View entering={FadeInDown.delay(index * 50).springify()}>
+        <TouchableOpacity
+          style={[styles.alertCard, { backgroundColor: theme.surfaceContainer }]}
+          onPress={() => hapticSelection()}
+          activeOpacity={0.7}
+        >
+          {/* Color strip */}
+          <View style={[styles.alertStrip, { backgroundColor: color }]} />
+          <View style={[styles.alertIcon, { backgroundColor: bg }]}>
+            <MaterialIcons name={getAlertIcon(item.type)} size={18} color={color} />
+          </View>
+          <View style={styles.alertContent}>
+            <Text style={[styles.alertTitle, { color: theme.onSurface }]} numberOfLines={1}>
+              {item.title}
+            </Text>
+            <Text style={[styles.alertDesc, { color: theme.onSurfaceVariant }]} numberOfLines={2}>
+              {item.desc}
+            </Text>
+          </View>
+          <Text style={[styles.alertTime, { color: theme.onSurfaceVariant }]}>
+            {formatTime(item.timestamp)}
           </Text>
-          <Text style={[styles.alertDesc, { color: textMuted }]} numberOfLines={2}>
-            {item.desc}
-          </Text>
-        </View>
-        <Text style={[styles.alertTime, { color: textMuted }]}>
-          {formatTime(item.timestamp)}
-        </Text>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </Animated.View>
     );
   };
 
   if (loading) {
     return (
-      <View style={[styles.loading, { backgroundColor: bg, paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={accent} />
+      <View style={[styles.loading, { backgroundColor: theme.surface, paddingTop: insets.top }]}>
+        <M3Progress size="large" />
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: bg }]}>
+    <View style={[styles.container, { backgroundColor: theme.surface }]}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.iconBtn, { backgroundColor: surface }]}
+          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
         >
-          <MaterialIcons name="arrow-back" size={20} color={text} />
+          <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
         </TouchableOpacity>
         <View style={styles.headerText}>
-          <Text style={[styles.title, { color: text }]}>Alerts</Text>
-          <Text style={[styles.subtitle, { color: textMuted }]}>
+          <Text style={[styles.headerTitle, { color: theme.onSurface }]}>Alerts</Text>
+          <Text style={[styles.headerSub, { color: theme.onSurfaceVariant }]}>
             {alerts.length} notification{alerts.length !== 1 ? 's' : ''}
           </Text>
         </View>
@@ -143,19 +147,14 @@ export default function AlertsScreen() {
         keyExtractor={(item, i) => item.id || i.toString()}
         renderItem={renderAlert}
         contentContainerStyle={styles.listContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accent} />
-        }
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <MaterialIcons name="notifications-none" size={48} color={border} />
-            <Text style={[styles.emptyTitle, { color: textMuted }]}>No notifications</Text>
-            <Text style={[styles.emptyHint, { color: textMuted }]}>
-              Activity will appear here
-            </Text>
-          </View>
+          <EmptyState
+            variant="empty-alerts"
+            title="No notifications"
+            description="Activity will appear here"
+          />
         }
-        ListFooterComponent={<View style={{ height: 80 }} />}
+        ListFooterComponent={<View style={{ height: 100 }} />}
         showsVerticalScrollIndicator={false}
       />
     </View>
@@ -174,15 +173,21 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     gap: spacing.sm,
   },
-  headerText: { flex: 1, marginLeft: spacing.sm },
-  title: { fontSize: fs(20), fontWeight: '700' },
-  subtitle: { fontSize: fs(12), marginTop: 2 },
-  iconBtn: {
-    width: sw(44),
-    height: sw(44),
-    borderRadius: sw(12),
+  backBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  headerText: { flex: 1, marginLeft: spacing.sm },
+  headerTitle: {
+    fontSize: m3Typography.titleLarge.fontSize,
+    fontWeight: '700',
+  },
+  headerSub: {
+    fontSize: m3Typography.labelMedium.fontSize,
+    marginTop: 2,
   },
 
   /* List */
@@ -190,26 +195,39 @@ const styles = StyleSheet.create({
   alertCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    padding: spacing.md,
-    borderRadius: 14,
-    borderWidth: 1,
+    padding: spacing.lg,
+    borderRadius: m3Radii.xl,
     marginBottom: spacing.sm,
     gap: spacing.sm,
+    overflow: 'hidden',
+  },
+  alertStrip: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
+    borderTopLeftRadius: m3Radii.xl,
+    borderBottomLeftRadius: m3Radii.xl,
   },
   alertIcon: {
-    width: sw(40),
-    height: sw(40),
-    borderRadius: sw(10),
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   alertContent: { flex: 1 },
-  alertTitle: { fontSize: fs(14), fontWeight: '600' },
-  alertDesc: { fontSize: fs(12), marginTop: 2, lineHeight: 17 },
-  alertTime: { fontSize: fs(10) },
-
-  /* Empty */
-  empty: { alignItems: 'center', paddingVertical: spacing.xxxl },
-  emptyTitle: { fontSize: fs(16), fontWeight: '600', marginTop: spacing.md },
-  emptyHint: { fontSize: fs(13), marginTop: spacing.xs },
+  alertTitle: {
+    fontSize: m3Typography.titleMedium.fontSize,
+    fontWeight: '600',
+  },
+  alertDesc: {
+    fontSize: m3Typography.bodySmall.fontSize,
+    marginTop: 2,
+    lineHeight: m3Typography.bodySmall.lineHeight,
+  },
+  alertTime: {
+    fontSize: m3Typography.labelSmall.fontSize,
+  },
 });

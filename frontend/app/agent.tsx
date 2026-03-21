@@ -4,18 +4,22 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
-  Alert,
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import axios from 'axios';
-import { useTheme, spacing, fs, sw } from '../theme';
+import { useTheme, spacing } from '../theme';
+import { m3Typography, m3Radii } from '../../shared/design-tokens';
+import M3Progress from '../components/ui/M3Progress';
+import M3Button from '../components/ui/M3Button';
 import { hapticLight, hapticPress, hapticSuccess, hapticWarning, hapticSelection } from '../utils/haptics';
-
 import { getBackendUrlSync } from '../utils/backend';
+
+let useDialog: any;
+try { useDialog = require('../components/ui/DialogProvider').useDialog; } catch {}
 
 const CAPABILITIES = [
   { icon: 'auto-awesome' as const, label: 'Synthesize', desc: 'Generate connections', action: 'learn' },
@@ -33,13 +37,8 @@ export default function AgentScreen() {
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState<string | null>(null);
 
-  // Colors
-  const bg = theme.background;
-  const surface = theme.surface;
-  const text = theme.textPrimary;
-  const textMuted = theme.textSecondary;
-  const accent = theme.accent;
-  const border = theme.borderMuted;
+  let dialog: any = null;
+  try { if (useDialog) dialog = useDialog(); } catch {}
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -74,10 +73,10 @@ export default function AgentScreen() {
     try {
       await axios.post(`${BACKEND_URL}/api/agent/${action}`);
       hapticSuccess();
-      Alert.alert('Done', `${action} completed successfully.`);
+      if (dialog) dialog.showAlert('Done', `${action} completed successfully.`);
     } catch (e: any) {
       hapticWarning();
-      Alert.alert('Error', e?.response?.data?.detail || `${action} failed.`);
+      if (dialog) dialog.showAlert('Error', e?.response?.data?.detail || `${action} failed.`);
     } finally {
       setRunning(null);
     }
@@ -85,29 +84,31 @@ export default function AgentScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.loading, { backgroundColor: bg, paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={accent} />
+      <View style={[styles.loading, { backgroundColor: theme.surface, paddingTop: insets.top }]}>
+        <M3Progress size="large" />
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: bg }]}>
+    <View style={[styles.container, { backgroundColor: theme.surface }]}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.iconBtn, { backgroundColor: surface }]}
+          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
         >
-          <MaterialIcons name="arrow-back" size={20} color={text} />
+          <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
         </TouchableOpacity>
         <View style={styles.headerText}>
-          <Text style={[styles.title, { color: text }]}>{persona?.name || 'Agent'}</Text>
-          <Text style={[styles.subtitle, { color: textMuted }]}>
+          <Text style={[styles.headerTitle, { color: theme.onSurface }]}>
+            {persona?.name || 'Agent'}
+          </Text>
+          <Text style={[styles.headerSub, { color: theme.onSurfaceVariant }]}>
             {persona?.role || 'Cognitive Agent'}
           </Text>
         </View>
-        <View style={[styles.statusDot, { backgroundColor: accent }]} />
+        <View style={[styles.statusDot, { backgroundColor: theme.success }]} />
       </View>
 
       <ScrollView
@@ -117,89 +118,91 @@ export default function AgentScreen() {
       >
         {/* Stats Card */}
         {stats && (
-          <View style={[styles.card, { backgroundColor: surface, borderColor: border }]}>
-            <View style={styles.statsRow}>
-              <View style={styles.statItem}>
-                <Text style={[styles.statValue, { color: text }]}>
-                  {stats.total_memories ?? 0}
-                </Text>
-                <Text style={[styles.statLabel, { color: textMuted }]}>Memories</Text>
+          <Animated.View entering={FadeInDown.delay(100).springify()}>
+            <View style={[styles.statsCard, { backgroundColor: theme.surfaceContainer }]}>
+              <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                  <Text style={[styles.statValue, { color: theme.onSurface }]}>
+                    {stats.total_memories ?? 0}
+                  </Text>
+                  <Text style={[styles.statLabel, { color: theme.onSurfaceVariant }]}>Memories</Text>
+                </View>
+                <View style={[styles.statDivider, { backgroundColor: theme.outlineVariant }]} />
+                <View style={styles.statItem}>
+                  <Text style={[styles.statValue, { color: theme.onSurface }]}>
+                    {stats.total_queries ?? 0}
+                  </Text>
+                  <Text style={[styles.statLabel, { color: theme.onSurfaceVariant }]}>Queries</Text>
+                </View>
               </View>
-              <View style={[styles.statDivider, { backgroundColor: border }]} />
-              <View style={styles.statItem}>
-                <Text style={[styles.statValue, { color: text }]}>
-                  {stats.total_queries ?? 0}
+              {persona?.focus_areas && persona.focus_areas.length > 0 && (
+                <Text style={[styles.focusText, { color: theme.onSurfaceVariant }]}>
+                  Focus: {persona.focus_areas.join(', ')}
                 </Text>
-                <Text style={[styles.statLabel, { color: textMuted }]}>Queries</Text>
-              </View>
+              )}
             </View>
-            {persona?.focus_areas && persona.focus_areas.length > 0 && (
-              <Text style={[styles.focusText, { color: textMuted }]}>
-                Focus: {persona.focus_areas.join(', ')}
-              </Text>
-            )}
-          </View>
+          </Animated.View>
         )}
 
         {/* Capabilities */}
-        <Text style={[styles.sectionTitle, { color: textMuted }]}>CAPABILITIES</Text>
+        <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>Capabilities</Text>
         {CAPABILITIES.map((cap, i) => (
-          <TouchableOpacity
-            key={i}
-            style={[styles.capCard, { backgroundColor: surface, borderColor: border }]}
-            onPress={() => handleCapability(cap.action)}
-            disabled={running === cap.action}
-            activeOpacity={0.7}
-          >
-            <View style={[styles.capIcon, { backgroundColor: bg }]}>
-              <MaterialIcons name={cap.icon} size={20} color={accent} />
-            </View>
-            <View style={styles.capContent}>
-              <Text style={[styles.capLabel, { color: text }]}>{cap.label}</Text>
-              <Text style={[styles.capDesc, { color: textMuted }]}>{cap.desc}</Text>
-            </View>
-            {running === cap.action ? (
-              <ActivityIndicator size="small" color={accent} />
-            ) : (
-              <MaterialIcons name="chevron-right" size={20} color={textMuted} />
-            )}
-          </TouchableOpacity>
+          <Animated.View key={i} entering={FadeInDown.delay(150 + i * 60)}>
+            <TouchableOpacity
+              style={[styles.capCard, { backgroundColor: theme.surfaceContainer }]}
+              onPress={() => handleCapability(cap.action)}
+              disabled={running === cap.action}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.capIcon, { backgroundColor: theme.primaryContainer }]}>
+                <MaterialIcons name={cap.icon} size={20} color={theme.onPrimaryContainer} />
+              </View>
+              <View style={styles.capContent}>
+                <Text style={[styles.capLabel, { color: theme.onSurface }]}>{cap.label}</Text>
+                <Text style={[styles.capDesc, { color: theme.onSurfaceVariant }]}>{cap.desc}</Text>
+              </View>
+              {running === cap.action ? (
+                <M3Progress size="small" />
+              ) : (
+                <MaterialIcons name="chevron-right" size={20} color={theme.onSurfaceVariant} />
+              )}
+            </TouchableOpacity>
+          </Animated.View>
         ))}
 
         {/* Memories */}
         {memories.length > 0 && (
           <>
-            <Text style={[styles.sectionTitle, { color: textMuted }]}>RECENT MEMORIES</Text>
+            <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>Recent Memories</Text>
             {memories.slice(0, 5).map((mem: any, i: number) => (
-              <View
-                key={mem.id || i}
-                style={[styles.memCard, { backgroundColor: surface, borderColor: border }]}
-              >
-                <Text style={[styles.memContent, { color: text }]} numberOfLines={2}>
-                  {mem.content}
-                </Text>
-                <View style={[styles.memBadge, { backgroundColor: accent + '20' }]}>
-                  <Text style={[styles.memBadgeText, { color: accent }]}>
-                    {mem.memory_type || 'memory'}
+              <Animated.View key={mem.id || i} entering={FadeInDown.delay(400 + i * 60)}>
+                <View style={[styles.memCard, { backgroundColor: theme.surfaceContainer }]}>
+                  <Text style={[styles.memContent, { color: theme.onSurface }]} numberOfLines={2}>
+                    {mem.content}
                   </Text>
+                  <View style={[styles.memBadge, { backgroundColor: theme.primaryContainer }]}>
+                    <Text style={[styles.memBadgeText, { color: theme.onPrimaryContainer }]}>
+                      {mem.memory_type || 'memory'}
+                    </Text>
+                  </View>
                 </View>
-              </View>
+              </Animated.View>
             ))}
           </>
         )}
 
         {/* Chat Button */}
-        <TouchableOpacity
-          style={[styles.chatBtn, { backgroundColor: accent }]}
-          onPress={() => { hapticPress(); router.push('/chat' as any); }}
-        >
-          <MaterialIcons name="chat" size={20} color={theme.accentContrast} />
-          <Text style={[styles.chatBtnText, { color: theme.accentContrast }]}>
-            Start Conversation
-          </Text>
-        </TouchableOpacity>
+        <View style={{ marginTop: spacing.xl }}>
+          <M3Button
+            label="Start Conversation"
+            variant="filled"
+            icon="chat"
+            onPress={() => { hapticPress(); router.push('/chat' as any); }}
+            fullWidth
+          />
+        </View>
 
-        <View style={{ height: 80 }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
     </View>
   );
@@ -217,15 +220,21 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     gap: spacing.sm,
   },
-  headerText: { flex: 1, marginLeft: spacing.sm },
-  title: { fontSize: fs(20), fontWeight: '700' },
-  subtitle: { fontSize: fs(12), marginTop: 2 },
-  iconBtn: {
-    width: sw(44),
-    height: sw(44),
-    borderRadius: sw(12),
+  backBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  headerText: { flex: 1, marginLeft: spacing.sm },
+  headerTitle: {
+    fontSize: m3Typography.titleLarge.fontSize,
+    fontWeight: '700',
+  },
+  headerSub: {
+    fontSize: m3Typography.labelMedium.fontSize,
+    marginTop: 2,
   },
   statusDot: {
     width: 10,
@@ -237,74 +246,85 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: spacing.lg },
   sectionTitle: {
-    fontSize: fs(10),
+    fontSize: m3Typography.labelLarge.fontSize,
     fontWeight: '600',
-    letterSpacing: 1,
-    marginTop: spacing.lg,
+    marginTop: spacing.xl,
     marginBottom: spacing.sm,
   },
 
-  /* Card */
-  card: {
-    borderRadius: 14,
-    borderWidth: 1,
-    padding: spacing.lg,
+  /* Stats Card */
+  statsCard: {
+    borderRadius: m3Radii.xl,
+    padding: spacing.xl,
   },
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   statItem: { flex: 1, alignItems: 'center' },
-  statValue: { fontSize: fs(24), fontWeight: '700' },
-  statLabel: { fontSize: fs(11), marginTop: 4 },
+  statValue: {
+    fontSize: m3Typography.headlineMedium.fontSize,
+    fontWeight: '700',
+  },
+  statLabel: {
+    fontSize: m3Typography.labelSmall.fontSize,
+    marginTop: 4,
+  },
   statDivider: { width: 1, height: 40 },
-  focusText: { fontSize: fs(12), marginTop: spacing.md, textAlign: 'center' },
+  focusText: {
+    fontSize: m3Typography.bodySmall.fontSize,
+    marginTop: spacing.md,
+    textAlign: 'center',
+  },
 
   /* Capabilities */
   capCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing.md,
-    borderRadius: 14,
-    borderWidth: 1,
+    padding: spacing.lg,
+    borderRadius: m3Radii.xl,
     marginBottom: spacing.sm,
     gap: spacing.md,
   },
   capIcon: {
-    width: sw(44),
-    height: sw(44),
-    borderRadius: sw(12),
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
   capContent: { flex: 1 },
-  capLabel: { fontSize: fs(14), fontWeight: '600' },
-  capDesc: { fontSize: fs(12), marginTop: 2 },
+  capLabel: {
+    fontSize: m3Typography.titleMedium.fontSize,
+    fontWeight: '600',
+  },
+  capDesc: {
+    fontSize: m3Typography.bodySmall.fontSize,
+    marginTop: 2,
+  },
 
   /* Memories */
   memCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    padding: spacing.md,
-    borderRadius: 14,
-    borderWidth: 1,
+    padding: spacing.lg,
+    borderRadius: m3Radii.xl,
     marginBottom: spacing.sm,
     gap: spacing.sm,
   },
-  memContent: { flex: 1, fontSize: fs(13), lineHeight: 19 },
-  memBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: 6 },
-  memBadgeText: { fontSize: fs(9), fontWeight: '600' },
-
-  /* Chat Button */
-  chatBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.lg,
-    borderRadius: 14,
-    marginTop: spacing.lg,
+  memContent: {
+    flex: 1,
+    fontSize: m3Typography.bodyMedium.fontSize,
+    lineHeight: m3Typography.bodyMedium.lineHeight,
   },
-  chatBtnText: { fontSize: fs(14), fontWeight: '700' },
+  memBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: m3Radii.full,
+  },
+  memBadgeText: {
+    fontSize: m3Typography.labelSmall.fontSize,
+    fontWeight: '600',
+  },
 });

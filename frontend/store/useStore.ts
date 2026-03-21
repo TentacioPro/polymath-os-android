@@ -22,17 +22,24 @@ interface Journal {
   timestamp: string;
 }
 
+// Font preference types
+type FontFamily = 'dm-sans' | 'inter' | 'outfit' | 'space-grotesk';
+type MonoFont = 'jetbrains-mono' | 'space-mono';
+
 // Personalization preferences
 interface Preferences {
   // Quick Capture visibility
   showQuickCaptureOnHome: boolean;
-  showQuickCaptureInSidebar: boolean;
-  
+
   // Layout options
-  sidebarPosition: 'left' | 'right' | 'hidden';
   dashboardLayout: 'grid' | 'list' | 'compact';
   profileLayout: 'full' | 'minimal';
-  
+
+  // Typography
+  fontFamily: FontFamily;
+  monoFont: MonoFont;
+  fontScale: number; // 0.85 to 1.30
+
   // Screen visibility
   visibleScreens: {
     dashboard: boolean;
@@ -50,11 +57,6 @@ interface AppState {
   // Theme
   themeName: ThemeName;
   setThemeName: (name: ThemeName) => void;
-
-  // Drawer
-  drawerOpen: boolean;
-  setDrawerOpen: (open: boolean) => void;
-  toggleDrawer: () => void;
 
   // Data
   activities: Activity[];
@@ -79,10 +81,11 @@ interface AppState {
 
 const defaultPreferences: Preferences = {
   showQuickCaptureOnHome: true,
-  showQuickCaptureInSidebar: true,
-  sidebarPosition: 'left',
   dashboardLayout: 'grid',
   profileLayout: 'full',
+  fontFamily: 'dm-sans',
+  monoFont: 'jetbrains-mono',
+  fontScale: 1,
   visibleScreens: {
     dashboard: true,
     knowledge: true,
@@ -99,11 +102,6 @@ export const useStore = create<AppState>()((set) => ({
   // Theme
   themeName: 'void' as ThemeName,
   setThemeName: (themeName) => set({ themeName }),
-
-  // Drawer
-  drawerOpen: false,
-  setDrawerOpen: (drawerOpen) => set({ drawerOpen }),
-  toggleDrawer: () => set((s) => ({ drawerOpen: !s.drawerOpen })),
 
   // Data
   activities: [],

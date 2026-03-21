@@ -7,17 +7,19 @@ import {
   TouchableOpacity,
   Keyboard,
   Platform,
-  ActivityIndicator,
   Animated,
   StyleSheet,
+  ScrollView,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AnimatedRN, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import axios from 'axios';
-import { useTheme, spacing, fs, sw } from '../theme';
+import { useTheme, spacing } from '../theme';
+import { m3Typography, m3Radii } from '../../shared/design-tokens';
+import M3Progress from '../components/ui/M3Progress';
 import { hapticPress, hapticLight, hapticSuccess, hapticWarning } from '../utils/haptics';
-
 import { getBackendUrlSync } from '../utils/backend';
 
 interface Message {
@@ -26,6 +28,13 @@ interface Message {
   content: string;
   timestamp: Date;
 }
+
+const SUGGESTIONS = [
+  'Analyze patterns',
+  'Summarize today',
+  'Find connections',
+  'What should I explore?',
+];
 
 export default function ChatScreen() {
   const { theme } = useTheme();
@@ -44,14 +53,6 @@ export default function ChatScreen() {
   const dotAnim = useRef(new Animated.Value(0)).current;
   const keyboardHeight = useRef(new Animated.Value(0)).current;
 
-  // Colors
-  const bg = theme.background;
-  const surface = theme.surface;
-  const text = theme.textPrimary;
-  const textMuted = theme.textSecondary;
-  const accent = theme.accent;
-  const border = theme.borderMuted;
-
   // Typing indicator animation
   useEffect(() => {
     if (sending) {
@@ -66,7 +67,7 @@ export default function ChatScreen() {
     }
   }, [sending, dotAnim]);
 
-  // Keyboard listeners to handle gap issue
+  // Keyboard listeners
   useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
     const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
@@ -93,25 +94,25 @@ export default function ChatScreen() {
     };
   }, []);
 
-  const sendMessage = async () => {
+  const sendMessage = async (text?: string) => {
     const BACKEND_URL = getBackendUrlSync();
-    if (!input.trim() || sending) return;
+    const msg = (text || input).trim();
+    if (!msg || sending) return;
     hapticPress();
-    
+
     const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: input.trim(),
+      content: msg,
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, userMsg]);
-    const query = input.trim();
     setInput('');
     setSending(true);
 
     try {
       const res = await axios.get(`${BACKEND_URL}/api/agent/chat`, {
-        params: { message: query },
+        params: { message: msg },
       });
       hapticSuccess();
       setMessages((prev) => [
@@ -139,65 +140,72 @@ export default function ChatScreen() {
     }
   };
 
-  const renderMessage = ({ item }: { item: Message }) => {
+  const renderMessage = ({ item, index }: { item: Message; index: number }) => {
     const isUser = item.role === 'user';
     return (
-      <View
-        style={[
-          styles.bubble,
-          isUser ? styles.userBubble : styles.assistantBubble,
-          {
-            backgroundColor: isUser ? accent : surface,
-            borderColor: border,
-          },
-        ]}
-      >
-        <Text
+      <AnimatedRN.View entering={FadeInUp.delay(50).springify()}>
+        <View
           style={[
-            styles.bubbleText,
-            { color: isUser ? theme.accentContrast : text },
+            styles.bubble,
+            isUser ? styles.userBubble : styles.assistantBubble,
+            {
+              backgroundColor: isUser ? theme.primaryContainer : theme.surfaceContainerHigh,
+            },
           ]}
         >
-          {item.content}
-        </Text>
-        <Text
-          style={[
-            styles.timestamp,
-            { color: isUser ? theme.accentContrast : textMuted },
-          ]}
-        >
-          {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </Text>
-      </View>
+          <Text
+            style={[
+              styles.bubbleText,
+              { color: isUser ? theme.onPrimaryContainer : theme.onSurface },
+            ]}
+          >
+            {item.content}
+          </Text>
+          <Text
+            style={[
+              styles.timestamp,
+              { color: isUser ? theme.onPrimaryContainer : theme.onSurfaceVariant },
+            ]}
+          >
+            {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </Text>
+        </View>
+      </AnimatedRN.View>
     );
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: bg }]}>
-      <Animated.View
-        style={[styles.kav, { paddingBottom: keyboardHeight }]}
-      >
-        {/* Header */}
-        <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: border }]}>
+    <View style={[styles.container, { backgroundColor: theme.surface }]}>
+      <Animated.View style={[styles.kav, { paddingBottom: keyboardHeight }]}>
+        {/* Agent Persona Strip */}
+        <AnimatedRN.View
+          entering={FadeInDown.duration(400)}
+          style={[styles.personaStrip, {
+            paddingTop: insets.top + 8,
+            backgroundColor: theme.surfaceContainer,
+          }]}
+        >
           <TouchableOpacity
             onPress={() => { hapticLight(); router.back(); }}
-            style={[styles.iconBtn, { backgroundColor: surface }]}
+            style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
           >
-            <MaterialIcons name="arrow-back" size={20} color={text} />
+            <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
           </TouchableOpacity>
-          <View style={styles.headerText}>
-            <Text style={[styles.title, { color: text }]}>Agent Chat</Text>
-            <Text style={[styles.subtitle, { color: textMuted }]}>
-              {sending ? 'Thinking...' : 'Online'}
-            </Text>
+          <View style={[styles.avatar, { backgroundColor: theme.primaryContainer }]}>
+            <MaterialIcons name="psychology" size={20} color={theme.onPrimaryContainer} />
           </View>
-          <TouchableOpacity
-            onPress={() => { hapticLight(); }}
-            style={[styles.iconBtn, { backgroundColor: surface }]}
-          >
-            <MaterialIcons name="more-vert" size={20} color={text} />
-          </TouchableOpacity>
-        </View>
+          <View style={styles.personaText}>
+            <Text style={[styles.personaName, { color: theme.onSurface }]}>Polymath Agent</Text>
+            <View style={styles.statusRow}>
+              <View style={[styles.statusDot, {
+                backgroundColor: sending ? theme.warning : theme.success,
+              }]} />
+              <Text style={[styles.statusLabel, { color: theme.onSurfaceVariant }]}>
+                {sending ? 'Thinking...' : 'Online'}
+              </Text>
+            </View>
+          </View>
+        </AnimatedRN.View>
 
         {/* Messages */}
         <FlatList
@@ -213,51 +221,81 @@ export default function ChatScreen() {
           showsVerticalScrollIndicator={false}
           ListFooterComponent={
             sending ? (
-              <View style={[styles.bubble, styles.assistantBubble, { backgroundColor: surface, borderColor: border }]}>
-                <Animated.View style={[styles.thinkingRow, { opacity: Animated.add(0.4, Animated.multiply(dotAnim, 0.6)) }]}>
-                  <MaterialIcons name="psychology" size={14} color={accent} />
-                  <Text style={[styles.thinkingText, { color: textMuted }]}>Thinking...</Text>
+              <View style={[styles.bubble, styles.assistantBubble, {
+                backgroundColor: theme.surfaceContainerHigh,
+              }]}>
+                <Animated.View style={[styles.thinkingRow, {
+                  opacity: Animated.add(0.4, Animated.multiply(dotAnim, 0.6)),
+                }]}>
+                  <MaterialIcons name="psychology" size={14} color={theme.primary} />
+                  <Text style={[styles.thinkingText, { color: theme.onSurfaceVariant }]}>
+                    Thinking...
+                  </Text>
                 </Animated.View>
               </View>
             ) : null
           }
         />
 
-        {/* Input */}
+        {/* Suggestion chips */}
+        {messages.length <= 1 && !sending && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.suggestionsRow}
+          >
+            {SUGGESTIONS.map((s, i) => (
+              <TouchableOpacity
+                key={i}
+                style={[styles.suggestionChip, { backgroundColor: theme.surfaceContainerHigh }]}
+                onPress={() => sendMessage(s)}
+              >
+                <Text style={[styles.suggestionText, { color: theme.primary }]}>{s}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        )}
+
+        {/* Input bar */}
         <View
           style={[
             styles.inputBar,
             {
-              backgroundColor: surface,
-              borderTopColor: border,
+              backgroundColor: theme.surface,
               paddingBottom: Math.max(insets.bottom, 12),
             },
           ]}
         >
-          <TextInput
-            value={input}
-            onChangeText={setInput}
-            placeholder={sending ? 'Agent is thinking...' : 'Type a message...'}
-            placeholderTextColor={textMuted}
-            style={[styles.textInput, { color: text, backgroundColor: bg, borderColor: border }]}
-            onSubmitEditing={sendMessage}
-            returnKeyType="send"
-            editable={!sending}
-          />
-          <TouchableOpacity
-            onPress={sendMessage}
-            disabled={sending || !input.trim()}
-            style={[
-              styles.sendBtn,
-              { backgroundColor: accent, opacity: sending || !input.trim() ? 0.4 : 1 },
-            ]}
-          >
-            {sending ? (
-              <ActivityIndicator size="small" color={theme.accentContrast} />
-            ) : (
-              <MaterialIcons name="send" size={18} color={theme.accentContrast} />
-            )}
-          </TouchableOpacity>
+          <View style={[styles.inputPill, { backgroundColor: theme.surfaceContainerHigh }]}>
+            <TextInput
+              value={input}
+              onChangeText={setInput}
+              placeholder={sending ? 'Agent is thinking...' : 'Type a message...'}
+              placeholderTextColor={theme.onSurfaceVariant}
+              style={[styles.textInput, { color: theme.onSurface }]}
+              onSubmitEditing={() => sendMessage()}
+              returnKeyType="send"
+              editable={!sending}
+              multiline
+            />
+            <TouchableOpacity
+              onPress={() => sendMessage()}
+              disabled={sending || !input.trim()}
+              style={[
+                styles.sendBtn,
+                {
+                  backgroundColor: theme.primary,
+                  opacity: sending || !input.trim() ? 0.4 : 1,
+                },
+              ]}
+            >
+              {sending ? (
+                <M3Progress size="small" />
+              ) : (
+                <MaterialIcons name="send" size={18} color={theme.onPrimary} />
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
       </Animated.View>
     </View>
@@ -268,24 +306,48 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   kav: { flex: 1 },
 
-  /* Header */
-  header: {
+  /* Persona strip */
+  personaStrip: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.md,
     gap: spacing.sm,
-    borderBottomWidth: 1,
+    borderBottomLeftRadius: m3Radii.xl,
+    borderBottomRightRadius: m3Radii.xl,
   },
-  headerText: { flex: 1, marginLeft: spacing.sm },
-  title: { fontSize: fs(18), fontWeight: '700' },
-  subtitle: { fontSize: fs(11), marginTop: 2 },
-  iconBtn: {
-    width: sw(44),
-    height: sw(44),
-    borderRadius: sw(12),
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  personaText: { flex: 1 },
+  personaName: {
+    fontSize: m3Typography.titleMedium.fontSize,
+    fontWeight: '600',
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  statusLabel: {
+    fontSize: m3Typography.labelSmall.fontSize,
   },
 
   /* Messages */
@@ -294,28 +356,26 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   bubble: {
-    padding: spacing.md,
-    borderWidth: 1,
-    borderRadius: 16,
+    padding: spacing.lg,
+    borderRadius: m3Radii.xl,
     maxWidth: '85%',
   },
   userBubble: {
     alignSelf: 'flex-end',
-    borderBottomRightRadius: 4,
+    borderBottomRightRadius: m3Radii.xs,
   },
   assistantBubble: {
     alignSelf: 'flex-start',
-    borderBottomLeftRadius: 4,
+    borderBottomLeftRadius: m3Radii.xs,
   },
   bubbleText: {
-    fontSize: fs(14),
-    lineHeight: 21,
+    fontSize: m3Typography.bodyMedium.fontSize,
+    lineHeight: m3Typography.bodyMedium.lineHeight,
   },
   timestamp: {
-    fontSize: fs(9),
+    fontSize: m3Typography.labelSmall.fontSize - 1,
     marginTop: spacing.xs,
     letterSpacing: 0.5,
-    textTransform: 'uppercase',
   },
   thinkingRow: {
     flexDirection: 'row',
@@ -323,33 +383,51 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   thinkingText: {
-    fontSize: fs(12),
+    fontSize: m3Typography.bodySmall.fontSize,
     fontStyle: 'italic',
+  },
+
+  /* Suggestions */
+  suggestionsRow: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.sm,
+    gap: spacing.sm,
+  },
+  suggestionChip: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: m3Radii.full,
+  },
+  suggestionText: {
+    fontSize: m3Typography.labelLarge.fontSize,
+    fontWeight: '500',
   },
 
   /* Input */
   inputBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    borderTopWidth: 1,
-    gap: spacing.sm,
+    paddingTop: spacing.sm,
+  },
+  inputPill: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    borderRadius: m3Radii.full,
+    paddingLeft: spacing.lg,
+    paddingRight: spacing.xs,
+    paddingVertical: spacing.xs,
+    minHeight: 52,
   },
   textInput: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 14,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    fontSize: fs(14),
-    minHeight: sw(48),
+    fontSize: m3Typography.bodyLarge.fontSize,
+    paddingVertical: spacing.sm,
+    maxHeight: 120,
   },
   sendBtn: {
-    width: sw(48),
-    height: sw(48),
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 14,
+    borderRadius: 20,
   },
 });

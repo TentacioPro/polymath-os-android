@@ -4,30 +4,34 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
   Dimensions,
-  Alert,
   RefreshControl,
   StyleSheet,
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import Svg, { Line, Rect, Text as SvgText } from 'react-native-svg';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Line, Circle as SvgCircle, Text as SvgText } from 'react-native-svg';
 import axios from 'axios';
-import { useTheme, spacing, fs, sw } from '../../theme';
+import { useTheme, spacing } from '../../theme';
 import { useStore } from '../../store/useStore';
 import { hapticPress, hapticLight, hapticSuccess, hapticWarning, hapticSelection, hapticMedium } from '../../utils/haptics';
-
 import { getBackendUrlSync } from '../../utils/backend';
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+import { m3Typography, m3Radii } from '../../../shared/design-tokens';
+import M3Progress from '../../components/ui/M3Progress';
+import M3Button from '../../components/ui/M3Button';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { AIProgress } from '../../components/ui/AIProgress';
+import { useDialog } from '../../components/ui/DialogProvider';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 interface MeshNode {
   id: string;
   label: string;
   x: number;
   y: number;
-  type: 'root' | 'primary' | 'secondary' | 'pending';
+  size: number;
+  type: 'root' | 'primary' | 'secondary';
 }
 
 interface MeshEdge {
@@ -38,26 +42,18 @@ interface MeshEdge {
 
 export default function NeuralMesh() {
   const { theme } = useTheme();
-  const insets = useSafeAreaInsets();
-  const toggleDrawer = useStore((s) => s.toggleDrawer);
   const { connections, setConnections, activities } = useStore();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [genStep, setGenStep] = useState(0);
+  const [genCount, setGenCount] = useState(0);
   const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  let dialog: any;
+  try { dialog = useDialog(); } catch { dialog = null; }
 
-  // Colors
-  const bg = theme.background;
-  const surface = theme.surface;
-  const text = theme.textPrimary;
-  const textMuted = theme.textSecondary;
-  const accent = theme.accent;
-  const border = theme.borderMuted;
-
-  // Graph dimensions
-  const graphWidth = SCREEN_WIDTH - spacing.lg * 2;
-  const graphHeight = 260;
+  const graphWidth = SCREEN_WIDTH;
+  const graphHeight = SCREEN_HEIGHT * 0.45;
 
   useEffect(() => { loadConnections(); }, []);
 
@@ -85,25 +81,28 @@ export default function NeuralMesh() {
     const BACKEND_URL = getBackendUrlSync();
     if (activities.length === 0) {
       hapticWarning();
-      Alert.alert('No Data', 'Add knowledge sources first to generate connections.');
+      if (dialog) dialog.showAlert('No Data', 'Add knowledge sources first to generate connections.');
       return;
     }
     hapticMedium();
     setGenerating(true);
+    setGenStep(0);
+    setGenCount(0);
     try {
       let generated = 0;
-      for (const activity of activities.slice(0, 5)) {
+      const steps = Math.min(activities.length, 5);
+      for (let i = 0; i < steps; i++) {
+        setGenStep(Math.min(i, 2));
         try {
-          const res = await axios.post(`${BACKEND_URL}/api/ai/generate-connections/${activity.id}`);
+          const res = await axios.post(`${BACKEND_URL}/api/ai/generate-connections/${activities[i].id}`);
           generated += (res.data?.length || 0);
-        } catch (_) { /* skip failures */ }
+        } catch { /* skip */ }
       }
+      setGenCount(generated);
       hapticSuccess();
-      Alert.alert('Done', `Generated ${generated} new connections.`);
       loadConnections();
-    } catch (e) {
+    } catch {
       hapticWarning();
-      Alert.alert('Error', 'Failed to generate connections');
     } finally {
       setGenerating(false);
     }
@@ -112,63 +111,58 @@ export default function NeuralMesh() {
   const handleLoadSuggestions = async () => {
     const BACKEND_URL = getBackendUrlSync();
     hapticPress();
-    setLoadingSuggestions(true);
     try {
       const res = await axios.get(`${BACKEND_URL}/api/ai/suggestions`);
       setSuggestions(res.data?.suggestions || res.data || []);
       hapticSuccess();
-    } catch (e) {
+    } catch {
       hapticWarning();
-      console.error('Failed to load suggestions:', e);
-    } finally {
-      setLoadingSuggestions(false);
     }
   };
 
-  // Graph nodes
+  // Graph nodes - circles instead of rectangles, M3 style
   const nodes: MeshNode[] = useMemo(() => {
     if (connections.length === 0) {
       return [
-        { id: 'root', label: 'Deep Structure', x: graphWidth / 2, y: 35, type: 'root' },
-        { id: 'n1', label: 'Ingestion', x: graphWidth * 0.2, y: 110, type: 'primary' },
-        { id: 'n2', label: 'Cognitive Pattern', x: graphWidth * 0.8, y: 95, type: 'primary' },
-        { id: 'n3', label: 'Semantic Bridge', x: graphWidth * 0.35, y: 185, type: 'pending' },
-        { id: 'n4', label: 'Output Vector', x: graphWidth * 0.7, y: 200, type: 'secondary' },
+        { id: 'root', label: 'Mesh', x: graphWidth / 2, y: graphHeight * 0.35, size: 36, type: 'root' },
+        { id: 'n1', label: 'Ingestion', x: graphWidth * 0.2, y: graphHeight * 0.55, size: 28, type: 'primary' },
+        { id: 'n2', label: 'Patterns', x: graphWidth * 0.8, y: graphHeight * 0.45, size: 28, type: 'primary' },
+        { id: 'n3', label: 'Bridge', x: graphWidth * 0.35, y: graphHeight * 0.75, size: 24, type: 'secondary' },
+        { id: 'n4', label: 'Output', x: graphWidth * 0.7, y: graphHeight * 0.8, size: 24, type: 'secondary' },
       ];
     }
-
-    const uniqueMap = new Map<string, string>();
+    const uniqueMap = new Map<string, { label: string; count: number }>();
     connections.forEach((c: any) => {
       const k1 = c.from_id || c.from || c.activity_1_title || 'A';
       const k2 = c.to_id || c.to || c.activity_2_title || 'B';
-      if (!uniqueMap.has(k1)) uniqueMap.set(k1, c.activity_1_title || c.from || 'Node');
-      if (!uniqueMap.has(k2)) uniqueMap.set(k2, c.activity_2_title || c.to || 'Node');
+      const l1 = c.activity_1_title || c.from || 'Node';
+      const l2 = c.activity_2_title || c.to || 'Node';
+      const e1 = uniqueMap.get(k1) || { label: l1, count: 0 };
+      const e2 = uniqueMap.get(k2) || { label: l2, count: 0 };
+      uniqueMap.set(k1, { label: e1.label, count: e1.count + 1 });
+      uniqueMap.set(k2, { label: e2.label, count: e2.count + 1 });
     });
-
     const entries = Array.from(uniqueMap.entries()).slice(0, 10);
     const cx = graphWidth / 2;
     const cy = graphHeight / 2;
     const radius = Math.min(graphWidth, graphHeight) * 0.35;
-
-    return entries.map(([id, label], i) => {
+    return entries.map(([id, data], i) => {
       const angle = (2 * Math.PI * i) / entries.length - Math.PI / 2;
-      const hash = (id.charCodeAt(0) + id.length) % 20 - 10;
+      const sz = Math.min(56, Math.max(24, 20 + data.count * 4));
       return {
         id,
-        label: label.slice(0, 16),
-        x: Math.max(55, Math.min(graphWidth - 55, cx + radius * Math.cos(angle) + hash)),
-        y: Math.max(20, Math.min(graphHeight - 20, cy + radius * Math.sin(angle) + hash * 0.5)),
+        label: data.label.slice(0, 14),
+        x: cx + radius * Math.cos(angle),
+        y: cy + radius * Math.sin(angle),
+        size: sz,
         type: (i === 0 ? 'root' : i < 3 ? 'primary' : 'secondary') as MeshNode['type'],
       };
     });
   }, [connections, graphWidth, graphHeight]);
 
-  // Graph edges
   const edges: MeshEdge[] = useMemo(() => {
     if (nodes.length <= 1) return [];
-    if (connections.length === 0) {
-      return nodes.slice(1).map((n) => ({ from: nodes[0].id, to: n.id }));
-    }
+    if (connections.length === 0) return nodes.slice(1).map((n) => ({ from: nodes[0].id, to: n.id }));
     return connections.slice(0, 15).map((c: any) => ({
       from: c.from_id || c.from || c.activity_1_title || '',
       to: c.to_id || c.to || c.activity_2_title || '',
@@ -177,80 +171,48 @@ export default function NeuralMesh() {
   }, [nodes, connections]);
 
   return (
-    <View style={[styles.container, { backgroundColor: bg }]}>
-      {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity
-          onPress={() => { hapticLight(); toggleDrawer(); }}
-          style={[styles.iconBtn, { backgroundColor: surface }]}
-        >
-          <MaterialIcons name="menu" size={22} color={text} />
-        </TouchableOpacity>
-        <View style={styles.headerText}>
-          <Text style={[styles.title, { color: text }]}>Neural Mesh</Text>
-          <Text style={[styles.subtitle, { color: textMuted }]}>{connections.length} connections</Text>
-        </View>
-        <TouchableOpacity
-          onPress={() => { hapticPress(); router.push('/analytics' as any); }}
-          style={[styles.iconBtn, { backgroundColor: surface }]}
-        >
-          <MaterialIcons name="insights" size={22} color={text} />
-        </TouchableOpacity>
-      </View>
-
+    <View style={[styles.container, { backgroundColor: theme.surface }]}>
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accent} />
-        }
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} />
+        }
       >
-        {/* Graph Card */}
-        <View style={[styles.graphCard, { backgroundColor: surface, borderColor: border }]}>
+        {/* Full-bleed Graph */}
+        <View style={[styles.graphArea, { height: graphHeight }]}>
           {loading ? (
             <View style={styles.graphLoading}>
-              <ActivityIndicator size="large" color={accent} />
+              <M3Progress variant="circular" size="large" />
             </View>
           ) : (
-            <Svg width={graphWidth - spacing.md * 2} height={graphHeight}>
-              {/* Edges */}
+            <Svg width={graphWidth} height={graphHeight}>
               {edges.map((edge, i) => {
-                const fromNode = nodes.find((n) => n.id === edge.from);
-                const toNode = nodes.find((n) => n.id === edge.to);
-                if (!fromNode || !toNode) return null;
+                const from = nodes.find((n) => n.id === edge.from);
+                const to = nodes.find((n) => n.id === edge.to);
+                if (!from || !to) return null;
                 return (
                   <Line
                     key={`e-${i}`}
-                    x1={fromNode.x}
-                    y1={fromNode.y}
-                    x2={toNode.x}
-                    y2={toNode.y}
-                    stroke={textMuted}
-                    strokeWidth={0.5}
+                    x1={from.x} y1={from.y}
+                    x2={to.x} y2={to.y}
+                    stroke={theme.outlineVariant}
+                    strokeWidth={1}
                     strokeDasharray={edge.dashed ? '4,4' : undefined}
-                    opacity={0.5}
+                    opacity={0.6}
                   />
                 );
               })}
-              {/* Nodes */}
               {nodes.map((node) => (
                 <React.Fragment key={node.id}>
-                  <Rect
-                    x={node.x - 45}
-                    y={node.y - 11}
-                    width={90}
-                    height={22}
-                    rx={6}
-                    fill={node.type === 'root' ? accent : node.type === 'pending' ? 'transparent' : surface}
-                    stroke={border}
-                    strokeWidth={1}
-                    strokeDasharray={node.type === 'pending' ? '3,3' : undefined}
+                  <SvgCircle
+                    cx={node.x} cy={node.y}
+                    r={node.size / 2}
+                    fill={node.type === 'root' ? theme.primary : theme.surfaceContainerHigh}
                   />
                   <SvgText
-                    x={node.x}
-                    y={node.y + 3}
-                    fill={node.type === 'root' ? theme.accentContrast : text}
+                    x={node.x} y={node.y + 3}
+                    fill={node.type === 'root' ? theme.onPrimary : theme.onSurface}
                     fontSize={9}
                     fontWeight="600"
                     textAnchor="middle"
@@ -262,110 +224,97 @@ export default function NeuralMesh() {
             </Svg>
           )}
 
+          {/* Floating controls */}
+          <View style={[styles.floatingControls]}>
+            <TouchableOpacity
+              style={[styles.controlBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+              onPress={handleGenerateAll}
+              disabled={generating}
+            >
+              <Ionicons name="sparkles-outline" size={20} color={theme.onSurfaceVariant} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.controlBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+              onPress={handleLoadSuggestions}
+            >
+              <Ionicons name="bulb-outline" size={20} color={theme.onSurfaceVariant} />
+            </TouchableOpacity>
+          </View>
+
           {/* Legend */}
-          <View style={[styles.legend, { borderTopColor: border }]}>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: accent }]} />
-              <Text style={[styles.legendText, { color: textMuted }]}>Root</Text>
+          <View style={styles.legendRow}>
+            <View style={[styles.legendPill, { backgroundColor: theme.surfaceContainer }]}>
+              <View style={[styles.legendDot, { backgroundColor: theme.primary }]} />
+              <Text style={[styles.legendText, { color: theme.onSurfaceVariant }]}>Root</Text>
             </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: surface, borderWidth: 1, borderColor: border }]} />
-              <Text style={[styles.legendText, { color: textMuted }]}>Active</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: 'transparent', borderWidth: 1, borderColor: border }]} />
-              <Text style={[styles.legendText, { color: textMuted }]}>Pending</Text>
+            <View style={[styles.legendPill, { backgroundColor: theme.surfaceContainer }]}>
+              <View style={[styles.legendDot, { backgroundColor: theme.surfaceContainerHigh }]} />
+              <Text style={[styles.legendText, { color: theme.onSurfaceVariant }]}>Node</Text>
             </View>
           </View>
         </View>
 
-        {/* AI Actions */}
-        <Text style={[styles.sectionTitle, { color: textMuted }]}>AI ACTIONS</Text>
-        <View style={styles.actionRow}>
-          <TouchableOpacity
-            style={[
-              styles.actionBtn,
-              { backgroundColor: accent, opacity: generating || activities.length === 0 ? 0.5 : 1 },
-            ]}
-            onPress={handleGenerateAll}
-            disabled={generating || activities.length === 0}
-          >
-            {generating ? (
-              <ActivityIndicator size="small" color={theme.accentContrast} />
-            ) : (
-              <>
-                <MaterialIcons name="hub" size={18} color={theme.accentContrast} />
-                <Text style={[styles.actionText, { color: theme.accentContrast }]}>Generate</Text>
-              </>
-            )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: surface, borderColor: border, borderWidth: 1 }]}
-            onPress={handleLoadSuggestions}
-            disabled={loadingSuggestions}
-          >
-            {loadingSuggestions ? (
-              <ActivityIndicator size="small" color={text} />
-            ) : (
-              <>
-                <MaterialIcons name="lightbulb" size={18} color={text} />
-                <Text style={[styles.actionText, { color: text }]}>AI Suggestions</Text>
-              </>
-            )}
-          </TouchableOpacity>
-        </View>
+        {/* AI Generation progress */}
+        {generating && (
+          <View style={{ paddingHorizontal: spacing.lg, marginBottom: spacing.lg }}>
+            <AIProgress state="processing" currentStep={genStep} />
+          </View>
+        )}
+        {!generating && genCount > 0 && (
+          <View style={{ paddingHorizontal: spacing.lg, marginBottom: spacing.lg }}>
+            <AIProgress state="result" resultCount={genCount} onView={() => {}} />
+          </View>
+        )}
 
         {/* Suggestions */}
         {suggestions.length > 0 && (
-          <>
-            <Text style={[styles.sectionTitle, { color: textMuted }]}>SUGGESTIONS</Text>
+          <View style={{ paddingHorizontal: spacing.lg }}>
+            <Text style={[styles.sectionLabel, { color: theme.onSurfaceVariant }]}>SUGGESTIONS</Text>
             {suggestions.slice(0, 4).map((s: any, i: number) => (
-              <View key={i} style={[styles.suggestionCard, { backgroundColor: surface, borderColor: border }]}>
-                <MaterialIcons name="auto-awesome" size={16} color={accent} />
-                <Text style={[styles.suggestionText, { color: text }]}>
+              <View key={i} style={[styles.suggestionCard, { backgroundColor: theme.surfaceContainer }]}>
+                <Ionicons name="sparkles" size={16} color={theme.primary} />
+                <Text style={[styles.suggestionText, { color: theme.onSurface }]}>
                   {typeof s === 'string' ? s : s.suggestion || s.title || JSON.stringify(s)}
                 </Text>
               </View>
             ))}
-          </>
+          </View>
         )}
 
         {/* Connections List */}
-        <Text style={[styles.sectionTitle, { color: textMuted }]}>CONNECTIONS</Text>
-        {connections.length === 0 && !loading && (
-          <View style={[styles.emptyCard, { backgroundColor: surface, borderColor: border }]}>
-            <MaterialIcons name="grain" size={36} color={border} />
-            <Text style={[styles.emptyText, { color: textMuted }]}>
-              No connections yet. Generate from your knowledge sources.
-            </Text>
-          </View>
-        )}
-        {connections.slice(0, 8).map((conn: any, i: number) => (
-          <TouchableOpacity
-            key={conn.id || i}
-            style={[styles.connCard, { backgroundColor: surface, borderColor: border }]}
-            onPress={() => { hapticSelection(); }}
-            activeOpacity={0.7}
-          >
-            <View style={styles.connContent}>
-              <Text style={[styles.connFrom, { color: text }]} numberOfLines={1}>
-                {conn.activity_1_title || conn.from || 'Source'}
-              </Text>
-              <View style={styles.connArrow}>
-                <MaterialIcons name="arrow-forward" size={12} color={textMuted} />
-                <Text style={[styles.connTo, { color: textMuted }]} numberOfLines={1}>
-                  {conn.activity_2_title || conn.to || 'Target'}
+        <View style={{ paddingHorizontal: spacing.lg }}>
+          <Text style={[styles.sectionLabel, { color: theme.onSurfaceVariant }]}>
+            CONNECTIONS ({connections.length})
+          </Text>
+          {connections.length === 0 && !loading && (
+            <EmptyState variant="empty-connections" onCTA={handleGenerateAll} />
+          )}
+          {connections.slice(0, 10).map((conn: any, i: number) => (
+            <TouchableOpacity
+              key={conn.id || i}
+              style={[styles.connCard, { backgroundColor: theme.surfaceContainer }]}
+              onPress={() => hapticSelection()}
+              activeOpacity={0.7}
+            >
+              <View style={styles.connContent}>
+                <Text style={[styles.connFrom, { color: theme.onSurface }]} numberOfLines={1}>
+                  {conn.activity_1_title || conn.from || 'Source'}
+                </Text>
+                <View style={styles.connArrow}>
+                  <Ionicons name="arrow-forward" size={12} color={theme.onSurfaceVariant} />
+                  <Text style={[styles.connTo, { color: theme.onSurfaceVariant }]} numberOfLines={1}>
+                    {conn.activity_2_title || conn.to || 'Target'}
+                  </Text>
+                </View>
+              </View>
+              <View style={[styles.connBadge, { backgroundColor: theme.primaryContainer }]}>
+                <Text style={[styles.connBadgeText, { color: theme.onPrimaryContainer }]}>
+                  {conn.connection_type || 'LINK'}
                 </Text>
               </View>
-            </View>
-            <View style={[styles.connBadge, { backgroundColor: accent + '20' }]}>
-              <Text style={[styles.connBadgeText, { color: accent }]}>
-                {conn.connection_type || 'LINK'}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
-
+            </TouchableOpacity>
+          ))}
+        </View>
         <View style={{ height: 120 }} />
       </ScrollView>
     </View>
@@ -374,124 +323,79 @@ export default function NeuralMesh() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-
-  /* Header */
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
-    gap: spacing.sm,
-  },
-  headerText: { flex: 1, marginLeft: spacing.sm },
-  title: { fontSize: fs(20), fontWeight: '700' },
-  subtitle: { fontSize: fs(12), marginTop: 2 },
-  iconBtn: {
-    width: sw(44),
-    height: sw(44),
-    borderRadius: sw(12),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  /* Scroll */
   scroll: { flex: 1 },
-  scrollContent: { paddingHorizontal: spacing.lg },
 
-  /* Graph Card */
-  graphCard: {
-    borderRadius: 16,
-    borderWidth: 1,
-    overflow: 'hidden',
-    marginBottom: spacing.lg,
+  /* Graph */
+  graphArea: { position: 'relative' },
+  graphLoading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  floatingControls: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    gap: 8,
   },
-  graphLoading: {
-    height: 260,
+  controlBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
   },
-  legend: {
+  legendRow: {
+    position: 'absolute',
+    bottom: 12,
+    left: 16,
     flexDirection: 'row',
-    justifyContent: 'center',
-    gap: spacing.lg,
-    paddingVertical: spacing.md,
-    borderTopWidth: 1,
+    gap: 8,
   },
-  legendItem: {
+  legendPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: m3Radii.full,
   },
-  legendDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  legendText: {
-    fontSize: fs(9),
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
+  legendDot: { width: 8, height: 8, borderRadius: 4 },
+  legendText: { fontSize: m3Typography.labelSmall.fontSize },
 
   /* Section */
-  sectionTitle: {
-    fontSize: fs(10),
+  sectionLabel: {
+    fontSize: m3Typography.labelMedium.fontSize,
     fontWeight: '600',
     letterSpacing: 1,
     marginBottom: spacing.sm,
-    marginTop: spacing.md,
+    marginTop: spacing.lg,
   },
-
-  /* Actions */
-  actionRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  actionBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    height: sw(48),
-    borderRadius: 12,
-  },
-  actionText: { fontSize: fs(13), fontWeight: '600' },
 
   /* Suggestions */
   suggestionCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.sm,
-    padding: spacing.md,
-    borderRadius: 12,
-    borderWidth: 1,
+    padding: spacing.lg,
+    borderRadius: m3Radii.xl,
     marginBottom: spacing.sm,
   },
-  suggestionText: { flex: 1, fontSize: fs(13), lineHeight: 19 },
-
-  /* Empty */
-  emptyCard: {
-    alignItems: 'center',
-    padding: spacing.xl,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  emptyText: { fontSize: fs(13), textAlign: 'center', marginTop: spacing.md },
+  suggestionText: { flex: 1, fontSize: m3Typography.bodyMedium.fontSize, lineHeight: 22 },
 
   /* Connections */
   connCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing.md,
-    borderRadius: 12,
-    borderWidth: 1,
+    padding: spacing.lg,
+    borderRadius: m3Radii.xl,
     marginBottom: spacing.sm,
   },
   connContent: { flex: 1 },
-  connFrom: { fontSize: fs(14), fontWeight: '600', marginBottom: 4 },
+  connFrom: { fontSize: m3Typography.titleSmall.fontSize, fontWeight: '600', marginBottom: 4 },
   connArrow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  connTo: { fontSize: fs(12), flex: 1 },
-  connBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: 6 },
-  connBadgeText: { fontSize: fs(9), fontWeight: '600', letterSpacing: 0.5 },
+  connTo: { fontSize: m3Typography.bodySmall.fontSize, flex: 1 },
+  connBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: m3Radii.full },
+  connBadgeText: { fontSize: m3Typography.labelSmall.fontSize, fontWeight: '600' },
 });
