@@ -212,7 +212,7 @@ export default function ChatPage() {
   const hasMessages = messages.length > 0;
 
   return (
-    <div className={`fixed inset-0 flex bg-m3-surface z-30 pt-[60px] md:pt-0 transition-standard ${collapsed ? 'md:pl-[72px]' : 'md:pl-[260px]'}`}>
+    <div className={`fixed inset-0 flex bg-m3-surface z-30 pt-[60px] md:pt-0 transition-standard ${collapsed ? 'md:pl-18' : 'md:pl-65'}`}>
       {/* Main Chat Column */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Chat Header */}
@@ -396,7 +396,7 @@ export default function ChatPage() {
                   onChange={handleInputChange}
                   placeholder="Ask anything about your knowledge base..."
                   rows={1}
-                  className="w-full bg-m3-surface-container border border-m3-outline-variant rounded-2xl px-4 py-3.5 pr-12 text-sm text-m3-on-surface placeholder:text-m3-on-surface-variant focus:outline-none focus:border-m3-primary transition-standard resize-none max-h-[160px]"
+                  className="w-full bg-m3-surface-container border border-m3-outline-variant rounded-2xl px-4 py-3.5 pr-12 text-sm text-m3-on-surface placeholder:text-m3-on-surface-variant focus:outline-none focus:border-m3-primary transition-standard resize-none max-h-40"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();

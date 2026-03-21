@@ -69,14 +69,14 @@ export default function Dashboard() {
             <button
               onClick={() => refetch()}
               aria-label="Refresh dashboard"
-              className="focus-ring min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-m3-surface-container hover:bg-m3-surface-container-high transition-standard text-m3-on-surface"
+              className="focus-ring min-w-11 min-h-11 flex items-center justify-center rounded-xl bg-m3-surface-container hover:bg-m3-surface-container-high transition-standard text-m3-on-surface"
             >
               <span className="material-symbols-outlined text-[20px]" aria-hidden="true">refresh</span>
             </button>
             <Link
               href="/profile"
               aria-label="View profile"
-              className="focus-ring min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-m3-primary text-m3-on-primary"
+              className="focus-ring min-w-11 min-h-11 flex items-center justify-center rounded-xl bg-m3-primary text-m3-on-primary"
             >
               <span className="material-symbols-outlined text-[20px]" aria-hidden="true">person</span>
             </Link>
@@ -161,7 +161,7 @@ export default function Dashboard() {
               </div>
               <span className="material-symbols-outlined text-[20px] text-m3-on-surface-variant">arrow_forward</span>
             </div>
-            <p className="text-[13px] text-m3-on-surface-variant leading-[20px] mb-3">
+            <p className="text-[13px] text-m3-on-surface-variant leading-5 mb-3">
               {totalConnections > 0
                 ? `${totalConnections} connections discovered across your knowledge base.`
                 : 'Start adding content to discover patterns and connections.'}

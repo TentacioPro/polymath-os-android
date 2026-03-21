@@ -99,7 +99,7 @@ function ToastItem({
       role="alert"
       className={`
         flex items-center gap-3 rounded-2xl ${cfg.bg} elevation-2
-        pl-0 pr-3 py-0 overflow-hidden min-w-[300px] max-w-[420px]
+        pl-0 pr-3 py-0 overflow-hidden min-w-75 max-w-105
         transition-standard
         ${exiting ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'}
       `}
@@ -157,7 +157,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
       {/* Toast container */}
       <div
-        className="fixed top-4 right-4 z-[9999] flex flex-col gap-2 items-end
+        className="fixed top-4 right-4 z-9999 flex flex-col gap-2 items-end
                     max-sm:right-2 max-sm:left-2 max-sm:items-stretch"
       >
         {toasts.map((t) => (

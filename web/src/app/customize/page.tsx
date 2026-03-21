@@ -235,13 +235,13 @@ export default function CustomizePage() {
       <span className="flex-1 text-[14px] font-medium text-m3-on-surface">{label}</span>
       <button
         onClick={() => onToggle(!enabled)}
-        className={`relative w-[52px] h-[32px] rounded-full transition-standard ${
+        className={`relative w-13 h-8 rounded-full transition-standard ${
           enabled ? 'bg-m3-primary' : 'bg-m3-surface-container-highest'
         }`}
       >
         <div
-          className={`absolute top-[4px] w-[24px] h-[24px] rounded-full transition-standard ${
-            enabled ? 'bg-m3-on-primary left-[24px]' : 'bg-m3-outline left-[4px]'
+          className={`absolute top-1 w-6 h-6 rounded-full transition-standard ${
+            enabled ? 'bg-m3-on-primary left-6' : 'bg-m3-outline left-1'
           }`}
         />
       </button>

@@ -68,13 +68,13 @@ export default function Drawer() {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] md:hidden" onClick={() => setOpen(false)}>
+    <div className="fixed inset-0 z-60 md:hidden" onClick={() => setOpen(false)}>
       {/* Scrim overlay */}
       <div className="absolute inset-0" style={{ backgroundColor: 'var(--m3-surface-dim)' }} />
 
       {/* Drawer panel */}
       <aside
-        className="absolute top-0 left-0 w-[80%] max-w-[320px] min-h-screen flex flex-col bg-m3-surface-container elevation-4"
+        className="absolute top-0 left-0 w-[80%] max-w-80 min-h-screen flex flex-col bg-m3-surface-container elevation-4"
         style={{ borderRadius: '0 28px 28px 0' }}
         onClick={(e) => e.stopPropagation()}
       >

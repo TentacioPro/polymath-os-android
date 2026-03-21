@@ -78,14 +78,14 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
       {state && (
         <div
           ref={scrimRef}
-          className={`fixed inset-0 z-[9998] flex items-center justify-center p-4
+          className={`fixed inset-0 z-9998 flex items-center justify-center p-4
                       transition-standard
                       ${visible ? 'opacity-100' : 'opacity-0'}`}
           style={{ backgroundColor: 'var(--m3-scrim)' }}
           onClick={(e) => e.target === scrimRef.current && handleResult(false)}
         >
           <div
-            className={`bg-m3-surface-container-highest rounded-3xl w-full max-w-[380px]
+            className={`bg-m3-surface-container-highest rounded-3xl w-full max-w-95
                         elevation-3 transition-standard
                         ${visible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
           >

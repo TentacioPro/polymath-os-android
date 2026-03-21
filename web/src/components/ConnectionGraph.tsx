@@ -214,7 +214,7 @@ export default function ConnectionGraph({ connections, activities, onNodeClick }
 
         {/* Search bar */}
         <div className="absolute top-3 left-3 right-20">
-          <div className="relative max-w-[260px]">
+          <div className="relative max-w-65">
             <span className="material-symbols-outlined text-[18px] text-m3-on-surface-variant absolute left-3 top-1/2 -translate-y-1/2">
               search
             </span>

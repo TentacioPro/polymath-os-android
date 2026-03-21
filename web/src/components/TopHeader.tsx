@@ -67,7 +67,7 @@ export default function TopHeader() {
             alive ? 'bg-m3-success-container' : 'bg-m3-surface-container'
           }`}>
             <div
-              className={`w-[6px] h-[6px] rounded-full ${alive ? 'animate-pulse' : ''}`}
+              className={`w-1.5 h-1.5 rounded-full ${alive ? 'animate-pulse' : ''}`}
               style={{ backgroundColor: alive ? 'var(--m3-success)' : 'var(--m3-outline)' }}
             />
             <span className={`text-[10px] font-semibold tracking-wide uppercase ${

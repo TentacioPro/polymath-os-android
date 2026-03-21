@@ -27,7 +27,7 @@ export function VoiceRecorder({ onSend, onDiscard, onClose }: VoiceRecorderProps
   const [state, setState] = useState<RecordingState>('idle');
   const [elapsed, setElapsed] = useState(0);
   const [waveformData, setWaveformData] = useState<number[]>(new Array(32).fill(0.1));
-  const timerRef = useRef<ReturnType<typeof setInterval>>();
+  const timerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const pulseAnim = useSharedValue(1);
   const recordingUri = useRef<string | null>(null);
 

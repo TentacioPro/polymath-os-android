@@ -8,7 +8,7 @@ export default function SidebarAwareMain({ children }: { children: ReactNode }) 
 
   return (
     <main
-      className={`pt-[60px] pb-[100px] px-5 md:pt-6 md:pb-8 md:pr-6 lg:pr-10 transition-standard ${
+      className={`pt-15 pb-25 px-5 md:pt-6 md:pb-8 md:pr-6 lg:pr-10 transition-standard ${
         collapsed
           ? 'md:pl-[calc(72px+1.5rem)] lg:pl-[calc(72px+2.5rem)]'
           : 'md:pl-[calc(260px+1.5rem)] lg:pl-[calc(260px+2.5rem)]'

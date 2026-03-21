@@ -16,7 +16,7 @@ export default function BottomNav() {
   return (
     <nav
       aria-label="Bottom navigation"
-      className="fixed bottom-5 left-1/2 -translate-x-1/2 w-[92%] max-w-[380px] z-40 md:hidden"
+      className="fixed bottom-5 left-1/2 -translate-x-1/2 w-[92%] max-w-95 z-40 md:hidden"
     >
       <div
         className="flex justify-between items-center px-2 py-1.5 bg-m3-surface-container-high border border-m3-outline-variant elevation-3"
@@ -35,7 +35,7 @@ export default function BottomNav() {
                 href={item.href}
                 aria-label={item.label}
                 aria-current={isActive ? 'page' : undefined}
-                className={`focus-ring flex flex-col items-center min-h-[44px] justify-center px-3 py-1.5 rounded-2xl transition-standard ${
+                className={`focus-ring flex flex-col items-center min-h-11 justify-center px-3 py-1.5 rounded-2xl transition-standard ${
                   isActive
                     ? 'bg-m3-primary-container'
                     : 'hover:bg-m3-surface-container-highest'
@@ -63,7 +63,7 @@ export default function BottomNav() {
         <Link
           href="/chat"
           aria-label="Capture new entry"
-          className="focus-ring flex items-center gap-2 min-h-[44px] px-4 py-2.5 bg-m3-primary hover:opacity-90 transition-standard"
+          className="focus-ring flex items-center gap-2 min-h-11 px-4 py-2.5 bg-m3-primary hover:opacity-90 transition-standard"
           style={{ borderRadius: '16px' }}
         >
           <span className="material-symbols-outlined text-[18px] text-m3-on-primary" aria-hidden="true">

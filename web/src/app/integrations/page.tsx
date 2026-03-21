@@ -232,7 +232,7 @@ export default function IntegrationsPage() {
           </div>
           <div className="flex justify-between items-center mb-2">
             <span className="text-[13px] text-m3-on-surface-variant">Backend URL</span>
-            <span className="text-[13px] font-semibold text-m3-on-surface truncate max-w-[200px]">
+            <span className="text-[13px] font-semibold text-m3-on-surface truncate max-w-50">
               {process.env.NEXT_PUBLIC_BACKEND_URL || 'localhost:8001'}
             </span>
           </div>

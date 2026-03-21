@@ -43,7 +43,7 @@ export default function AppSidebar() {
         title={collapsed ? item.label : undefined}
         className={`focus-ring group relative flex items-center gap-3 transition-standard ${
           collapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2.5'
-        } rounded-[16px] min-h-[44px] ${
+        } rounded-2xl min-h-11 ${
           active
             ? 'bg-m3-primary-container text-m3-on-primary-container font-semibold'
             : 'text-m3-on-surface-variant hover:bg-m3-surface-container-high hover:text-m3-on-surface'
@@ -59,7 +59,7 @@ export default function AppSidebar() {
         )}
         {/* Collapsed tooltip */}
         {collapsed && (
-          <span className="absolute left-full ml-3 px-3 py-1.5 bg-m3-inverse-surface text-m3-inverse-on-surface text-[11px] font-medium rounded-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-standard z-[60] elevation-3">
+          <span className="absolute left-full ml-3 px-3 py-1.5 bg-m3-inverse-surface text-m3-inverse-on-surface text-[11px] font-medium rounded-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-standard z-60 elevation-3">
             {item.label}
           </span>
         )}
@@ -70,7 +70,7 @@ export default function AppSidebar() {
   return (
     <aside
       className={`hidden md:flex flex-col fixed top-0 left-0 h-screen bg-m3-surface z-50 transition-standard border-r border-m3-outline-variant ${
-        collapsed ? 'w-[72px]' : 'w-[260px]'
+        collapsed ? 'w-18' : 'w-65'
       }`}
     >
       {/* Brand header */}
@@ -166,7 +166,7 @@ export default function AppSidebar() {
               aria-label={t.description}
               aria-pressed={theme === t.id}
               title={t.description}
-              className={`focus-ring min-h-[44px] min-w-[44px] rounded-xl p-1.5 text-center transition-standard ${
+              className={`focus-ring min-h-11 min-w-11 rounded-xl p-1.5 text-center transition-standard ${
                 theme === t.id
                   ? 'bg-m3-primary-container ring-1 ring-m3-primary'
                   : 'bg-m3-surface-container hover:bg-m3-surface-container-high'

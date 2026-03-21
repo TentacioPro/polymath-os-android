@@ -44,14 +44,14 @@ const VARIANT_CLASSES: Record<Variant, string> = {
 };
 
 const ERROR_CLASSES =
-  'bg-[var(--m3-error-container)] text-[var(--m3-on-error)] ' +
+  'bg-m3-error-container text-m3-on-error ' +
   'hover:opacity-90 active:scale-[0.97] ' +
-  'focus-visible:ring-2 focus-visible:ring-[var(--m3-error)] focus-visible:ring-offset-2';
+  'focus-visible:ring-2 focus-visible:ring-m3-error focus-visible:ring-offset-2';
 
 const SUCCESS_CLASSES =
-  'bg-[var(--m3-success-container)] text-[var(--m3-success)] ' +
+  'bg-m3-success-container text-m3-success ' +
   'hover:opacity-90 active:scale-[0.97] ' +
-  'focus-visible:ring-2 focus-visible:ring-[var(--m3-success)] focus-visible:ring-offset-2';
+  'focus-visible:ring-2 focus-visible:ring-m3-success focus-visible:ring-offset-2';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -77,7 +77,7 @@ export default function M3Button({
     <button
       disabled={disabled || loading}
       className={`
-        inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full min-h-[44px]
+        inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full min-h-11
         text-sm font-semibold
         transition-all duration-150 ease-out
         disabled:opacity-50 disabled:pointer-events-none disabled:grayscale

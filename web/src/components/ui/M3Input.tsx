@@ -30,7 +30,7 @@ export default function M3Input({
   const borderCls = error
     ? 'border-m3-error focus-visible:border-m3-error focus-visible:ring-m3-error/30'
     : success
-    ? 'border-[var(--m3-success)] focus-visible:border-[var(--m3-success)] focus-visible:ring-[var(--m3-success)]/30'
+    ? 'border-m3-success focus-visible:border-m3-success focus-visible:ring-m3-success/30'
     : 'border-m3-outline-variant focus-visible:border-m3-primary focus-visible:ring-m3-primary/30';
 
   const disabledCls = disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : '';
@@ -68,7 +68,7 @@ export default function M3Input({
           </span>
         )}
         {!loading && success && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--m3-success)] flex items-center">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-m3-success flex items-center">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
               <path d="M5 8l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -81,7 +81,7 @@ export default function M3Input({
           disabled={disabled}
           aria-invalid={!!error}
           aria-describedby={error || supportingText ? `${inputId}-hint` : undefined}
-          className={`w-full bg-m3-surface text-m3-on-surface text-[15px] rounded-2xl min-h-[44px]
+          className={`w-full bg-m3-surface text-m3-on-surface text-[15px] rounded-2xl min-h-11
             border outline-none transition-standard
             placeholder:text-m3-on-surface-variant
             focus-visible:ring-2 focus-visible:ring-offset-0
