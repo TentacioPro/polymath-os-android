@@ -43,21 +43,32 @@ export interface M3Palette {
   categories: Record<string, string>;
 }
 
-// ─── Typography Scale (M3) ─────────────────────────────────────────────────
+// ─── Typography Scale (M3 + Kole Jain) ─────────────────────────────────────
+// Line height rules (Kole Jain):
+//   Body text: 1.5× fontSize | Small/label text: 1.4× fontSize
+//   Headings (headline, title): 1.1–1.2× fontSize (tight, M3 was too generous)
+// Letter spacing rules (Kole Jain):
+//   Display only: -2% to -3% (tighten visual mass of large text)
+//   Body and below: 0 to positive tracking for readability
 
 export const m3Typography = {
-  displayLarge:  { fontSize: 57, fontWeight: '400' as const, lineHeight: 64, letterSpacing: -0.25 },
-  displayMedium: { fontSize: 45, fontWeight: '400' as const, lineHeight: 52, letterSpacing: 0 },
-  displaySmall:  { fontSize: 36, fontWeight: '400' as const, lineHeight: 44, letterSpacing: 0 },
-  headlineLarge: { fontSize: 32, fontWeight: '400' as const, lineHeight: 40, letterSpacing: 0 },
-  headlineMedium:{ fontSize: 28, fontWeight: '400' as const, lineHeight: 36, letterSpacing: 0 },
-  headlineSmall: { fontSize: 24, fontWeight: '400' as const, lineHeight: 32, letterSpacing: 0 },
-  titleLarge:    { fontSize: 22, fontWeight: '500' as const, lineHeight: 28, letterSpacing: 0 },
-  titleMedium:   { fontSize: 16, fontWeight: '500' as const, lineHeight: 24, letterSpacing: 0.15 },
-  titleSmall:    { fontSize: 14, fontWeight: '500' as const, lineHeight: 20, letterSpacing: 0.1 },
+  // Display — letterSpacing: -2% of fontSize (Kole Jain tightening rule)
+  displayLarge:  { fontSize: 57, fontWeight: '400' as const, lineHeight: 64, letterSpacing: -1.00 },
+  displayMedium: { fontSize: 45, fontWeight: '400' as const, lineHeight: 52, letterSpacing: -0.75 },
+  displaySmall:  { fontSize: 36, fontWeight: '400' as const, lineHeight: 40, letterSpacing: -0.50 },
+  // Headline — lineHeight: ~1.15× fontSize (was 1.33–1.43×, tightened)
+  headlineLarge: { fontSize: 32, fontWeight: '400' as const, lineHeight: 36, letterSpacing: 0 },
+  headlineMedium:{ fontSize: 28, fontWeight: '400' as const, lineHeight: 32, letterSpacing: 0 },
+  headlineSmall: { fontSize: 24, fontWeight: '400' as const, lineHeight: 28, letterSpacing: 0 },
+  // Title — lineHeight: ~1.2× fontSize
+  titleLarge:    { fontSize: 22, fontWeight: '500' as const, lineHeight: 24, letterSpacing: 0 },
+  titleMedium:   { fontSize: 16, fontWeight: '500' as const, lineHeight: 20, letterSpacing: 0.15 },
+  titleSmall:    { fontSize: 14, fontWeight: '500' as const, lineHeight: 16, letterSpacing: 0.1 },
+  // Body — lineHeight: 1.5× fontSize
   bodyLarge:     { fontSize: 16, fontWeight: '400' as const, lineHeight: 24, letterSpacing: 0.5 },
   bodyMedium:    { fontSize: 14, fontWeight: '400' as const, lineHeight: 20, letterSpacing: 0.25 },
   bodySmall:     { fontSize: 12, fontWeight: '400' as const, lineHeight: 16, letterSpacing: 0.4 },
+  // Label — lineHeight: 1.4× fontSize
   labelLarge:    { fontSize: 14, fontWeight: '500' as const, lineHeight: 20, letterSpacing: 0.1 },
   labelMedium:   { fontSize: 12, fontWeight: '500' as const, lineHeight: 16, letterSpacing: 0.5 },
   labelSmall:    { fontSize: 11, fontWeight: '500' as const, lineHeight: 16, letterSpacing: 0.5 },
@@ -94,16 +105,19 @@ export function resolveMonoFont(monoFont: MonoFontPref = 'jetbrains-mono') {
   return MONO_MAP[monoFont] || MONO_MAP['jetbrains-mono'];
 }
 
-// ─── Spacing ────────────────────────────────────────────────────────────────
+// ─── Spacing (8-Point Grid — Kole Jain Spatial Rhythm) ──────────────────────
+// ONLY use these values. Never arbitrary primes (13, 17, 22px etc).
+// xs/sm: tight/related gaps | md/lg: card padding | xl/xxl: section gaps | section/hero: page-level
 
 export const m3Spacing = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  xxl: 32,
-  xxxl: 48,
+  xs: 4,        // icon gaps, dot separators, tight internal padding
+  sm: 8,        // related element gaps, compact list item padding
+  md: 16,       // card internal padding, unrelated element gaps
+  lg: 24,       // section internal padding, comfortable list gaps
+  xl: 32,       // section separation, modal padding
+  xxl: 48,      // major section breaks, page-level vertical rhythm
+  section: 64,  // large section separation (hero → content)
+  hero: 96,     // page-level top/bottom breathing room
 } as const;
 
 // ─── Radii (M3 shape system) ────────────────────────────────────────────────
@@ -179,6 +193,57 @@ export const m3ZIndex = {
   toast: 80,
   tooltip: 90,
 } as const;
+
+// ─── Text Opacity Cascade (Kole Jain 4-Layer Color) ─────────────────────────
+// Layer 3: text/icons opacity cascade — apply via rgba(onSurface, opacity)
+// Primary text (87%), secondary/muted text (60%), disabled/tertiary (38%)
+
+export const m3TextOpacity = {
+  primary: 0.87,    // main readable text — replaces flat onSurface usage
+  secondary: 0.60,  // supporting text, timestamps, captions
+  disabled: 0.38,   // disabled state labels, inactive indicators
+} as const;
+
+// ─── Icon Sizing — Iconometry Rule (Kole Jain) ───────────────────────────────
+// Icon bounding box MUST equal the adjacent text's computed lineHeight in px.
+// Example: bodyMedium (14px, lh 20px) → icon size = 20px (snap to m3IconSize.sm)
+// Always pair with alignItems: 'center' to eliminate sub-pixel baseline drift.
+
+export function iconSize(
+  fontSize: number,
+  lineHeightMultiplier = 1.5,
+): number {
+  const raw = fontSize * lineHeightMultiplier;
+  return Math.round(raw / 4) * 4; // snap to nearest 4px
+}
+
+export const m3IconSize = {
+  xs: 16,  // labelSmall / labelMedium lineHeight
+  sm: 20,  // bodyMedium / labelLarge lineHeight
+  md: 24,  // bodyLarge / titleMedium lineHeight
+  lg: 32,  // headlineSmall area
+  xl: 40,  // headlineMedium area (stat rings, hero icons)
+} as const;
+
+// ─── Touch Target (WCAG 2.1 + Kole Jain) ────────────────────────────────────
+// Every interactive element must present at minimum a 44×44px tap area.
+// Visual size may be smaller (e.g., chip = 32px tall) — use hitSlop to pad.
+
+export const m3TouchTarget = {
+  min: 44,          // WCAG 2.1 SC 2.5.5 — absolute minimum
+  comfortable: 48,  // recommended for frequently-tapped targets
+} as const;
+
+// ─── Component Dimension Formula (Kole Jain) ─────────────────────────────────
+// Target Width = Computed Height × 2 for pill-shaped interactive elements.
+// Override only to meet m3TouchTarget.min × 2 as absolute floor.
+// Usage: buttonMinWidth(buttonHeight) in M3Button / M3Chip dimension logic.
+
+export function buttonMinWidth(computedHeight: number): number {
+  const formula = computedHeight * 2;
+  const floor = m3TouchTarget.min * 2;
+  return Math.max(formula, floor);
+}
 
 // ─── Theme Name Type ────────────────────────────────────────────────────────
 

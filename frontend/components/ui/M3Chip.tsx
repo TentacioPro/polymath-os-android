@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
-import { m3Typography, m3Radii } from '../../../shared/design-tokens';
+import { m3Typography, m3Radii, m3TouchTarget } from '../../../shared/design-tokens';
 
 interface M3ChipProps {
   label: string;
@@ -35,6 +35,7 @@ export default function M3Chip({
     <Container
       onPress={onPress}
       activeOpacity={0.7}
+      {...(onPress ? { hitSlop: { top: 6, bottom: 6, left: 8, right: 8 } } : {})}
       style={[
         styles.chip,
         { backgroundColor: bg },
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: m3Radii.full,
   },

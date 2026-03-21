@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ViewStyle, ActivityIndicator } from 'react-native';
 import { useTheme } from '../../theme';
 import { hapticPress } from '../../utils/haptics';
-import { m3Typography, m3Radii } from '../../../shared/design-tokens';
+import { m3Typography, m3Radii, m3TouchTarget } from '../../../shared/design-tokens';
 
 type M3ButtonVariant = 'filled' | 'tonal' | 'outlined' | 'text';
 
@@ -53,8 +53,9 @@ export default function M3Button({
           borderWidth: variant === 'outlined' ? 1 : 0,
           width: fullWidth ? '100%' : undefined,
           opacity: disabled ? 0.4 : 1,
-          paddingVertical: compact ? 8 : 12,
+          paddingVertical: compact ? 8 : 16,
           paddingHorizontal: compact ? 16 : 24,
+          minHeight: compact ? undefined : m3TouchTarget.min,
         },
         style,
       ]}
