@@ -29,7 +29,11 @@ import time
 from collections import defaultdict
 import asyncio
 import re
+import functools
 import bleach
+import requests as http_requests
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 
 # Local imports
 from auth import (
@@ -367,6 +371,18 @@ class JournalCreate(BaseModel):
             # Sanitize and limit tag length
             return [sanitize_input(tag.strip())[:50] for tag in v if tag.strip()]
         return v
+
+class MetadataExtract(BaseModel):
+    url: str = Field(..., min_length=1, max_length=2048)
+
+class UrlMetadata(BaseModel):
+    url: str
+    domain: str
+    title: Optional[str] = None
+    description: Optional[str] = None
+    image: Optional[str] = None
+    favicon: Optional[str] = None
+    fetched_at: datetime = Field(default_factory=datetime.utcnow)
 
 class Connection(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -1190,6 +1206,70 @@ async def delete_activity(activity_id: str):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Activity not found")
     return {"message": "Activity deleted"}
+
+# URL METADATA
+@api_router.post("/metadata/extract", response_model=UrlMetadata)
+async def extract_metadata(body: MetadataExtract):
+    """Extract OpenGraph / meta tags from a URL. Results are cached."""
+    url = body.url.strip()
+    if not re.match(r'^https?://', url):
+        raise HTTPException(status_code=400, detail="URL must start with http:// or https://")
+
+    # Check cache first (24-hour TTL)
+    cached = await db.url_metadata.find_one({"url": url})
+    if cached:
+        fetched_at = cached.get("fetched_at")
+        if fetched_at and (datetime.utcnow() - fetched_at).total_seconds() < 86400:
+            if "_id" in cached:
+                del cached["_id"]
+            return UrlMetadata(**cached)
+
+    meta = await asyncio.get_event_loop().run_in_executor(
+        None, functools.partial(_sync_extract, url)
+    )
+
+    # Store in cache
+    doc = {**meta, "fetched_at": datetime.utcnow()}
+    await db.url_metadata.update_one({"url": url}, {"$set": doc}, upsert=True)
+
+    return UrlMetadata(**doc)
+
+def _sync_extract(url: str) -> Dict[str, Any]:
+    """Synchronous URL metadata extraction for use in executor."""
+    parsed = urlparse(url)
+    domain = parsed.netloc or parsed.hostname or url
+    result: Dict[str, Any] = {"url": url, "domain": domain}
+    try:
+        resp = http_requests.get(
+            url,
+            headers={"User-Agent": "PolymathBot/1.0 (+https://polymath-os.com)"},
+            timeout=8,
+            allow_redirects=True,
+        )
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text[:200_000], "lxml")
+        og_title = soup.find("meta", property="og:title")
+        og_desc = soup.find("meta", property="og:description")
+        og_image = soup.find("meta", property="og:image")
+        title_tag = soup.find("title")
+        desc_tag = soup.find("meta", attrs={"name": "description"})
+        favicon_link = soup.find("link", rel=lambda x: x and "icon" in x)
+
+        result["title"] = (og_title and og_title.get("content")) or (title_tag and title_tag.string) or None
+        result["description"] = (og_desc and og_desc.get("content")) or (desc_tag and desc_tag.get("content")) or None
+        result["image"] = (og_image and og_image.get("content")) or None
+        if favicon_link and favicon_link.get("href"):
+            fav = favicon_link["href"]
+            if fav.startswith("//"): fav = f"{parsed.scheme}:{fav}"
+            elif fav.startswith("/"): fav = f"{parsed.scheme}://{parsed.netloc}{fav}"
+            result["favicon"] = fav
+        else:
+            result["favicon"] = f"{parsed.scheme}://{parsed.netloc}/favicon.ico"
+        if result.get("image") and result["image"].startswith("/"):
+            result["image"] = f"{parsed.scheme}://{parsed.netloc}{result['image']}"
+    except Exception as e:
+        logging.warning(f"Metadata extraction failed for {url}: {e}")
+    return result
 
 # JOURNALS
 @api_router.post("/journals", response_model=Journal)
