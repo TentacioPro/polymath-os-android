@@ -27,13 +27,13 @@ export default function AppearanceScreen() {
   const { theme, themeName, setTheme } = useTheme();
   const insets = useSafeAreaInsets();
 
-  // Colors
-  const bg = theme.background;
-  const surface = theme.surface;
-  const text = theme.textPrimary;
-  const textMuted = theme.textSecondary;
-  const accent = theme.accent;
-  const border = theme.borderMuted;
+  // Colors — M3 token mapping
+  const bg = theme.surface;                    // M3: base background
+  const surface = theme.surfaceContainerHigh;  // M3: elevated card/surface
+  const text = theme.onSurface;
+  const textMuted = theme.onSurfaceVariant;
+  const accent = theme.primary;
+  const border = theme.outlineVariant;
 
   const handleThemeSelect = (name: ThemeName) => {
     hapticSuccess();
@@ -62,19 +62,19 @@ export default function AppearanceScreen() {
         activeOpacity={0.7}
       >
         {/* Preview */}
-        <View style={[styles.preview, { backgroundColor: t.background }]}>
-          <View style={[styles.previewHeader, { backgroundColor: t.surface }]}>
-            <View style={[styles.previewDot, { backgroundColor: t.accent }]} />
-            <View style={[styles.previewLine, { backgroundColor: t.textMuted }]} />
+        <View style={[styles.preview, { backgroundColor: t.surface }]}>
+          <View style={[styles.previewHeader, { backgroundColor: t.surfaceContainerHigh }]}>
+            <View style={[styles.previewDot, { backgroundColor: t.primary }]} />
+            <View style={[styles.previewLine, { backgroundColor: t.onSurfaceVariant }]} />
           </View>
           <View style={styles.previewBody}>
-            <View style={[styles.previewCard, { backgroundColor: t.surface, borderColor: t.borderMuted }]}>
-              <View style={[styles.previewAccentLine, { backgroundColor: t.accent }]} />
-              <View style={[styles.previewTextLine, { backgroundColor: t.textMuted }]} />
+            <View style={[styles.previewCard, { backgroundColor: t.surfaceContainer, borderColor: t.outlineVariant }]}>
+              <View style={[styles.previewAccentLine, { backgroundColor: t.primary }]} />
+              <View style={[styles.previewTextLine, { backgroundColor: t.onSurfaceVariant }]} />
             </View>
           </View>
-          <View style={[styles.previewPill, { backgroundColor: t.pill.background, borderColor: t.pill.border }]}>
-            <View style={[styles.previewPillDot, { backgroundColor: t.pill.activeColor }]} />
+          <View style={[styles.previewPill, { backgroundColor: t.primaryContainer, borderColor: t.outline }]}>
+            <View style={[styles.previewPillDot, { backgroundColor: t.primary }]} />
           </View>
         </View>
 
@@ -84,7 +84,7 @@ export default function AppearanceScreen() {
             <Text style={[styles.themeName, { color: text }]}>{meta.name}</Text>
             {isActive && (
               <View style={[styles.activeBadge, { backgroundColor: accent }]}>
-                <MaterialIcons name="check" size={12} color={theme.accentContrast} />
+                <MaterialIcons name="check" size={12} color={theme.onPrimary} />
               </View>
             )}
           </View>

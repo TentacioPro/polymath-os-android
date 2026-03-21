@@ -3,17 +3,17 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   FlatList,
   StyleSheet,
   Keyboard,
   Platform,
 } from 'react-native';
-import Animated, { FadeIn, FadeOut, SlideInUp } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../theme';
-import { m3Typography } from '../../../shared/design-tokens';
+import { m3Typography, m3Motion } from '../../../shared/design-tokens';
 
 interface SearchResult {
   id: string;
@@ -48,7 +48,7 @@ export function SearchOverlay({
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const inputRef = useRef<TextInput>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (visible) {
@@ -111,13 +111,19 @@ export function SearchOverlay({
           autoCorrect={false}
         />
         {query.length > 0 ? (
-          <TouchableOpacity onPress={() => { setQuery(''); setResults([]); }}>
+          <Pressable
+            onPress={() => { setQuery(''); setResults([]); }}
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+          >
             <Ionicons name="close-circle" size={20} color={theme.onSurfaceVariant} />
-          </TouchableOpacity>
+          </Pressable>
         ) : (
-          <TouchableOpacity onPress={onClose}>
+          <Pressable
+            onPress={onClose}
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+          >
             <Text style={[styles.cancelText, { color: theme.primary }]}>Cancel</Text>
-          </TouchableOpacity>
+          </Pressable>
         )}
       </View>
 
@@ -125,13 +131,15 @@ export function SearchOverlay({
       {categories.length > 0 && (
         <View style={styles.chips}>
           {categories.map((cat) => (
-            <TouchableOpacity
+            <Pressable
               key={cat}
-              style={[
+              style={({ pressed }) => [
                 styles.chip,
                 {
                   backgroundColor:
                     selectedCategory === cat ? theme.primaryContainer : theme.surfaceContainerHigh,
+                  opacity: pressed ? 0.8 : 1,
+                  transform: [{ scale: pressed ? 0.97 : 1 }],
                 },
               ]}
               onPress={() => {
@@ -153,7 +161,7 @@ export function SearchOverlay({
               >
                 {cat}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           ))}
         </View>
       )}
@@ -165,14 +173,14 @@ export function SearchOverlay({
             Recent Searches
           </Text>
           {recentSearches.map((s, i) => (
-            <TouchableOpacity
+            <Pressable
               key={i}
-              style={styles.recentItem}
+              style={({ pressed }) => [styles.recentItem, { opacity: pressed ? 0.7 : 1 }]}
               onPress={() => handleChangeText(s)}
             >
               <Ionicons name="time-outline" size={20} color={theme.onSurfaceVariant} />
               <Text style={[styles.recentText, { color: theme.onSurface }]}>{s}</Text>
-            </TouchableOpacity>
+            </Pressable>
           ))}
         </Animated.View>
       )}
@@ -188,8 +196,8 @@ export function SearchOverlay({
           data={results}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.resultItem}
+            <Pressable
+              style={({ pressed }) => [styles.resultItem, { opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.99 : 1 }] }]}
               onPress={() => {
                 Haptics.selectionAsync();
                 onSelectResult(item);
@@ -219,7 +227,7 @@ export function SearchOverlay({
                   </Text>
                 </View>
               )}
-            </TouchableOpacity>
+            </Pressable>
           )}
           keyboardShouldPersistTaps="handled"
           style={styles.resultsList}

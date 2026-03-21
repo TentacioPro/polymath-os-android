@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -11,6 +11,7 @@ import Animated, {
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { m3Typography } from '../../../shared/design-tokens';
+import M3Button from './M3Button';
 
 type EmptyVariant =
   | 'empty-activities'
@@ -131,13 +132,11 @@ export function EmptyState({
 
       {/* CTA */}
       {displayCTA.length > 0 && onCTA && (
-        <TouchableOpacity
-          style={[styles.ctaButton, { backgroundColor: theme.primary }]}
+        <M3Button
+          label={displayCTA}
+          variant="filled"
           onPress={onCTA}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.ctaLabel, { color: theme.onPrimary }]}>{displayCTA}</Text>
-        </TouchableOpacity>
+        />
       )}
     </View>
   );
@@ -182,15 +181,5 @@ const styles = StyleSheet.create({
     fontSize: m3Typography.bodyMedium.fontSize,
     textAlign: 'center',
     lineHeight: 22,
-  },
-  ctaButton: {
-    marginTop: 8,
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 9999,
-  },
-  ctaLabel: {
-    fontSize: m3Typography.labelLarge.fontSize,
-    fontWeight: '600',
   },
 });

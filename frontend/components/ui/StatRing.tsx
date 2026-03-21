@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 import { useTheme } from '../../theme';
-import { m3Typography, m3Radii } from '../../../shared/design-tokens';
+import { m3Typography, m3Radii, m3Motion } from '../../../shared/design-tokens';
 
 interface StatRingProps {
   value: number;
@@ -26,50 +27,49 @@ export default function StatRing({
   const progress = Math.min(value / Math.max(total, 1), 1);
   const dashOffset = circumference * (1 - progress);
 
-  const Container = onPress ? TouchableOpacity : View;
+  const scale = useSharedValue(1);
+  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  if (!onPress) {
+    return (
+      <View style={styles.container}>
+        <View style={[styles.ringWrapper, { width: size, height: size }]}>
+          <Svg width={size} height={size}>
+            <Circle cx={size / 2} cy={size / 2} r={radius} stroke={theme.surfaceContainerHigh} strokeWidth={strokeWidth} fill="none" />
+            <Circle cx={size / 2} cy={size / 2} r={radius} stroke={theme.primary} strokeWidth={strokeWidth} fill="none"
+              strokeDasharray={`${circumference}`} strokeDashoffset={dashOffset} strokeLinecap="round"
+              rotation={-90} origin={`${size / 2}, ${size / 2}`} />
+          </Svg>
+          <View style={styles.centerLabel}>
+            <Text style={[styles.value, { color: theme.onSurface }]}>{value}</Text>
+          </View>
+        </View>
+        <Text style={[styles.label, { color: theme.onSurfaceVariant }]}>{label}</Text>
+      </View>
+    );
+  }
 
   return (
-    <Container
+    <Pressable
       onPress={onPress}
-      activeOpacity={0.7}
-      style={styles.container}
+      onPressIn={() => { scale.value = withTiming(0.95, { duration: m3Motion.duration.short2 }); }}
+      onPressOut={() => { scale.value = withTiming(1.0, { duration: m3Motion.duration.short3 }); }}
     >
-      <View style={[styles.ringWrapper, { width: size, height: size }]}>
-        <Svg width={size} height={size}>
-          {/* Track */}
-          <Circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke={theme.surfaceContainerHigh}
-            strokeWidth={strokeWidth}
-            fill="none"
-          />
-          {/* Fill */}
-          <Circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke={theme.primary}
-            strokeWidth={strokeWidth}
-            fill="none"
-            strokeDasharray={`${circumference}`}
-            strokeDashoffset={dashOffset}
-            strokeLinecap="round"
-            rotation={-90}
-            origin={`${size / 2}, ${size / 2}`}
-          />
-        </Svg>
-        <View style={styles.centerLabel}>
-          <Text style={[styles.value, { color: theme.onSurface }]}>
-            {value}
-          </Text>
+      <Animated.View style={[styles.container, animStyle]}>
+        <View style={[styles.ringWrapper, { width: size, height: size }]}>
+          <Svg width={size} height={size}>
+            <Circle cx={size / 2} cy={size / 2} r={radius} stroke={theme.surfaceContainerHigh} strokeWidth={strokeWidth} fill="none" />
+            <Circle cx={size / 2} cy={size / 2} r={radius} stroke={theme.primary} strokeWidth={strokeWidth} fill="none"
+              strokeDasharray={`${circumference}`} strokeDashoffset={dashOffset} strokeLinecap="round"
+              rotation={-90} origin={`${size / 2}, ${size / 2}`} />
+          </Svg>
+          <View style={styles.centerLabel}>
+            <Text style={[styles.value, { color: theme.onSurface }]}>{value}</Text>
+          </View>
         </View>
-      </View>
-      <Text style={[styles.label, { color: theme.onSurfaceVariant }]}>
-        {label}
-      </Text>
-    </Container>
+        <Text style={[styles.label, { color: theme.onSurfaceVariant }]}>{label}</Text>
+      </Animated.View>
+    </Pressable>
   );
 }
 

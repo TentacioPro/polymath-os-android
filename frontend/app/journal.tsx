@@ -258,7 +258,7 @@ export default function JournalScreen() {
             title="No journal entries yet"
             description="Tap + to write your first reflection"
             ctaLabel="New Entry"
-            onCtaPress={() => { hapticPress(); setShowEditor(true); }}
+            onCTA={() => { hapticPress(); setShowEditor(true); }}
           />
         }
         ListFooterComponent={<View style={{ height: 100 }} />}
