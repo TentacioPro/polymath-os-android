@@ -4,6 +4,10 @@
 .idea/
 .vscode/
 
+# Qoder IDE ephemeral state (plans are session artifacts, repowiki is tracked)
+.qoder/plans/
+.qoder/agents/
+
 # Dependencies
 node_modules/
 /node_modules
