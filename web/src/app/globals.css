@@ -415,11 +415,20 @@ code, pre, .mono {
   border-radius: 28px 28px 0 0;
 }
 
-@media (min-width: 768px) {
+/* Container-query wrapper — parent of .modal-panel must have this class */
+.modal-root {
+  container-type: inline-size;
+}
+@container (min-width: 560px) {
   .modal-panel {
     border-radius: 28px;
     max-width: 560px;
   }
+}
+
+/* ─── Generic container-query root utility ─── */
+.cq-root {
+  container-type: inline-size;
 }
 
 /* ═══════════════════════════════════════════════════════

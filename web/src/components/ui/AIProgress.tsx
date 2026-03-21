@@ -90,6 +90,7 @@ export function AIProgress({
           display: flex;
           flex-direction: column;
           gap: 16px;
+          container-type: inline-size;
         }
         .header-row { display: flex; align-items: center; gap: 16px; }
         .sparkle-icon {

@@ -61,6 +61,7 @@ export function StatRing({
           flex-direction: column;
           align-items: center;
           gap: 8px;
+          container-type: inline-size;
         }
         .stat-ring-wrapper {
           position: relative;
