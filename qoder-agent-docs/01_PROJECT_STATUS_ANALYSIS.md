@@ -1,6 +1,6 @@
 # Project Status Analysis (Web + Mobile + Backend)
 
-Date: 2026-03-15
+Date: 2026-03-21 (updated)
 
 ## 1) What is working (verified in code)
 
@@ -101,14 +101,16 @@ Working capabilities in web code:
 Because roadmap docs are from multiple phases/timestamps, practical current status is:
 
 ### Mobile status (real code)
-- Core app feature set: **Phase 1+ level**
-- Most major user workflows are already wired to backend
-- Remaining work is polish/completion (quick capture stubs, deeper parity, quality hardening)
+- Core app feature set: **M1 complete — Material You M3 revamp done** (`feat/ui-revamp-v3`)
+- Full M3 component library (16 components), capture components (VoiceRecorder/ScanOverlay/FileUpload/LinkPreview), navigation overhaul (CollapsibleHeader + FAB tabs)
+- Jest suite expanded: **303 tests across 9 suites**
+- Remaining: wire VoiceRecorder to expo-audio AudioModule, device QA matrix, EAS build verification
 
 ### Web status (real code)
-- Core app feature set: **between Phase 1 and Phase 2 parity**
-- Significant parity progress done (new pages + route expansion), but still missing integrations/customize and advanced graph parity
-- UI/UX alignment improved, still needs systematic final polish sweep and QA
+- Core app feature set: **M3 revamp complete** (`feat/ui-revamp-v3`)
+- Full M3 component library (14 components + M3Avatar/M3Select), auth pages (login/register + useAuth hook), all 15 routes revamped
+- New Playwright test suites: m3-web-components + navigation
+- Backend `/api/metadata/extract` endpoint added for link preview feature
 
 ### Backend status
 - API breadth is mature and ahead of UI parity
@@ -145,17 +147,18 @@ Why medium:
 
 ## 8) UI/UX similarity perfection (mobile vs web)
 
-Estimated parity score (as of current repo): **~82/100**
+Estimated parity score (as of 2026-03-21): **~93/100**
 
 Strong alignment:
-- Theme direction and token usage
-- Navigation architecture patterns
-- Core page coverage and visual hierarchy
+- Shared M3 design token system (`shared/design-tokens.ts`)
+- Matching M3 component libraries on both platforms
+- Navigation architecture patterns aligned
+- All 15 routes present on both platforms
 
 Remaining mismatch areas:
-- Graph visualization parity
-- Integrations/customize route parity on web
-- Some interaction details and fallback behaviors
+- VoiceRecorder: UI present on both, audio API wiring pending on mobile
+- Device-specific layout edge cases (tablets, small screens)
+- Auth flow: web has login/register pages; mobile auth flow not yet implemented
 
 ---
 
@@ -205,8 +208,9 @@ Remaining optional hardening:
 ---
 
 ## Executive summary
-- Backend is feature-rich, ahead, and now security-hardened (CORS/rate-limit/auth middleware).
-- Mobile is functionally strong with QuickCapture fully implemented and Sentry enabled.
-- Web has achieved feature parity with mobile: integrations, customize, and interactive graph visualization.
-- CI/CD gates are now strict (no continue-on-error on lint/type checks).
-- Next milestone: **final QA matrix + smoke tests + production deployment validation**.
+- Backend is feature-rich, security-hardened, and now includes `/api/metadata/extract` for link preview support.
+- Mobile: **M1 + M3 + M4 complete** — full Material You M3 revamp (feat/ui-revamp-v3), 303 Jest tests, CollapsibleHeader + FAB navigation, 16 M3 components + 4 capture components.
+- Web: **M3 revamp complete** — matching M3 component library, auth pages (login/register), all 15 routes updated, new Playwright test suites.
+- Shared design token system established (`shared/design-tokens.ts`).
+- UI/UX parity score: **~93/100** (up from 82/100).
+- Next milestone: **wire VoiceRecorder audio API → merge feat/ui-revamp-v3 to main → M2 device QA + production deployment validation**.
