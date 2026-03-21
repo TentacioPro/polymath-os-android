@@ -26,16 +26,14 @@ const TOOL_LINKS = [
 export default function Drawer() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const { theme, setTheme, cycleTheme } = useTheme();
+  const { theme, cycleTheme } = useTheme();
 
-  // Listen for toggle event from header
   useEffect(() => {
     const handler = () => setOpen((o) => !o);
     window.addEventListener('toggle-drawer', handler);
     return () => window.removeEventListener('toggle-drawer', handler);
   }, []);
 
-  // Close on route change
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
@@ -44,97 +42,99 @@ export default function Drawer() {
 
   const currentTheme = THEMES.find((t) => t.id === theme);
 
+  const renderLink = (item: { href: string; icon: string; label: string }) => {
+    const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-standard ${
+          active
+            ? 'bg-m3-primary-container text-m3-on-primary-container font-semibold'
+            : 'text-m3-on-surface hover:bg-m3-surface-container-highest'
+        }`}
+      >
+        <span className={`material-symbols-outlined text-[20px] ${
+          active ? 'text-m3-on-primary-container' : 'text-m3-on-surface-variant'
+        }`}>
+          {item.icon}
+        </span>
+        <span className="flex-1 text-[14px]">{item.label}</span>
+        <span className="material-symbols-outlined text-[18px] text-m3-on-surface-variant">
+          chevron_right
+        </span>
+      </Link>
+    );
+  };
+
   return (
     <div className="fixed inset-0 z-[60] md:hidden" onClick={() => setOpen(false)}>
-      {/* Overlay — matching mobile 60% opacity */}
-      <div className="absolute inset-0 bg-black/60" />
+      {/* Scrim overlay */}
+      <div className="absolute inset-0" style={{ backgroundColor: 'var(--m3-surface-dim)' }} />
 
-      {/* Drawer panel — matching mobile dark bg #0A0A0A */}
+      {/* Drawer panel */}
       <aside
-        className="absolute top-0 left-0 w-[78%] max-w-[300px] min-h-screen flex flex-col"
-        style={{ backgroundColor: '#0A0A0A' }}
+        className="absolute top-0 left-0 w-[80%] max-w-[320px] min-h-screen flex flex-col bg-m3-surface-container elevation-4"
+        style={{ borderRadius: '0 28px 28px 0' }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header — matches mobile AppDrawer */}
-        <div className="px-4 pt-[env(safe-area-inset-top,16px)] pb-4 flex justify-between items-center">
+        {/* Header */}
+        <div
+          className="px-5 pb-4 flex justify-between items-center"
+          style={{ paddingTop: 'max(env(safe-area-inset-top, 20px), 20px)' }}
+        >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-poly-accent flex items-center justify-center" style={{ borderRadius: '10px' }}>
-              <span className="material-symbols-outlined text-[18px]" style={{ color: '#000' }}>auto_awesome</span>
+            <div className="w-10 h-10 rounded-[14px] bg-m3-primary flex items-center justify-center">
+              <span className="material-symbols-outlined text-[20px] text-m3-on-primary">auto_awesome</span>
             </div>
             <div>
-              <h1 className="text-[15px] font-bold text-white tracking-tight">
-                PolymathOS
+              <h1 className="text-[15px] font-bold text-m3-on-surface tracking-tight">
+                Polymath OS
               </h1>
-              <p className="text-[11px] text-[#888888] mt-0.5">
+              <p className="text-[11px] text-m3-on-surface-variant mt-0.5">
                 Knowledge base
               </p>
             </div>
           </div>
           <button
             onClick={() => setOpen(false)}
-            className="w-9 h-9 flex items-center justify-center text-white"
-            style={{ backgroundColor: '#161616', borderRadius: '10px' }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center bg-m3-surface-container-high hover:bg-m3-surface-container-highest transition-standard text-m3-on-surface"
           >
             <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
         </div>
 
-        {/* Navigation — matching mobile style */}
-        <nav className="flex-1 px-4 py-2 overflow-y-auto no-scrollbar">
-          {/* Main Nav */}
-          <div className="space-y-2">
-            {NAV_LINKS.map((item) => {
-              const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center gap-3 px-3 py-3 transition-colors text-white"
-                  style={{ backgroundColor: '#161616', borderRadius: '12px' }}
-                >
-                  <span className="material-symbols-outlined text-[20px] text-[#888888]">{item.icon}</span>
-                  <span className="flex-1 text-[14px] font-medium">{item.label}</span>
-                  <span className="material-symbols-outlined text-[18px] text-[#888888]">chevron_right</span>
-                </Link>
-              );
-            })}
+        {/* Divider */}
+        <div className="mx-5 border-t border-m3-outline-variant" />
+
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-3 overflow-y-auto no-scrollbar">
+          <div className="space-y-1">
+            {NAV_LINKS.map(renderLink)}
           </div>
 
-          {/* Tools Section */}
-          <p className="text-[10px] font-semibold tracking-[2px] text-[#888888] mt-5 mb-2 ml-2 uppercase">
-            TOOLS
+          <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mt-5 mb-2 ml-4">
+            Tools
           </p>
-          <div className="space-y-2">
-            {TOOL_LINKS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-3 px-3 py-3 transition-colors text-white"
-                style={{ backgroundColor: '#161616', borderRadius: '12px' }}
-              >
-                <span className="material-symbols-outlined text-[20px] text-[#888888]">{item.icon}</span>
-                <span className="flex-1 text-[14px] font-medium">{item.label}</span>
-                <span className="material-symbols-outlined text-[18px] text-[#888888]">chevron_right</span>
-              </Link>
-            ))}
+          <div className="space-y-1">
+            {TOOL_LINKS.map(renderLink)}
           </div>
         </nav>
 
-        {/* Footer — Theme Toggle (matching mobile) */}
-        <div className="px-4 py-3">
+        {/* Footer — Theme toggle */}
+        <div className="px-3 py-3 border-t border-m3-outline-variant">
           <button
             onClick={cycleTheme}
-            className="flex items-center gap-3 w-full px-3 py-3 transition-colors text-white"
-            style={{ backgroundColor: '#161616', borderRadius: '12px' }}
+            className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl bg-m3-surface-container-high hover:bg-m3-surface-container-highest transition-standard text-m3-on-surface"
           >
-            <span className="material-symbols-outlined text-[20px] text-poly-accent">palette</span>
+            <span className="material-symbols-outlined text-[20px] text-m3-primary">palette</span>
             <div className="flex-1 text-left">
-              <span className="block text-[13px] font-semibold text-white">Theme</span>
-              <span className="block text-[10px] font-bold tracking-[1px] text-poly-accent uppercase mt-0.5">
+              <span className="block text-[13px] font-semibold text-m3-on-surface">Theme</span>
+              <span className="block text-[10px] font-semibold tracking-wide text-m3-primary mt-0.5 uppercase">
                 {currentTheme?.label}
               </span>
             </div>
-            <span className="material-symbols-outlined text-[18px] text-[#888888]">sync</span>
+            <span className="material-symbols-outlined text-[18px] text-m3-on-surface-variant">sync</span>
           </button>
         </div>
       </aside>

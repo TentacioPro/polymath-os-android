@@ -32,57 +32,71 @@ export default function AppSidebar() {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
-  const renderNavItem = (item: { href: string; icon: string; label: string }) => (
-    <Link
-      key={item.href}
-      href={item.href}
-      title={collapsed ? item.label : undefined}
-      className={`flex items-center gap-3 px-3 py-2.5 text-[13px] transition-colors relative group ${
-        collapsed ? 'justify-center' : ''
-      } ${
-        isActive(item.href)
-          ? 'border-l-2 border-l-poly-accent bg-poly-border-muted/30 text-poly-text font-bold'
-          : 'border-l-2 border-l-transparent text-poly-muted hover:text-poly-text hover:bg-poly-border-muted/20'
-      }`}
-    >
-      <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
-      {!collapsed && <span className="truncate font-mono">{item.label}</span>}
-      {collapsed && (
-        <span className="absolute left-full ml-2 px-2 py-1 bg-poly-bg border border-poly-border text-[10px] font-mono text-poly-text whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-[60]">
-          {item.label}
+  const renderNavItem = (item: { href: string; icon: string; label: string }) => {
+    const active = isActive(item.href);
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        title={collapsed ? item.label : undefined}
+        className={`group relative flex items-center gap-3 transition-standard ${
+          collapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2.5'
+        } rounded-[16px] ${
+          active
+            ? 'bg-m3-primary-container text-m3-on-primary-container font-semibold'
+            : 'text-m3-on-surface-variant hover:bg-m3-surface-container-high hover:text-m3-on-surface'
+        }`}
+      >
+        <span className={`material-symbols-outlined text-[20px] ${
+          active ? 'text-m3-on-primary-container' : ''
+        }`}>
+          {item.icon}
         </span>
-      )}
-    </Link>
-  );
+        {!collapsed && (
+          <span className="truncate text-[13px] tracking-tight">{item.label}</span>
+        )}
+        {/* Collapsed tooltip */}
+        {collapsed && (
+          <span className="absolute left-full ml-3 px-3 py-1.5 bg-m3-inverse-surface text-m3-inverse-on-surface text-[11px] font-medium rounded-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-standard z-[60] elevation-3">
+            {item.label}
+          </span>
+        )}
+      </Link>
+    );
+  };
 
   return (
     <aside
-      className={`hidden md:flex flex-col fixed top-0 left-0 h-screen bg-poly-bg border-r border-poly-border z-50 transition-all duration-200 ${
-        collapsed ? 'w-16' : 'w-60'
+      className={`hidden md:flex flex-col fixed top-0 left-0 h-screen bg-m3-surface z-50 transition-standard border-r border-m3-outline-variant ${
+        collapsed ? 'w-[72px]' : 'w-[260px]'
       }`}
     >
       {/* Brand header */}
-      <div className={`border-b border-poly-border flex items-center ${collapsed ? 'justify-center p-4' : 'justify-between px-5 py-5'}`}>
+      <div className={`flex items-center border-b border-m3-outline-variant ${
+        collapsed ? 'justify-center p-3' : 'justify-between px-4 py-4'
+      }`}>
         {!collapsed && (
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 bg-poly-accent flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-[18px] text-poly-accent-text">auto_awesome</span>
+            <div className="w-10 h-10 rounded-[14px] bg-m3-primary flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[20px] text-m3-on-primary">
+                auto_awesome
+              </span>
             </div>
-            <div>
-              <h1 className="font-display text-sm font-bold text-poly-text uppercase tracking-tight truncate">
-                PolymathOS
+            <div className="min-w-0">
+              <h1 className="font-display text-[14px] font-bold text-m3-on-surface tracking-tight truncate">
+                Polymath OS
               </h1>
-              <p className="text-[8px] font-mono text-poly-muted uppercase tracking-widest mt-0.5">
-                System // v1
+              <p className="text-[10px] text-m3-on-surface-variant tracking-wide mt-0.5">
+                v1.0 System
               </p>
             </div>
           </div>
         )}
         <button
           onClick={() => setCollapsed((c) => !c)}
-          className="w-7 h-7 flex items-center justify-center border border-poly-border hover:bg-poly-accent hover:text-poly-accent-text transition-colors text-poly-muted shrink-0"
+          className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-m3-surface-container-high transition-standard text-m3-on-surface-variant hover:text-m3-on-surface shrink-0"
         >
-          <span className="material-symbols-outlined text-[16px]">
+          <span className="material-symbols-outlined text-[18px]">
             {collapsed ? 'chevron_right' : 'chevron_left'}
           </span>
         </button>
@@ -90,21 +104,21 @@ export default function AppSidebar() {
 
       {/* Quick actions */}
       {!collapsed && (
-        <div className="px-3 py-3 border-b border-poly-border-muted">
-          <div className="grid grid-cols-2 gap-1.5">
+        <div className="px-3 py-3 border-b border-m3-outline-variant">
+          <div className="grid grid-cols-2 gap-2">
             <Link
               href="/activities"
-              className="border border-poly-border p-2 flex flex-col items-center gap-1 hover:bg-poly-accent hover:text-poly-accent-text transition-colors text-poly-text"
+              className="rounded-2xl bg-m3-surface-container p-2.5 flex flex-col items-center gap-1.5 hover:bg-m3-surface-container-high transition-standard text-m3-on-surface"
             >
-              <span className="material-symbols-outlined text-[16px]">add</span>
-              <span className="text-[8px] font-mono uppercase tracking-wider">New</span>
+              <span className="material-symbols-outlined text-[18px] text-m3-primary">add</span>
+              <span className="text-[10px] font-medium tracking-wide">New</span>
             </Link>
             <Link
               href="/chat"
-              className="border border-poly-border p-2 flex flex-col items-center gap-1 hover:bg-poly-accent hover:text-poly-accent-text transition-colors text-poly-text"
+              className="rounded-2xl bg-m3-primary-container p-2.5 flex flex-col items-center gap-1.5 hover:opacity-90 transition-standard text-m3-on-primary-container"
             >
-              <span className="material-symbols-outlined text-[16px]">chat</span>
-              <span className="text-[8px] font-mono uppercase tracking-wider">Chat</span>
+              <span className="material-symbols-outlined text-[18px]">chat</span>
+              <span className="text-[10px] font-medium tracking-wide">Chat</span>
             </Link>
           </div>
         </div>
@@ -113,49 +127,54 @@ export default function AppSidebar() {
       {/* Navigation */}
       <nav className="flex-1 py-3 px-2 overflow-y-auto no-scrollbar">
         {!collapsed && (
-          <p className="text-[8px] font-mono uppercase tracking-widest text-poly-dim px-2 mb-2">
+          <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant px-3 mb-2">
             Navigation
           </p>
         )}
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           {NAV_LINKS.map(renderNavItem)}
         </div>
 
         {/* Tools section */}
         {!collapsed && (
-          <p className="text-[8px] font-mono uppercase tracking-widest text-poly-dim px-2 mt-5 mb-2">
+          <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant px-3 mt-5 mb-2">
             Tools
           </p>
         )}
-        {collapsed && <div className="my-3 mx-2 border-t border-poly-border-muted" />}
-        <div className="space-y-0.5">
+        {collapsed && <div className="my-3 mx-3 border-t border-m3-outline-variant" />}
+        <div className="space-y-1">
           {TOOL_LINKS.map(renderNavItem)}
         </div>
       </nav>
 
       {/* Theme switcher */}
-      <div className={`border-t border-poly-border ${collapsed ? 'p-2' : 'p-3'}`}>
+      <div className={`border-t border-m3-outline-variant ${collapsed ? 'p-2' : 'p-3'}`}>
         {!collapsed && (
-          <p className="text-[8px] font-mono uppercase tracking-widest text-poly-dim mb-2">
+          <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-2 px-1">
             Theme
           </p>
         )}
-        <div className={`${collapsed ? 'flex flex-col gap-1' : 'grid grid-cols-4 gap-1'}`}>
+        <div className={`${collapsed ? 'flex flex-col gap-1.5 items-center' : 'grid grid-cols-4 gap-1.5'}`}>
           {THEMES.map((t) => (
             <button
               key={t.id}
               onClick={() => setTheme(t.id)}
               title={t.description}
-              className={`border p-1.5 text-center transition-colors ${
+              className={`rounded-xl p-1.5 text-center transition-standard ${
                 theme === t.id
-                  ? 'border-poly-accent bg-poly-accent text-poly-accent-text'
-                  : 'border-poly-border text-poly-muted hover:text-poly-text'
+                  ? 'bg-m3-primary-container ring-1 ring-m3-primary'
+                  : 'bg-m3-surface-container hover:bg-m3-surface-container-high'
               }`}
             >
               {collapsed ? (
-                <div className="w-3 h-3 mx-auto" style={{ backgroundColor: t.swatch, borderRadius: '50%' }} />
+                <div
+                  className="w-4 h-4 mx-auto rounded-full ring-1 ring-m3-outline-variant"
+                  style={{ backgroundColor: t.swatch }}
+                />
               ) : (
-                <span className="text-[8px] font-mono uppercase tracking-wider font-bold">
+                <span className={`text-[9px] font-semibold tracking-wide ${
+                  theme === t.id ? 'text-m3-on-primary-container' : 'text-m3-on-surface-variant'
+                }`}>
                   {t.label.split(' ')[0]}
                 </span>
               )}
@@ -164,11 +183,13 @@ export default function AppSidebar() {
         </div>
       </div>
 
-      {/* Status */}
-      <div className={`border-t border-poly-border-muted flex items-center ${collapsed ? 'justify-center p-3' : 'px-4 py-3 gap-2'}`}>
-        <div className="w-1.5 h-1.5 bg-poly-accent shrink-0" style={{ borderRadius: '50%' }} />
+      {/* Status pill */}
+      <div className={`border-t border-m3-outline-variant flex items-center ${
+        collapsed ? 'justify-center p-3' : 'px-4 py-3 gap-2.5'
+      }`}>
+        <div className="w-2 h-2 rounded-full bg-m3-success shrink-0 animate-pulse" />
         {!collapsed && (
-          <span className="text-[8px] font-mono text-poly-dim uppercase tracking-widest">
+          <span className="text-[11px] text-m3-on-surface-variant font-medium tracking-wide">
             Polymath OS
           </span>
         )}

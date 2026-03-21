@@ -22,20 +22,23 @@ export default function ResponsiveModal({
 
   return (
     <div
-      className="fixed inset-0 bg-[var(--poly-overlay)] backdrop-blur-sm flex z-50 items-end md:items-center justify-center md:p-6"
+      className="fixed inset-0 backdrop-blur-sm flex z-50 items-end md:items-center justify-center md:p-6"
+      style={{ backgroundColor: 'var(--m3-scrim)' }}
       onClick={onClose}
     >
       <div
-        className={`bg-poly-bg w-full ${maxWidth} border-t md:border border-poly-border p-6 max-h-[90vh] overflow-y-auto`}
-        style={{ borderRadius: 16 }}
+        className={`bg-m3-surface-container w-full ${maxWidth} border-t md:border border-m3-outline-variant p-6 max-h-[90vh] overflow-y-auto rounded-t-3xl md:rounded-3xl elevation-3`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-display text-lg font-bold text-poly-text">
+          <h2 className="text-lg font-bold text-m3-on-surface">
             {title}
           </h2>
-          <button onClick={onClose} style={{ borderRadius: 10, padding: 4 }}>
-            <span className="material-symbols-outlined text-[24px] text-poly-muted hover:text-poly-text transition-colors">
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-m3-surface-container-high transition-standard"
+          >
+            <span className="material-symbols-outlined text-[24px] text-m3-on-surface-variant hover:text-m3-on-surface transition-standard">
               close
             </span>
           </button>
