@@ -10,6 +10,10 @@
 - `05_DEPLOYMENT_GAP_PLAN.md`
 - `06_SECURITY_ANALYTICS_SENTRY_AUDIT.md`
 - `07_PARALLEL_AGENT_EXECUTION_PLAN.md`
+- `08_UI_REVAMP_V4_PLAN.md` — V4 revamp: Material You × Kole Jain Design System (feat/ui-revamp-v4)
+
+## Agent Skills
+- `.qoder/skills/kole-jain-design-system.md` — Kole Jain 6-phase design methodology skill
 
 ## Source documentation location groups referenced
 - Root docs (`*.md` in repo root)

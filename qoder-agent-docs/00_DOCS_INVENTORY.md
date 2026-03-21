@@ -59,3 +59,6 @@ Collected from repository on 2026-03-15.
 ## Notes
 - This inventory intentionally includes both product docs and generated `.qoder` wiki docs.
 - `qoder-agent-docs` files are intentionally excluded from this list (they are the output pack).
+
+## .qoder skills
+- `.qoder/skills/kole-jain-design-system.md` — Kole Jain 6-phase design methodology agent skill
