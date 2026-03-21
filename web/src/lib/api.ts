@@ -107,6 +107,8 @@ function createApiClient(baseUrl: string) {
         headers: { 'Content-Type': 'multipart/form-data' },
       }),
     deleteActivity: (id: string) => client.delete(`/activities/${id}`),
+      updateActivity: (id: string, data: { title?: string; notes?: string }) =>
+        client.patch(`/activities/${id}`, data),
 
     // Journals
     getJournals: (limit = 100) =>

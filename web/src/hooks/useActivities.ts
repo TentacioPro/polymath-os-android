@@ -93,3 +93,32 @@ export function useDeleteActivity() {
     },
   });
 }
+
+export function useUpdateActivity() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: { title?: string; notes?: string } }) =>
+      api.updateActivity(id, data).then((r) => r.data),
+
+    // ── Optimistic: instantly apply update ─────────────────────────────
+    onMutate: async ({ id, data }) => {
+      await qc.cancelQueries({ queryKey: ['activities'] });
+      const previous = qc.getQueryData(['activities']);
+      qc.setQueryData(['activities'], (old: any[] | undefined) =>
+        old ? old.map((a) => (a.id === id ? { ...a, ...data } : a)) : old,
+      );
+      return { previous };
+    },
+
+    // ── On error: rollback ─────────────────────────────────────────────
+    onError: (_err, _variables, context) => {
+      if (context?.previous !== undefined) {
+        qc.setQueryData(['activities'], context.previous);
+      }
+    },
+
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ['activities'] });
+    },
+  });
+}

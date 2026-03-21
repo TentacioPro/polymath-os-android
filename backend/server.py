@@ -324,6 +324,10 @@ class ActivityCreate(BaseModel):
     source: str = Field(..., pattern=r'^(manual|youtube|google|upload|browser|api)$')
     notes: Optional[str] = Field(None, max_length=10000)
     timestamp: Optional[datetime] = None
+
+class ActivityUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=1, max_length=500)
+    notes: Optional[str] = Field(None, max_length=10000)
     
     @field_validator('title', 'notes')
     @classmethod
@@ -1206,6 +1210,22 @@ async def delete_activity(activity_id: str):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Activity not found")
     return {"message": "Activity deleted"}
+
+@api_router.patch("/activities/{activity_id}")
+async def update_activity(activity_id: str, input: ActivityUpdate):
+    """Rename / update mutable fields of an activity"""
+    update_data = {k: v for k, v in input.dict().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No update fields provided")
+    result = await db.activities.find_one_and_update(
+        {"id": activity_id},
+        {"$set": update_data},
+        return_document=True,
+    )
+    if not result:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    result.pop("_id", None)
+    return result
 
 # URL METADATA
 @api_router.post("/metadata/extract", response_model=UrlMetadata)

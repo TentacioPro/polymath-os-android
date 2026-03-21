@@ -26,6 +26,7 @@ import M3BottomSheet from '../../components/ui/M3BottomSheet';
 import M3TextField from '../../components/ui/M3TextField';
 import { EmptyState } from '../../components/ui/EmptyState';
 import M3Button from '../../components/ui/M3Button';
+import { Popover } from '../../components/ui/Popover';
 import { useDialog } from '../../components/ui/DialogProvider';
 
 const FILTERS = ['All', 'Article', 'PDF', 'Link', 'Audio', 'File'];
@@ -62,6 +63,19 @@ export default function Knowledge() {
   const [addUrl, setAddUrl] = useState('');
   const [addNotes, setAddNotes] = useState('');
   const [saving, setSaving] = useState(false);
+
+  // Popover (long-press context menu)
+  const [popoverTarget, setPopoverTarget] = useState<{
+    id: string;
+    title: string;
+    anchor: { x: number; y: number; width: number; height: number };
+  } | null>(null);
+
+  // Rename sheet
+  const [showRenameSheet, setShowRenameSheet] = useState(false);
+  const [renameId, setRenameId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const [renaming, setRenaming] = useState(false);
   let dialog: any;
   try { dialog = useDialog(); } catch { dialog = null; }
 
@@ -149,6 +163,28 @@ export default function Knowledge() {
     }
   }, [setActivities, dialog]);
 
+  const handleRename = async () => {
+    if (!renameId || !renameValue.trim()) return;
+    const BACKEND_URL = getBackendUrlSync();
+    setRenaming(true);
+    const snapshot = useStore.getState().activities;
+    // Optimistic update
+    setActivities(snapshot.map((a) => (a.id === renameId ? { ...a, title: renameValue.trim() } : a)));
+    setShowRenameSheet(false);
+    try {
+      await axios.patch(`${BACKEND_URL}/api/activities/${renameId}`, { title: renameValue.trim() });
+      hapticSuccess();
+    } catch {
+      // Rollback
+      setActivities(snapshot);
+      hapticWarning();
+      if (dialog) dialog.showAlert('Error', 'Failed to rename');
+    } finally {
+      setRenaming(false);
+      setRenameId(null);
+    }
+  };
+
   const filtered = filter === 'All'
     ? activities
     : activities.filter((a: any) =>
@@ -176,7 +212,19 @@ export default function Knowledge() {
       <TouchableOpacity
         style={[styles.gridCard, { backgroundColor: theme.surfaceContainer }]}
         onPress={() => { hapticLight(); router.push(`/activity-detail?id=${item.id}` as any); }}
-        onLongPress={() => handleDelete(item.id, item.title)}
+        onLongPress={(e) => {
+          hapticLight();
+          setPopoverTarget({
+            id: item.id,
+            title: item.title,
+            anchor: {
+              x: e.nativeEvent.pageX,
+              y: e.nativeEvent.pageY,
+              width: 0,
+              height: 0,
+            },
+          });
+        }}
         activeOpacity={0.7}
       >
         <View style={[styles.cardIcon, { backgroundColor: theme.primaryContainer }]}>
@@ -275,6 +323,58 @@ export default function Knowledge() {
           />
         </View>
       </M3BottomSheet>
+
+      {/* Rename Bottom Sheet */}
+      <M3BottomSheet
+        visible={showRenameSheet}
+        onDismiss={() => setShowRenameSheet(false)}
+        snapPoints={[0.35]}
+      >
+        <View style={styles.sheetContent}>
+          <Text style={[styles.sheetTitle, { color: theme.onSurface }]}>Rename</Text>
+          <M3TextField
+            label="New title"
+            value={renameValue}
+            onChangeText={setRenameValue}
+            placeholder="Enter new title"
+          />
+          <M3Button
+            label={renaming ? 'Saving...' : 'Save'}
+            onPress={handleRename}
+            loading={renaming}
+            disabled={!renameValue.trim() || renaming}
+            fullWidth
+          />
+        </View>
+      </M3BottomSheet>
+
+      {/* Long-press context Popover (Hick's Law) */}
+      <Popover
+        open={popoverTarget !== null}
+        onClose={() => setPopoverTarget(null)}
+        anchor={popoverTarget?.anchor ?? null}
+        actions={[
+          {
+            icon: 'edit',
+            label: 'Rename',
+            onPress: () => {
+              if (popoverTarget) {
+                setRenameId(popoverTarget.id);
+                setRenameValue(popoverTarget.title);
+                setShowRenameSheet(true);
+              }
+            },
+          },
+          {
+            icon: 'delete',
+            label: 'Delete',
+            variant: 'danger',
+            onPress: () => {
+              if (popoverTarget) handleDelete(popoverTarget.id, popoverTarget.title);
+            },
+          },
+        ]}
+      />
     </View>
   );
 }

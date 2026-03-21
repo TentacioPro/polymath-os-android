@@ -6,12 +6,14 @@ import {
   useCreateActivity,
   useUploadActivities,
   useDeleteActivity,
+  useUpdateActivity,
 } from '@/hooks/useActivities';
 import ResponsiveModal from '@/components/ResponsiveModal';
 import Link from 'next/link';
 import { useToast } from '@/components/Toast';
 import { useConfirm } from '@/components/ConfirmDialog';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Popover, PopoverItem } from '@/components/ui/Popover';
 
 const FILTERS = ['All', 'Article', 'PDF', 'Link', 'Audio', 'File'];
 
@@ -47,6 +49,7 @@ export default function ActivitiesPage() {
   const createActivity = useCreateActivity();
   const uploadActivities = useUploadActivities();
   const deleteActivity = useDeleteActivity();
+  const updateActivity = useUpdateActivity();
 
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState('');
@@ -54,6 +57,15 @@ export default function ActivitiesPage() {
   const [notes, setNotes] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const [filter, setFilter] = useState('All');
+
+  // Popover state — context menu for activity cards
+  const [popoverOpenId, setPopoverOpenId] = useState<string | null>(null);
+  const activeMenuBtnRef = useRef<HTMLButtonElement | null>(null);
+
+  // Inline rename state
+  const [renameId, setRenameId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
   const { confirm } = useConfirm();
@@ -104,6 +116,18 @@ export default function ActivitiesPage() {
       toast.success('Activity deleted');
     } catch {
       toast.error('Failed to delete activity');
+    }
+  };
+
+  const handleRename = async (id: string, newTitle: string) => {
+    if (!newTitle.trim()) return;
+    try {
+      await updateActivity.mutateAsync({ id, data: { title: newTitle.trim() } });
+      toast.success('Activity renamed');
+    } catch {
+      toast.error('Failed to rename activity');
+    } finally {
+      setRenameId(null);
     }
   };
 
@@ -206,50 +230,117 @@ export default function ActivitiesPage() {
       {/* Activity List */}
       <div className="flex flex-col gap-2">
         {filtered?.map((activity) => (
-          <Link
+          <div
             key={activity.id}
-            href={`/activity-detail?id=${activity.id}`}
-            className="flex items-center gap-3 p-3 rounded-2xl bg-m3-surface-container border border-m3-outline-variant transition-standard hover:bg-m3-surface-container-high group"
+            className="relative flex items-center gap-3 p-3 rounded-2xl bg-m3-surface-container border border-m3-outline-variant transition-standard hover:bg-m3-surface-container-high group"
           >
+            {/* Icon */}
             <div className="w-10 h-10 shrink-0 flex items-center justify-center rounded-xl bg-m3-primary-container">
               <span className="material-symbols-outlined text-[20px] text-m3-on-primary-container">
                 {getTypeIcon(activity)}
               </span>
             </div>
+
+            {/* Title + inline rename */}
             <div className="flex-1 min-w-0">
-              <p className="text-[14px] font-semibold text-m3-on-surface truncate">{activity.title}</p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <p className="text-[11px] text-m3-on-surface-variant truncate">
-                  {activity.source}{activity.category ? ` · ${activity.category}` : ''}
-                </p>
-                {getDomain(activity.url) && (
-                  <span className="text-[9px] text-m3-primary shrink-0 hidden sm:inline-block">
-                    · {getDomain(activity.url)}
-                  </span>
-                )}
-              </div>
+              {renameId === activity.id ? (
+                <form
+                  onSubmit={(e) => { e.preventDefault(); handleRename(activity.id, renameValue); }}
+                  className="flex items-center gap-2"
+                >
+                  <input
+                    autoFocus
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onBlur={() => setRenameId(null)}
+                    className="flex-1 bg-m3-surface border border-m3-primary rounded-xl px-3 py-1.5 text-[14px] text-m3-on-surface focus:outline-none"
+                  />
+                  <button type="submit" className="text-m3-primary">
+                    <span className="material-symbols-outlined text-[18px]">check</span>
+                  </button>
+                </form>
+              ) : (
+                <Link href={`/activity-detail?id=${activity.id}`} className="block">
+                  <p className="text-[14px] font-semibold text-m3-on-surface truncate">{activity.title}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <p className="text-[11px] text-m3-on-surface-variant truncate">
+                      {activity.source}{activity.category ? ` · ${activity.category}` : ''}
+                    </p>
+                    {getDomain(activity.url) && (
+                      <span className="text-[9px] text-m3-primary shrink-0 hidden sm:inline-block">
+                        · {getDomain(activity.url)}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              )}
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+
+            {/* Right controls */}
+            <div className="flex items-center gap-1 shrink-0">
               {activity.category && (
                 <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-m3-primary-container text-m3-on-primary-container uppercase hidden md:inline-block">
                   {activity.category}
                 </span>
               )}
+              {/* Three-dot context menu button (Hick's Law: Popover for non-destructive actions) */}
               <button
+                ref={(el) => {
+                  if (popoverOpenId === activity.id) activeMenuBtnRef.current = el;
+                }}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  handleDelete(activity.id);
+                  activeMenuBtnRef.current = e.currentTarget;
+                  setPopoverOpenId(popoverOpenId === activity.id ? null : activity.id);
                 }}
-                className="opacity-0 group-hover:opacity-100 text-m3-error hover:text-m3-on-error-container transition-standard"
+                className="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-lg text-m3-on-surface-variant hover:bg-m3-surface-container-highest transition-standard"
+                aria-label="More options"
+                aria-haspopup="menu"
               >
-                <span className="material-symbols-outlined text-[16px]">delete</span>
+                <span className="material-symbols-outlined text-[18px]">more_vert</span>
               </button>
-              <span className="material-symbols-outlined text-[20px] text-m3-on-surface-variant">chevron_right</span>
+              <Link
+                href={`/activity-detail?id=${activity.id}`}
+                className="text-m3-on-surface-variant"
+                tabIndex={-1}
+              >
+                <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+              </Link>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
+
+      {/* Context Popover — Hick's Law: simple actions stay in Popover */}
+      <Popover
+        open={popoverOpenId !== null}
+        onClose={() => setPopoverOpenId(null)}
+        anchorRef={activeMenuBtnRef as React.RefObject<HTMLElement | null>}
+      >
+        <PopoverItem
+          icon="edit"
+          label="Rename"
+          onClick={() => {
+            const act = activities?.find((a) => a.id === popoverOpenId);
+            if (act) {
+              setRenameValue(act.title);
+              setRenameId(popoverOpenId);
+            }
+            setPopoverOpenId(null);
+          }}
+        />
+        <PopoverItem
+          icon="delete"
+          label="Delete"
+          variant="danger"
+          onClick={() => {
+            const id = popoverOpenId!;
+            setPopoverOpenId(null);
+            handleDelete(id);
+          }}
+        />
+      </Popover>
 
       {filtered?.length === 0 && (
         <EmptyState
