@@ -27,19 +27,16 @@ export default function AnalyticsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-6 h-6 border-2 border-poly-accent border-t-transparent animate-spin" style={{ borderRadius: '50%' }} />
+        <div className="w-6 h-6 border-2 border-m3-primary border-t-transparent animate-spin rounded-full" />
       </div>
     );
   }
 
   const StatBox = ({ icon, value, label }: { icon: string; value: string | number; label: string }) => (
-    <div
-      className="flex flex-col items-center gap-1 py-4 px-3 border border-poly-border-muted"
-      style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '14px' }}
-    >
-      <span className="material-symbols-outlined text-[20px] text-poly-accent">{icon}</span>
-      <span className="text-[20px] font-bold text-poly-text">{value}</span>
-      <span className="text-[10px] uppercase tracking-[1px] text-poly-muted">{label}</span>
+    <div className="flex flex-col items-center gap-1 py-4 px-3 rounded-2xl bg-m3-surface-container border border-m3-outline-variant">
+      <span className="material-symbols-outlined text-[20px] text-m3-primary">{icon}</span>
+      <span className="text-[20px] font-bold text-m3-on-surface">{value}</span>
+      <span className="text-[10px] uppercase tracking-wider text-m3-on-surface-variant">{label}</span>
     </div>
   );
 
@@ -48,15 +45,13 @@ export default function AnalyticsPage() {
 
   return (
     <div className="pt-4 flex flex-col gap-5">
-      {/* Header */}
       <div className="px-1">
-        <h1 className="text-[20px] font-bold text-poly-text tracking-tight">Analytics</h1>
-        <p className="text-[12px] text-poly-muted mt-0.5">System diagnostics</p>
+        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Analytics</h1>
+        <p className="text-[12px] text-m3-on-surface-variant mt-0.5">System diagnostics</p>
       </div>
 
-      {/* Overview */}
       <div>
-        <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-2 px-1">OVERVIEW</p>
+        <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-2 px-1">Overview</p>
         <div className="grid grid-cols-3 gap-2">
           <StatBox icon="layers" value={stats?.total_activities || 0} label="Activities" />
           <StatBox icon="hub" value={stats?.total_connections || 0} label="Connections" />
@@ -64,10 +59,9 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Agent */}
       {agentStats && (
         <div>
-          <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-2 px-1">AGENT</p>
+          <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-2 px-1">Agent</p>
           <div className="grid grid-cols-3 gap-2">
             <StatBox icon="memory" value={agentStats?.total_memories || 0} label="Memories" />
             <StatBox icon="chat" value={agentStats?.total_queries || 0} label="Queries" />
@@ -76,26 +70,22 @@ export default function AnalyticsPage() {
         </div>
       )}
 
-      {/* Topics */}
       {topics?.length > 0 && (
-        <div
-          className="p-4 border border-poly-border-muted"
-          style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '16px' }}
-        >
-          <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-3">TOPICS</p>
+        <div className="p-4 rounded-3xl bg-m3-surface-container border border-m3-outline-variant">
+          <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-3">Topics</p>
           <div className="flex flex-col gap-2">
             {topics.slice(0, 8).map((t: any) => {
               const maxCount = Math.max(...topics.map((x: any) => x.count || 0), 1);
               return (
                 <div key={t.topic || t[0]} className="flex items-center gap-3">
-                  <span className="text-[12px] text-poly-text w-24 truncate">{t.topic || t[0]}</span>
-                  <div className="flex-1 h-2 bg-poly-border-muted overflow-hidden" style={{ borderRadius: '4px' }}>
+                  <span className="text-[12px] text-m3-on-surface w-24 truncate">{t.topic || t[0]}</span>
+                  <div className="flex-1 h-2 bg-m3-outline-variant overflow-hidden rounded-full">
                     <div
-                      className="h-full bg-poly-accent"
-                      style={{ width: `${((t.count || t[1]) / maxCount) * 100}%`, borderRadius: '4px' }}
+                      className="h-full bg-m3-primary rounded-full"
+                      style={{ width: `${((t.count || t[1]) / maxCount) * 100}%` }}
                     />
                   </div>
-                  <span className="text-[11px] font-bold text-poly-accent w-6 text-right">{t.count || t[1]}</span>
+                  <span className="text-[11px] font-bold text-m3-primary w-6 text-right">{t.count || t[1]}</span>
                 </div>
               );
             })}
@@ -103,26 +93,22 @@ export default function AnalyticsPage() {
         </div>
       )}
 
-      {/* Sources */}
       {sources.length > 0 && (
-        <div
-          className="p-4 border border-poly-border-muted"
-          style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '16px' }}
-        >
-          <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-3">SOURCES</p>
+        <div className="p-4 rounded-3xl bg-m3-surface-container border border-m3-outline-variant">
+          <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-3">Sources</p>
           <div className="flex flex-col gap-2">
             {sources.slice(0, 8).map((s: any) => {
               const maxCount = Math.max(...sources.map((x: any) => x.count || 0), 1);
               return (
                 <div key={s.source} className="flex items-center gap-3">
-                  <span className="text-[12px] text-poly-text w-24 truncate">{s.source}</span>
-                  <div className="flex-1 h-2 bg-poly-border-muted overflow-hidden" style={{ borderRadius: '4px' }}>
+                  <span className="text-[12px] text-m3-on-surface w-24 truncate">{s.source}</span>
+                  <div className="flex-1 h-2 bg-m3-outline-variant overflow-hidden rounded-full">
                     <div
-                      className="h-full bg-poly-accent"
-                      style={{ width: `${(s.count / maxCount) * 100}%`, borderRadius: '4px' }}
+                      className="h-full bg-m3-primary rounded-full"
+                      style={{ width: `${(s.count / maxCount) * 100}%` }}
                     />
                   </div>
-                  <span className="text-[11px] font-bold text-poly-accent w-6 text-right">{s.count}</span>
+                  <span className="text-[11px] font-bold text-m3-primary w-6 text-right">{s.count}</span>
                 </div>
               );
             })}
@@ -130,25 +116,12 @@ export default function AnalyticsPage() {
         </div>
       )}
 
-      {/* System */}
       <div>
-        <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-2 px-1">SYSTEM</p>
+        <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-2 px-1">System</p>
         <div className="grid grid-cols-3 gap-2">
-          <StatBox
-            icon="check_circle"
-            value={health ? 'Healthy' : 'Offline'}
-            label="Status"
-          />
-          <StatBox
-            icon="database"
-            value={health?.database ? 'Up' : 'Down'}
-            label="Database"
-          />
-          <StatBox
-            icon="auto_awesome"
-            value={health?.ai_available ? 'On' : 'Off'}
-            label="AI"
-          />
+          <StatBox icon="check_circle" value={health ? 'Healthy' : 'Offline'} label="Status" />
+          <StatBox icon="database" value={health?.database ? 'Up' : 'Down'} label="Database" />
+          <StatBox icon="auto_awesome" value={health?.ai_available ? 'On' : 'Off'} label="AI" />
         </div>
       </div>
     </div>

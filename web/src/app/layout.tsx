@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { DM_Sans, Inter, Outfit, Space_Grotesk, JetBrains_Mono, Space_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import ThemeProvider from "@/components/ThemeProvider";
@@ -10,10 +10,22 @@ import AppSidebar from "@/components/AppSidebar";
 import { SidebarProvider } from "@/hooks/useSidebar";
 import SidebarAwareMain from "@/components/SidebarAwareMain";
 
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+});
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
+});
+
+const outfit = Outfit({
+  variable: "--font-outfit",
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
 });
 
 const spaceGrotesk = Space_Grotesk({
@@ -25,7 +37,13 @@ const spaceGrotesk = Space_Grotesk({
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["400", "700"],
+});
+
+const spaceMono = Space_Mono({
+  variable: "--font-space-mono",
+  subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -47,7 +65,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased bg-poly-bg min-h-screen`}
+        className={`${dmSans.variable} ${inter.variable} ${outfit.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${spaceMono.variable} antialiased bg-poly-bg min-h-screen`}
       >
         <Providers>
           <ThemeProvider>

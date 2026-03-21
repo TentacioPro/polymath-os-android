@@ -14,10 +14,89 @@ import type {
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 
+export interface TokenPair {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: number;
+}
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  display_name?: string;
+  role?: string;
+  is_active?: boolean;
+  created_at?: string;
+  last_login?: string;
+}
+
+export interface UrlMetadata {
+  url: string;
+  domain: string;
+  title?: string;
+  description?: string;
+  image?: string;
+  favicon?: string;
+}
+
 function createApiClient(baseUrl: string) {
   const client = axios.create({ baseURL: `${baseUrl}/api` });
 
+  // Attach access token to every request if available
+  client.interceptors.request.use((config) => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('polymath-access-token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  });
+
+  // Auto-refresh on 401
+  client.interceptors.response.use(
+    (res) => res,
+    async (error) => {
+      const original = error.config;
+      if (
+        error.response?.status === 401 &&
+        !original._retry &&
+        typeof window !== 'undefined'
+      ) {
+        original._retry = true;
+        const refreshToken = localStorage.getItem('polymath-refresh-token');
+        if (refreshToken) {
+          try {
+            const res = await axios.post<TokenPair>(`${baseUrl}/api/auth/refresh`, {
+              refresh_token: refreshToken,
+            });
+            localStorage.setItem('polymath-access-token', res.data.access_token);
+            localStorage.setItem('polymath-refresh-token', res.data.refresh_token);
+            original.headers.Authorization = `Bearer ${res.data.access_token}`;
+            return client(original);
+          } catch {
+            // Refresh failed — clear tokens
+            localStorage.removeItem('polymath-access-token');
+            localStorage.removeItem('polymath-refresh-token');
+          }
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
+
   return {
+    // Auth
+    login: (email: string, password: string) =>
+      client.post<TokenPair>('/auth/login', { email, password }),
+    register: (email: string, password: string, display_name?: string) =>
+      client.post<AuthUser>('/auth/register', { email, password, display_name }),
+    refreshToken: (refresh_token: string) =>
+      client.post<TokenPair>('/auth/refresh', { refresh_token }),
+    logout: (refresh_token: string) =>
+      client.post('/auth/logout', { refresh_token }),
+    getMe: () => client.get<AuthUser>('/auth/me'),
     // Activities
     getActivities: (limit = 100) =>
       client.get<Activity[]>('/activities', { params: { limit } }),
@@ -91,6 +170,10 @@ function createApiClient(baseUrl: string) {
     getAiConfig: () => client.get('/ai-config'),
     setAiConfig: (data: { provider: string; model: string; api_key: string }) =>
       client.post('/ai-config', data),
+
+    // URL Metadata
+    extractMetadata: (url: string) =>
+      client.post<UrlMetadata>('/metadata/extract', { url }),
   };
 }
 

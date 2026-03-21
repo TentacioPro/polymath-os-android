@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useJournals, useCreateJournal, useDeleteJournal } from '@/hooks/useJournals';
 import ResponsiveModal from '@/components/ResponsiveModal';
+import { useToast } from '@/components/Toast';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 export default function JournalPage() {
   const { data: journals, isLoading } = useJournals();
@@ -13,6 +15,8 @@ export default function JournalPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tagsInput, setTagsInput] = useState('');
+  const toast = useToast();
+  const { confirm } = useConfirm();
 
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) return;
@@ -20,63 +24,83 @@ export default function JournalPage() {
       .split(',')
       .map((t) => t.trim())
       .filter(Boolean);
-    await createJournal.mutateAsync({ title: title.trim(), content: content.trim(), tags });
-    setTitle('');
-    setContent('');
-    setTagsInput('');
-    setShowModal(false);
+    try {
+      await createJournal.mutateAsync({ title: title.trim(), content: content.trim(), tags });
+      setTitle('');
+      setContent('');
+      setTagsInput('');
+      setShowModal(false);
+      toast.success('Journal entry saved');
+    } catch {
+      toast.error('Failed to save journal entry');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    const ok = await confirm({
+      title: 'Delete Entry',
+      message: 'This journal entry will be permanently deleted.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      icon: 'delete',
+    });
+    if (!ok) return;
+    try {
+      await deleteJournal.mutateAsync(id);
+      toast.success('Entry deleted');
+    } catch {
+      toast.error('Failed to delete entry');
+    }
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-6 h-6 border-2 border-poly-accent border-t-transparent animate-spin" style={{ borderRadius: '50%' }} />
+        <div className="w-6 h-6 border-2 border-m3-primary border-t-transparent animate-spin rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="pt-4 flex flex-col gap-4">
-      {/* Header — matching mobile */}
+    <div className="pt-4 flex flex-col gap-4 stagger-children">
+      {/* Header */}
       <div className="flex items-center justify-between px-1">
         <div>
-          <h1 className="text-[20px] font-bold text-poly-text tracking-tight">
+          <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">
             Journal
           </h1>
-          <p className="text-[12px] text-poly-muted mt-0.5">
+          <p className="text-[12px] text-m3-on-surface-variant mt-0.5">
             {journals?.length || 0} entries
           </p>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="w-11 h-11 flex items-center justify-center bg-poly-accent transition-opacity hover:opacity-80"
-          style={{ borderRadius: '12px' }}
+          className="w-11 h-11 flex items-center justify-center rounded-xl bg-m3-primary text-m3-on-primary hover:opacity-90 transition-standard"
         >
-          <span className="material-symbols-outlined text-[20px]" style={{ color: 'var(--poly-accent-text)' }}>add</span>
+          <span className="material-symbols-outlined text-[20px]">add</span>
         </button>
       </div>
 
-      {/* Journal Cards — matching mobile rounded style */}
+      {/* Journal Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {journals?.map((journal) => (
           <div
             key={journal.id}
-            className="border border-poly-border-muted p-4 group flex flex-col"
-            style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '14px' }}
+            className="rounded-2xl bg-m3-surface-container border border-m3-outline-variant p-4 group flex flex-col"
           >
             <div className="flex justify-between items-start mb-2">
-              <h3 className="text-[14px] font-semibold text-poly-text">
+              <h3 className="text-[14px] font-semibold text-m3-on-surface">
                 {journal.title}
               </h3>
               <button
-                onClick={() => deleteJournal.mutate(journal.id)}
-                className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-all"
+                onClick={() => handleDelete(journal.id)}
+                className="opacity-0 group-hover:opacity-100 text-m3-error hover:text-m3-on-error-container transition-standard"
               >
                 <span className="material-symbols-outlined text-[16px]">delete</span>
               </button>
             </div>
 
-            <p className="text-[12px] text-poly-muted line-clamp-4 mb-3 leading-relaxed">
+            <p className="text-[12px] text-m3-on-surface-variant line-clamp-4 mb-3 leading-relaxed">
               {journal.content}
             </p>
 
@@ -85,8 +109,7 @@ export default function JournalPage() {
                 {journal.tags.map((tag, i) => (
                   <span
                     key={i}
-                    className="text-[9px] font-bold uppercase px-2 py-0.5 text-poly-accent"
-                    style={{ backgroundColor: 'var(--poly-accent)', opacity: 0.15, borderRadius: '6px' }}
+                    className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-m3-primary-container text-m3-on-primary-container"
                   >
                     #{tag}
                   </span>
@@ -94,7 +117,7 @@ export default function JournalPage() {
               </div>
             )}
 
-            <p className="text-[11px] text-poly-muted mt-auto pt-2">
+            <p className="text-[11px] text-m3-on-surface-variant mt-auto pt-2">
               {new Date(journal.timestamp).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
@@ -107,17 +130,17 @@ export default function JournalPage() {
 
       {journals?.length === 0 && (
         <div className="flex flex-col items-center py-16">
-          <span className="material-symbols-outlined text-[48px] text-poly-border-muted">menu_book</span>
-          <p className="text-[14px] text-poly-muted mt-3">No journal entries yet</p>
-          <p className="text-[12px] text-poly-muted mt-1">Start journaling your learning journey</p>
+          <span className="material-symbols-outlined text-[48px] text-m3-outline-variant">menu_book</span>
+          <p className="text-[14px] text-m3-on-surface-variant mt-3">No journal entries yet</p>
+          <p className="text-[12px] text-m3-on-surface-variant mt-1">Start journaling your learning journey</p>
         </div>
       )}
 
-      {/* Create Modal — matching mobile bottom sheet style */}
+      {/* Create Modal */}
       <ResponsiveModal open={showModal} onClose={() => setShowModal(false)} title="New Journal Entry">
         <div className="flex flex-col gap-4">
           <div>
-            <label className="text-[11px] uppercase tracking-[1px] text-poly-muted mb-2 block font-semibold">
+            <label className="text-[11px] uppercase tracking-wider text-m3-on-surface-variant mb-2 block font-semibold">
               Title *
             </label>
             <input
@@ -125,13 +148,12 @@ export default function JournalPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Entry title"
-              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-[15px] text-poly-text placeholder:text-poly-muted focus:outline-none focus:border-poly-accent"
-              style={{ borderRadius: '12px' }}
+              className="w-full bg-m3-surface border border-m3-outline rounded-2xl px-4 py-3 text-[15px] text-m3-on-surface placeholder:text-m3-on-surface-variant focus:outline-none focus:border-m3-primary transition-standard"
             />
           </div>
 
           <div>
-            <label className="text-[11px] uppercase tracking-[1px] text-poly-muted mb-2 block font-semibold">
+            <label className="text-[11px] uppercase tracking-wider text-m3-on-surface-variant mb-2 block font-semibold">
               Content *
             </label>
             <textarea
@@ -139,13 +161,12 @@ export default function JournalPage() {
               onChange={(e) => setContent(e.target.value)}
               placeholder="Write your thoughts..."
               rows={6}
-              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-[15px] text-poly-text placeholder:text-poly-muted focus:outline-none focus:border-poly-accent resize-none"
-              style={{ borderRadius: '12px' }}
+              className="w-full bg-m3-surface border border-m3-outline rounded-2xl px-4 py-3 text-[15px] text-m3-on-surface placeholder:text-m3-on-surface-variant focus:outline-none focus:border-m3-primary transition-standard resize-none"
             />
           </div>
 
           <div>
-            <label className="text-[11px] uppercase tracking-[1px] text-poly-muted mb-2 block font-semibold">
+            <label className="text-[11px] uppercase tracking-wider text-m3-on-surface-variant mb-2 block font-semibold">
               Tags (comma-separated)
             </label>
             <input
@@ -153,16 +174,14 @@ export default function JournalPage() {
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder="AI, Learning, Notes"
-              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-[15px] text-poly-text placeholder:text-poly-muted focus:outline-none focus:border-poly-accent"
-              style={{ borderRadius: '12px' }}
+              className="w-full bg-m3-surface border border-m3-outline rounded-2xl px-4 py-3 text-[15px] text-m3-on-surface placeholder:text-m3-on-surface-variant focus:outline-none focus:border-m3-primary transition-standard"
             />
           </div>
 
           <button
             onClick={handleSubmit}
             disabled={!title.trim() || !content.trim() || createJournal.isPending}
-            className="w-full bg-poly-accent py-3 text-[14px] font-bold hover:opacity-80 transition-opacity disabled:opacity-50"
-            style={{ color: 'var(--poly-accent-text)', borderRadius: '12px' }}
+            className="w-full bg-m3-primary text-m3-on-primary rounded-2xl py-3 text-[14px] font-bold hover:opacity-90 transition-standard disabled:opacity-50"
           >
             {createJournal.isPending ? 'Saving...' : 'Save Entry'}
           </button>

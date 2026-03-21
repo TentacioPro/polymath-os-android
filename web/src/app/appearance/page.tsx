@@ -46,9 +46,8 @@ function ThemeCard({ themeId, active, onSelect }: { themeId: string; active: boo
   return (
     <button
       onClick={onSelect}
-      className="flex flex-col overflow-hidden transition-transform hover:scale-[1.02]"
+      className="flex flex-col overflow-hidden transition-standard hover:scale-[1.02] rounded-2xl"
       style={{
-        borderRadius: '14px',
         border: active ? `2px solid ${accent}` : `1px solid ${border}`,
         backgroundColor: bg,
       }}
@@ -57,17 +56,17 @@ function ThemeCard({ themeId, active, onSelect }: { themeId: string; active: boo
       <div className="w-full p-3" style={{ backgroundColor: bg }}>
         {/* Simulated header */}
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-4 h-4" style={{ backgroundColor: accent, borderRadius: '4px' }} />
-          <div className="h-2 flex-1" style={{ backgroundColor: surface, borderRadius: '2px' }} />
+          <div className="w-4 h-4 rounded" style={{ backgroundColor: accent }} />
+          <div className="h-2 flex-1 rounded-sm" style={{ backgroundColor: surface }} />
         </div>
         {/* Simulated card */}
-        <div className="p-2 mb-2" style={{ backgroundColor: surface, borderRadius: '6px' }}>
-          <div className="h-1.5 w-3/4 mb-1" style={{ backgroundColor: text, opacity: 0.3, borderRadius: '1px' }} />
-          <div className="h-1.5 w-1/2" style={{ backgroundColor: text, opacity: 0.15, borderRadius: '1px' }} />
+        <div className="p-2 mb-2 rounded-lg" style={{ backgroundColor: surface }}>
+          <div className="h-1.5 w-3/4 mb-1 rounded-sm" style={{ backgroundColor: text, opacity: 0.3 }} />
+          <div className="h-1.5 w-1/2 rounded-sm" style={{ backgroundColor: text, opacity: 0.15 }} />
         </div>
         {/* Simulated pill */}
         <div className="flex justify-center">
-          <div className="h-2 w-16" style={{ backgroundColor: accent, borderRadius: '4px', opacity: 0.6 }} />
+          <div className="h-2 w-16 rounded" style={{ backgroundColor: accent, opacity: 0.6 }} />
         </div>
       </div>
       {/* Label */}
@@ -90,33 +89,29 @@ export default function AppearancePage() {
   const darkThemes = ['black', 'amber', 'ocean', 'forest', 'sunset', 'midnight'];
   const lightThemes = ['nova'];
 
-  const currentMeta = THEME_META[theme];
   const currentInfo = THEMES.find((t) => t.id === theme);
 
   return (
     <div className="pt-4 flex flex-col gap-5">
       {/* Header */}
       <div className="px-1">
-        <h1 className="text-[20px] font-bold text-poly-text tracking-tight">Appearance</h1>
-        <p className="text-[12px] text-poly-muted mt-0.5">Customize theme</p>
+        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Appearance</h1>
+        <p className="text-[12px] text-m3-on-surface-variant mt-0.5">Customize theme</p>
       </div>
 
       {/* Current Theme Card */}
-      <div
-        className="p-4 flex items-center gap-4 border border-poly-border-muted"
-        style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '16px' }}
-      >
-        <div className="w-2 h-12 shrink-0" style={{ backgroundColor: 'var(--poly-accent)', borderRadius: '4px' }} />
+      <div className="p-4 flex items-center gap-4 rounded-2xl border border-m3-outline-variant bg-m3-surface-container">
+        <div className="w-2 h-12 shrink-0 rounded bg-m3-primary" />
         <div className="flex-1">
-          <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px]">CURRENT THEME</p>
-          <p className="text-[16px] font-bold text-poly-text mt-0.5">{currentInfo?.label}</p>
+          <p className="text-[11px] font-medium text-m3-on-surface-variant tracking-wide">CURRENT THEME</p>
+          <p className="text-[16px] font-bold text-m3-on-surface mt-0.5">{currentInfo?.label}</p>
         </div>
-        <span className="material-symbols-outlined text-[24px] text-poly-accent">palette</span>
+        <span className="material-symbols-outlined text-[24px] text-m3-primary">palette</span>
       </div>
 
       {/* Dark Themes */}
       <div>
-        <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-3 px-1">DARK THEMES</p>
+        <p className="text-[11px] font-medium text-m3-on-surface-variant tracking-wide mb-3 px-1">DARK THEMES</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {darkThemes.map((id) => (
             <ThemeCard
@@ -131,7 +126,7 @@ export default function AppearancePage() {
 
       {/* Light Themes */}
       <div>
-        <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-3 px-1">LIGHT THEMES</p>
+        <p className="text-[11px] font-medium text-m3-on-surface-variant tracking-wide mb-3 px-1">LIGHT THEMES</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {lightThemes.map((id) => (
             <ThemeCard

@@ -36,6 +36,9 @@ interface Preferences {
   profileLayout: 'full' | 'minimal';
   sidebarPosition: 'left' | 'right' | 'hidden';
   visibleScreens: Record<string, boolean>;
+  fontFamily: 'dm-sans' | 'inter' | 'outfit' | 'space-grotesk';
+  monoFont: 'jetbrains-mono' | 'space-mono';
+  fontScale: number;
 }
 
 const DEFAULT_PREFERENCES: Preferences = {
@@ -52,6 +55,9 @@ const DEFAULT_PREFERENCES: Preferences = {
     integrations: true,
     alerts: true,
   },
+  fontFamily: 'dm-sans',
+  monoFont: 'jetbrains-mono',
+  fontScale: 1,
 };
 
 function usePreferences() {
@@ -74,6 +80,8 @@ function usePreferences() {
     setPreferences((prev) => {
       const next = { ...prev, [key]: value };
       localStorage.setItem('polymath-preferences', JSON.stringify(next));
+      // Apply font preferences to CSS variables
+      applyFontPreferences(next);
       return next;
     });
   };
@@ -89,8 +97,44 @@ function usePreferences() {
     });
   };
 
+  // Apply font CSS variables on load and on change
+  useEffect(() => {
+    if (loaded) applyFontPreferences(preferences);
+  }, [loaded]);
+
   return { preferences, updatePreference, setScreenVisibility, loaded };
 }
+
+const FONT_VAR_MAP: Record<string, string> = {
+  'dm-sans': 'var(--font-dm-sans)',
+  'inter': 'var(--font-inter)',
+  'outfit': 'var(--font-outfit)',
+  'space-grotesk': 'var(--font-space-grotesk)',
+};
+
+const MONO_VAR_MAP: Record<string, string> = {
+  'jetbrains-mono': 'var(--font-jetbrains-mono)',
+  'space-mono': 'var(--font-space-mono)',
+};
+
+function applyFontPreferences(prefs: Preferences) {
+  const root = document.documentElement;
+  root.style.setProperty('--active-font', FONT_VAR_MAP[prefs.fontFamily] || FONT_VAR_MAP['dm-sans']);
+  root.style.setProperty('--active-mono', MONO_VAR_MAP[prefs.monoFont] || MONO_VAR_MAP['jetbrains-mono']);
+  root.style.setProperty('--font-scale', String(prefs.fontScale));
+}
+
+const FONT_OPTIONS = [
+  { key: 'dm-sans', label: 'DM Sans', cssVar: '--font-dm-sans', sample: 'The quick brown fox' },
+  { key: 'inter', label: 'Inter', cssVar: '--font-inter', sample: 'The quick brown fox' },
+  { key: 'outfit', label: 'Outfit', cssVar: '--font-outfit', sample: 'The quick brown fox' },
+  { key: 'space-grotesk', label: 'Space Grotesk', cssVar: '--font-space-grotesk', sample: 'The quick brown fox' },
+];
+
+const MONO_OPTIONS = [
+  { key: 'jetbrains-mono', label: 'JetBrains Mono', cssVar: '--font-jetbrains-mono', sample: 'const x = 42;' },
+  { key: 'space-mono', label: 'Space Mono', cssVar: '--font-space-mono', sample: 'const x = 42;' },
+];
 
 export default function CustomizePage() {
   const { preferences, updatePreference, setScreenVisibility, loaded } = usePreferences();
@@ -98,10 +142,7 @@ export default function CustomizePage() {
   if (!loaded) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div
-          className="w-6 h-6 border-2 border-poly-accent border-t-transparent animate-spin"
-          style={{ borderRadius: '50%' }}
-        />
+        <div className="w-6 h-6 border-2 border-m3-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -123,48 +164,42 @@ export default function CustomizePage() {
   }) => (
     <button
       onClick={onSelect}
-      className="relative flex flex-col items-center p-4 gap-1 transition-all"
-      style={{
-        backgroundColor: isActive ? 'var(--poly-accent)' : 'var(--poly-surface)',
-        borderRadius: '12px',
-        border: isActive ? '1px solid var(--poly-accent)' : '1px solid var(--poly-border-muted)',
-        opacity: isActive ? 1 : 0.8,
-      }}
+      className={`relative flex flex-col items-center p-4 gap-1 rounded-2xl border transition-standard ${
+        isActive
+          ? 'bg-m3-primary border-m3-primary'
+          : 'bg-m3-surface-container border-m3-outline-variant hover:bg-m3-surface-container-high'
+      }`}
     >
       <div
-        className="w-9 h-9 flex items-center justify-center mb-1"
-        style={{
-          backgroundColor: isActive ? 'var(--poly-accent-text)' : 'var(--poly-bg)',
-          borderRadius: '10px',
-        }}
+        className={`w-9 h-9 flex items-center justify-center mb-1 rounded-xl ${
+          isActive ? 'bg-m3-on-primary' : 'bg-m3-surface'
+        }`}
       >
         <span
-          className="material-symbols-outlined text-[18px]"
-          style={{ color: isActive ? 'var(--poly-accent)' : 'var(--poly-muted)' }}
+          className={`material-symbols-outlined text-[18px] ${
+            isActive ? 'text-m3-primary' : 'text-m3-on-surface-variant'
+          }`}
         >
           {icon}
         </span>
       </div>
       <span
-        className="text-[12px] font-semibold"
-        style={{ color: isActive ? 'var(--poly-accent-text)' : 'var(--poly-text)' }}
+        className={`text-[12px] font-semibold ${
+          isActive ? 'text-m3-on-primary' : 'text-m3-on-surface'
+        }`}
       >
         {label}
       </span>
       <span
-        className="text-[9px] text-center"
-        style={{ color: isActive ? 'var(--poly-accent-text)' : 'var(--poly-muted)', opacity: 0.8 }}
+        className={`text-[9px] text-center opacity-80 ${
+          isActive ? 'text-m3-on-primary' : 'text-m3-on-surface-variant'
+        }`}
       >
         {desc}
       </span>
       {isActive && (
-        <div
-          className="absolute top-1.5 right-1.5 w-4 h-4 flex items-center justify-center"
-          style={{ backgroundColor: 'var(--poly-accent-text)', borderRadius: '50%' }}
-        >
-          <span className="material-symbols-outlined text-[12px]" style={{ color: 'var(--poly-accent)' }}>
-            check
-          </span>
+        <div className="absolute top-1.5 right-1.5 w-4 h-4 flex items-center justify-center bg-m3-on-primary rounded-full">
+          <span className="material-symbols-outlined text-[12px] text-m3-primary">check</span>
         </div>
       )}
     </button>
@@ -183,57 +218,177 @@ export default function CustomizePage() {
     enabled: boolean;
     onToggle: (val: boolean) => void;
   }) => (
-    <div
-      className="flex items-center gap-3 p-3 border border-poly-border-muted"
-      style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '12px' }}
-    >
+    <div className="flex items-center gap-3 p-3 rounded-2xl border border-m3-outline-variant bg-m3-surface-container">
       <div
-        className="w-9 h-9 flex items-center justify-center shrink-0"
-        style={{
-          backgroundColor: enabled ? 'var(--poly-accent)' : 'var(--poly-bg)',
-          borderRadius: '10px',
-          opacity: enabled ? 0.2 : 1,
-        }}
+        className={`w-9 h-9 flex items-center justify-center shrink-0 rounded-xl ${
+          enabled ? 'bg-m3-primary-container' : 'bg-m3-surface'
+        }`}
       >
         <span
-          className="material-symbols-outlined text-[18px]"
-          style={{ color: enabled ? 'var(--poly-accent)' : 'var(--poly-muted)' }}
+          className={`material-symbols-outlined text-[18px] ${
+            enabled ? 'text-m3-on-primary-container' : 'text-m3-on-surface-variant'
+          }`}
         >
           {icon}
         </span>
       </div>
-      <span className="flex-1 text-[14px] font-medium text-poly-text">{label}</span>
+      <span className="flex-1 text-[14px] font-medium text-m3-on-surface">{label}</span>
       <button
         onClick={() => onToggle(!enabled)}
-        className="relative w-11 h-6 transition-colors"
-        style={{
-          backgroundColor: enabled ? 'var(--poly-accent)' : 'var(--poly-border-muted)',
-          borderRadius: '12px',
-        }}
+        className={`relative w-[52px] h-[32px] rounded-full transition-standard ${
+          enabled ? 'bg-m3-primary' : 'bg-m3-surface-container-highest'
+        }`}
       >
         <div
-          className="absolute top-0.5 w-5 h-5 transition-transform"
-          style={{
-            backgroundColor: enabled ? 'var(--poly-accent-text)' : 'var(--poly-muted)',
-            borderRadius: '50%',
-            left: enabled ? 'calc(100% - 22px)' : '2px',
-          }}
+          className={`absolute top-[4px] w-[24px] h-[24px] rounded-full transition-standard ${
+            enabled ? 'bg-m3-on-primary left-[24px]' : 'bg-m3-outline left-[4px]'
+          }`}
         />
       </button>
     </div>
   );
 
   return (
-    <div className="pt-4 flex flex-col gap-5">
+    <div className="pt-4 flex flex-col gap-5 stagger-children">
       {/* Header */}
       <div className="px-1">
-        <h1 className="text-[20px] font-bold text-poly-text tracking-tight">Customize</h1>
-        <p className="text-[12px] text-poly-muted mt-0.5">Layout & visibility</p>
+        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Customize</h1>
+        <p className="text-[12px] text-m3-on-surface-variant mt-0.5">Typography, layout & visibility</p>
+      </div>
+
+      {/* ── TYPOGRAPHY ── */}
+      <div>
+        <p className="text-[11px] font-medium text-m3-on-surface-variant tracking-wide mb-3 px-1">
+          FONT FAMILY
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          {FONT_OPTIONS.map((opt) => {
+            const isActive = preferences.fontFamily === opt.key;
+            return (
+              <button
+                key={opt.key}
+                onClick={() => updatePreference('fontFamily', opt.key as any)}
+                className={`relative p-4 rounded-2xl border transition-standard text-left ${
+                  isActive
+                    ? 'bg-m3-primary border-m3-primary'
+                    : 'bg-m3-surface-container border-m3-outline-variant hover:bg-m3-surface-container-high'
+                }`}
+              >
+                <span
+                  className={`block text-[14px] font-semibold mb-1 ${
+                    isActive ? 'text-m3-on-primary' : 'text-m3-on-surface'
+                  }`}
+                  style={{ fontFamily: `var(${opt.cssVar})` }}
+                >
+                  {opt.label}
+                </span>
+                <span
+                  className={`block text-[12px] ${
+                    isActive ? 'text-m3-on-primary opacity-80' : 'text-m3-on-surface-variant'
+                  }`}
+                  style={{ fontFamily: `var(${opt.cssVar})` }}
+                >
+                  {opt.sample}
+                </span>
+                {isActive && (
+                  <div className="absolute top-1.5 right-1.5 w-4 h-4 flex items-center justify-center bg-m3-on-primary rounded-full">
+                    <span className="material-symbols-outlined text-[12px] text-m3-primary">check</span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div>
+        <p className="text-[11px] font-medium text-m3-on-surface-variant tracking-wide mb-3 px-1">
+          MONOSPACE FONT
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          {MONO_OPTIONS.map((opt) => {
+            const isActive = preferences.monoFont === opt.key;
+            return (
+              <button
+                key={opt.key}
+                onClick={() => updatePreference('monoFont', opt.key as any)}
+                className={`relative p-4 rounded-2xl border transition-standard text-left ${
+                  isActive
+                    ? 'bg-m3-primary border-m3-primary'
+                    : 'bg-m3-surface-container border-m3-outline-variant hover:bg-m3-surface-container-high'
+                }`}
+              >
+                <span
+                  className={`block text-[13px] font-semibold mb-1 ${
+                    isActive ? 'text-m3-on-primary' : 'text-m3-on-surface'
+                  }`}
+                >
+                  {opt.label}
+                </span>
+                <span
+                  className={`block text-[12px] ${
+                    isActive ? 'text-m3-on-primary opacity-80' : 'text-m3-on-surface-variant'
+                  }`}
+                  style={{ fontFamily: `var(${opt.cssVar})` }}
+                >
+                  {opt.sample}
+                </span>
+                {isActive && (
+                  <div className="absolute top-1.5 right-1.5 w-4 h-4 flex items-center justify-center bg-m3-on-primary rounded-full">
+                    <span className="material-symbols-outlined text-[12px] text-m3-primary">check</span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-3 px-1">
+          <p className="text-[11px] font-medium text-m3-on-surface-variant tracking-wide">
+            FONT SIZE
+          </p>
+          <div className="flex items-center gap-2">
+            <span className="text-[12px] font-bold text-m3-primary">
+              {Math.round(preferences.fontScale * 100)}%
+            </span>
+            {preferences.fontScale !== 1 && (
+              <button
+                onClick={() => updatePreference('fontScale', 1)}
+                className="w-6 h-6 flex items-center justify-center rounded-full bg-m3-surface-container hover:bg-m3-surface-container-high transition-standard"
+              >
+                <span className="material-symbols-outlined text-[14px] text-m3-on-surface-variant">restart_alt</span>
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="px-1">
+          <input
+            type="range"
+            min="0.85"
+            max="1.30"
+            step="0.05"
+            value={preferences.fontScale}
+            onChange={(e) => updatePreference('fontScale', parseFloat(e.target.value))}
+            className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right, var(--m3-primary) 0%, var(--m3-primary) ${((preferences.fontScale - 0.85) / 0.45) * 100}%, var(--m3-surface-container-high) ${((preferences.fontScale - 0.85) / 0.45) * 100}%, var(--m3-surface-container-high) 100%)`,
+            }}
+          />
+          <div className="flex justify-between mt-1">
+            <span className="text-[9px] text-m3-on-surface-variant">A</span>
+            <span className="text-[13px] text-m3-on-surface-variant">A</span>
+          </div>
+        </div>
+        <p className="text-[12px] text-m3-on-surface-variant mt-3 px-1 p-3 rounded-2xl bg-m3-surface-container border border-m3-outline-variant" style={{ fontSize: `${preferences.fontScale}rem` }}>
+          Preview: This text resizes as you adjust the slider above.
+        </p>
       </div>
 
       {/* Dashboard Layout */}
       <div>
-        <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-3 px-1">
+        <p className="text-[11px] font-medium text-m3-on-surface-variant tracking-wide mb-3 px-1">
           DASHBOARD LAYOUT
         </p>
         <div className="grid grid-cols-3 gap-2">
@@ -250,7 +405,7 @@ export default function CustomizePage() {
 
       {/* Profile Layout */}
       <div>
-        <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-3 px-1">
+        <p className="text-[11px] font-medium text-m3-on-surface-variant tracking-wide mb-3 px-1">
           PROFILE LAYOUT
         </p>
         <div className="grid grid-cols-3 gap-2">
@@ -267,7 +422,7 @@ export default function CustomizePage() {
 
       {/* Sidebar Position */}
       <div>
-        <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-3 px-1">
+        <p className="text-[11px] font-medium text-m3-on-surface-variant tracking-wide mb-3 px-1">
           SIDEBAR POSITION
         </p>
         <div className="grid grid-cols-3 gap-2">
@@ -284,10 +439,10 @@ export default function CustomizePage() {
 
       {/* Visible Screens */}
       <div>
-        <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-2 px-1">
+        <p className="text-[11px] font-medium text-m3-on-surface-variant tracking-wide mb-2 px-1">
           VISIBLE SCREENS
         </p>
-        <p className="text-[12px] text-poly-muted mb-3 px-1">
+        <p className="text-[12px] text-m3-on-surface-variant mb-3 px-1">
           Toggle which screens appear in navigation
         </p>
         <div className="flex flex-col gap-2">

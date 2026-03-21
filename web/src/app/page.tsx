@@ -2,7 +2,8 @@
 
 import { useStats } from '@/hooks/useStats';
 import { useActivities } from '@/hooks/useActivities';
-import { getCategoryColor } from '@/lib/constants';
+import { useJournals } from '@/hooks/useJournals';
+import EngagementWidgets from '@/components/EngagementWidgets';
 import Link from 'next/link';
 
 function getGreeting(): string {
@@ -14,9 +15,19 @@ function getGreeting(): string {
   return 'Night owl mode';
 }
 
+function getDomain(url?: string): string | null {
+  if (!url) return null;
+  try {
+    return new URL(url).hostname.replace('www.', '');
+  } catch {
+    return null;
+  }
+}
+
 export default function Dashboard() {
   const { data: stats, isLoading: statsLoading, refetch } = useStats();
   const { data: activities, isLoading: activitiesLoading } = useActivities(10);
+  const { data: journals } = useJournals(100);
 
   const loading = statsLoading || activitiesLoading;
 
@@ -24,8 +35,8 @@ export default function Dashboard() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="w-6 h-6 border-2 border-poly-accent border-t-transparent animate-spin mx-auto" style={{ borderRadius: '50%' }} />
-          <p className="text-poly-muted mt-4 text-xs font-mono uppercase tracking-widest">
+          <div className="w-6 h-6 border-2 border-m3-primary border-t-transparent animate-spin rounded-full mx-auto" />
+          <p className="text-m3-on-surface-variant mt-4 text-xs tracking-widest uppercase">
             Initializing...
           </p>
         </div>
@@ -40,36 +51,34 @@ export default function Dashboard() {
   const topCategories = Object.entries(categories).slice(0, 4);
 
   return (
-    <div className="pt-4 flex flex-col gap-5">
-      {/* Header — matching mobile: greeting + title + profile */}
+    <div className="pt-4 flex flex-col gap-5 stagger-children">
+      {/* Header */}
       <div className="flex justify-between items-center px-1">
         <div>
-          <p className="text-[11px] uppercase tracking-[1.5px] text-poly-muted mb-0.5">
+          <p className="text-[11px] uppercase tracking-widest text-m3-on-surface-variant mb-0.5">
             {getGreeting()}
           </p>
-          <h1 className="text-[22px] font-bold text-poly-text tracking-tight">
+          <h1 className="text-[22px] font-bold text-m3-on-surface tracking-tight">
             Dashboard
           </h1>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => refetch()}
-            className="w-10 h-10 flex items-center justify-center text-poly-text transition-colors hover:text-poly-accent"
-            style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '12px' }}
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-m3-surface-container hover:bg-m3-surface-container-high transition-standard text-m3-on-surface"
           >
             <span className="material-symbols-outlined text-[20px]">refresh</span>
           </button>
           <Link
             href="/profile"
-            className="w-10 h-10 flex items-center justify-center bg-poly-accent"
-            style={{ borderRadius: '12px' }}
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-m3-primary text-m3-on-primary"
           >
-            <span className="material-symbols-outlined text-[20px]" style={{ color: 'var(--poly-accent-text)' }}>person</span>
+            <span className="material-symbols-outlined text-[20px]">person</span>
           </Link>
         </div>
       </div>
 
-      {/* Quick Actions — matching mobile 4-button row */}
+      {/* Quick Actions */}
       <div className="grid grid-cols-4 gap-2">
         {[
           { icon: 'add', label: 'Add', href: '/chat', accent: true },
@@ -80,115 +89,92 @@ export default function Dashboard() {
           <Link
             key={action.label}
             href={action.href}
-            className="flex items-center justify-center h-[52px] transition-opacity hover:opacity-80"
-            style={{
-              backgroundColor: action.accent ? 'var(--poly-accent)' : 'var(--poly-surface)',
-              borderRadius: '14px',
-            }}
+            className={`flex items-center justify-center h-[52px] rounded-2xl transition-standard hover:opacity-90 ${
+              action.accent
+                ? 'bg-m3-primary text-m3-on-primary'
+                : 'bg-m3-surface-container text-m3-on-surface hover:bg-m3-surface-container-high'
+            }`}
           >
-            <span
-              className="material-symbols-outlined text-[22px]"
-              style={{ color: action.accent ? 'var(--poly-accent-text)' : 'var(--poly-text)' }}
-            >
-              {action.icon}
-            </span>
+            <span className="material-symbols-outlined text-[22px]">{action.icon}</span>
           </Link>
         ))}
       </div>
 
-      {/* Stats Row — matching mobile: 3 cards, last one accent-filled */}
+      {/* Stats Row */}
       <div className="grid grid-cols-3 gap-2">
         <Link
           href="/activities"
-          className="flex flex-col items-center gap-1 py-5 px-3 border border-poly-border-muted transition-colors hover:opacity-90"
-          style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '14px' }}
+          className="flex flex-col items-center gap-1 py-5 px-3 rounded-2xl bg-m3-surface-container border border-m3-outline-variant transition-standard hover:bg-m3-surface-container-high"
         >
-          <span className="material-symbols-outlined text-[20px] text-poly-accent">layers</span>
-          <span className="text-[24px] font-bold text-poly-text">{totalActivities}</span>
-          <span className="text-[10px] uppercase tracking-[1px] text-poly-muted">Activities</span>
+          <span className="material-symbols-outlined text-[20px] text-m3-primary">layers</span>
+          <span className="text-[24px] font-bold text-m3-on-surface">{totalActivities}</span>
+          <span className="text-[10px] uppercase tracking-wider text-m3-on-surface-variant">Activities</span>
         </Link>
         <Link
           href="/journal"
-          className="flex flex-col items-center gap-1 py-5 px-3 border border-poly-border-muted transition-colors hover:opacity-90"
-          style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '14px' }}
+          className="flex flex-col items-center gap-1 py-5 px-3 rounded-2xl bg-m3-surface-container border border-m3-outline-variant transition-standard hover:bg-m3-surface-container-high"
         >
-          <span className="material-symbols-outlined text-[20px] text-poly-accent">menu_book</span>
-          <span className="text-[24px] font-bold text-poly-text">{totalJournals}</span>
-          <span className="text-[10px] uppercase tracking-[1px] text-poly-muted">Journals</span>
+          <span className="material-symbols-outlined text-[20px] text-m3-primary">menu_book</span>
+          <span className="text-[24px] font-bold text-m3-on-surface">{totalJournals}</span>
+          <span className="text-[10px] uppercase tracking-wider text-m3-on-surface-variant">Journals</span>
         </Link>
         <Link
           href="/connections"
-          className="flex flex-col items-center gap-1 py-5 px-3 transition-colors hover:opacity-90 bg-poly-accent"
-          style={{ borderRadius: '14px' }}
+          className="flex flex-col items-center gap-1 py-5 px-3 rounded-2xl bg-m3-primary text-m3-on-primary transition-standard hover:opacity-90"
         >
-          <span className="material-symbols-outlined text-[20px]" style={{ color: 'var(--poly-accent-text)' }}>hub</span>
-          <span className="text-[24px] font-bold" style={{ color: 'var(--poly-accent-text)' }}>{totalConnections}</span>
-          <span className="text-[10px] uppercase tracking-[1px]" style={{ color: 'var(--poly-accent-text)', opacity: 0.8 }}>Mesh</span>
+          <span className="material-symbols-outlined text-[20px]">hub</span>
+          <span className="text-[24px] font-bold">{totalConnections}</span>
+          <span className="text-[10px] uppercase tracking-wider opacity-80">Mesh</span>
         </Link>
       </div>
 
-      {/* Neural Mesh Card — matching mobile meshCard */}
+      {/* Engagement Widgets */}
+      <EngagementWidgets
+        activityTimestamps={(activities || []).map((a) => a.timestamp)}
+        journalTimestamps={(journals || []).map((j) => j.timestamp)}
+      />
+
+      {/* Neural Mesh Card */}
       <Link
         href="/connections"
-        className="block p-5 border border-poly-border-muted transition-opacity hover:opacity-90"
-        style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '16px' }}
+        className="block p-5 rounded-3xl bg-m3-surface-container border border-m3-outline-variant transition-standard hover:bg-m3-surface-container-high"
       >
         <div className="flex justify-between items-center mb-2">
           <div className="flex items-center gap-2">
-            <span className="text-[16px] font-bold text-poly-text">Neural Mesh</span>
-            <div className="w-2 h-2 bg-green-500 animate-pulse" style={{ borderRadius: '50%' }} />
+            <span className="text-[16px] font-bold text-m3-on-surface">Neural Mesh</span>
+            <div className="w-2 h-2 rounded-full bg-m3-success animate-pulse" />
           </div>
-          <span className="material-symbols-outlined text-[20px] text-poly-muted">arrow_forward</span>
+          <span className="material-symbols-outlined text-[20px] text-m3-on-surface-variant">arrow_forward</span>
         </div>
-        <p className="text-[13px] text-poly-muted leading-[20px] mb-3">
+        <p className="text-[13px] text-m3-on-surface-variant leading-[20px] mb-3">
           {totalConnections > 0
             ? `${totalConnections} connections discovered across your knowledge base.`
             : 'Start adding content to discover patterns and connections.'}
         </p>
-        {/* Mini mesh visualization — matching mobile dots */}
         <div className="flex flex-wrap gap-3 justify-center pt-1">
           {Array.from({ length: 12 }).map((_, i) => (
             <div
               key={i}
-              className={i % 4 === 0 ? 'animate-pulse' : ''}
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: 3,
-                backgroundColor: i % 4 === 0 ? 'var(--poly-accent)' : 'var(--poly-border-muted)',
-                opacity: i % 4 === 0 ? 1 : 0.5,
-              }}
+              className={`w-1.5 h-1.5 rounded-full ${i % 4 === 0 ? 'animate-pulse bg-m3-primary' : 'bg-m3-outline-variant opacity-50'}`}
             />
           ))}
         </div>
       </Link>
 
-      {/* Mid section: Top Domains + Recent Activity side by side on md+ */}
+      {/* Mid section: Top Domains + Recent Activity */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Top Domains — matching mobile categories section */}
+        {/* Top Domains */}
         {topCategories.length > 0 && (
-          <div
-            className="p-5 border border-poly-border-muted"
-            style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '16px' }}
-          >
-            <h3 className="text-[14px] font-bold text-poly-text mb-4">Top Domains</h3>
+          <div className="p-5 rounded-3xl bg-m3-surface-container border border-m3-outline-variant">
+            <h3 className="text-[14px] font-bold text-m3-on-surface mb-4">Top Domains</h3>
             <div className="flex flex-col">
               {topCategories.map(([name, count]: any, i) => (
                 <div key={name} className="flex justify-between items-center py-2">
                   <div className="flex items-center gap-2">
-                    <div
-                      className="w-2 h-2"
-                      style={{
-                        borderRadius: '50%',
-                        backgroundColor: i === 0 ? 'var(--poly-accent)' : 'var(--poly-border-muted)',
-                      }}
-                    />
-                    <span className="text-[13px] text-poly-text">{name}</span>
+                    <div className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-m3-primary' : 'bg-m3-outline-variant'}`} />
+                    <span className="text-[13px] text-m3-on-surface">{name}</span>
                   </div>
-                  <span
-                    className="text-[13px] font-semibold"
-                    style={{ color: i === 0 ? 'var(--poly-accent)' : 'var(--poly-muted)' }}
-                  >
+                  <span className={`text-[13px] font-semibold ${i === 0 ? 'text-m3-primary' : 'text-m3-on-surface-variant'}`}>
                     {count}
                   </span>
                 </div>
@@ -197,24 +183,21 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Recent Activity — matching mobile: clickable items, dot + title + meta + time */}
-        <div
-          className="p-5 border border-poly-border-muted"
-          style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '16px' }}
-        >
+        {/* Recent Activity */}
+        <div className="p-5 rounded-3xl bg-m3-surface-container border border-m3-outline-variant">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-[14px] font-bold text-poly-text">Recent Activity</h3>
-            <div className="flex items-center gap-1.5 px-2 py-1 border border-green-500/25" style={{ borderRadius: '6px' }}>
-              <div className="w-1.5 h-1.5 bg-green-500 animate-pulse" style={{ borderRadius: '50%' }} />
-              <span className="text-[9px] font-bold tracking-[1px] text-green-500">LIVE</span>
+            <h3 className="text-[14px] font-bold text-m3-on-surface">Recent Activity</h3>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-m3-success-container">
+              <div className="w-1.5 h-1.5 rounded-full bg-m3-success animate-pulse" />
+              <span className="text-[9px] font-bold tracking-wider text-m3-success uppercase">LIVE</span>
             </div>
           </div>
 
           {!activities || activities.length === 0 ? (
             <div className="flex flex-col items-center py-10">
-              <span className="material-symbols-outlined text-[40px] text-poly-border-muted">inbox</span>
-              <p className="text-[14px] text-poly-muted mt-3">No activities yet</p>
-              <p className="text-[12px] text-poly-muted mt-1">Tap + to add your first entry</p>
+              <span className="material-symbols-outlined text-[40px] text-m3-outline-variant">inbox</span>
+              <p className="text-[14px] text-m3-on-surface-variant mt-3">No activities yet</p>
+              <p className="text-[12px] text-m3-on-surface-variant mt-1">Tap + to add your first entry</p>
             </div>
           ) : (
             <div className="flex flex-col">
@@ -222,25 +205,26 @@ export default function Dashboard() {
                 <Link
                   key={activity.id}
                   href={`/activity-detail?id=${activity.id}`}
-                  className="flex items-center gap-3 py-3 transition-colors hover:opacity-80"
+                  className="flex items-center gap-3 py-3 transition-standard hover:opacity-80"
                   style={{
-                    borderBottom: i < Math.min(activities.length, 5) - 1 ? '1px solid var(--poly-border-muted)' : 'none',
+                    borderBottom: i < Math.min(activities.length, 5) - 1 ? '1px solid var(--m3-outline-variant)' : 'none',
                   }}
                 >
-                  <div
-                    className="w-2 h-2 shrink-0"
-                    style={{
-                      borderRadius: '50%',
-                      backgroundColor: i === 0 ? 'var(--poly-accent)' : 'var(--poly-border-muted)',
-                    }}
-                  />
+                  <div className={`w-2 h-2 rounded-full shrink-0 ${i === 0 ? 'bg-m3-primary' : 'bg-m3-outline-variant'}`} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-semibold text-poly-text truncate">{activity.title}</p>
-                    <p className="text-[11px] text-poly-muted">
-                      {activity.source}{activity.category ? ` · ${activity.category}` : ''}
-                    </p>
+                    <p className="text-[14px] font-semibold text-m3-on-surface truncate">{activity.title}</p>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <p className="text-[11px] text-m3-on-surface-variant">
+                        {activity.source}{activity.category ? ` · ${activity.category}` : ''}
+                      </p>
+                      {getDomain(activity.url) && (
+                        <span className="text-[9px] text-m3-primary hidden sm:inline">
+                          · {getDomain(activity.url)}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <span className="text-[11px] text-poly-muted shrink-0">
+                  <span className="text-[11px] text-m3-on-surface-variant shrink-0">
                     {new Date(activity.timestamp).toLocaleTimeString('en-US', {
                       hour: '2-digit',
                       minute: '2-digit',
@@ -252,10 +236,10 @@ export default function Dashboard() {
               {activities.length > 5 && (
                 <Link
                   href="/activities"
-                  className="flex items-center justify-center gap-2 pt-4 mt-2 border-t border-poly-border-muted"
+                  className="flex items-center justify-center gap-2 pt-4 mt-2 border-t border-m3-outline-variant"
                 >
-                  <span className="text-[13px] font-bold text-poly-accent">View all</span>
-                  <span className="material-symbols-outlined text-[16px] text-poly-accent">arrow_forward</span>
+                  <span className="text-[13px] font-bold text-m3-primary">View all</span>
+                  <span className="material-symbols-outlined text-[16px] text-m3-primary">arrow_forward</span>
                 </Link>
               )}
             </div>

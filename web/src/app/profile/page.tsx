@@ -2,9 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ProfilePage() {
+  const router = useRouter();
+  const { user, isAuthenticated, logout, loading: authLoading } = useAuth();
   const [persona, setPersona] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -20,10 +24,15 @@ export default function ProfilePage() {
     });
   }, []);
 
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/login');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-6 h-6 border-2 border-poly-accent border-t-transparent animate-spin" style={{ borderRadius: '50%' }} />
+        <div className="w-6 h-6 border-2 border-m3-primary border-t-transparent animate-spin rounded-full" />
       </div>
     );
   }
@@ -33,24 +42,50 @@ export default function ProfilePage() {
     label,
     href,
     value,
+    onClick,
+    danger,
   }: {
     icon: string;
     label: string;
     href?: string;
     value?: string | number;
+    onClick?: () => void;
+    danger?: boolean;
   }) => {
     const content = (
       <div
-        className="flex items-center gap-3 p-4 transition-opacity hover:opacity-80"
-        style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '14px' }}
+        className={`flex items-center gap-3 p-4 rounded-2xl transition-standard ${
+          danger
+            ? 'bg-m3-error-container hover:opacity-90 cursor-pointer'
+            : 'bg-m3-surface-container hover:bg-m3-surface-container-high'
+        } ${onClick ? 'cursor-pointer' : ''}`}
+        onClick={onClick}
       >
-        <span className="material-symbols-outlined text-[20px] text-poly-accent">{icon}</span>
-        <span className="flex-1 text-[14px] font-medium text-poly-text">{label}</span>
+        <div
+          className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+            danger ? 'bg-m3-error/20' : 'bg-m3-primary-container'
+          }`}
+        >
+          <span
+            className={`material-symbols-outlined text-[18px] ${
+              danger ? 'text-m3-error' : 'text-m3-on-primary-container'
+            }`}
+          >
+            {icon}
+          </span>
+        </div>
+        <span
+          className={`flex-1 text-[14px] font-medium ${
+            danger ? 'text-m3-error' : 'text-m3-on-surface'
+          }`}
+        >
+          {label}
+        </span>
         {value !== undefined && (
-          <span className="text-[13px] font-semibold text-poly-accent">{value}</span>
+          <span className="text-[13px] font-semibold text-m3-primary">{value}</span>
         )}
         {href && (
-          <span className="material-symbols-outlined text-[18px] text-poly-muted">chevron_right</span>
+          <span className="material-symbols-outlined text-[18px] text-m3-on-surface-variant">chevron_right</span>
         )}
       </div>
     );
@@ -59,33 +94,36 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="pt-4 flex flex-col gap-5">
-      {/* Header */}
+    <div className="pt-4 flex flex-col gap-5 stagger-children">
       <div className="px-1">
-        <h1 className="text-[20px] font-bold text-poly-text tracking-tight">Profile</h1>
-        <p className="text-[12px] text-poly-muted mt-0.5">Settings</p>
+        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Profile</h1>
+        <p className="text-[12px] text-m3-on-surface-variant mt-0.5">Settings</p>
       </div>
 
-      {/* Avatar Card */}
-      <div
-        className="flex items-center gap-4 p-5 border border-poly-border-muted"
-        style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '16px' }}
-      >
-        <div
-          className="w-14 h-14 flex items-center justify-center bg-poly-accent shrink-0"
-          style={{ borderRadius: '16px' }}
-        >
-          <span className="material-symbols-outlined text-[28px]" style={{ color: 'var(--poly-accent-text)' }}>person</span>
+      {/* User / Avatar Card */}
+      <div className="flex items-center gap-4 p-5 rounded-3xl bg-m3-surface-container border border-m3-outline-variant">
+        <div className="w-14 h-14 rounded-2xl bg-m3-primary flex items-center justify-center shrink-0">
+          <span className="text-[22px] font-bold text-m3-on-primary">
+            {(user?.display_name || user?.email || 'P').charAt(0).toUpperCase()}
+          </span>
         </div>
-        <div>
-          <p className="text-[16px] font-bold text-poly-text">{persona?.name || 'PolymathOS'}</p>
-          <p className="text-[12px] text-poly-muted mt-0.5">{persona?.role || 'Knowledge companion'}</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-[16px] font-bold text-m3-on-surface truncate">
+            {user?.display_name || persona?.name || 'Polymath User'}
+          </p>
+          <p className="text-[12px] text-m3-on-surface-variant mt-0.5 truncate">
+            {user?.email || persona?.role || 'Knowledge companion'}
+          </p>
         </div>
+        {isAuthenticated && (
+          <div className="px-2 py-1 rounded-full bg-m3-success-container">
+            <span className="text-[9px] font-bold text-m3-success tracking-wider">ONLINE</span>
+          </div>
+        )}
       </div>
 
-      {/* Data Section */}
       <div>
-        <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-2 px-1">DATA</p>
+        <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-2 px-1">Data</p>
         <div className="flex flex-col gap-2">
           <SettingsRow icon="layers" label="Activities" value={stats?.total_activities || 0} />
           <SettingsRow icon="menu_book" label="Journals" value={stats?.total_journals || 0} />
@@ -93,18 +131,16 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Appearance Section */}
       <div>
-        <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-2 px-1">APPEARANCE</p>
+        <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-2 px-1">Appearance</p>
         <div className="flex flex-col gap-2">
           <SettingsRow icon="palette" label="Themes" href="/appearance" />
           <SettingsRow icon="tune" label="Customize" href="/customize" />
         </div>
       </div>
 
-      {/* System Section */}
       <div>
-        <p className="text-[10px] font-bold text-poly-muted uppercase tracking-[2px] mb-2 px-1">SYSTEM</p>
+        <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-2 px-1">System</p>
         <div className="flex flex-col gap-2">
           <SettingsRow icon="extension" label="Integrations" href="/integrations" />
           <SettingsRow icon="file_download" label="Export Data" href="/export" />
@@ -112,6 +148,32 @@ export default function ProfilePage() {
           <SettingsRow icon="info" label="About" value="v1.0" />
         </div>
       </div>
+
+      {/* Account */}
+      {isAuthenticated && (
+        <div>
+          <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-2 px-1">Account</p>
+          <div className="flex flex-col gap-2">
+            <SettingsRow icon="logout" label="Sign Out" onClick={handleLogout} danger />
+          </div>
+        </div>
+      )}
+
+      {!isAuthenticated && !authLoading && (
+        <div>
+          <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-2 px-1">Account</p>
+          <Link
+            href="/login"
+            className="flex items-center gap-3 p-4 rounded-2xl bg-m3-primary-container hover:opacity-90 transition-standard"
+          >
+            <div className="w-9 h-9 rounded-xl bg-m3-primary/20 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[18px] text-m3-primary">login</span>
+            </div>
+            <span className="flex-1 text-[14px] font-medium text-m3-on-primary-container">Sign In</span>
+            <span className="material-symbols-outlined text-[18px] text-m3-on-primary-container">chevron_right</span>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

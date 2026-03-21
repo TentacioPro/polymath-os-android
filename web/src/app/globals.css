@@ -1,33 +1,41 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* ───── Theme-aware tokens (resolved via CSS vars) ───── */
-  --color-poly-bg: var(--poly-bg);
-  --color-poly-surface: var(--poly-surface);
-  --color-poly-card: var(--poly-surface);
-  --color-poly-surface-elevated: var(--poly-surface-elevated);
-  --color-poly-text: var(--poly-text);
-  --color-poly-muted: var(--poly-muted);
-  --color-poly-dim: var(--poly-dim);
-  --color-poly-light: var(--poly-light);
-  --color-poly-border: var(--poly-border);
-  --color-poly-border-muted: var(--poly-border-muted);
-  --color-poly-input: var(--poly-surface);
-  --color-poly-accent: var(--poly-accent);
-  --color-poly-accent-text: var(--poly-accent-text);
-  --color-poly-grid: var(--poly-grid);
+  /* ───── M3 Theme-aware tokens (resolved via CSS vars) ───── */
+  --color-m3-surface: var(--m3-surface);
+  --color-m3-surface-dim: var(--m3-surface-dim);
+  --color-m3-surface-container: var(--m3-surface-container);
+  --color-m3-surface-container-high: var(--m3-surface-container-high);
+  --color-m3-surface-container-highest: var(--m3-surface-container-highest);
+  --color-m3-on-surface: var(--m3-on-surface);
+  --color-m3-on-surface-variant: var(--m3-on-surface-variant);
+  --color-m3-primary: var(--m3-primary);
+  --color-m3-on-primary: var(--m3-on-primary);
+  --color-m3-primary-container: var(--m3-primary-container);
+  --color-m3-on-primary-container: var(--m3-on-primary-container);
+  --color-m3-outline: var(--m3-outline);
+  --color-m3-outline-variant: var(--m3-outline-variant);
+  --color-m3-inverse-surface: var(--m3-inverse-surface);
+  --color-m3-inverse-on-surface: var(--m3-inverse-on-surface);
+  --color-m3-error: var(--m3-error);
+  --color-m3-on-error: var(--m3-on-error);
+  --color-m3-error-container: var(--m3-error-container);
+  --color-m3-success: var(--m3-success);
+  --color-m3-success-container: var(--m3-success-container);
+  --color-m3-warning: var(--m3-warning);
+  --color-m3-warning-container: var(--m3-warning-container);
+  --color-m3-info: var(--m3-info);
+  --color-m3-info-container: var(--m3-info-container);
 
-  /* ───── Semantic accent colours (shared across themes) ───── */
-  --color-poly-green: #10b981;
-  --color-poly-amber: #f59e0b;
-  --color-poly-pink: #ec4899;
-  --color-poly-blue: #3b82f6;
-  --color-poly-purple: #8b5cf6;
-  --color-poly-cyan: #06b6d4;
-  --color-poly-gray: #6b7280;
-  --color-poly-red: #ef4444;
-  /* legacy alias – maps accent to what pages used as "indigo" */
-  --color-poly-indigo: var(--poly-accent);
+  /* ───── Category colors ───── */
+  --color-m3-cat-ai: var(--m3-cat-ai);
+  --color-m3-cat-news: var(--m3-cat-news);
+  --color-m3-cat-tools: var(--m3-cat-tools);
+  --color-m3-cat-market: var(--m3-cat-market);
+  --color-m3-cat-research: var(--m3-cat-research);
+  --color-m3-cat-tutorial: var(--m3-cat-tutorial);
+  --color-m3-cat-other: var(--m3-cat-other);
+
 
   /* ───── Fonts ───── */
   --font-display: var(--font-space-grotesk);
@@ -36,95 +44,172 @@
 }
 
 /* ═══════════════════════════════════════════════════════
-   THEME: BLACK  (Void)
+   Font Customization System
+   ═══════════════════════════════════════════════════════
+   --active-font:  set via JS from user preference
+   --active-mono:  set via JS from user preference
+   --font-scale:   set via JS from user preference (0.85-1.30)
+   Default: DM Sans for body, JetBrains Mono for code
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --active-font: var(--font-dm-sans);
+  --active-mono: var(--font-jetbrains-mono);
+  --font-scale: 1;
+}
+html {
+  font-size: calc(var(--font-scale) * 100%);
+}
+
+/* ═══════════════════════════════════════════════════════
+   THEME: VOID (Black)
    ═══════════════════════════════════════════════════════ */
 :root,
 .theme-black {
-  --poly-bg: #000000;
-  --poly-surface: #111111;
-  --poly-surface-elevated: #1A1A1A;
-  --poly-text: #FFFFFF;
-  --poly-muted: #A3A3A3;
-  --poly-dim: #666666;
-  --poly-light: #D4D4D4;
-  --poly-border: #FFFFFF;
-  --poly-border-muted: #333333;
-  --poly-accent: #FFFFFF;
-  --poly-accent-text: #000000;
-  --poly-grid: #1a1a1a;
-  --poly-shadow: 255,255,255;
-  --poly-overlay: rgba(0,0,0,0.70);
-  --poly-scrollbar-track: #000000;
-  --poly-scrollbar-thumb: #333333;
+  --m3-surface: #0A0A0A;
+  --m3-surface-dim: rgba(0,0,0,0.80);
+  --m3-surface-container: #151515;
+  --m3-surface-container-high: #1E1E1E;
+  --m3-surface-container-highest: #282828;
+  --m3-on-surface: #E6E6E6;
+  --m3-on-surface-variant: #A0A0A0;
+  --m3-primary: #FFFFFF;
+  --m3-on-primary: #000000;
+  --m3-primary-container: rgba(255,255,255,0.12);
+  --m3-on-primary-container: #FFFFFF;
+  --m3-outline: #404040;
+  --m3-outline-variant: #2A2A2A;
+  --m3-inverse-surface: #E6E6E6;
+  --m3-inverse-on-surface: #1A1A1A;
+  --m3-error: #F2B8B5;
+  --m3-on-error: #601410;
+  --m3-error-container: #8C1D18;
+  --m3-success: #81C995;
+  --m3-success-container: #0D5526;
+  --m3-warning: #E8C568;
+  --m3-warning-container: #6B4E00;
+  --m3-info: #8AB4F8;
+  --m3-info-container: #1A3A6B;
+  --m3-cat-ai: #C4B5FD;
+  --m3-cat-news: #93C5FD;
+  --m3-cat-tools: #6EE7B7;
+  --m3-cat-market: #FCD34D;
+  --m3-cat-research: #F9A8D4;
+  --m3-cat-tutorial: #67E8F9;
+  --m3-cat-other: #9CA3AF;
   color-scheme: dark;
 }
 
 /* ═══════════════════════════════════════════════════════
-   THEME: AMBER  (Ember)
-   ═══════════════════════════════════════════════════════ */
-.theme-amber {
-  --poly-bg: #000000;
-  --poly-surface: #1A1000;
-  --poly-surface-elevated: #331A00;
-  --poly-text: #FFFFFF;
-  --poly-muted: #FFB800;
-  --poly-dim: #996600;
-  --poly-light: #D4D4D4;
-  --poly-border: #FF8C00;
-  --poly-border-muted: #4D2600;
-  --poly-accent: #FFB800;
-  --poly-accent-text: #000000;
-  --poly-grid: #331a00;
-  --poly-shadow: 255,140,0;
-  --poly-overlay: rgba(0,0,0,0.70);
-  --poly-scrollbar-track: #000000;
-  --poly-scrollbar-thumb: #4D2600;
-  color-scheme: dark;
-}
-
-/* ═══════════════════════════════════════════════════════
-   THEME: NOVA  (Light)
+   THEME: NOVA (Light)
    ═══════════════════════════════════════════════════════ */
 .theme-nova {
-  --poly-bg: #FFFFFF;
-  --poly-surface: #F8FAFC;
-  --poly-surface-elevated: #F1F5F9;
-  --poly-text: #000000;
-  --poly-muted: #475569;
-  --poly-dim: #94A3B8;
-  --poly-light: #1E293B;
-  --poly-border: #000000;
-  --poly-border-muted: #E2E8F0;
-  --poly-accent: #000000;
-  --poly-accent-text: #FFFFFF;
-  --poly-grid: #F1F5F9;
-  --poly-shadow: 0,0,0;
-  --poly-overlay: rgba(255,255,255,0.30);
-  --poly-scrollbar-track: #FFFFFF;
-  --poly-scrollbar-thumb: #E2E8F0;
+  --m3-surface: #FAFAFA;
+  --m3-surface-dim: rgba(255,255,255,0.80);
+  --m3-surface-container: #F0F0F0;
+  --m3-surface-container-high: #E8E8E8;
+  --m3-surface-container-highest: #E0E0E0;
+  --m3-on-surface: #1A1A1A;
+  --m3-on-surface-variant: #5C5C5C;
+  --m3-primary: #1A1A1A;
+  --m3-on-primary: #FFFFFF;
+  --m3-primary-container: rgba(0,0,0,0.08);
+  --m3-on-primary-container: #1A1A1A;
+  --m3-outline: #C0C0C0;
+  --m3-outline-variant: #E0E0E0;
+  --m3-inverse-surface: #2A2A2A;
+  --m3-inverse-on-surface: #F0F0F0;
+  --m3-error: #B3261E;
+  --m3-on-error: #FFFFFF;
+  --m3-error-container: #F9DEDC;
+  --m3-success: #1B6D34;
+  --m3-success-container: #D4F5DC;
+  --m3-warning: #7D5800;
+  --m3-warning-container: #FFEAB0;
+  --m3-info: #1A5FB4;
+  --m3-info-container: #D4E4FA;
+  --m3-cat-ai: #7C3AED;
+  --m3-cat-news: #2563EB;
+  --m3-cat-tools: #059669;
+  --m3-cat-market: #D97706;
+  --m3-cat-research: #DB2777;
+  --m3-cat-tutorial: #0891B2;
+  --m3-cat-other: #6B7280;
   color-scheme: light;
+}
+
+/* ═══════════════════════════════════════════════════════
+   THEME: AMBER VOID
+   ═══════════════════════════════════════════════════════ */
+.theme-amber {
+  --m3-surface: #0C0800;
+  --m3-surface-dim: rgba(0,0,0,0.80);
+  --m3-surface-container: #1A1200;
+  --m3-surface-container-high: #261A00;
+  --m3-surface-container-highest: #332200;
+  --m3-on-surface: #F0E0C0;
+  --m3-on-surface-variant: #B09060;
+  --m3-primary: #FFB800;
+  --m3-on-primary: #1A1000;
+  --m3-primary-container: rgba(255,184,0,0.15);
+  --m3-on-primary-container: #FFD060;
+  --m3-outline: #5C4000;
+  --m3-outline-variant: #3D2A00;
+  --m3-inverse-surface: #F0E0C0;
+  --m3-inverse-on-surface: #1A1200;
+  --m3-error: #FFB4AB;
+  --m3-on-error: #690005;
+  --m3-error-container: #93000A;
+  --m3-success: #81C995;
+  --m3-success-container: #0D5526;
+  --m3-warning: #FFB800;
+  --m3-warning-container: #5C4000;
+  --m3-info: #8AB4F8;
+  --m3-info-container: #1A3A6B;
+  --m3-cat-ai: #FFD060;
+  --m3-cat-news: #FFB800;
+  --m3-cat-tools: #FFA000;
+  --m3-cat-market: #FF8C00;
+  --m3-cat-research: #FFD060;
+  --m3-cat-tutorial: #FFB800;
+  --m3-cat-other: #8B6914;
+  color-scheme: dark;
 }
 
 /* ═══════════════════════════════════════════════════════
    THEME: OCEAN DEPTH
    ═══════════════════════════════════════════════════════ */
 .theme-ocean {
-  --poly-bg: #0A1628;
-  --poly-surface: #0F1F35;
-  --poly-surface-elevated: #162A45;
-  --poly-text: #FFFFFF;
-  --poly-muted: #60A5FA;
-  --poly-dim: #3B82F6;
-  --poly-light: #93C5FD;
-  --poly-border: #3B82F6;
-  --poly-border-muted: #1E3A5F;
-  --poly-accent: #3B82F6;
-  --poly-accent-text: #FFFFFF;
-  --poly-grid: #162A45;
-  --poly-shadow: 59,130,246;
-  --poly-overlay: rgba(10,22,40,0.80);
-  --poly-scrollbar-track: #0A1628;
-  --poly-scrollbar-thumb: #1E3A5F;
+  --m3-surface: #080E1A;
+  --m3-surface-dim: rgba(8,14,26,0.80);
+  --m3-surface-container: #0F1A2E;
+  --m3-surface-container-high: #162640;
+  --m3-surface-container-highest: #1E3355;
+  --m3-on-surface: #D6E4F0;
+  --m3-on-surface-variant: #7DA0C4;
+  --m3-primary: #60A5FA;
+  --m3-on-primary: #0A1628;
+  --m3-primary-container: rgba(59,130,246,0.15);
+  --m3-on-primary-container: #93C5FD;
+  --m3-outline: #2E5080;
+  --m3-outline-variant: #1A3355;
+  --m3-inverse-surface: #D6E4F0;
+  --m3-inverse-on-surface: #0F1A2E;
+  --m3-error: #FFB4AB;
+  --m3-on-error: #690005;
+  --m3-error-container: #93000A;
+  --m3-success: #81C995;
+  --m3-success-container: #0D5526;
+  --m3-warning: #E8C568;
+  --m3-warning-container: #6B4E00;
+  --m3-info: #60A5FA;
+  --m3-info-container: #1A3A6B;
+  --m3-cat-ai: #93C5FD;
+  --m3-cat-news: #60A5FA;
+  --m3-cat-tools: #34D399;
+  --m3-cat-market: #FCD34D;
+  --m3-cat-research: #F9A8D4;
+  --m3-cat-tutorial: #67E8F9;
+  --m3-cat-other: #7DA0C4;
   color-scheme: dark;
 }
 
@@ -132,22 +217,37 @@
    THEME: FOREST CANOPY
    ═══════════════════════════════════════════════════════ */
 .theme-forest {
-  --poly-bg: #0A1A0A;
-  --poly-surface: #0F250F;
-  --poly-surface-elevated: #153015;
-  --poly-text: #FFFFFF;
-  --poly-muted: #34D399;
-  --poly-dim: #10B981;
-  --poly-light: #6EE7B7;
-  --poly-border: #10B981;
-  --poly-border-muted: #0D3D29;
-  --poly-accent: #10B981;
-  --poly-accent-text: #000000;
-  --poly-grid: #153015;
-  --poly-shadow: 16,185,129;
-  --poly-overlay: rgba(10,26,10,0.80);
-  --poly-scrollbar-track: #0A1A0A;
-  --poly-scrollbar-thumb: #0D3D29;
+  --m3-surface: #060E06;
+  --m3-surface-dim: rgba(6,14,6,0.80);
+  --m3-surface-container: #0F1E0F;
+  --m3-surface-container-high: #162A16;
+  --m3-surface-container-highest: #1E381E;
+  --m3-on-surface: #D0E8D0;
+  --m3-on-surface-variant: #70A870;
+  --m3-primary: #34D399;
+  --m3-on-primary: #0A1A0A;
+  --m3-primary-container: rgba(16,185,129,0.15);
+  --m3-on-primary-container: #6EE7B7;
+  --m3-outline: #2E6B2E;
+  --m3-outline-variant: #1A401A;
+  --m3-inverse-surface: #D0E8D0;
+  --m3-inverse-on-surface: #0F1E0F;
+  --m3-error: #FFB4AB;
+  --m3-on-error: #690005;
+  --m3-error-container: #93000A;
+  --m3-success: #34D399;
+  --m3-success-container: #0D5526;
+  --m3-warning: #E8C568;
+  --m3-warning-container: #6B4E00;
+  --m3-info: #8AB4F8;
+  --m3-info-container: #1A3A6B;
+  --m3-cat-ai: #6EE7B7;
+  --m3-cat-news: #34D399;
+  --m3-cat-tools: #10B981;
+  --m3-cat-market: #FCD34D;
+  --m3-cat-research: #F9A8D4;
+  --m3-cat-tutorial: #67E8F9;
+  --m3-cat-other: #70A870;
   color-scheme: dark;
 }
 
@@ -155,22 +255,37 @@
    THEME: SUNSET BLAZE
    ═══════════════════════════════════════════════════════ */
 .theme-sunset {
-  --poly-bg: #1A0A0A;
-  --poly-surface: #2A0F0F;
-  --poly-surface-elevated: #3A1515;
-  --poly-text: #FFFFFF;
-  --poly-muted: #FB923C;
-  --poly-dim: #F97316;
-  --poly-light: #FDBA74;
-  --poly-border: #F97316;
-  --poly-border-muted: #7C2D12;
-  --poly-accent: #F97316;
-  --poly-accent-text: #000000;
-  --poly-grid: #3A1515;
-  --poly-shadow: 249,115,22;
-  --poly-overlay: rgba(26,10,10,0.80);
-  --poly-scrollbar-track: #1A0A0A;
-  --poly-scrollbar-thumb: #7C2D12;
+  --m3-surface: #100606;
+  --m3-surface-dim: rgba(16,6,6,0.80);
+  --m3-surface-container: #1E0E0E;
+  --m3-surface-container-high: #2E1616;
+  --m3-surface-container-highest: #3E1E1E;
+  --m3-on-surface: #F0D0C0;
+  --m3-on-surface-variant: #B07060;
+  --m3-primary: #FB923C;
+  --m3-on-primary: #1A0A0A;
+  --m3-primary-container: rgba(249,115,22,0.15);
+  --m3-on-primary-container: #FDBA74;
+  --m3-outline: #6B3520;
+  --m3-outline-variant: #401E12;
+  --m3-inverse-surface: #F0D0C0;
+  --m3-inverse-on-surface: #1E0E0E;
+  --m3-error: #FFB4AB;
+  --m3-on-error: #690005;
+  --m3-error-container: #93000A;
+  --m3-success: #81C995;
+  --m3-success-container: #0D5526;
+  --m3-warning: #FB923C;
+  --m3-warning-container: #6B3520;
+  --m3-info: #8AB4F8;
+  --m3-info-container: #1A3A6B;
+  --m3-cat-ai: #FDBA74;
+  --m3-cat-news: #FB923C;
+  --m3-cat-tools: #F97316;
+  --m3-cat-market: #FCD34D;
+  --m3-cat-research: #F9A8D4;
+  --m3-cat-tutorial: #67E8F9;
+  --m3-cat-other: #B07060;
   color-scheme: dark;
 }
 
@@ -178,22 +293,37 @@
    THEME: MIDNIGHT PURPLE
    ═══════════════════════════════════════════════════════ */
 .theme-midnight {
-  --poly-bg: #0F0A1A;
-  --poly-surface: #1A1028;
-  --poly-surface-elevated: #251538;
-  --poly-text: #FFFFFF;
-  --poly-muted: #C084FC;
-  --poly-dim: #A855F7;
-  --poly-light: #D8B4FE;
-  --poly-border: #A855F7;
-  --poly-border-muted: #4C1D95;
-  --poly-accent: #A855F7;
-  --poly-accent-text: #FFFFFF;
-  --poly-grid: #251538;
-  --poly-shadow: 168,85,247;
-  --poly-overlay: rgba(15,10,26,0.80);
-  --poly-scrollbar-track: #0F0A1A;
-  --poly-scrollbar-thumb: #4C1D95;
+  --m3-surface: #0A061A;
+  --m3-surface-dim: rgba(10,6,26,0.80);
+  --m3-surface-container: #150E28;
+  --m3-surface-container-high: #201638;
+  --m3-surface-container-highest: #2C1E4A;
+  --m3-on-surface: #E0D0F0;
+  --m3-on-surface-variant: #9070B0;
+  --m3-primary: #C084FC;
+  --m3-on-primary: #0F0A1A;
+  --m3-primary-container: rgba(168,85,247,0.15);
+  --m3-on-primary-container: #D8B4FE;
+  --m3-outline: #553A80;
+  --m3-outline-variant: #352255;
+  --m3-inverse-surface: #E0D0F0;
+  --m3-inverse-on-surface: #150E28;
+  --m3-error: #FFB4AB;
+  --m3-on-error: #690005;
+  --m3-error-container: #93000A;
+  --m3-success: #81C995;
+  --m3-success-container: #0D5526;
+  --m3-warning: #E8C568;
+  --m3-warning-container: #6B4E00;
+  --m3-info: #C084FC;
+  --m3-info-container: #352255;
+  --m3-cat-ai: #D8B4FE;
+  --m3-cat-news: #C084FC;
+  --m3-cat-tools: #A855F7;
+  --m3-cat-market: #FCD34D;
+  --m3-cat-research: #F9A8D4;
+  --m3-cat-tutorial: #67E8F9;
+  --m3-cat-other: #9070B0;
   color-scheme: dark;
 }
 
@@ -202,9 +332,9 @@
    ═══════════════════════════════════════════════════════ */
 
 body {
-  background-color: var(--poly-bg);
-  color: var(--poly-text);
-  font-family: var(--font-sans), 'Inter', system-ui, sans-serif;
+  background-color: var(--m3-surface);
+  color: var(--m3-on-surface);
+  font-family: var(--active-font), 'DM Sans', 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -214,41 +344,49 @@ body {
   font-family: var(--font-display), 'Space Grotesk', sans-serif;
 }
 .font-body {
-  font-family: var(--font-sans), 'Inter', sans-serif;
+  font-family: var(--active-font), 'DM Sans', 'Inter', sans-serif;
+}
+code, pre, .mono {
+  font-family: var(--active-mono), 'JetBrains Mono', 'Courier New', monospace;
 }
 
-/* ───── Architect shadow (brutalist offset) ───── */
-.architect-shadow {
-  box-shadow: 4px 4px 0px 0px rgba(var(--poly-shadow), 1);
+/* ───── M3 Elevation (soft tonal shadows) ───── */
+.elevation-0 { box-shadow: none; }
+.elevation-1 { box-shadow: 0 1px 3px 0 rgba(0,0,0,0.12), 0 1px 2px -1px rgba(0,0,0,0.08); }
+.elevation-2 { box-shadow: 0 2px 6px 0 rgba(0,0,0,0.14), 0 2px 4px -2px rgba(0,0,0,0.10); }
+.elevation-3 { box-shadow: 0 4px 8px 0 rgba(0,0,0,0.16), 0 4px 6px -4px rgba(0,0,0,0.12); }
+.elevation-4 { box-shadow: 0 6px 12px 0 rgba(0,0,0,0.18), 0 6px 8px -6px rgba(0,0,0,0.14); }
+.elevation-5 { box-shadow: 0 8px 16px 0 rgba(0,0,0,0.20), 0 8px 10px -8px rgba(0,0,0,0.16); }
+
+/* ───── M3 Motion utilities ───── */
+.transition-standard {
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  transition-duration: 300ms;
 }
-.architect-shadow-sm {
-  box-shadow: 2px 2px 0px 0px rgba(var(--poly-shadow), 1);
-}
-.architect-shadow-lg {
-  box-shadow: 8px 8px 0px 0px rgba(var(--poly-shadow), 1);
-}
-.architect-shadow-subtle {
-  box-shadow: 4px 4px 0px 0px rgba(var(--poly-shadow), 0.2);
+.transition-emphasized {
+  transition-timing-function: cubic-bezier(0.05, 0.7, 0.1, 1);
+  transition-duration: 500ms;
 }
 
-/* ───── Scrollbar ───── */
+/* ───── Scrollbar (M3 themed) ───── */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--poly-scrollbar-track);
+  background: var(--m3-surface);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--poly-scrollbar-thumb);
+  background: var(--m3-outline-variant);
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--poly-dim);
+  background: var(--m3-outline);
 }
 
 /* ───── Selection ───── */
 ::selection {
-  background-color: var(--poly-accent);
-  color: var(--poly-accent-text);
+  background-color: var(--m3-primary-container);
+  color: var(--m3-on-primary-container);
 }
 
 /* ───── No-scrollbar utility ───── */
@@ -264,25 +402,88 @@ body {
    Responsive utilities
    ═══════════════════════════════════════════════════════ */
 
-/* Sidebar-aware collapsed offset — used when sidebar collapse is toggled.
-   The sidebar component toggles between w-16 (64px) and w-60 (240px).
-   The main padding in layout.tsx handles the expanded (240px) offset.
-   This class is for the collapsed (64px) case via JS toggle if needed. */
-
-/* Modal responsive classes */
+/* Modal responsive classes (M3 styled) */
 .modal-overlay {
-  @apply fixed inset-0 bg-[var(--poly-overlay)] backdrop-blur-sm flex z-50;
+  @apply fixed inset-0 backdrop-blur-sm flex z-50;
   @apply items-end md:items-center justify-center md:p-6;
+  background-color: var(--m3-surface-dim);
 }
 
 .modal-panel {
-  @apply bg-poly-bg w-full border-poly-border p-6 max-h-[90vh] overflow-y-auto;
-  @apply border-t md:border;
+  @apply w-full p-6 max-h-[90vh] overflow-y-auto;
+  background-color: var(--m3-surface-container-highest);
+  border-radius: 28px 28px 0 0;
 }
 
 @media (min-width: 768px) {
   .modal-panel {
-    box-shadow: 6px 6px 0px var(--poly-shadow);
+    border-radius: 28px;
+    max-width: 560px;
   }
 }
 
+/* ═══════════════════════════════════════════════════════
+   Toast animation
+   ═══════════════════════════════════════════════════════ */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   Micro-animations
+   ═══════════════════════════════════════════════════════ */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+/* Stagger children — apply .stagger-children to parent */
+.stagger-children > * {
+  animation: fade-in-up 0.35s cubic-bezier(0.2, 0, 0, 1) both;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(n+7) { animation-delay: 300ms; }
+
+/* Theme switch crossfade — applied to body */
+body {
+  transition: background-color 0.3s cubic-bezier(0.2, 0, 0, 1),
+              color 0.3s cubic-bezier(0.2, 0, 0, 1);
+}

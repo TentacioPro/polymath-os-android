@@ -14,10 +14,10 @@ function timeAgo(ts: string): string {
   return `${days}d ago`;
 }
 
-const ALERT_CONFIG: Record<string, { icon: string; color: string }> = {
-  success: { icon: 'check_circle', color: '#22C55E' },
-  warning: { icon: 'warning', color: '#F59E0B' },
-  info: { icon: 'info', color: 'var(--poly-accent)' },
+const ALERT_CONFIG: Record<string, { icon: string; colorClass: string }> = {
+  success: { icon: 'check_circle', colorClass: 'text-m3-success' },
+  warning: { icon: 'warning', colorClass: 'text-m3-warning' },
+  info: { icon: 'info', colorClass: 'text-m3-primary' },
 };
 
 export default function AlertsPage() {
@@ -41,24 +41,22 @@ export default function AlertsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-6 h-6 border-2 border-poly-accent border-t-transparent animate-spin" style={{ borderRadius: '50%' }} />
+        <div className="w-6 h-6 border-2 border-m3-primary border-t-transparent animate-spin rounded-full" />
       </div>
     );
   }
 
   return (
     <div className="pt-4 flex flex-col gap-4">
-      {/* Header */}
       <div className="px-1">
-        <h1 className="text-[20px] font-bold text-poly-text tracking-tight">Alerts</h1>
-        <p className="text-[12px] text-poly-muted mt-0.5">{alerts.length} notification{alerts.length !== 1 ? 's' : ''}</p>
+        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Alerts</h1>
+        <p className="text-[12px] text-m3-on-surface-variant mt-0.5">{alerts.length} notification{alerts.length !== 1 ? 's' : ''}</p>
       </div>
 
-      {/* Alert List */}
       {alerts.length === 0 ? (
         <div className="flex flex-col items-center py-20">
-          <span className="material-symbols-outlined text-[48px] text-poly-border-muted">notifications_none</span>
-          <p className="text-[14px] text-poly-muted mt-3">No notifications</p>
+          <span className="material-symbols-outlined text-[48px] text-m3-outline-variant">notifications_none</span>
+          <p className="text-[14px] text-m3-on-surface-variant mt-3">No notifications</p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -67,22 +65,18 @@ export default function AlertsPage() {
             return (
               <div
                 key={alert.id || i}
-                className="flex items-start gap-3 p-4 border border-poly-border-muted"
-                style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '14px' }}
+                className="flex items-start gap-3 p-4 rounded-2xl bg-m3-surface-container border border-m3-outline-variant"
               >
-                <span
-                  className="material-symbols-outlined text-[22px] shrink-0 mt-0.5"
-                  style={{ color: config.color }}
-                >
+                <span className={`material-symbols-outlined text-[22px] shrink-0 mt-0.5 ${config.colorClass}`}>
                   {config.icon}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[14px] font-semibold text-poly-text">{alert.title}</p>
+                  <p className="text-[14px] font-semibold text-m3-on-surface">{alert.title}</p>
                   {alert.description && (
-                    <p className="text-[12px] text-poly-muted mt-0.5">{alert.description}</p>
+                    <p className="text-[12px] text-m3-on-surface-variant mt-0.5">{alert.description}</p>
                   )}
                 </div>
-                <span className="text-[11px] text-poly-muted shrink-0">
+                <span className="text-[11px] text-m3-on-surface-variant shrink-0">
                   {alert.timestamp ? timeAgo(alert.timestamp) : ''}
                 </span>
               </div>

@@ -7,9 +7,10 @@ import {
   useUploadActivities,
   useDeleteActivity,
 } from '@/hooks/useActivities';
-import { getCategoryColor } from '@/lib/constants';
 import ResponsiveModal from '@/components/ResponsiveModal';
 import Link from 'next/link';
+import { useToast } from '@/components/Toast';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 const FILTERS = ['All', 'Article', 'PDF', 'Link', 'Audio', 'File'];
 
@@ -31,6 +32,15 @@ function getTypeIcon(item: any): string {
   return TYPE_ICONS.default;
 }
 
+function getDomain(url?: string): string | null {
+  if (!url) return null;
+  try {
+    return new URL(url).hostname.replace('www.', '');
+  } catch {
+    return null;
+  }
+}
+
 export default function ActivitiesPage() {
   const { data: activities, isLoading } = useActivities();
   const createActivity = useCreateActivity();
@@ -44,28 +54,57 @@ export default function ActivitiesPage() {
   const [dragOver, setDragOver] = useState(false);
   const [filter, setFilter] = useState('All');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const toast = useToast();
+  const { confirm } = useConfirm();
 
   const handleSubmit = async () => {
     if (!title.trim()) return;
-    await createActivity.mutateAsync({
-      title: title.trim(),
-      url: url.trim() || undefined,
-      notes: notes.trim() || undefined,
-    });
-    setTitle('');
-    setUrl('');
-    setNotes('');
-    setShowModal(false);
+    try {
+      await createActivity.mutateAsync({
+        title: title.trim(),
+        url: url.trim() || undefined,
+        notes: notes.trim() || undefined,
+      });
+      setTitle('');
+      setUrl('');
+      setNotes('');
+      setShowModal(false);
+      toast.success('Knowledge added');
+    } catch {
+      toast.error('Failed to add knowledge');
+    }
   };
 
   const handleFileUpload = useCallback(
     async (file: File) => {
       const formData = new FormData();
       formData.append('file', file);
-      await uploadActivities.mutateAsync(formData);
+      try {
+        await uploadActivities.mutateAsync(formData);
+        toast.success('File imported successfully');
+      } catch {
+        toast.error('Import failed. Check file format.');
+      }
     },
-    [uploadActivities]
+    [uploadActivities, toast]
   );
+
+  const handleDelete = async (id: string) => {
+    const ok = await confirm({
+      title: 'Delete Activity',
+      message: 'This activity will be permanently removed.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      icon: 'delete',
+    });
+    if (!ok) return;
+    try {
+      await deleteActivity.mutateAsync(id);
+      toast.success('Activity deleted');
+    } catch {
+      toast.error('Failed to delete activity');
+    }
+  };
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -88,40 +127,37 @@ export default function ActivitiesPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-6 h-6 border-2 border-poly-accent border-t-transparent animate-spin" style={{ borderRadius: '50%' }} />
+        <div className="w-6 h-6 border-2 border-m3-primary border-t-transparent animate-spin rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="pt-4 flex flex-col gap-4">
-      {/* Header — matching mobile Knowledge screen */}
+    <div className="pt-4 flex flex-col gap-4 stagger-children">
+      {/* Header */}
       <div className="flex items-center justify-between px-1">
         <div>
-          <h1 className="text-[20px] font-bold text-poly-text tracking-tight">Knowledge</h1>
-          <p className="text-[12px] text-poly-muted mt-0.5">{activities?.length || 0} sources</p>
+          <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Knowledge</h1>
+          <p className="text-[12px] text-m3-on-surface-variant mt-0.5">{activities?.length || 0} sources</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-11 h-11 flex items-center justify-center text-poly-text transition-colors hover:text-poly-accent"
-            style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '12px' }}
+            className="w-11 h-11 flex items-center justify-center rounded-xl bg-m3-surface-container hover:bg-m3-surface-container-high transition-standard text-m3-on-surface"
           >
             <span className="material-symbols-outlined text-[20px]">upload</span>
           </button>
           <Link
             href="/search"
-            className="w-11 h-11 flex items-center justify-center text-poly-text"
-            style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '12px' }}
+            className="w-11 h-11 flex items-center justify-center rounded-xl bg-m3-surface-container hover:bg-m3-surface-container-high transition-standard text-m3-on-surface"
           >
             <span className="material-symbols-outlined text-[20px]">search</span>
           </Link>
           <button
             onClick={() => setShowModal(true)}
-            className="w-11 h-11 flex items-center justify-center bg-poly-accent"
-            style={{ borderRadius: '12px' }}
+            className="w-11 h-11 flex items-center justify-center rounded-xl bg-m3-primary text-m3-on-primary hover:opacity-90 transition-standard"
           >
-            <span className="material-symbols-outlined text-[20px]" style={{ color: 'var(--poly-accent-text)' }}>add</span>
+            <span className="material-symbols-outlined text-[20px]">add</span>
           </button>
           <input
             ref={fileInputRef}
@@ -136,73 +172,65 @@ export default function ActivitiesPage() {
         </div>
       </div>
 
-      {/* Filter Chips — matching mobile horizontal scroll */}
+      {/* Filter Chips — M3 style */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar px-1">
         {FILTERS.map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className="px-4 py-2 text-[12px] font-semibold shrink-0 transition-colors border"
-            style={{
-              backgroundColor: filter === f ? 'var(--poly-accent)' : 'var(--poly-surface)',
-              color: filter === f ? 'var(--poly-accent-text)' : 'var(--poly-text)',
-              borderColor: 'var(--poly-border-muted)',
-              borderRadius: '10px',
-            }}
+            className={`px-4 py-2 text-[12px] font-semibold shrink-0 transition-standard rounded-full border ${
+              filter === f
+                ? 'bg-m3-primary text-m3-on-primary border-m3-primary'
+                : 'bg-m3-surface-container text-m3-on-surface border-m3-outline-variant hover:bg-m3-surface-container-high'
+            }`}
           >
             {f}
           </button>
         ))}
       </div>
 
-      {/* Drag-and-Drop Zone (web only) */}
+      {/* Drag-and-Drop Zone */}
       <div
-        className={`border-2 border-dashed p-4 text-center transition-colors ${
-          dragOver ? 'border-poly-accent bg-poly-accent/10' : 'border-poly-border-muted'
+        className={`border-2 border-dashed rounded-2xl p-4 text-center transition-standard ${
+          dragOver ? 'border-m3-primary bg-m3-primary-container' : 'border-m3-outline-variant'
         }`}
-        style={{ borderRadius: '12px' }}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
       >
-        <span className="material-symbols-outlined text-[20px] text-poly-muted mb-1 block">upload_file</span>
-        <p className="text-[10px] text-poly-muted uppercase tracking-wider">Drop JSON file to import</p>
+        <span className="material-symbols-outlined text-[20px] text-m3-on-surface-variant mb-1 block">upload_file</span>
+        <p className="text-[10px] text-m3-on-surface-variant uppercase tracking-wider">Drop JSON file to import</p>
       </div>
 
-      {/* Activity List — matching mobile card style with icon */}
+      {/* Activity List */}
       <div className="flex flex-col gap-2">
         {filtered?.map((activity) => (
           <Link
             key={activity.id}
             href={`/activity-detail?id=${activity.id}`}
-            className="flex items-center gap-3 p-3 border border-poly-border-muted transition-opacity hover:opacity-80 group"
-            style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '14px' }}
+            className="flex items-center gap-3 p-3 rounded-2xl bg-m3-surface-container border border-m3-outline-variant transition-standard hover:bg-m3-surface-container-high group"
           >
-            {/* Type icon — matching mobile itemIcon */}
-            <div
-              className="w-10 h-10 shrink-0 flex items-center justify-center"
-              style={{ backgroundColor: 'var(--poly-bg)', borderRadius: '10px' }}
-            >
-              <span className="material-symbols-outlined text-[20px] text-poly-accent">
+            <div className="w-10 h-10 shrink-0 flex items-center justify-center rounded-xl bg-m3-primary-container">
+              <span className="material-symbols-outlined text-[20px] text-m3-on-primary-container">
                 {getTypeIcon(activity)}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[14px] font-semibold text-poly-text truncate">{activity.title}</p>
-              <p className="text-[11px] text-poly-muted truncate">
-                {activity.source}{activity.category ? ` · ${activity.category}` : ''}
-              </p>
+              <p className="text-[14px] font-semibold text-m3-on-surface truncate">{activity.title}</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <p className="text-[11px] text-m3-on-surface-variant truncate">
+                  {activity.source}{activity.category ? ` · ${activity.category}` : ''}
+                </p>
+                {getDomain(activity.url) && (
+                  <span className="text-[9px] text-m3-primary shrink-0 hidden sm:inline-block">
+                    · {getDomain(activity.url)}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {activity.category && (
-                <span
-                  className="text-[8px] font-bold px-1.5 py-0.5 uppercase hidden md:inline-block"
-                  style={{
-                    backgroundColor: getCategoryColor(activity.category),
-                    color: '#FFFFFF',
-                    borderRadius: '4px',
-                  }}
-                >
+                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-m3-primary-container text-m3-on-primary-container uppercase hidden md:inline-block">
                   {activity.category}
                 </span>
               )}
@@ -210,13 +238,13 @@ export default function ActivitiesPage() {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  deleteActivity.mutate(activity.id);
+                  handleDelete(activity.id);
                 }}
-                className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-all"
+                className="opacity-0 group-hover:opacity-100 text-m3-error hover:text-m3-on-error-container transition-standard"
               >
                 <span className="material-symbols-outlined text-[16px]">delete</span>
               </button>
-              <span className="material-symbols-outlined text-[20px] text-poly-muted">chevron_right</span>
+              <span className="material-symbols-outlined text-[20px] text-m3-on-surface-variant">chevron_right</span>
             </div>
           </Link>
         ))}
@@ -224,16 +252,16 @@ export default function ActivitiesPage() {
 
       {filtered?.length === 0 && (
         <div className="flex flex-col items-center py-16">
-          <span className="material-symbols-outlined text-[48px] text-poly-border-muted">folder_open</span>
-          <p className="text-[14px] text-poly-muted mt-3">No sources found</p>
+          <span className="material-symbols-outlined text-[48px] text-m3-outline-variant">folder_open</span>
+          <p className="text-[14px] text-m3-on-surface-variant mt-3">No sources found</p>
         </div>
       )}
 
-      {/* Add Modal — matching mobile bottom sheet style */}
+      {/* Add Modal */}
       <ResponsiveModal open={showModal} onClose={() => setShowModal(false)} title="Add Knowledge">
         <div className="flex flex-col gap-4">
           <div>
-            <label className="text-[11px] uppercase tracking-[1px] text-poly-muted mb-2 block font-semibold">
+            <label className="text-[11px] uppercase tracking-wider text-m3-on-surface-variant mb-2 block font-semibold">
               Title *
             </label>
             <input
@@ -241,13 +269,12 @@ export default function ActivitiesPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="What did you learn?"
-              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-[15px] text-poly-text placeholder:text-poly-muted focus:outline-none focus:border-poly-accent"
-              style={{ borderRadius: '12px' }}
+              className="w-full bg-m3-surface border border-m3-outline rounded-2xl px-4 py-3 text-[15px] text-m3-on-surface placeholder:text-m3-on-surface-variant focus:outline-none focus:border-m3-primary transition-standard"
             />
           </div>
 
           <div>
-            <label className="text-[11px] uppercase tracking-[1px] text-poly-muted mb-2 block font-semibold">
+            <label className="text-[11px] uppercase tracking-wider text-m3-on-surface-variant mb-2 block font-semibold">
               URL
             </label>
             <input
@@ -255,13 +282,12 @@ export default function ActivitiesPage() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://..."
-              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-[15px] text-poly-text placeholder:text-poly-muted focus:outline-none focus:border-poly-accent"
-              style={{ borderRadius: '12px' }}
+              className="w-full bg-m3-surface border border-m3-outline rounded-2xl px-4 py-3 text-[15px] text-m3-on-surface placeholder:text-m3-on-surface-variant focus:outline-none focus:border-m3-primary transition-standard"
             />
           </div>
 
           <div>
-            <label className="text-[11px] uppercase tracking-[1px] text-poly-muted mb-2 block font-semibold">
+            <label className="text-[11px] uppercase tracking-wider text-m3-on-surface-variant mb-2 block font-semibold">
               Notes
             </label>
             <textarea
@@ -269,16 +295,14 @@ export default function ActivitiesPage() {
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Key takeaways..."
               rows={3}
-              className="w-full bg-poly-bg border border-poly-border px-4 py-3 text-[15px] text-poly-text placeholder:text-poly-muted focus:outline-none focus:border-poly-accent resize-none"
-              style={{ borderRadius: '12px' }}
+              className="w-full bg-m3-surface border border-m3-outline rounded-2xl px-4 py-3 text-[15px] text-m3-on-surface placeholder:text-m3-on-surface-variant focus:outline-none focus:border-m3-primary transition-standard resize-none"
             />
           </div>
 
           <button
             onClick={handleSubmit}
             disabled={!title.trim() || createActivity.isPending}
-            className="w-full bg-poly-accent py-3 text-[14px] font-bold hover:opacity-80 transition-opacity disabled:opacity-50"
-            style={{ color: 'var(--poly-accent-text)', borderRadius: '12px' }}
+            className="w-full bg-m3-primary text-m3-on-primary rounded-2xl py-3 text-[14px] font-bold hover:opacity-90 transition-standard disabled:opacity-50"
           >
             {createActivity.isPending ? 'Adding...' : 'Add'}
           </button>

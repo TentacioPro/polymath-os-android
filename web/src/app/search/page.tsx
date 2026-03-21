@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import { getCategoryColor } from '@/lib/constants';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -147,14 +146,13 @@ export default function SearchPage() {
       <div className="flex items-center gap-3 px-1">
         <button
           onClick={() => router.back()}
-          className="w-11 h-11 flex items-center justify-center text-poly-text"
-          style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '12px' }}
+          className="w-11 h-11 flex items-center justify-center rounded-xl bg-m3-surface-container hover:bg-m3-surface-container-high transition-standard text-m3-on-surface"
         >
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
         </button>
         <div className="flex-1">
-          <h1 className="text-[20px] font-bold text-poly-text tracking-tight">Search</h1>
-          <p className="text-[12px] text-poly-muted mt-0.5">
+          <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Search</h1>
+          <p className="text-[12px] text-m3-on-surface-variant mt-0.5">
             {filteredResults.length} result{filteredResults.length !== 1 ? 's' : ''}
           </p>
         </div>
@@ -163,7 +161,7 @@ export default function SearchPage() {
       {/* Search Input */}
       <div className="relative px-1">
         <div className="absolute left-5 top-1/2 -translate-y-1/2">
-          <span className="material-symbols-outlined text-[20px] text-poly-muted">search</span>
+          <span className="material-symbols-outlined text-[20px] text-m3-on-surface-variant">search</span>
         </div>
         <input
           type="text"
@@ -172,13 +170,12 @@ export default function SearchPage() {
           onKeyDown={handleKeyDown}
           placeholder="Search activities, journals, connections..."
           autoFocus
-          className="w-full bg-poly-surface border border-poly-border-muted pl-12 pr-4 py-3.5 text-[15px] text-poly-text placeholder:text-poly-muted focus:outline-none focus:border-poly-accent"
-          style={{ borderRadius: '14px' }}
+          className="w-full bg-m3-surface-container border border-m3-outline-variant rounded-2xl pl-12 pr-4 py-3.5 text-[15px] text-m3-on-surface placeholder:text-m3-on-surface-variant focus:outline-none focus:border-m3-primary transition-standard"
         />
         {query && (
           <button
             onClick={() => setQuery('')}
-            className="absolute right-5 top-1/2 -translate-y-1/2 text-poly-muted hover:text-poly-text"
+            className="absolute right-5 top-1/2 -translate-y-1/2 text-m3-on-surface-variant hover:text-m3-on-surface"
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
@@ -191,13 +188,11 @@ export default function SearchPage() {
           <button
             key={type}
             onClick={() => setActiveFilter(type)}
-            className="px-4 py-2 text-[12px] font-semibold shrink-0 transition-colors border"
-            style={{
-              backgroundColor: activeFilter === type ? 'var(--poly-accent)' : 'var(--poly-surface)',
-              color: activeFilter === type ? 'var(--poly-accent-text)' : 'var(--poly-text)',
-              borderColor: 'var(--poly-border-muted)',
-              borderRadius: '10px',
-            }}
+            className={`px-4 py-2 text-[12px] font-semibold shrink-0 transition-standard rounded-full border ${
+              activeFilter === type
+                ? 'bg-m3-primary text-m3-on-primary border-m3-primary'
+                : 'bg-m3-surface-container text-m3-on-surface border-m3-outline-variant hover:bg-m3-surface-container-high'
+            }`}
           >
             {type}
           </button>
@@ -207,7 +202,7 @@ export default function SearchPage() {
       {/* Loading State */}
       {(isLoading || isFetching) && query && (
         <div className="flex items-center justify-center py-8">
-          <div className="w-6 h-6 border-2 border-poly-accent border-t-transparent animate-spin" style={{ borderRadius: '50%' }} />
+          <div className="w-6 h-6 border-2 border-m3-primary border-t-transparent animate-spin rounded-full" />
         </div>
       )}
 
@@ -218,30 +213,24 @@ export default function SearchPage() {
             <Link
               key={`${result.type}-${result.id}-${index}`}
               href={getResultLink(result)}
-              className="flex items-center gap-3 p-3 border border-poly-border-muted transition-opacity hover:opacity-80"
-              style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '14px' }}
+              className="flex items-center gap-3 p-3 rounded-2xl bg-m3-surface-container border border-m3-outline-variant transition-standard hover:bg-m3-surface-container-high"
             >
-              {/* Type Icon */}
-              <div
-                className="w-10 h-10 shrink-0 flex items-center justify-center"
-                style={{ backgroundColor: 'var(--poly-bg)', borderRadius: '10px' }}
-              >
-                <span className="material-symbols-outlined text-[20px] text-poly-accent">
+              <div className="w-10 h-10 shrink-0 flex items-center justify-center rounded-xl bg-m3-primary-container">
+                <span className="material-symbols-outlined text-[20px] text-m3-on-primary-container">
                   {getTypeIcon(result.type)}
                 </span>
               </div>
 
-              {/* Content */}
               <div className="flex-1 min-w-0">
-                <p className="text-[14px] font-semibold text-poly-text truncate">{result.title}</p>
+                <p className="text-[14px] font-semibold text-m3-on-surface truncate">{result.title}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[10px] font-bold uppercase text-poly-muted tracking-wider">
+                  <span className="text-[10px] font-bold uppercase text-m3-on-surface-variant tracking-wider">
                     {result.type}
                   </span>
                   {result.subtitle && (
                     <>
-                      <span className="text-poly-border-muted">·</span>
-                      <span className="text-[11px] text-poly-muted truncate">{result.subtitle}</span>
+                      <span className="text-m3-outline-variant">·</span>
+                      <span className="text-[11px] text-m3-on-surface-variant truncate">{result.subtitle}</span>
                     </>
                   )}
                 </div>
@@ -250,18 +239,11 @@ export default function SearchPage() {
               {/* Category Badge & Arrow */}
               <div className="flex items-center gap-2 shrink-0">
                 {result.category && (
-                  <span
-                    className="text-[8px] font-bold px-1.5 py-0.5 uppercase hidden md:inline-block"
-                    style={{
-                      backgroundColor: getCategoryColor(result.category),
-                      color: '#FFFFFF',
-                      borderRadius: '4px',
-                    }}
-                  >
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-m3-primary-container text-m3-on-primary-container uppercase hidden md:inline-block">
                     {result.category}
                   </span>
                 )}
-                <span className="material-symbols-outlined text-[20px] text-poly-muted">chevron_right</span>
+                <span className="material-symbols-outlined text-[20px] text-m3-on-surface-variant">chevron_right</span>
               </div>
             </Link>
           ))}
@@ -271,16 +253,13 @@ export default function SearchPage() {
       {/* Empty State - No Query */}
       {!query && (
         <div className="flex flex-col items-center py-16 px-4">
-          <div
-            className="w-16 h-16 flex items-center justify-center mb-4"
-            style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '16px' }}
-          >
-            <span className="material-symbols-outlined text-[32px] text-poly-accent">search</span>
+          <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-m3-surface-container mb-4">
+            <span className="material-symbols-outlined text-[32px] text-m3-primary">search</span>
           </div>
-          <p className="text-[14px] text-poly-muted text-center">
+          <p className="text-[14px] text-m3-on-surface-variant text-center">
             Search across your knowledge base
           </p>
-          <p className="text-[12px] text-poly-muted text-center mt-1 opacity-70">
+          <p className="text-[12px] text-m3-on-surface-variant text-center mt-1 opacity-70">
             Find activities, journal entries, and connections
           </p>
         </div>
@@ -289,9 +268,9 @@ export default function SearchPage() {
       {/* Empty State - No Results */}
       {query && !isLoading && !isFetching && filteredResults.length === 0 && (
         <div className="flex flex-col items-center py-16 px-4">
-          <span className="material-symbols-outlined text-[48px] text-poly-border-muted">search_off</span>
-          <p className="text-[14px] text-poly-muted mt-3">No results found for "{query}"</p>
-          <p className="text-[12px] text-poly-muted mt-1 opacity-70">
+          <span className="material-symbols-outlined text-[48px] text-m3-outline-variant">search_off</span>
+          <p className="text-[14px] text-m3-on-surface-variant mt-3">No results found for "{query}"</p>
+          <p className="text-[12px] text-m3-on-surface-variant mt-1 opacity-70">
             Try different keywords or filters
           </p>
         </div>
@@ -300,41 +279,37 @@ export default function SearchPage() {
       {/* Quick Actions */}
       {!query && (
         <div className="px-1 mt-4">
-          <p className="text-[10px] uppercase tracking-[2px] text-poly-muted font-semibold mb-3">
+          <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-3">
             Quick Access
           </p>
           <div className="grid grid-cols-2 gap-2">
             <Link
               href="/activities"
-              className="flex items-center gap-3 p-3 border border-poly-border-muted"
-              style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '12px' }}
+              className="flex items-center gap-3 p-3 rounded-2xl bg-m3-surface-container border border-m3-outline-variant hover:bg-m3-surface-container-high transition-standard"
             >
-              <span className="material-symbols-outlined text-[20px] text-poly-accent">article</span>
-              <span className="text-[13px] font-medium text-poly-text">Activities</span>
+              <span className="material-symbols-outlined text-[20px] text-m3-primary">article</span>
+              <span className="text-[13px] font-medium text-m3-on-surface">Activities</span>
             </Link>
             <Link
               href="/journal"
-              className="flex items-center gap-3 p-3 border border-poly-border-muted"
-              style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '12px' }}
+              className="flex items-center gap-3 p-3 rounded-2xl bg-m3-surface-container border border-m3-outline-variant hover:bg-m3-surface-container-high transition-standard"
             >
-              <span className="material-symbols-outlined text-[20px] text-poly-accent">edit_note</span>
-              <span className="text-[13px] font-medium text-poly-text">Journals</span>
+              <span className="material-symbols-outlined text-[20px] text-m3-primary">edit_note</span>
+              <span className="text-[13px] font-medium text-m3-on-surface">Journals</span>
             </Link>
             <Link
               href="/connections"
-              className="flex items-center gap-3 p-3 border border-poly-border-muted"
-              style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '12px' }}
+              className="flex items-center gap-3 p-3 rounded-2xl bg-m3-surface-container border border-m3-outline-variant hover:bg-m3-surface-container-high transition-standard"
             >
-              <span className="material-symbols-outlined text-[20px] text-poly-accent">hub</span>
-              <span className="text-[13px] font-medium text-poly-text">Connections</span>
+              <span className="material-symbols-outlined text-[20px] text-m3-primary">hub</span>
+              <span className="text-[13px] font-medium text-m3-on-surface">Connections</span>
             </Link>
             <Link
               href="/agent"
-              className="flex items-center gap-3 p-3 border border-poly-border-muted"
-              style={{ backgroundColor: 'var(--poly-surface)', borderRadius: '12px' }}
+              className="flex items-center gap-3 p-3 rounded-2xl bg-m3-surface-container border border-m3-outline-variant hover:bg-m3-surface-container-high transition-standard"
             >
-              <span className="material-symbols-outlined text-[20px] text-poly-accent">psychology</span>
-              <span className="text-[13px] font-medium text-poly-text">Agent</span>
+              <span className="material-symbols-outlined text-[20px] text-m3-primary">psychology</span>
+              <span className="text-[13px] font-medium text-m3-on-surface">Agent</span>
             </Link>
           </div>
         </div>
