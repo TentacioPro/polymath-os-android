@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -70,12 +70,12 @@ export function ScanOverlay({
 
         {/* Close button */}
         {onClose && (
-          <TouchableOpacity
-            style={[styles.closeBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+          <Pressable
+            style={({ pressed }) => [styles.closeBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.7 : 1 }]}
             onPress={onClose}
           >
             <Ionicons name="close" size={24} color={theme.onSurface} />
-          </TouchableOpacity>
+          </Pressable>
         )}
 
         {/* Viewfinder frame */}
@@ -103,8 +103,8 @@ export function ScanOverlay({
       <View style={[styles.bottomBar, { backgroundColor: theme.surfaceDim }]}>
         {/* Flash */}
         {onFlashToggle && (
-          <TouchableOpacity
-            style={[styles.iconBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+          <Pressable
+            style={({ pressed }) => [styles.iconBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.7 : 1 }]}
             onPress={onFlashToggle}
           >
             <Ionicons
@@ -112,31 +112,30 @@ export function ScanOverlay({
               size={22}
               color={flashOn ? theme.warning : theme.onSurfaceVariant}
             />
-          </TouchableOpacity>
+          </Pressable>
         )}
 
         {/* Capture */}
-        <TouchableOpacity
-          style={[styles.captureOuter, { borderColor: theme.primary }]}
+        <Pressable
+          style={({ pressed }) => [styles.captureOuter, { borderColor: theme.primary, opacity: pressed ? 0.8 : 1 }]}
           onPress={onCapture}
           disabled={processing}
-          activeOpacity={0.7}
         >
           <View style={[styles.captureInner, { backgroundColor: processing ? theme.surfaceContainerHigh : theme.onPrimary }]}>
             {processing && (
               <View style={[styles.miniSpinner, { borderColor: theme.primary, borderTopColor: 'transparent' }]} />
             )}
           </View>
-        </TouchableOpacity>
+        </Pressable>
 
         {/* Gallery */}
         {onGallery && (
-          <TouchableOpacity
-            style={[styles.iconBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+          <Pressable
+            style={({ pressed }) => [styles.iconBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.7 : 1 }]}
             onPress={onGallery}
           >
             <Ionicons name="images-outline" size={22} color={theme.onSurfaceVariant} />
-          </TouchableOpacity>
+          </Pressable>
         )}
       </View>
     </View>
@@ -157,7 +156,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 60,
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderRadius: 9999,
     zIndex: 10,
   },

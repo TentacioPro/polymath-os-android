@@ -18,10 +18,10 @@ interface StatCardProps {
 export default function StatCard({ value, label, icon, inverted, badge }: StatCardProps) {
   const { theme } = useTheme();
 
-  const bg = inverted ? theme.accent : theme.surface;
-  const textColor = inverted ? theme.accentContrast : theme.textPrimary;
-  const mutedColor = inverted ? theme.accentContrast + '99' : theme.textSecondary;
-  const borderColor = inverted ? 'transparent' : theme.borderMuted;
+  const bg = inverted ? theme.primary : theme.surface;
+  const textColor = inverted ? theme.onPrimary : theme.onSurface;
+  const mutedColor = inverted ? theme.onPrimary + '99' : theme.onSurfaceVariant;
+  const borderColor = inverted ? 'transparent' : theme.outlineVariant;
 
   return (
     <View
@@ -33,7 +33,7 @@ export default function StatCard({ value, label, icon, inverted, badge }: StatCa
           ...(inverted
             ? Platform.select({
                 ios: {
-                  shadowColor: theme.accent,
+                  shadowColor: theme.primary,
                   shadowOffset: { width: 0, height: 2 },
                   shadowOpacity: 0.3,
                   shadowRadius: 8,
@@ -47,11 +47,11 @@ export default function StatCard({ value, label, icon, inverted, badge }: StatCa
       <View style={styles.topRow}>
         {icon}
         {badge && (
-          <View style={[styles.badge, { backgroundColor: inverted ? theme.background : theme.accent }]}>
+          <View style={[styles.badge, { backgroundColor: inverted ? theme.surface : theme.primary }]}>
             <Text
               style={[
                 styles.badgeText,
-                { color: inverted ? theme.accent : theme.accentContrast, fontFamily: theme.fontMono },
+                { color: inverted ? theme.primary : theme.onPrimary, fontFamily: theme.fontMono },
               ]}
             >
               {badge}

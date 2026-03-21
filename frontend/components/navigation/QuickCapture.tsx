@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   Pressable,
   StyleSheet,
   Platform,
@@ -118,12 +117,12 @@ export default function QuickCapture({ visible, onClose, onSubmit }: QuickCaptur
 
   if (!visible) return null;
 
-  const bg = '#0A0A0A';
-  const surface = '#161616';
-  const border = '#2A2A2A';
-  const textPrimary = '#FFFFFF';
-  const textSecondary = '#888888';
-  const accent = theme.accent;
+  const bg = theme.surface;
+  const surface = theme.surfaceContainer;
+  const border = theme.outlineVariant;
+  const textPrimary = theme.onSurface;
+  const textSecondary = theme.onSurfaceVariant;
+  const accent = theme.primary;
 
   const handleSubmit = async () => {
     const trimmed = text.trim();
@@ -379,20 +378,19 @@ export default function QuickCapture({ visible, onClose, onSubmit }: QuickCaptur
           <View style={styles.headerRow}>
             <View style={styles.headerLeft}>
               <View style={[styles.headerIcon, { backgroundColor: accent }]}>
-                <MaterialIcons name="add" size={18} color="#000" />
+                <MaterialIcons name="add" size={18} color={theme.onPrimary} />
               </View>
               <View>
                 <Text style={[styles.headerTitle, { color: textPrimary }]}>Quick Capture</Text>
                 <Text style={[styles.headerSub, { color: textSecondary }]}>Add to your knowledge base</Text>
               </View>
             </View>
-            <TouchableOpacity
+            <Pressable
               onPress={handleClose}
-              style={[styles.closeBtn, { backgroundColor: surface }]}
-              activeOpacity={0.7}
+              style={({ pressed }) => [styles.closeBtn, { backgroundColor: surface, opacity: pressed ? 0.7 : 1 }]}
             >
               <MaterialIcons name="close" size={20} color={textPrimary} />
-            </TouchableOpacity>
+            </Pressable>
           </View>
 
           <ScrollView 
@@ -422,10 +420,9 @@ export default function QuickCapture({ visible, onClose, onSubmit }: QuickCaptur
             {/* Action Buttons */}
             <View style={styles.actionsRow}>
               {ACTION_BUTTONS.map((action) => (
-                <TouchableOpacity
+                <Pressable
                   key={action.label}
-                  style={[styles.actionBtn, { backgroundColor: surface }]}
-                  activeOpacity={0.7}
+                  style={({ pressed }) => [styles.actionBtn, { backgroundColor: surface, opacity: pressed ? 0.7 : 1 }]}
                   onPress={() => handleAction(action)}
                 >
                   <View style={[styles.actionIconBg, { backgroundColor: action.color + '20' }]}>
@@ -434,34 +431,33 @@ export default function QuickCapture({ visible, onClose, onSubmit }: QuickCaptur
                   <Text style={[styles.actionLabel, { color: textSecondary }]}>
                     {action.label}
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
 
             {/* Submit Button */}
-            <TouchableOpacity
-              style={[
+            <Pressable
+              style={({ pressed }) => [
                 styles.submitBtn,
                 {
                   backgroundColor: text.trim() ? accent : surface,
-                  opacity: text.trim() && !submitting ? 1 : 0.5,
+                  opacity: text.trim() && !submitting ? (pressed ? 0.85 : 1) : 0.5,
                 },
               ]}
               onPress={handleSubmit}
               disabled={!text.trim() || submitting}
-              activeOpacity={0.85}
             >
               {submitting ? (
-                <ActivityIndicator size="small" color={theme.accentContrast} />
+                <ActivityIndicator size="small" color={theme.onPrimary} />
               ) : (
                 <>
-                  <MaterialIcons name="send" size={18} color={text.trim() ? theme.accentContrast : textSecondary} />
-                  <Text style={[styles.submitLabel, { color: text.trim() ? theme.accentContrast : textSecondary }]}>
+                  <MaterialIcons name="send" size={18} color={text.trim() ? theme.onPrimary : textSecondary} />
+                  <Text style={[styles.submitLabel, { color: text.trim() ? theme.onPrimary : textSecondary }]}>
                     Capture
                   </Text>
                 </>
               )}
-            </TouchableOpacity>
+            </Pressable>
           </ScrollView>
         </Animated.View>
       </Animated.View>
@@ -485,7 +481,7 @@ const styles = StyleSheet.create({
   },
   handleRow: {
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 8,
   },
   handle: {
     width: 40,
@@ -560,7 +556,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     borderRadius: 12,
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   actionIconBg: {
     width: 36,

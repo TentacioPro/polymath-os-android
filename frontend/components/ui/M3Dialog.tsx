@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     paddingHorizontal: 24,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderRadius: m3Radii.full,
     minWidth: 64,
     alignItems: 'center',

@@ -21,18 +21,18 @@ export default function Badge({ label, variant = 'default', color }: BadgeProps)
   const isStatus = variant === 'status';
 
   const backgroundColor = isFilled
-    ? theme.accent
+    ? theme.primary
     : isStatus
-      ? (color || theme.accent)
+      ? (color || theme.primary)
       : 'transparent';
 
   const textColor = isFilled || isStatus
-    ? theme.accentContrast
-    : theme.textPrimary;
+    ? theme.onPrimary
+    : theme.onSurface;
 
   const borderColor = isFilled || isStatus
     ? 'transparent'
-    : theme.border;
+    : theme.outlineVariant;
 
   return (
     <View
@@ -46,7 +46,7 @@ export default function Badge({ label, variant = 'default', color }: BadgeProps)
           styles.label,
           { color, fontFamily: theme.fontMono },
           (isFilled || isStatus) && { color: textColor },
-          !isFilled && !isStatus && { color: theme.textPrimary },
+          !isFilled && !isStatus && { color: theme.onSurface },
         ]}
       >
         {label}

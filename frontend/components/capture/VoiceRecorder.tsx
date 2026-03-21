@@ -264,9 +264,9 @@ const styles = StyleSheet.create({
   primaryBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
     paddingHorizontal: 24,
-    paddingVertical: 14,
+    paddingVertical: 16,
     borderRadius: 9999,
   },
   btnLabel: {
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     paddingHorizontal: 24,
-    paddingVertical: 14,
+    paddingVertical: 16,
     borderRadius: 9999,
   },
   sendLabel: {

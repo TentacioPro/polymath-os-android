@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -12,6 +12,7 @@ import Animated, {
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../theme';
+import type { ThemeTokens } from '../../theme';
 import { m3Typography } from '../../../shared/design-tokens';
 
 type UploadState = 'selected' | 'uploading' | 'processing' | 'success' | 'error';
@@ -28,18 +29,20 @@ interface FileUploadProps {
   errorMessage?: string;
 }
 
-const FILE_ICONS: Record<string, { icon: string; color: string }> = {
-  pdf: { icon: 'document-text', color: '#E57373' },
-  json: { icon: 'code-slash', color: '#64B5F6' },
-  txt: { icon: 'document', color: '#90A4AE' },
-  image: { icon: 'image', color: '#81C784' },
-  default: { icon: 'document-outline', color: '#90A4AE' },
+type FileIconEntry = { icon: string; colorKey: keyof ThemeTokens; bgKey: keyof ThemeTokens };
+
+const FILE_ICONS: Record<string, FileIconEntry> = {
+  pdf:     { icon: 'document-text',  colorKey: 'error',           bgKey: 'errorContainer' },
+  json:    { icon: 'code-slash',     colorKey: 'info',            bgKey: 'infoContainer' },
+  txt:     { icon: 'document',       colorKey: 'onSurfaceVariant', bgKey: 'surfaceContainerHigh' },
+  image:   { icon: 'image',          colorKey: 'success',         bgKey: 'successContainer' },
+  default: { icon: 'document-outline', colorKey: 'onSurfaceVariant', bgKey: 'surfaceContainerHigh' },
 };
 
-function getFileIcon(type: string) {
-  if (type.includes('pdf')) return FILE_ICONS.pdf;
-  if (type.includes('json')) return FILE_ICONS.json;
-  if (type.includes('text')) return FILE_ICONS.txt;
+function getFileIcon(type: string): FileIconEntry {
+  if (type.includes('pdf'))   return FILE_ICONS.pdf;
+  if (type.includes('json'))  return FILE_ICONS.json;
+  if (type.includes('text'))  return FILE_ICONS.txt;
   if (type.includes('image')) return FILE_ICONS.image;
   return FILE_ICONS.default;
 }
@@ -99,8 +102,8 @@ export function FileUpload({
     <View style={[styles.card, { backgroundColor: theme.surfaceContainer }]}>
       {/* File info header */}
       <View style={styles.header}>
-        <View style={[styles.iconCircle, { backgroundColor: fileIcon.color + '22' }]}>
-          <Ionicons name={fileIcon.icon as any} size={24} color={fileIcon.color} />
+        <View style={[styles.iconCircle, { backgroundColor: theme[fileIcon.bgKey] as string }]}>
+          <Ionicons name={fileIcon.icon as any} size={24} color={theme[fileIcon.colorKey] as string} />
         </View>
         <View style={styles.fileInfo}>
           <Text style={[styles.fileName, { color: theme.onSurface }]} numberOfLines={1}>
@@ -118,14 +121,13 @@ export function FileUpload({
           <Text style={[styles.statusText, { color: theme.onSurfaceVariant }]}>
             Ready to upload
           </Text>
-          <TouchableOpacity
-            style={[styles.uploadBtn, { backgroundColor: theme.primary }]}
+          <Pressable
+            style={({ pressed }) => [styles.uploadBtn, { backgroundColor: theme.primary, opacity: pressed ? 0.8 : 1 }]}
             onPress={handleUpload}
-            activeOpacity={0.7}
           >
             <Ionicons name="cloud-upload-outline" size={18} color={theme.onPrimary} />
             <Text style={[styles.uploadLabel, { color: theme.onPrimary }]}>Upload</Text>
-          </TouchableOpacity>
+          </Pressable>
         </Animated.View>
       )}
 
@@ -141,12 +143,12 @@ export function FileUpload({
               {Math.round(progress)}%
             </Text>
             {onCancel && (
-              <TouchableOpacity
-                style={[styles.cancelBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+              <Pressable
+                style={({ pressed }) => [styles.cancelBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.7 : 1 }]}
                 onPress={onCancel}
               >
                 <Ionicons name="close" size={16} color={theme.onSurfaceVariant} />
-              </TouchableOpacity>
+              </Pressable>
             )}
           </View>
         </Animated.View>
@@ -181,12 +183,12 @@ export function FileUpload({
             </Text>
           </View>
           {onRetry && (
-            <TouchableOpacity
-              style={[styles.retryBtn, { backgroundColor: theme.errorContainer }]}
+            <Pressable
+              style={({ pressed }) => [styles.retryBtn, { backgroundColor: theme.errorContainer, opacity: pressed ? 0.8 : 1 }]}
               onPress={() => { setState('selected'); onRetry(); }}
             >
               <Text style={[styles.retryLabel, { color: theme.error }]}>Retry</Text>
-            </TouchableOpacity>
+            </Pressable>
           )}
         </Animated.View>
       )}
@@ -198,7 +200,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 28,
     padding: 16,
-    gap: 14,
+    gap: 16,
   },
   header: {
     flexDirection: 'row',
@@ -234,9 +236,9 @@ const styles = StyleSheet.create({
   uploadBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderRadius: 9999,
   },
   uploadLabel: {
@@ -273,7 +275,7 @@ const styles = StyleSheet.create({
   processingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
   spinner: {
     width: 20,
@@ -284,7 +286,7 @@ const styles = StyleSheet.create({
   successRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
   checkCircle: {
     width: 32,
@@ -294,7 +296,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   errorSection: {
-    gap: 10,
+    gap: 8,
   },
   errorRow: {
     flexDirection: 'row',

@@ -8,6 +8,7 @@ import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider, useTheme, isDarkTheme } from '../theme';
 import type { ThemeName } from '../theme';
+import { voidTheme } from '../theme/tokens';
 import { useStore } from '../store/useStore';
 import ErrorBoundary from '../components/shared/ErrorBoundary';
 import { initBackendUrl } from '../utils/backend';
@@ -102,7 +103,7 @@ export default function RootLayout() {
 
   if (!fontsLoaded) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0A0A0A' }} />
+      <View style={{ flex: 1, backgroundColor: voidTheme.surface }} />
     );
   }
 

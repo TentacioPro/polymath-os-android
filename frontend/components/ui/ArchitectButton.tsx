@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, ActivityIndicator } from 'react-native';
+import { Pressable, Text, StyleSheet, ViewStyle, ActivityIndicator } from 'react-native';
 import { useTheme, useArchitectShadow } from '../../theme';
 import { hapticPress } from '../../utils/haptics';
 
@@ -35,13 +35,13 @@ export default function ArchitectButton({
   const isOutline = variant === 'outline';
 
   const backgroundColor = isPrimary
-    ? theme.accent
+    ? theme.primary
     : 'transparent';
   const textColor = isPrimary
-    ? theme.accentContrast
-    : theme.textPrimary;
+    ? theme.onPrimary
+    : theme.onSurface;
   const borderColor = isOutline
-    ? theme.border
+    ? theme.outlineVariant
     : isPrimary
       ? 'transparent'
       : 'transparent';
@@ -52,18 +52,17 @@ export default function ArchitectButton({
   };
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={handlePress}
       disabled={disabled || loading}
-      activeOpacity={0.8}
-      style={[
+      style={({ pressed }) => [
         styles.button,
         {
           backgroundColor,
           borderColor,
           borderWidth: isOutline ? 1 : 0,
           width: fullWidth ? '100%' : undefined,
-          opacity: disabled ? 0.4 : 1,
+          opacity: disabled ? 0.4 : pressed ? 0.8 : 1,
         },
         variant !== 'ghost' && shadow,
         style,
@@ -88,7 +87,7 @@ export default function ArchitectButton({
           </Text>
         </>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
@@ -97,7 +96,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
+    paddingVertical: 16,
     paddingHorizontal: 20,
     borderRadius: 8,
   },

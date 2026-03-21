@@ -48,7 +48,7 @@ export default function Skeleton({
           width: width as any,
           height,
           borderRadius,
-          backgroundColor: theme.border,
+          backgroundColor: theme.outlineVariant,
           opacity,
         },
         style,
@@ -62,8 +62,8 @@ export function SkeletonCard({ style }: { style?: ViewStyle }) {
   return (
     <View style={[cardStyles.container, style]}>
       <Skeleton width="40%" height={12} />
-      <Skeleton width="100%" height={10} style={{ marginTop: 10 }} />
-      <Skeleton width="70%" height={10} style={{ marginTop: 6 }} />
+      <Skeleton width="100%" height={10} style={{ marginTop: 8 }} />
+      <Skeleton width="70%" height={10} style={{ marginTop: 8 }} />
     </View>
   );
 }
@@ -73,7 +73,7 @@ export function SkeletonRow({ style }: { style?: ViewStyle }) {
   return (
     <View style={[cardStyles.row, style]}>
       <Skeleton width={40} height={40} borderRadius={8} />
-      <View style={{ flex: 1, marginLeft: 12, gap: 6 }}>
+      <View style={{ flex: 1, marginLeft: 12, gap: 8 }}>
         <Skeleton width="60%" height={12} />
         <Skeleton width="90%" height={10} />
       </View>

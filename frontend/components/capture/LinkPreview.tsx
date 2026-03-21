@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable, Linking } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -99,12 +99,12 @@ export function LinkPreview({
             {url}
           </Text>
           {onRemove && (
-            <TouchableOpacity
-              style={[styles.removeBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+            <Pressable
+              style={({ pressed }) => [styles.removeBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.7 : 1 }]}
               onPress={onRemove}
             >
               <Ionicons name="close" size={16} color={theme.onSurfaceVariant} />
-            </TouchableOpacity>
+            </Pressable>
           )}
         </View>
       </View>
@@ -114,10 +114,9 @@ export function LinkPreview({
   const domain = metadata.domain || new URL(url).hostname;
 
   return (
-    <TouchableOpacity
-      style={[styles.card, { backgroundColor: theme.surfaceContainer }]}
+    <Pressable
+      style={({ pressed }) => [styles.card, { backgroundColor: theme.surfaceContainer, opacity: pressed ? 0.9 : 1 }]}
       onPress={() => Linking.openURL(url)}
-      activeOpacity={0.85}
     >
       {metadata.image && (
         <Image
@@ -139,13 +138,13 @@ export function LinkPreview({
             {domain}
           </Text>
           {onEditTitle && (
-            <TouchableOpacity
+            <Pressable
               onPress={() => onEditTitle(metadata.title || '')}
               style={styles.editBtn}
               hitSlop={8}
             >
               <Ionicons name="pencil-outline" size={14} color={theme.onSurfaceVariant} />
-            </TouchableOpacity>
+            </Pressable>
           )}
         </View>
         <Text style={[styles.title, { color: theme.onSurface }]} numberOfLines={2}>
@@ -158,15 +157,15 @@ export function LinkPreview({
         )}
       </View>
       {onRemove && (
-        <TouchableOpacity
-          style={[styles.removeBtn, { backgroundColor: theme.surfaceContainerHigh }]}
-          onPress={(e) => { e.stopPropagation?.(); onRemove(); }}
+        <Pressable
+          style={({ pressed }) => [styles.removeBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.7 : 1 }]}
+          onPress={() => onRemove()}
           hitSlop={8}
         >
           <Ionicons name="close" size={16} color={theme.onSurfaceVariant} />
-        </TouchableOpacity>
+        </Pressable>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
