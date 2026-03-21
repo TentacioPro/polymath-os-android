@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -110,6 +110,25 @@ export default function Dashboard() {
   const topCategories = Object.entries(categories).slice(0, 4);
   const maxCat = Math.max(...Object.values(categories).map((v: any) => Number(v) || 1), 1);
 
+  // Compute consecutive day streak from loaded activities
+  const streak = useMemo(() => {
+    if (!activities.length) return 0;
+    const uniqueDates = [...new Set(
+      activities.map((a: any) => new Date(a.timestamp).toDateString())
+    )].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+    let count = 0;
+    let checkDate = new Date();
+    checkDate.setHours(0, 0, 0, 0);
+    for (const d of uniqueDates) {
+      const actDate = new Date(d);
+      actDate.setHours(0, 0, 0, 0);
+      const diffDays = Math.round((checkDate.getTime() - actDate.getTime()) / 86400000);
+      if (diffDays <= 1) { count++; checkDate = actDate; }
+      else break;
+    }
+    return count;
+  }, [activities]);
+
   return (
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
       <ScrollView
@@ -187,64 +206,30 @@ export default function Dashboard() {
           </ScrollView>
         </Animated.View>
 
-        {/* Neural Mesh Card */}
-        <Animated.View entering={FadeInDown.duration(400).delay(250)}>
+        {/* 2-col Bento Row: Streak + Quick Capture (F-pattern row 3) */}
+        <Animated.View entering={FadeInDown.duration(400).delay(250)} style={styles.bentoRow}>
+          {/* Streak bento */}
+          <View style={[styles.bentoBG, { backgroundColor: theme.primaryContainer }]}>
+            <Ionicons name="flame-outline" size={28} color={theme.onPrimaryContainer} />
+            <Text style={[styles.bentoValue, { color: theme.onPrimaryContainer }]}>{streak}</Text>
+            <Text style={[styles.bentoLabel, { color: theme.onPrimaryContainer }]}>Day Streak</Text>
+          </View>
+          {/* Quick Capture bento */}
           <TouchableOpacity
-            style={[styles.meshCard, { backgroundColor: theme.surfaceContainer }]}
-            onPress={() => { hapticPress(); router.push('/(tabs)/mesh' as any); }}
+            style={[styles.bentoBG, { backgroundColor: theme.surfaceContainerHigh }]}
+            onPress={() => { hapticPress(); router.push('/(tabs)/knowledge' as any); }}
             activeOpacity={0.85}
           >
-            <View style={styles.meshHeader}>
-              <View style={styles.meshTitleRow}>
-                <Text style={[styles.meshTitle, { color: theme.onSurface }]}>Neural Mesh</Text>
-                <Animated.View style={[styles.liveDot, { backgroundColor: theme.success }, pulseDotStyle]} />
-              </View>
-              <Ionicons name="arrow-forward" size={20} color={theme.onSurfaceVariant} />
-            </View>
-            <Text style={[styles.meshDesc, { color: theme.onSurfaceVariant }]}>
-              {totalConnections > 0
-                ? `${totalConnections} connections discovered across your knowledge base.`
-                : 'Start adding content to discover patterns and connections.'}
+            <Ionicons name="add-circle-outline" size={32} color={theme.onSurface} />
+            <Text style={[styles.bentoValue, { color: theme.onSurface, fontSize: m3Typography.titleSmall.fontSize }]}>
+              Quick Add
             </Text>
-            <View style={styles.meshViz}>
-              {Array.from({ length: 16 }).map((_, i) => (
-                <Animated.View
-                  key={i}
-                  style={[
-                    styles.meshDot,
-                    {
-                      backgroundColor: i % 3 === 0 ? theme.primary : theme.outlineVariant,
-                      opacity: i % 3 === 0 ? 0.8 : 0.3,
-                    },
-                  ]}
-                />
-              ))}
-            </View>
+            <Text style={[styles.bentoLabel, { color: theme.onSurfaceVariant }]}>Knowledge</Text>
           </TouchableOpacity>
         </Animated.View>
 
-        {/* Top Categories */}
-        {topCategories.length > 0 && (
-          <Animated.View entering={FadeInDown.duration(400).delay(350)}>
-            <View style={[styles.sectionCard, { backgroundColor: theme.surfaceContainer }]}>
-              <Text style={[styles.sectionTitle, { color: theme.onSurface }]}>Top Domains</Text>
-              {topCategories.map(([name, count]: any, i) => (
-                <View key={name} style={styles.categoryRow}>
-                  <View style={styles.categoryLeft}>
-                    <View style={[styles.categoryDot, { backgroundColor: i === 0 ? theme.primary : theme.outlineVariant }]} />
-                    <Text style={[styles.categoryName, { color: theme.onSurface }]}>{name}</Text>
-                  </View>
-                  <Text style={[styles.categoryCount, { color: i === 0 ? theme.primary : theme.onSurfaceVariant }]}>
-                    {count}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </Animated.View>
-        )}
-
-        {/* Recent Activity */}
-        <Animated.View entering={FadeInDown.duration(400).delay(450)}>
+        {/* Recent Activity (F-pattern row 4) */}
+        <Animated.View entering={FadeInDown.duration(400).delay(350)}>
           <View style={[styles.sectionCard, { backgroundColor: theme.surfaceContainer }]}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: theme.onSurface }]}>Recent Activity</Text>
@@ -287,6 +272,62 @@ export default function Dashboard() {
             )}
           </View>
         </Animated.View>
+
+        {/* Neural Mesh Card (F-pattern row 5 — full width) */}
+        <Animated.View entering={FadeInDown.duration(400).delay(450)}>
+          <TouchableOpacity
+            style={[styles.meshCard, { backgroundColor: theme.surfaceContainer }]}
+            onPress={() => { hapticPress(); router.push('/(tabs)/mesh' as any); }}
+            activeOpacity={0.85}
+          >
+            <View style={styles.meshHeader}>
+              <View style={styles.meshTitleRow}>
+                <Text style={[styles.meshTitle, { color: theme.onSurface }]}>Neural Mesh</Text>
+                <Animated.View style={[styles.liveDot, { backgroundColor: theme.success }, pulseDotStyle]} />
+              </View>
+              <Ionicons name="arrow-forward" size={20} color={theme.onSurfaceVariant} />
+            </View>
+            <Text style={[styles.meshDesc, { color: theme.onSurfaceVariant }]}>
+              {totalConnections > 0
+                ? `${totalConnections} connections discovered across your knowledge base.`
+                : 'Start adding content to discover patterns and connections.'}
+            </Text>
+            <View style={styles.meshViz}>
+              {Array.from({ length: 16 }).map((_, i) => (
+                <Animated.View
+                  key={i}
+                  style={[
+                    styles.meshDot,
+                    {
+                      backgroundColor: i % 3 === 0 ? theme.primary : theme.outlineVariant,
+                      opacity: i % 3 === 0 ? 0.8 : 0.3,
+                    },
+                  ]}
+                />
+              ))}
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* Top Categories */}
+        {topCategories.length > 0 && (
+          <Animated.View entering={FadeInDown.duration(400).delay(550)}>
+            <View style={[styles.sectionCard, { backgroundColor: theme.surfaceContainer }]}>
+              <Text style={[styles.sectionTitle, { color: theme.onSurface }]}>Top Domains</Text>
+              {topCategories.map(([name, count]: any, i) => (
+                <View key={name} style={styles.categoryRow}>
+                  <View style={styles.categoryLeft}>
+                    <View style={[styles.categoryDot, { backgroundColor: i === 0 ? theme.primary : theme.outlineVariant }]} />
+                    <Text style={[styles.categoryName, { color: theme.onSurface }]}>{name}</Text>
+                  </View>
+                  <Text style={[styles.categoryCount, { color: i === 0 ? theme.primary : theme.onSurfaceVariant }]}>
+                    {count}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </Animated.View>
+        )}
 
         <View style={{ height: 120 }} />
       </ScrollView>
@@ -353,6 +394,30 @@ const styles = StyleSheet.create({
   categoryDot: { width: 8, height: 8, borderRadius: 4 },
   categoryName: { fontSize: m3Typography.bodyMedium.fontSize },
   categoryCount: { fontSize: m3Typography.bodyMedium.fontSize, fontWeight: '600' },
+
+  /* Bento row */
+  bentoRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  bentoBG: {
+    flex: 1,
+    borderRadius: m3Radii.xl,
+    padding: spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    minHeight: 120,
+  },
+  bentoValue: {
+    fontSize: m3Typography.headlineSmall.fontSize,
+    fontWeight: '700',
+  },
+  bentoLabel: {
+    fontSize: m3Typography.labelMedium.fontSize,
+    fontWeight: '500',
+  },
 
   /* Activity cards */
   activityCard: {
