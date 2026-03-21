@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderRadius: m3Radii.lg,
   },
   fontSizeBtnLabel: {

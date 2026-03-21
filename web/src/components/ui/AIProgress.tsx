@@ -86,12 +86,12 @@ export function AIProgress({
         .ai-progress {
           background: var(--m3-surface-container);
           border-radius: 28px;
-          padding: 20px;
+          padding: 24px;
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 16px;
         }
-        .header-row { display: flex; align-items: center; gap: 12px; }
+        .header-row { display: flex; align-items: center; gap: 16px; }
         .sparkle-icon {
           color: var(--m3-primary);
           animation: sparkle-rotate 3s linear infinite;
@@ -119,7 +119,7 @@ export function AIProgress({
           height: 100%; border-radius: 2px; background: var(--m3-primary);
           transition: width 400ms ease;
         }
-        .dots { display: flex; gap: 6px; justify-content: center; }
+        .dots { display: flex; gap: 8px; justify-content: center; }
         .dot {
           width: 6px; height: 6px; border-radius: 50%;
           background: var(--m3-surface-container-high);
@@ -127,12 +127,12 @@ export function AIProgress({
         }
         .dot.active { background: var(--m3-primary); }
         .result-content {
-          display: flex; flex-direction: column; align-items: center; gap: 12px;
+          display: flex; flex-direction: column; align-items: center; gap: 16px;
           animation: fadeIn 300ms ease;
         }
         .result-badge {
           display: flex; align-items: center; gap: 8px;
-          padding: 10px 16px; border-radius: 9999px;
+          padding: 8px 16px; border-radius: 9999px;
           background: var(--m3-primary-container);
           color: var(--m3-on-primary-container);
           font-weight: 600;
@@ -143,7 +143,7 @@ export function AIProgress({
           font-weight: 600; cursor: pointer; font-size: 14px;
         }
         .error-content {
-          display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 8px 0;
+          display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px 0;
           animation: fadeIn 300ms ease;
         }
         .error-icon { color: var(--m3-error); }

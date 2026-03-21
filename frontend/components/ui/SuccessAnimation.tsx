@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
   },
   message: {
-    marginTop: 20,
+    marginTop: 16,
     fontSize: m3Typography.titleMedium.fontSize,
     fontWeight: '600',
   },

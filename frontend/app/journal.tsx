@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
   timelineTrack: {
     width: 24,
     alignItems: 'center',
-    paddingTop: 6,
+    paddingTop: 8,
   },
   timelineDot: {
     width: 12,
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   entryTitle: {
     fontSize: m3Typography.titleMedium.fontSize,

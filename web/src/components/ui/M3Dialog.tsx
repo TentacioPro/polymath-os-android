@@ -135,7 +135,7 @@ export function M3Dialog({
           width: 100%;
         }
         .m3-dialog-btn {
-          padding: 10px 24px;
+          padding: 8px 24px;
           border-radius: 9999px;
           min-width: 64px;
           font-size: 14px;

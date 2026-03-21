@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 6,
+    paddingHorizontal: 8,
     gap: 4,
   },
   previewDot: {
@@ -244,13 +244,13 @@ const styles = StyleSheet.create({
   },
   previewBody: {
     flex: 1,
-    paddingTop: 6,
+    paddingTop: 8,
   },
   previewCard: {
     flex: 1,
     borderRadius: 4,
     borderWidth: 1,
-    padding: 6,
+    padding: 8,
     gap: 4,
   },
   previewAccentLine: {

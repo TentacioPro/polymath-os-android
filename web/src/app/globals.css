@@ -487,3 +487,14 @@ body {
   transition: background-color 0.3s cubic-bezier(0.2, 0, 0, 1),
               color 0.3s cubic-bezier(0.2, 0, 0, 1);
 }
+
+/* ─── Accessibility: Reduced Motion (Kole Jain Phase 5.3) ────────────────── */
+/* Respects prefers-reduced-motion — nullifies all transitions & animations */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

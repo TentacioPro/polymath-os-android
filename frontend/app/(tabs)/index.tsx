@@ -138,7 +138,7 @@ export default function Dashboard() {
           >
             {totalActivities > 0 && (
               <View style={[styles.insightPill, { backgroundColor: theme.primaryContainer }]}>
-                <Ionicons name="layers-outline" size={14} color={theme.onPrimaryContainer} />
+                <Ionicons name="layers-outline" size={16} color={theme.onPrimaryContainer} />
                 <Text style={[styles.insightText, { color: theme.onPrimaryContainer }]}>
                   {totalActivities} activities
                 </Text>
@@ -146,7 +146,7 @@ export default function Dashboard() {
             )}
             {totalConnections > 0 && (
               <View style={[styles.insightPill, { backgroundColor: theme.primaryContainer }]}>
-                <Ionicons name="git-network-outline" size={14} color={theme.onPrimaryContainer} />
+                <Ionicons name="git-network-outline" size={16} color={theme.onPrimaryContainer} />
                 <Text style={[styles.insightText, { color: theme.onPrimaryContainer }]}>
                   {totalConnections} connections
                 </Text>
@@ -154,7 +154,7 @@ export default function Dashboard() {
             )}
             {totalJournals > 0 && (
               <View style={[styles.insightPill, { backgroundColor: theme.primaryContainer }]}>
-                <Ionicons name="book-outline" size={14} color={theme.onPrimaryContainer} />
+                <Ionicons name="book-outline" size={16} color={theme.onPrimaryContainer} />
                 <Text style={[styles.insightText, { color: theme.onPrimaryContainer }]}>
                   {totalJournals} journal entries
                 </Text>
@@ -309,8 +309,8 @@ const styles = StyleSheet.create({
   insightPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 14,
+    gap: 8,
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: m3Radii.full,
   },

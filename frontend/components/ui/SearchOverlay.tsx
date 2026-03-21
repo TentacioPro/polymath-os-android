@@ -140,7 +140,7 @@ export function SearchOverlay({
               }}
             >
               {selectedCategory === cat && (
-                <Ionicons name="checkmark" size={14} color={theme.onPrimaryContainer} />
+                <Ionicons name="checkmark" size={16} color={theme.onPrimaryContainer} />
               )}
               <Text
                 style={[
@@ -170,7 +170,7 @@ export function SearchOverlay({
               style={styles.recentItem}
               onPress={() => handleChangeText(s)}
             >
-              <Ionicons name="time-outline" size={18} color={theme.onSurfaceVariant} />
+              <Ionicons name="time-outline" size={20} color={theme.onSurfaceVariant} />
               <Text style={[styles.recentText, { color: theme.onSurface }]}>{s}</Text>
             </TouchableOpacity>
           ))}
@@ -198,7 +198,7 @@ export function SearchOverlay({
               <View style={[styles.resultIcon, { backgroundColor: theme.primaryContainer }]}>
                 <Ionicons
                   name={(item.icon as any) || 'document-outline'}
-                  size={18}
+                  size={20}
                   color={theme.onPrimaryContainer}
                 />
               </View>
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     height: 56,
     borderRadius: 9999,
-    gap: 10,
+    gap: 8,
   },
   input: {
     flex: 1,
@@ -265,13 +265,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginTop: 12,
+    marginTop: 16,
   },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 9999,
   },
@@ -282,15 +282,15 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: m3Typography.labelMedium.fontSize,
     fontWeight: '600',
-    marginTop: 20,
+    marginTop: 24,
     marginBottom: 8,
     paddingHorizontal: 4,
   },
   recentItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    paddingVertical: 12,
+    gap: 16,
+    paddingVertical: 8,
     paddingHorizontal: 4,
   },
   recentText: {
@@ -312,8 +312,8 @@ const styles = StyleSheet.create({
   resultItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    paddingVertical: 12,
+    gap: 16,
+    paddingVertical: 8,
     paddingHorizontal: 4,
   },
   resultIcon: {
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     fontSize: m3Typography.labelSmall.fontSize,
   },
   typeBadge: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 9999,
   },
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
   emptySearch: {
     alignItems: 'center',
     paddingVertical: 48,
-    gap: 12,
+    gap: 16,
   },
   emptyText: {
     fontSize: m3Typography.bodyLarge.fontSize,

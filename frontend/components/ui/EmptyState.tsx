@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 48,
     paddingHorizontal: 32,
-    gap: 12,
+    gap: 16,
   },
   illustrationCircle: {
     width: 96,
@@ -185,8 +185,8 @@ const styles = StyleSheet.create({
   },
   ctaButton: {
     marginTop: 8,
-    paddingHorizontal: 28,
-    paddingVertical: 12,
+    paddingHorizontal: 32,
+    paddingVertical: 16,
     borderRadius: 9999,
   },
   ctaLabel: {

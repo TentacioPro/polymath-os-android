@@ -179,13 +179,13 @@ export function AIProgress({
 const styles = StyleSheet.create({
   card: {
     borderRadius: 28,
-    padding: 20,
-    gap: 14,
+    padding: 24,
+    gap: 16,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 16,
   },
   headerText: {
     flex: 1,
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   },
   dots: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 8,
     justifyContent: 'center',
   },
   dot: {
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   resultContent: {
-    gap: 12,
+    gap: 16,
     alignItems: 'center',
   },
   resultBadge: {
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderRadius: 9999,
   },
   resultCount: {
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   errorContent: {
-    gap: 10,
+    gap: 8,
     alignItems: 'center',
     paddingVertical: 8,
   },

@@ -177,7 +177,7 @@ export function SearchOverlay({ visible, onClose }: SearchOverlayProps) {
         .search-bar {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
           height: 56px;
           padding: 0 16px;
           background-color: var(--m3-surface-container-high);
@@ -232,9 +232,9 @@ export function SearchOverlay({ visible, onClose }: SearchOverlayProps) {
         .recent-item {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 16px;
           width: 100%;
-          padding: 12px 4px;
+          padding: 8px 4px;
           background: none;
           border: none;
           cursor: pointer;
@@ -256,7 +256,7 @@ export function SearchOverlay({ visible, onClose }: SearchOverlayProps) {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 12px;
+          gap: 16px;
           padding: 48px 0;
           color: var(--m3-on-surface-variant);
         }

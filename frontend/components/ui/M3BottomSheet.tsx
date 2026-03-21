@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   },
   handleWrap: {
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 16,
   },
   handle: {
     width: 32,

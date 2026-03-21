@@ -46,7 +46,7 @@ export function EmptyState({ variant = 'empty-activities', title, description, c
           flex-direction: column;
           align-items: center;
           padding: 48px 32px;
-          gap: 12px;
+          gap: 16px;
         }
         .illustration {
           width: 96px;
@@ -95,7 +95,7 @@ export function EmptyState({ variant = 'empty-activities', title, description, c
         }
         .cta-btn {
           margin-top: 8px;
-          padding: 12px 28px;
+          padding: 16px 32px;
           border-radius: 9999px;
           background: var(--m3-primary);
           color: var(--m3-on-primary);

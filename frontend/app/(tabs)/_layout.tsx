@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   indicator: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 4,
     borderRadius: m3Radii.full,
     alignItems: 'center',

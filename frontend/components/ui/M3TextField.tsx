@@ -199,10 +199,10 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   leadingIcon: {
-    marginRight: 12,
+    marginRight: 8,
   },
   trailingIcon: {
-    marginLeft: 12,
+    marginLeft: 8,
     padding: 4,
   },
   supporting: {

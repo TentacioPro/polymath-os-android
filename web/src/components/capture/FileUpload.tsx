@@ -124,9 +124,9 @@ export function FileUpload({
           padding: 16px;
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 16px;
         }
-        .header { display: flex; align-items: center; gap: 12px; }
+        .header { display: flex; align-items: center; gap: 16px; }
         .icon-circle {
           width: 44px; height: 44px; border-radius: 50%;
           display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -140,8 +140,8 @@ export function FileUpload({
         .actions { display: flex; align-items: center; justify-content: space-between; }
         .status-text { font-size: 14px; color: var(--m3-on-surface-variant); }
         .upload-btn {
-          display: flex; align-items: center; gap: 6px;
-          padding: 10px 20px; border-radius: 9999px;
+          display: flex; align-items: center; gap: 8px;
+          padding: 8px 16px; border-radius: 9999px;
           background: var(--m3-primary); color: var(--m3-on-primary);
           border: none; font-weight: 600; cursor: pointer;
         }
@@ -162,14 +162,14 @@ export function FileUpload({
           background: var(--m3-surface-container-high);
           color: var(--m3-on-surface-variant); border: none; cursor: pointer;
         }
-        .processing-row { display: flex; align-items: center; gap: 10px; }
+        .processing-row { display: flex; align-items: center; gap: 8px; }
         .spinner {
           width: 20px; height: 20px; border-radius: 50%;
           border: 3px solid var(--m3-primary); border-top-color: transparent;
           animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .success-row { display: flex; align-items: center; gap: 10px; }
+        .success-row { display: flex; align-items: center; gap: 8px; }
         .check-circle {
           width: 32px; height: 32px; border-radius: 50%;
           background: rgba(129, 201, 149, 0.15); color: var(--m3-success);
@@ -178,7 +178,7 @@ export function FileUpload({
         }
         @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
         .success-text { font-size: 14px; color: var(--m3-success); }
-        .error-section { display: flex; flex-direction: column; gap: 10px; }
+        .error-section { display: flex; flex-direction: column; gap: 8px; }
         .error-row { display: flex; align-items: center; gap: 8px; color: var(--m3-error); }
         .error-text { font-size: 14px; color: var(--m3-error); }
         .retry-btn {

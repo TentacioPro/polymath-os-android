@@ -47,7 +47,7 @@ export function M3Switch({
         .m3-switch-container {
           display: inline-flex;
           align-items: center;
-          gap: 12px;
+          gap: 16px;
           cursor: pointer;
           user-select: none;
         }

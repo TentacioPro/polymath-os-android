@@ -169,7 +169,7 @@ export function M3Select({
           align-items: center;
           justify-content: space-between;
           gap: 8px;
-          padding: 10px 16px;
+          padding: 8px 16px;
           background: var(--m3-surface-container-high);
           border: 1px solid var(--m3-outline-variant);
           border-radius: 9999px;
@@ -236,7 +236,7 @@ export function M3Select({
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 10px 16px;
+          padding: 8px 16px;
           font-size: 14px;
           color: var(--m3-on-surface);
           cursor: pointer;

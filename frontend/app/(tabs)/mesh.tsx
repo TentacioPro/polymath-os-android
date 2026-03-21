@@ -301,7 +301,7 @@ export default function NeuralMesh() {
                   {conn.activity_1_title || conn.from || 'Source'}
                 </Text>
                 <View style={styles.connArrow}>
-                  <Ionicons name="arrow-forward" size={12} color={theme.onSurfaceVariant} />
+                  <Ionicons name="arrow-forward" size={16} color={theme.onSurfaceVariant} />
                   <Text style={[styles.connTo, { color: theme.onSurfaceVariant }]} numberOfLines={1}>
                     {conn.activity_2_title || conn.to || 'Target'}
                   </Text>
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: m3Radii.full,
   },
@@ -396,6 +396,6 @@ const styles = StyleSheet.create({
   connFrom: { fontSize: m3Typography.titleSmall.fontSize, fontWeight: '600', marginBottom: 4 },
   connArrow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   connTo: { fontSize: m3Typography.bodySmall.fontSize, flex: 1 },
-  connBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: m3Radii.full },
+  connBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: m3Radii.full },
   connBadgeText: { fontSize: m3Typography.labelSmall.fontSize, fontWeight: '600' },
 });

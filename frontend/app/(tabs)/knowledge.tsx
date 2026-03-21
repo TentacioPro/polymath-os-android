@@ -156,7 +156,7 @@ export default function Knowledge() {
         activeOpacity={0.7}
       >
         <View style={[styles.cardIcon, { backgroundColor: theme.primaryContainer }]}>
-          <Ionicons name={getIcon(item) as any} size={22} color={theme.onPrimaryContainer} />
+          <Ionicons name={getIcon(item) as any} size={24} color={theme.onPrimaryContainer} />
         </View>
         <Text style={[styles.cardTitle, { color: theme.onSurface }]} numberOfLines={2}>
           {item.title}
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     borderRadius: m3Radii.full,
     paddingHorizontal: 16,
     marginHorizontal: spacing.lg,
-    gap: 10,
+    gap: 8,
   },
   searchPlaceholder: { fontSize: m3Typography.bodyLarge.fontSize },
 

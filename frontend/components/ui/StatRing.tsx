@@ -76,7 +76,7 @@ export default function StatRing({
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   ringWrapper: {
     position: 'relative',
