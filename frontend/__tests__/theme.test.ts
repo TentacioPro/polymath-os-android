@@ -1,7 +1,7 @@
 /**
  * Theme System Tests
  * 
- * Tests the theme tokens and configuration.
+ * Tests the M3 theme tokens, palettes, and configuration.
  */
 
 import {
@@ -11,6 +11,7 @@ import {
   spacing,
   radii,
   typography,
+  themeTokens,
   type ThemeName,
   type ThemeTokens,
 } from '../theme/tokens';
@@ -62,10 +63,10 @@ describe('Theme System Tests', () => {
     });
   });
 
-  describe('Theme structure', () => {
+  describe('M3 Theme structure', () => {
     themeNames.forEach((themeName) => {
       describe(`${themeName} theme`, () => {
-        const theme: ThemeTokens = themes[themeName];
+        const theme = themeTokens[themeName];
 
         it('should have name property matching key', () => {
           expect(theme.name).toBe(themeName);
@@ -77,71 +78,85 @@ describe('Theme System Tests', () => {
           expect(theme.label.length).toBeGreaterThan(0);
         });
 
-        it('should have background color', () => {
-          expect(theme.background).toBeDefined();
-          expect(typeof theme.background).toBe('string');
+        // M3 Primary
+        it('should have primary colors', () => {
+          expect(theme.primary).toBeDefined();
+          expect(theme.onPrimary).toBeDefined();
+          expect(theme.primaryContainer).toBeDefined();
+          expect(theme.onPrimaryContainer).toBeDefined();
         });
 
-        it('should have surface color', () => {
+        // M3 Surface (tonal elevation ladder)
+        it('should have surface tonal ladder', () => {
           expect(theme.surface).toBeDefined();
+          expect(theme.surfaceDim).toBeDefined();
+          expect(theme.surfaceContainer).toBeDefined();
+          expect(theme.surfaceContainerHigh).toBeDefined();
+          expect(theme.surfaceContainerHighest).toBeDefined();
+          expect(theme.onSurface).toBeDefined();
+          expect(theme.onSurfaceVariant).toBeDefined();
         });
 
-        it('should have text colors', () => {
-          expect(theme.textPrimary).toBeDefined();
-          expect(theme.textSecondary).toBeDefined();
-          expect(theme.textMuted).toBeDefined();
+        // M3 Outline
+        it('should have outline colors', () => {
+          expect(theme.outline).toBeDefined();
+          expect(theme.outlineVariant).toBeDefined();
         });
 
-        it('should have accent color', () => {
-          expect(theme.accent).toBeDefined();
-          expect(theme.accentContrast).toBeDefined();
+        // M3 Inverse
+        it('should have inverse colors', () => {
+          expect(theme.inverseSurface).toBeDefined();
+          expect(theme.inverseOnSurface).toBeDefined();
         });
 
-        it('should have border colors', () => {
-          expect(theme.border).toBeDefined();
-          expect(theme.borderMuted).toBeDefined();
-        });
-
-        it('should have drawer config', () => {
-          expect(theme.drawer).toBeDefined();
-          expect(theme.drawer.background).toBeDefined();
-          expect(theme.drawer.textPrimary).toBeDefined();
-        });
-
-        it('should have pill nav config', () => {
-          expect(theme.pill).toBeDefined();
-          expect(theme.pill.background).toBeDefined();
-          expect(theme.pill.activeColor).toBeDefined();
-        });
-
+        // M3 Status
         it('should have status colors', () => {
-          expect(theme.status).toBeDefined();
-          expect(theme.status.success).toBeDefined();
-          expect(theme.status.error).toBeDefined();
-          expect(theme.status.warning).toBeDefined();
-          expect(theme.status.info).toBeDefined();
+          expect(theme.error).toBeDefined();
+          expect(theme.onError).toBeDefined();
+          expect(theme.errorContainer).toBeDefined();
+          expect(theme.success).toBeDefined();
+          expect(theme.successContainer).toBeDefined();
+          expect(theme.warning).toBeDefined();
+          expect(theme.warningContainer).toBeDefined();
+          expect(theme.info).toBeDefined();
+          expect(theme.infoContainer).toBeDefined();
         });
 
+        // Category colors
         it('should have category colors', () => {
           expect(theme.categories).toBeDefined();
           expect(theme.categories.AI).toBeDefined();
+          expect(theme.categories.News).toBeDefined();
+        });
+
+        // Font references
+        it('should have font family references', () => {
+          expect(theme.fontDisplay).toBeDefined();
+          expect(theme.fontMono).toBeDefined();
         });
       });
     });
   });
 
-  describe('Theme colors contrast', () => {
-    it('void theme should have dark background', () => {
-      expect(themes.void.background).toBe('#000000');
+  describe('Theme color identity', () => {
+    it('void theme should have dark surface', () => {
+      expect(themes.void.surface).toBe('#0A0A0A');
     });
 
-    it('nova theme should have light background', () => {
-      expect(themes.nova.background).toBe('#FFFFFF');
+    it('nova theme should have light surface', () => {
+      expect(themes.nova.surface).toBe('#FAFAFA');
     });
 
-    it('amber theme should have dark background with amber accent', () => {
-      expect(themes.amber.background).toBe('#000000');
-      expect(themes.amber.accent).toMatch(/#FF/i);
+    it('amber theme should have amber primary', () => {
+      expect(themes.amber.primary).toBe('#FFB800');
+    });
+
+    it('ocean theme should have blue primary', () => {
+      expect(themes.ocean.primary).toBe('#60A5FA');
+    });
+
+    it('void theme has white primary (monochrome)', () => {
+      expect(themes.void.primary).toBe('#FFFFFF');
     });
   });
 
@@ -175,8 +190,12 @@ describe('Theme System Tests', () => {
       expect(radii.none).toBe(0);
     });
 
-    it('should have pill as large number', () => {
-      expect(radii.pill).toBeGreaterThan(100);
+    it('should have full as large number (pill shape)', () => {
+      expect(radii.full).toBeGreaterThan(100);
+    });
+
+    it('should have xl for cards (28px)', () => {
+      expect(radii.xl).toBe(28);
     });
   });
 
@@ -191,6 +210,29 @@ describe('Theme System Tests', () => {
 
     it('should have caption style', () => {
       expect(typography.caption.fontSize).toBeLessThan(typography.body.fontSize);
+    });
+
+    it('should have all M3 type scale variants', () => {
+      const m3Variants = [
+        'displayLarge', 'displayMedium', 'displaySmall',
+        'headlineLarge', 'headlineMedium', 'headlineSmall',
+        'titleLarge', 'titleMedium', 'titleSmall',
+        'bodyLarge', 'bodyMedium', 'bodySmall',
+        'labelLarge', 'labelMedium', 'labelSmall',
+      ] as const;
+
+      m3Variants.forEach((variant) => {
+        expect(typography[variant]).toBeDefined();
+        expect(typography[variant].fontSize).toBeGreaterThan(0);
+        expect(typography[variant].lineHeight).toBeGreaterThan(0);
+      });
+    });
+
+    it('should have font sizes in descending order (display > headline > title > body > label)', () => {
+      expect(typography.displayLarge.fontSize).toBeGreaterThan(typography.headlineLarge.fontSize);
+      expect(typography.headlineLarge.fontSize).toBeGreaterThan(typography.titleLarge.fontSize);
+      expect(typography.titleLarge.fontSize).toBeGreaterThan(typography.bodyLarge.fontSize);
+      expect(typography.bodyLarge.fontSize).toBeGreaterThan(typography.labelLarge.fontSize);
     });
   });
 });

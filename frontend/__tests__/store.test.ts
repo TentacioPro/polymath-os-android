@@ -10,7 +10,6 @@ import { useStore } from '../store/useStore';
 const resetStore = () => {
   const store = useStore.getState();
   store.setThemeName('void');
-  store.setDrawerOpen(false);
   store.clearAll();
   store.setLoading(false);
 };
@@ -41,34 +40,7 @@ describe('Zustand Store Tests', () => {
     });
   });
 
-  describe('Drawer State', () => {
-    it('should have drawer closed by default', () => {
-      const { drawerOpen } = useStore.getState();
-      expect(drawerOpen).toBe(false);
-    });
-
-    it('should open drawer', () => {
-      const { setDrawerOpen } = useStore.getState();
-      setDrawerOpen(true);
-      
-      expect(useStore.getState().drawerOpen).toBe(true);
-    });
-
-    it('should toggle drawer', () => {
-      const { toggleDrawer } = useStore.getState();
-      
-      // Initially closed
-      expect(useStore.getState().drawerOpen).toBe(false);
-      
-      // Toggle open
-      toggleDrawer();
-      expect(useStore.getState().drawerOpen).toBe(true);
-      
-      // Toggle closed
-      toggleDrawer();
-      expect(useStore.getState().drawerOpen).toBe(false);
-    });
-  });
+  // Drawer was removed in M3 revamp — tab navigation replaced it
 
   describe('Activities State', () => {
     it('should have empty activities by default', () => {
@@ -170,16 +142,32 @@ describe('Zustand Store Tests', () => {
     it('should have default preferences', () => {
       const { preferences } = useStore.getState();
       expect(preferences.showQuickCaptureOnHome).toBe(true);
-      expect(preferences.sidebarPosition).toBe('left');
       expect(preferences.dashboardLayout).toBe('grid');
+      expect(preferences.profileLayout).toBe('full');
+      expect(preferences.fontFamily).toBe('dm-sans');
+      expect(preferences.monoFont).toBe('jetbrains-mono');
+      expect(preferences.fontScale).toBe(1);
     });
 
     it('should update preference', () => {
       const { setPreference } = useStore.getState();
       
-      setPreference('sidebarPosition', 'right');
+      setPreference('dashboardLayout', 'list');
       
-      expect(useStore.getState().preferences.sidebarPosition).toBe('right');
+      expect(useStore.getState().preferences.dashboardLayout).toBe('list');
+    });
+
+    it('should update font preferences', () => {
+      const { setPreference } = useStore.getState();
+      
+      setPreference('fontFamily', 'inter');
+      expect(useStore.getState().preferences.fontFamily).toBe('inter');
+      
+      setPreference('monoFont', 'space-mono');
+      expect(useStore.getState().preferences.monoFont).toBe('space-mono');
+      
+      setPreference('fontScale', 1.2);
+      expect(useStore.getState().preferences.fontScale).toBe(1.2);
     });
 
     it('should update screen visibility', () => {
