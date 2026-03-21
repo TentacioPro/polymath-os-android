@@ -431,6 +431,16 @@ code, pre, .mono {
   container-type: inline-size;
 }
 
+/* ─── Accessibility: focus ring utility (Kole Jain Phase 5.4) ─────────────── */
+/* Apply to any interactive element that doesn't already have focus-visible styles */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--m3-primary);
+  outline-offset: 2px;
+}
+.focus-ring {
+  outline: none;
+}
+
 /* ═══════════════════════════════════════════════════════
    Toast animation
    ═══════════════════════════════════════════════════════ */

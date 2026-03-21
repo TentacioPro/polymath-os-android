@@ -41,7 +41,9 @@ export function M3Chip({
       ].filter(Boolean).join(' ')}
       onClick={onClick}
       disabled={disabled || loading || !onClick}
+      aria-pressed={isClickable ? selected : undefined}
       aria-selected={selected}
+      aria-label={label}
     >
       {/* Loading spinner */}
       {loading && (
@@ -84,9 +86,12 @@ export function M3Chip({
           outline: none;
           white-space: nowrap;
         }
-        /* Clickable states */
+        /* Clickable chips: meet WCAG 2.5.5 44×44px touch target */
         .m3-chip--clickable {
           cursor: pointer;
+          min-height: 44px;
+          height: auto;
+          padding-block: 6px;
         }
         .m3-chip--clickable:hover {
           background-color: var(--m3-surface-container-highest);

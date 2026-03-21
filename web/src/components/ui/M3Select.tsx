@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useId } from 'react';
 
 interface M3SelectOption {
   value: string;
@@ -31,6 +31,9 @@ export function M3Select({
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const triggerId = useId();
+  const listboxId = useId();
+  const labelId = useId();
 
   const selected = options.find((o) => o.value === value);
 
@@ -96,13 +99,17 @@ export function M3Select({
   return (
     <div ref={containerRef} className={`m3-select-root ${className}`} style={{ position: 'relative' }}>
       {label && (
-        <label className="m3-select-label">{label}</label>
+        <label id={labelId} htmlFor={triggerId} className="m3-select-label">{label}</label>
       )}
       <button
+        id={triggerId}
         type="button"
         role="combobox"
         aria-expanded={open}
         aria-haspopup="listbox"
+        aria-controls={listboxId}
+        aria-labelledby={label ? labelId : undefined}
+        aria-label={!label ? placeholder : undefined}
         disabled={disabled}
         className={`m3-select-trigger ${open ? 'm3-select-trigger--open' : ''} ${disabled ? 'm3-select-trigger--disabled' : ''}`}
         onClick={() => !disabled && setOpen(!open)}
@@ -123,8 +130,10 @@ export function M3Select({
       </button>
       {open && (
         <ul
+          id={listboxId}
           ref={listRef}
           role="listbox"
+          aria-label={label || placeholder}
           className="m3-select-menu"
         >
           {options.map((opt, i) => (
@@ -170,6 +179,7 @@ export function M3Select({
           justify-content: space-between;
           gap: 8px;
           padding: 8px 16px;
+          min-height: 44px;
           background: var(--m3-surface-container-high);
           border: 1px solid var(--m3-outline-variant);
           border-radius: 9999px;
@@ -237,6 +247,7 @@ export function M3Select({
           align-items: center;
           gap: 8px;
           padding: 8px 16px;
+          min-height: 44px;
           font-size: 14px;
           color: var(--m3-on-surface);
           cursor: pointer;

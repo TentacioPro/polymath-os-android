@@ -68,15 +68,17 @@ export default function Dashboard() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => refetch()}
-              className="w-10 h-10 flex items-center justify-center rounded-xl bg-m3-surface-container hover:bg-m3-surface-container-high transition-standard text-m3-on-surface"
+              aria-label="Refresh dashboard"
+              className="focus-ring min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-m3-surface-container hover:bg-m3-surface-container-high transition-standard text-m3-on-surface"
             >
-              <span className="material-symbols-outlined text-[20px]">refresh</span>
+              <span className="material-symbols-outlined text-[20px]" aria-hidden="true">refresh</span>
             </button>
             <Link
               href="/profile"
-              className="w-10 h-10 flex items-center justify-center rounded-xl bg-m3-primary text-m3-on-primary"
+              aria-label="View profile"
+              className="focus-ring min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-m3-primary text-m3-on-primary"
             >
-              <span className="material-symbols-outlined text-[20px]">person</span>
+              <span className="material-symbols-outlined text-[20px]" aria-hidden="true">person</span>
             </Link>
           </div>
         </div>
@@ -180,8 +182,8 @@ export default function Dashboard() {
           <div className="p-5 rounded-3xl bg-m3-surface-container border border-m3-outline-variant h-full">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-[14px] font-bold text-m3-on-surface">Recent Activity</h3>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-m3-success-container">
-                <div className="w-1.5 h-1.5 rounded-full bg-m3-success animate-pulse" />
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-m3-success-container" role="status" aria-label="Live activity updates">
+                <div className="w-1.5 h-1.5 rounded-full bg-m3-success animate-pulse" aria-hidden="true" />
                 <span className="text-[9px] font-bold tracking-wider text-m3-success uppercase">LIVE</span>
               </div>
             </div>

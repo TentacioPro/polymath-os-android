@@ -38,10 +38,12 @@ export default function AppSidebar() {
       <Link
         key={item.href}
         href={item.href}
+        aria-label={item.label}
+        aria-current={active ? 'page' : undefined}
         title={collapsed ? item.label : undefined}
-        className={`group relative flex items-center gap-3 transition-standard ${
+        className={`focus-ring group relative flex items-center gap-3 transition-standard ${
           collapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2.5'
-        } rounded-[16px] ${
+        } rounded-[16px] min-h-[44px] ${
           active
             ? 'bg-m3-primary-container text-m3-on-primary-container font-semibold'
             : 'text-m3-on-surface-variant hover:bg-m3-surface-container-high hover:text-m3-on-surface'
@@ -49,7 +51,7 @@ export default function AppSidebar() {
       >
         <span className={`material-symbols-outlined text-[20px] ${
           active ? 'text-m3-on-primary-container' : ''
-        }`}>
+        }`} aria-hidden="true">
           {item.icon}
         </span>
         {!collapsed && (
@@ -94,9 +96,11 @@ export default function AppSidebar() {
         )}
         <button
           onClick={() => setCollapsed((c) => !c)}
-          className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-m3-surface-container-high transition-standard text-m3-on-surface-variant hover:text-m3-on-surface shrink-0"
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-expanded={!collapsed}
+          className="focus-ring w-11 h-11 rounded-xl flex items-center justify-center hover:bg-m3-surface-container-high transition-standard text-m3-on-surface-variant hover:text-m3-on-surface shrink-0"
         >
-          <span className="material-symbols-outlined text-[18px]">
+          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
             {collapsed ? 'chevron_right' : 'chevron_left'}
           </span>
         </button>
@@ -125,7 +129,7 @@ export default function AppSidebar() {
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 py-3 px-2 overflow-y-auto no-scrollbar">
+      <nav aria-label="Main navigation" className="flex-1 py-3 px-2 overflow-y-auto no-scrollbar">
         {!collapsed && (
           <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant px-3 mb-2">
             Navigation
@@ -159,8 +163,10 @@ export default function AppSidebar() {
             <button
               key={t.id}
               onClick={() => setTheme(t.id)}
+              aria-label={t.description}
+              aria-pressed={theme === t.id}
               title={t.description}
-              className={`rounded-xl p-1.5 text-center transition-standard ${
+              className={`focus-ring min-h-[44px] min-w-[44px] rounded-xl p-1.5 text-center transition-standard ${
                 theme === t.id
                   ? 'bg-m3-primary-container ring-1 ring-m3-primary'
                   : 'bg-m3-surface-container hover:bg-m3-surface-container-high'

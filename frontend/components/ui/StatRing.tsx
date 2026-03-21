@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, useReducedMotion } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 import { useTheme } from '../../theme';
 import { m3Typography, m3Radii, m3Motion } from '../../../shared/design-tokens';
@@ -28,11 +28,15 @@ export default function StatRing({
   const dashOffset = circumference * (1 - progress);
 
   const scale = useSharedValue(1);
+  const isReduced = useReducedMotion();
   const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   if (!onPress) {
     return (
-      <View style={styles.container}>
+      <View
+        style={styles.container}
+        accessibilityLabel={`${label}: ${value}`}
+      >
         <View style={[styles.ringWrapper, { width: size, height: size }]}>
           <Svg width={size} height={size}>
             <Circle cx={size / 2} cy={size / 2} r={radius} stroke={theme.surfaceContainerHigh} strokeWidth={strokeWidth} fill="none" />
@@ -52,8 +56,14 @@ export default function StatRing({
   return (
     <Pressable
       onPress={onPress}
-      onPressIn={() => { scale.value = withTiming(0.95, { duration: m3Motion.duration.short2 }); }}
-      onPressOut={() => { scale.value = withTiming(1.0, { duration: m3Motion.duration.short3 }); }}
+      accessibilityRole="button"
+      accessibilityLabel={`${label}: ${value}. Tap for details`}
+      onPressIn={() => {
+        scale.value = isReduced ? 0.95 : withTiming(0.95, { duration: m3Motion.duration.short2 });
+      }}
+      onPressOut={() => {
+        scale.value = isReduced ? 1.0 : withTiming(1.0, { duration: m3Motion.duration.short3 });
+      }}
     >
       <Animated.View style={[styles.container, animStyle]}>
         <View style={[styles.ringWrapper, { width: size, height: size }]}>

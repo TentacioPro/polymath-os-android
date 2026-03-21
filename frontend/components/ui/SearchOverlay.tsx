@@ -113,6 +113,8 @@ export function SearchOverlay({
         {query.length > 0 ? (
           <Pressable
             onPress={() => { setQuery(''); setResults([]); }}
+            accessibilityRole="button"
+            accessibilityLabel="Clear search"
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
           >
             <Ionicons name="close-circle" size={20} color={theme.onSurfaceVariant} />
@@ -120,6 +122,8 @@ export function SearchOverlay({
         ) : (
           <Pressable
             onPress={onClose}
+            accessibilityRole="button"
+            accessibilityLabel="Cancel search"
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
           >
             <Text style={[styles.cancelText, { color: theme.primary }]}>Cancel</Text>

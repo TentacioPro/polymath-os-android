@@ -14,7 +14,10 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-[92%] max-w-[380px] z-40 md:hidden">
+    <nav
+      aria-label="Bottom navigation"
+      className="fixed bottom-5 left-1/2 -translate-x-1/2 w-[92%] max-w-[380px] z-40 md:hidden"
+    >
       <div
         className="flex justify-between items-center px-2 py-1.5 bg-m3-surface-container-high border border-m3-outline-variant elevation-3"
         style={{ borderRadius: '24px' }}
@@ -30,7 +33,9 @@ export default function BottomNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center px-3 py-1.5 rounded-2xl transition-standard ${
+                aria-label={item.label}
+                aria-current={isActive ? 'page' : undefined}
+                className={`focus-ring flex flex-col items-center min-h-[44px] justify-center px-3 py-1.5 rounded-2xl transition-standard ${
                   isActive
                     ? 'bg-m3-primary-container'
                     : 'hover:bg-m3-surface-container-highest'
@@ -40,6 +45,7 @@ export default function BottomNav() {
                   className={`material-symbols-outlined text-[22px] ${
                     isActive ? 'text-m3-on-primary-container' : 'text-m3-on-surface-variant'
                   }`}
+                  aria-hidden="true"
                 >
                   {item.icon}
                 </span>
@@ -56,10 +62,11 @@ export default function BottomNav() {
         {/* Quick Capture CTA */}
         <Link
           href="/chat"
-          className="flex items-center gap-2 px-4 py-2.5 bg-m3-primary hover:opacity-90 transition-standard"
+          aria-label="Capture new entry"
+          className="focus-ring flex items-center gap-2 min-h-[44px] px-4 py-2.5 bg-m3-primary hover:opacity-90 transition-standard"
           style={{ borderRadius: '16px' }}
         >
-          <span className="material-symbols-outlined text-[18px] text-m3-on-primary">
+          <span className="material-symbols-outlined text-[18px] text-m3-on-primary" aria-hidden="true">
             add
           </span>
           <span className="text-[10px] font-bold tracking-wider uppercase text-m3-on-primary">
@@ -67,6 +74,6 @@ export default function BottomNav() {
           </span>
         </Link>
       </div>
-    </div>
+    </nav>
   );
 }

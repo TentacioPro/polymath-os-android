@@ -4,6 +4,7 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  useReducedMotion,
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -46,14 +47,15 @@ export default function FAB({
 }: FABProps) {
   const { theme } = useTheme();
   const scale = useSharedValue(1);
+  const isReduced = useReducedMotion();
 
   const handlePressIn = useCallback(() => {
-    scale.value = withSpring(0.92, { damping: 15, stiffness: 300 });
-  }, [scale]);
+    scale.value = isReduced ? 0.92 : withSpring(0.92, { damping: 15, stiffness: 300 });
+  }, [scale, isReduced]);
 
   const handlePressOut = useCallback(() => {
-    scale.value = withSpring(1, { damping: 12, stiffness: 200 });
-  }, [scale]);
+    scale.value = isReduced ? 1 : withSpring(1, { damping: 12, stiffness: 200 });
+  }, [scale, isReduced]);
 
   const handlePress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -73,6 +75,8 @@ export default function FAB({
       onPress={handlePress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
+      accessibilityRole="button"
+      accessibilityLabel={label || 'Action button'}
       style={[
         styles.fab,
         {
