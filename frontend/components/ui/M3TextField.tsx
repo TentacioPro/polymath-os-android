@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { View, TextInput, Text, StyleSheet, Pressable } from 'react-native';
+import { View, TextInput, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -31,6 +31,10 @@ interface M3TextFieldProps {
   editable?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
+  /** Loading — shows spinner in trailing position */
+  loading?: boolean;
+  /** Success — green border + success icon */
+  success?: boolean;
 }
 
 export default function M3TextField({
@@ -53,6 +57,8 @@ export default function M3TextField({
   editable = true,
   onFocus: onFocusProp,
   onBlur: onBlurProp,
+  loading,
+  success,
 }: M3TextFieldProps) {
   const { theme } = useTheme();
   const [focused, setFocused] = useState(false);
@@ -74,11 +80,18 @@ export default function M3TextField({
   }, [onBlurProp]);
 
   const hasError = !!error;
+  const isDisabled = !editable;
+
+  // Border color priority: error > success > focused > disabled > default
   const borderColor = hasError
     ? theme.error
-    : focused
-      ? theme.primary
-      : theme.outlineVariant;
+    : success
+      ? theme.success
+      : focused
+        ? theme.primary
+        : isDisabled
+          ? theme.outlineVariant
+          : theme.outlineVariant;
 
   const labelStyle = useAnimatedStyle(() => {
     const top = interpolate(labelPosition.value, [0, 1], [16, -8]);
@@ -89,7 +102,7 @@ export default function M3TextField({
   const isOutlined = variant === 'outlined';
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isDisabled && styles.disabled]}>
       <Pressable
         onPress={() => inputRef.current?.focus()}
         style={[
@@ -148,10 +161,16 @@ export default function M3TextField({
             editable={editable}
           />
         </View>
-        {trailingIcon && (
+        {trailingIcon && !loading && !success && (
           <Pressable onPress={onTrailingIconPress} style={styles.trailingIcon}>
             <Ionicons name={trailingIcon} size={20} color={theme.onSurfaceVariant} />
           </Pressable>
+        )}
+        {loading && (
+          <ActivityIndicator size="small" color={theme.onSurfaceVariant} style={styles.trailingIcon} />
+        )}
+        {success && !loading && (
+          <Ionicons name="checkmark-circle" size={20} color={theme.success} style={styles.trailingIcon} />
         )}
       </Pressable>
       {(error || supportingText) && (
@@ -171,6 +190,9 @@ export default function M3TextField({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+  },
+  disabled: {
+    opacity: 0.5,
   },
   inputContainer: {
     flexDirection: 'row',
