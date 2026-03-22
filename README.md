@@ -1,8 +1,27 @@
 # Polymath OS - Learning Tracker
 
-A comprehensive mobile application for tracking and organizing your learning journey across multiple domains. Built with Expo (React Native), FastAPI, and MongoDB.
+A comprehensive mobile-first learning tracker that captures, analyzes, connects, and exports knowledge across domains. Built with Expo (React Native), FastAPI, and MongoDB.
 
-## 🎯 Features
+**Latest Status**: ✅ Mobile Authentication System Complete & Operational (2026-03-22)
+
+## 🔐 Authentication & Security
+
+- **JWT-Based Authentication**: Secure access and refresh token flow
+- **Argon2id Password Hashing**: Military-grade password protection (memory-hard function)
+- **Account Lockout Protection**: Automatic lock after 5 failed attempts (30-minute duration)
+- **Secure Token Storage**: expo-secure-store for encrypted token persistence
+- **Auto-Refresh Tokens**: Seamless session management with 401 auto-refresh
+- **Cross-Platform Support**: Works on Android, iOS (Expo Go), and web
+
+**Test Credentials** (Development):
+- Email: `test@polymath-os.dev`
+- Password: `TestUser123!`
+
+See [MOBILE_AUTH_IMPLEMENTATION_STATUS.md](qoder-agent-docs/MOBILE_AUTH_IMPLEMENTATION_STATUS.md) for complete implementation details.
+
+---
+
+## 🎯 Core Features
 
 ### 1. **Activity Tracking**
 - **Manual Entry**: Add learning activities with title, URL, notes
