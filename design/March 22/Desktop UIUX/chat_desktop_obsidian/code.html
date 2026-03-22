@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Polymath OS | Obsidian Monolith</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-container": "#474747",
+              "primary-fixed-dim": "#464747",
+              "on-tertiary-fixed-variant": "#e2e2e2",
+              "on-secondary-fixed-variant": "#3b3b3b",
+              "tertiary-fixed": "#5e5e5e",
+              "surface": "#131313",
+              "primary-fixed": "#5d5e5f",
+              "surface-container-low": "#1b1b1b",
+              "secondary-fixed": "#c6c6c6",
+              "outline-variant": "#474747",
+              "outline": "#919191",
+              "surface-bright": "#393939",
+              "inverse-on-surface": "#303030",
+              "on-background": "#e2e2e2",
+              "on-secondary": "#1b1b1b",
+              "on-tertiary-container": "#000000",
+              "error": "#ffb4ab",
+              "on-error": "#690005",
+              "surface-dim": "#131313",
+              "surface-container-high": "#2a2a2a",
+              "on-primary-fixed-variant": "#e3e2e2",
+              "primary": "#ffffff",
+              "on-primary-container": "#000000",
+              "secondary": "#c6c6c6",
+              "error-container": "#93000a",
+              "inverse-surface": "#e2e2e2",
+              "on-primary": "#1a1c1c",
+              "on-primary-fixed": "#ffffff",
+              "on-error-container": "#ffdad6",
+              "tertiary-fixed-dim": "#474747",
+              "on-secondary-container": "#e2e2e2",
+              "secondary-fixed-dim": "#ababab",
+              "surface-tint": "#c6c6c6",
+              "surface-variant": "#353535",
+              "surface-container-lowest": "#0e0e0e",
+              "on-tertiary-fixed": "#ffffff",
+              "primary-container": "#d4d4d4",
+              "inverse-primary": "#5d5e5f",
+              "surface-container-highest": "#353535",
+              "tertiary": "#e2e2e2",
+              "background": "#131313",
+              "on-surface-variant": "#c6c6c6",
+              "on-tertiary": "#1b1b1b",
+              "on-surface": "#e2e2e2",
+              "tertiary-container": "#919191",
+              "surface-container": "#1f1f1f",
+              "on-secondary-fixed": "#1b1b1b"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0e0e0e;
+            color: #e2e2e2;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: 80px 1fr 340px;
+            height: 100vh;
+        }
+        .ai-pulse {
+            height: 2px;
+            width: 100%;
+            background: linear-gradient(90deg, #ababab 0%, #ffffff 50%, #ababab 100%);
+            background-size: 200% 100%;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glass-panel {
+            background: rgba(53, 53, 53, 0.6);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="dark bg-surface-container-lowest">
+<div class="bento-grid">
+<!-- Column 1: SideNavBar (Predicted Component) -->
+<aside class="fixed left-0 top-0 h-full z-50 flex flex-col items-center py-6 gap-8 bg-[#0e0e0e]/60 backdrop-blur-xl w-20 border-r border-[#514532]/10 shadow-2xl shadow-[#ffba38]/5">
+<div class="mb-4">
+<div class="w-10 h-10 flex items-center justify-center border border-outline-variant rounded-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+</div>
+<nav class="flex flex-col gap-6 items-center flex-1">
+<!-- Archive -->
+<div class="group flex flex-col items-center gap-1 cursor-pointer transition-all text-[#e5e2e1]/40 hover:text-[#e5e2e1] hover:bg-[#1c1b1b] p-2 rounded w-full">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="text-[10px] font-medium Space Grotesk uppercase tracking-widest">Archive</span>
+</div>
+<!-- Neural -->
+<div class="group flex flex-col items-center gap-1 cursor-pointer transition-all text-[#ffd79b] border-r-2 border-[#ffd79b] bg-[#ffd79b]/5 p-2 rounded w-full">
+<span class="material-symbols-outlined" data-icon="psychology" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span class="text-[10px] font-medium Space Grotesk uppercase tracking-widest">Neural</span>
+</div>
+<!-- Synthesis -->
+<div class="group flex flex-col items-center gap-1 cursor-pointer transition-all text-[#e5e2e1]/40 hover:text-[#e5e2e1] hover:bg-[#1c1b1b] p-2 rounded w-full">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="text-[10px] font-medium Space Grotesk uppercase tracking-widest">Synthesis</span>
+</div>
+<!-- Terminal -->
+<div class="group flex flex-col items-center gap-1 cursor-pointer transition-all text-[#e5e2e1]/40 hover:text-[#e5e2e1] hover:bg-[#1c1b1b] p-2 rounded w-full">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="text-[10px] font-medium Space Grotesk uppercase tracking-widest">Terminal</span>
+</div>
+<!-- Library -->
+<div class="group flex flex-col items-center gap-1 cursor-pointer transition-all text-[#e5e2e1]/40 hover:text-[#e5e2e1] hover:bg-[#1c1b1b] p-2 rounded w-full">
+<span class="material-symbols-outlined" data-icon="local_library">local_library</span>
+<span class="text-[10px] font-medium Space Grotesk uppercase tracking-widest">Library</span>
+</div>
+</nav>
+<div class="flex flex-col gap-6 items-center mt-auto border-t border-outline-variant/20 pt-6 w-full">
+<div class="flex flex-col items-center gap-1 text-[#e5e2e1]/40 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#e5e2e1]/40 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="memory">memory</span>
+</div>
+</div>
+</aside>
+<!-- Spacer for Fixed Nav -->
+<div class="w-20"></div>
+<!-- Column 2: Chat Thread -->
+<main class="flex flex-col relative h-screen bg-surface border-r border-outline-variant/10 overflow-hidden">
+<!-- AI Pulse Indicator -->
+<div class="ai-pulse absolute top-0 left-0"></div>
+<!-- Header -->
+<header class="h-16 flex items-center justify-between px-8 bg-surface-container-low/50 backdrop-blur-md">
+<div class="flex items-center gap-4">
+<h1 class="font-headline font-bold text-lg tracking-tight text-on-surface">Neural Nexus / <span class="text-primary/60 font-normal">Active Thread</span></h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Messages Area -->
+<div class="flex-1 overflow-y-auto px-8 py-10 space-y-10 no-scrollbar">
+<!-- System Time Marker -->
+<div class="flex justify-center">
+<span class="font-label text-[10px] uppercase tracking-[0.2em] text-outline-variant">Cycle 04.22 // Index 9102</span>
+</div>
+<!-- Agent Message -->
+<div class="flex flex-col items-start gap-4 max-w-3xl">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+<span class="font-label text-[11px] uppercase tracking-widest text-primary">Nova Agent</span>
+</div>
+<div class="bg-surface-container-high p-6 rounded-sm shadow-sm border-l border-primary/20">
+<p class="font-body text-sm leading-relaxed text-on-surface">
+                            Synthesis complete. I have mapped the requested neural pathways regarding the "Obsidian Instrument" design philosophy. The core tenets emphasize <span class="text-primary font-medium">tonal stacking</span> over traditional borders. Shall we proceed with the implementation details for the Memory Grid?
+                        </p>
+</div>
+</div>
+<!-- User Message -->
+<div class="flex flex-col items-end gap-4 max-w-3xl ml-auto">
+<div class="flex items-center gap-3">
+<span class="font-label text-[11px] uppercase tracking-widest text-on-surface-variant">Sovereign User</span>
+<div class="w-2 h-2 bg-secondary rounded-full"></div>
+</div>
+<div class="bg-primary-container p-6 rounded-sm shadow-sm">
+<p class="font-body text-sm leading-relaxed text-on-primary-container">
+                            Proceed. Also, ensure the synaptic density remains within the 0.85-0.92 range for optimal archival recall. Integrate the metadata labels in Space Grotesk all-caps.
+                        </p>
+</div>
+</div>
+<!-- Agent Message (Generating State) -->
+<div class="flex flex-col items-start gap-4 max-w-3xl">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+<span class="font-label text-[11px] uppercase tracking-widest text-primary">Nova Agent</span>
+</div>
+<div class="bg-surface-container-high p-6 rounded-sm shadow-sm border-l border-primary/20">
+<p class="font-body text-sm leading-relaxed text-on-surface">
+                            Updating architectural constraints... Labels snapped to 0.1rem tracking. Synaptic density recalibrated to <span class="text-primary">0.89</span>. 
+                        </p>
+<div class="mt-4 grid grid-cols-2 gap-4">
+<div class="bg-surface-container p-4 border border-outline-variant/10">
+<span class="font-label text-[9px] uppercase tracking-widest text-outline">Recall Efficiency</span>
+<div class="text-xl font-headline text-primary mt-1">98.4%</div>
+</div>
+<div class="bg-surface-container p-4 border border-outline-variant/10">
+<span class="font-label text-[9px] uppercase tracking-widest text-outline">Latent Noise</span>
+<div class="text-xl font-headline text-primary mt-1">0.02%</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-8 bg-surface-container-low/30 backdrop-blur-xl border-t border-outline-variant/10">
+<div class="relative group">
+<input class="w-full bg-transparent border-0 border-b border-outline-variant py-4 pr-12 text-on-surface placeholder-on-surface-variant/40 focus:ring-0 focus:border-primary transition-all font-body" placeholder="Engage sovereign intelligence..." type="text"/>
+<div class="absolute right-0 bottom-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary">attach_file</span>
+<span class="material-symbols-outlined text-primary cursor-pointer">arrow_forward</span>
+</div>
+</div>
+<div class="mt-4 flex gap-4">
+<span class="px-2 py-1 bg-surface-container-highest/50 text-[9px] font-label uppercase tracking-widest text-on-surface-variant cursor-pointer hover:text-primary transition-colors">Analyze_Current_View</span>
+<span class="px-2 py-1 bg-surface-container-highest/50 text-[9px] font-label uppercase tracking-widest text-on-surface-variant cursor-pointer hover:text-primary transition-colors">Synthesize_History</span>
+</div>
+</div>
+</main>
+<!-- Column 3: Memory & Persona Detail -->
+<aside class="flex flex-col bg-surface-container-lowest p-6 gap-6 overflow-y-auto no-scrollbar">
+<!-- Persona Card -->
+<div class="p-6 bg-surface-container-low rounded-sm relative group overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-6">
+<div class="w-12 h-12 border border-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<span class="font-label text-[10px] text-primary bg-primary/10 px-2 py-0.5 tracking-tighter uppercase">Persona: Nova</span>
+</div>
+<h3 class="font-headline text-2xl font-bold text-on-surface tracking-tight mb-2">Architectural Synthetic</h3>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed mb-6">Optimized for structural synthesis and deep archival retrieval. High precision, low latency.</p>
+<div class="space-y-4">
+<div class="flex justify-between items-center text-[10px] font-label uppercase tracking-widest text-outline">
+<span>Synaptic Density</span>
+<span class="text-primary">0.91</span>
+</div>
+<div class="h-[2px] w-full bg-outline-variant/20">
+<div class="h-full bg-primary w-[91%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Stats Bento -->
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-surface-container-low p-4 flex flex-col justify-between h-24 border-b border-primary/20">
+<span class="font-label text-[9px] uppercase tracking-widest text-outline">Uptime</span>
+<span class="font-headline text-lg text-on-surface">1,240h</span>
+</div>
+<div class="bg-surface-container-low p-4 flex flex-col justify-between h-24">
+<span class="font-label text-[9px] uppercase tracking-widest text-outline">Tokens</span>
+<span class="font-headline text-lg text-on-surface">42.8M</span>
+</div>
+</div>
+<!-- Memories Indexed List -->
+<div class="flex-1 flex flex-col gap-4">
+<div class="flex items-center justify-between border-b border-outline-variant/10 pb-2">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface">Memories Indexed</span>
+<span class="material-symbols-outlined text-sm text-outline cursor-pointer">filter_list</span>
+</div>
+<div class="space-y-1">
+<!-- Memory Item -->
+<div class="group p-4 bg-transparent hover:bg-surface-container-low transition-colors cursor-pointer border-l-2 border-transparent hover:border-primary">
+<div class="flex justify-between mb-1">
+<span class="font-label text-[9px] uppercase text-outline">22.04.24</span>
+<span class="material-symbols-outlined text-xs text-outline opacity-0 group-hover:opacity-100 transition-opacity">north_east</span>
+</div>
+<h4 class="font-body text-sm font-medium text-on-surface mb-1">Design System Schema</h4>
+<p class="font-body text-[11px] text-on-surface-variant line-clamp-2">Definition of HSL elevation and the 'No-Line' mandate for Polymath OS.</p>
+</div>
+<!-- Memory Item -->
+<div class="group p-4 bg-transparent hover:bg-surface-container-low transition-colors cursor-pointer border-l-2 border-transparent hover:border-primary">
+<div class="flex justify-between mb-1">
+<span class="font-label text-[9px] uppercase text-outline">21.04.24</span>
+<span class="material-symbols-outlined text-xs text-outline opacity-0 group-hover:opacity-100 transition-opacity">north_east</span>
+</div>
+<h4 class="font-body text-sm font-medium text-on-surface mb-1">Quantum Logic Synthesis</h4>
+<p class="font-body text-[11px] text-on-surface-variant line-clamp-2">Exploration of non-binary compute architectures within the Nova core.</p>
+</div>
+<!-- Memory Item -->
+<div class="group p-4 bg-transparent hover:bg-surface-container-low transition-colors cursor-pointer border-l-2 border-transparent hover:border-primary">
+<div class="flex justify-between mb-1">
+<span class="font-label text-[9px] uppercase text-outline">20.04.24</span>
+<span class="material-symbols-outlined text-xs text-outline opacity-0 group-hover:opacity-100 transition-opacity">north_east</span>
+</div>
+<h4 class="font-body text-sm font-medium text-on-surface mb-1">Sovereign Identity Block</h4>
+<p class="font-body text-[11px] text-on-surface-variant line-clamp-2">User protocol verification and cryptographic handshakes established.</p>
+</div>
+</div>
+</div>
+<!-- Footer Action -->
+<button class="w-full py-4 border border-outline-variant font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant hover:bg-primary hover:text-on-primary transition-all duration-300">
+                Purge Temporary Cache
+            </button>
+</aside>
+</div>
+</body></html>

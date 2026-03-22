@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary": "#e2e2e2",
+              "on-secondary": "#1b1b1b",
+              "tertiary-fixed": "#5e5e5e",
+              "on-primary-container": "#000000",
+              "on-background": "#e2e2e2",
+              "on-secondary-fixed": "#1b1b1b",
+              "primary-fixed": "#5d5e5f",
+              "on-tertiary-container": "#000000",
+              "tertiary-fixed-dim": "#474747",
+              "surface-container-low": "#1b1b1b",
+              "on-primary": "#1a1c1c",
+              "secondary-container": "#474747",
+              "on-error-container": "#ffdad6",
+              "surface": "#131313",
+              "on-tertiary-fixed-variant": "#e2e2e2",
+              "secondary": "#c6c6c6",
+              "primary-fixed-dim": "#464747",
+              "on-error": "#690005",
+              "error": "#ffb4ab",
+              "surface-dim": "#131313",
+              "surface-tint": "#c6c6c6",
+              "on-primary-fixed": "#ffffff",
+              "on-secondary-fixed-variant": "#3b3b3b",
+              "on-surface": "#e2e2e2",
+              "inverse-on-surface": "#303030",
+              "inverse-primary": "#5d5e5f",
+              "surface-container-lowest": "#0e0e0e",
+              "secondary-fixed-dim": "#ababab",
+              "on-surface-variant": "#c6c6c6",
+              "on-primary-fixed-variant": "#e3e2e2",
+              "error-container": "#93000a",
+              "surface-container": "#1f1f1f",
+              "primary": "#ffffff",
+              "outline-variant": "#474747",
+              "surface-container-high": "#2a2a2a",
+              "surface-bright": "#393939",
+              "background": "#131313",
+              "outline": "#919191",
+              "on-tertiary": "#1b1b1b",
+              "inverse-surface": "#e2e2e2",
+              "surface-variant": "#353535",
+              "primary-container": "#d4d4d4",
+              "surface-container-highest": "#353535",
+              "on-tertiary-fixed": "#ffffff",
+              "tertiary-container": "#919191",
+              "on-secondary-container": "#e2e2e2",
+              "secondary-fixed": "#c6c6c6"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        font-size: 20px;
+      }
+      .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: #0e0e0e; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: #353535; }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #474747; }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body selection:bg-primary selection:text-on-primary antialiased min-h-screen overflow-hidden flex">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-screen w-20 hover:w-64 transition-all duration-300 z-40 bg-[#0e0e0e] border-r border-[#474747]/15 flex flex-col py-8 items-center group overflow-hidden">
+<div class="mb-12 flex flex-col items-center group-hover:items-start group-hover:px-6 w-full transition-all">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-sm shrink-0">
+<span class="material-symbols-outlined text-on-primary" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<div class="hidden group-hover:block mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<p class="font-headline text-[11px] font-bold tracking-widest uppercase text-white">System Alpha</p>
+<p class="font-headline text-[9px] text-on-surface-variant tracking-wider uppercase">Mastery Level 4</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2 w-full px-4">
+<!-- Dashboard -->
+<a class="flex items-center gap-4 p-3 text-slate-500 hover:text-white hover:bg-[#1b1b1b] transition-all duration-200 ease-in-out group/item" href="#">
+<span class="material-symbols-outlined shrink-0" data-icon="dashboard">dashboard</span>
+<span class="hidden group-hover:block font-headline text-[11px] font-bold tracking-widest uppercase">Dashboard</span>
+</a>
+<!-- Research -->
+<a class="flex items-center gap-4 p-3 text-slate-500 hover:text-white hover:bg-[#1b1b1b] transition-all duration-200 ease-in-out group/item" href="#">
+<span class="material-symbols-outlined shrink-0" data-icon="biotech">biotech</span>
+<span class="hidden group-hover:block font-headline text-[11px] font-bold tracking-widest uppercase">Research</span>
+</a>
+<!-- Synthesis (Active Map to Library) -->
+<a class="flex items-center gap-4 p-3 text-white bg-[#2a2a2a] rounded-sm transition-all duration-200 ease-in-out group/item" href="#">
+<span class="material-symbols-outlined shrink-0" data-icon="psychology">psychology</span>
+<span class="hidden group-hover:block font-headline text-[11px] font-bold tracking-widest uppercase">Synthesis</span>
+</a>
+<!-- Archive -->
+<a class="flex items-center gap-4 p-3 text-slate-500 hover:text-white hover:bg-[#1b1b1b] transition-all duration-200 ease-in-out group/item" href="#">
+<span class="material-symbols-outlined shrink-0" data-icon="inventory_2">inventory_2</span>
+<span class="hidden group-hover:block font-headline text-[11px] font-bold tracking-widest uppercase">Archive</span>
+</a>
+<!-- Neural Engine -->
+<a class="flex items-center gap-4 p-3 text-slate-500 hover:text-white hover:bg-[#1b1b1b] transition-all duration-200 ease-in-out group/item" href="#">
+<span class="material-symbols-outlined shrink-0" data-icon="memory">memory</span>
+<span class="hidden group-hover:block font-headline text-[11px] font-bold tracking-widest uppercase">Neural Engine</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-2 w-full px-4">
+<a class="flex items-center gap-4 p-3 text-slate-500 hover:text-white hover:bg-[#1b1b1b] transition-all" href="#">
+<span class="material-symbols-outlined shrink-0" data-icon="help_outline">help_outline</span>
+<span class="hidden group-hover:block font-headline text-[11px] font-bold tracking-widest uppercase">Support</span>
+</a>
+<a class="flex items-center gap-4 p-3 text-slate-500 hover:text-white hover:bg-[#1b1b1b] transition-all" href="#">
+<span class="material-symbols-outlined shrink-0" data-icon="logout">logout</span>
+<span class="hidden group-hover:block font-headline text-[11px] font-bold tracking-widest uppercase">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Workspace -->
+<main class="flex-1 ml-20 flex flex-col h-screen transition-all duration-300">
+<!-- TopNavBar Anchor -->
+<header class="bg-[#131313] flex justify-between items-center w-full px-8 py-4 z-50 sticky top-0">
+<div class="flex items-center gap-8">
+<h1 class="text-2xl font-black tracking-tighter text-slate-50 font-headline uppercase">Obsidian Instrument</h1>
+<nav class="hidden md:flex gap-6">
+<a class="font-headline tracking-tight text-sm font-bold uppercase text-slate-500 hover:bg-[#2a2a2a] transition-colors duration-200 px-2 py-1" href="#">Workspace</a>
+<a class="font-headline tracking-tight text-sm font-bold uppercase text-white border-b-2 border-white pb-1" href="#">Library</a>
+<a class="font-headline tracking-tight text-sm font-bold uppercase text-slate-500 hover:bg-[#2a2a2a] transition-colors duration-200 px-2 py-1" href="#">Neural Lab</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative flex items-center bg-surface-container-low px-4 py-2 rounded-sm border-b border-outline-variant/30">
+<span class="material-symbols-outlined text-on-surface-variant mr-3" data-icon="search">search</span>
+<input class="bg-transparent border-none text-[11px] font-headline tracking-widest focus:ring-0 w-64 text-on-surface p-0 uppercase" placeholder="QUERY DATABASE..." type="text"/>
+</div>
+<div class="flex gap-4">
+<button class="material-symbols-outlined text-slate-100 hover:bg-[#2a2a2a] p-2 transition-all" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-slate-100 hover:bg-[#2a2a2a] p-2 transition-all" data-icon="settings">settings</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/50">
+<img class="w-full h-full object-cover" data-alt="User profile with silver status" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4EoJCcWI_X31N7M2HP1dFddbX2MyPBTvdhpM1Kcc_DgVJg-GRcKJKEH9tXGW8jFMImG8tMeJ5HMuNo43KtpvWkykTsOHBnbopYvvuRADnZCa6vVJU8iExcagHmu882niuCN9oNm2rrcfyVbFfNm8VDh8uznvrkHitLSxd0wMNcd4yPkf4g_cSwy24ognHJtZI9glV8dQQAuevaI6mSJRFI9dfFwoDkeB3lf_7x2CnAh4k3ogt3UF-Jrk05odODO8K3jzayOxObV4"/>
+</div>
+</div>
+</div>
+</header>
+<!-- AI Pulse Indicator -->
+<div class="w-full h-[2px] bg-surface-container-low overflow-hidden relative">
+<div class="absolute inset-0 bg-gradient-to-r from-secondary to-primary w-1/3 animate-[pulse_2s_infinite]"></div>
+</div>
+<!-- Content Area -->
+<section class="flex-1 overflow-y-auto custom-scrollbar p-8 bg-surface-container-lowest">
+<!-- Filter Bar -->
+<div class="flex items-center justify-between mb-8">
+<div class="flex gap-3">
+<button class="px-4 py-1.5 bg-primary text-on-primary font-headline text-[10px] font-bold uppercase tracking-widest rounded-sm">All Intel</button>
+<button class="px-4 py-1.5 bg-surface-container-low text-on-surface-variant hover:text-white hover:bg-surface-container-high transition-colors font-headline text-[10px] font-bold uppercase tracking-widest rounded-sm border border-outline-variant/10">AI &amp; Ethics</button>
+<button class="px-4 py-1.5 bg-surface-container-low text-on-surface-variant hover:text-white hover:bg-surface-container-high transition-colors font-headline text-[10px] font-bold uppercase tracking-widest rounded-sm border border-outline-variant/10">Research Papers</button>
+<button class="px-4 py-1.5 bg-surface-container-low text-on-surface-variant hover:text-white hover:bg-surface-container-high transition-colors font-headline text-[10px] font-bold uppercase tracking-widest rounded-sm border border-outline-variant/10">Global News</button>
+<button class="px-4 py-1.5 bg-surface-container-low text-on-surface-variant hover:text-white hover:bg-surface-container-high transition-colors font-headline text-[10px] font-bold uppercase tracking-widest rounded-sm border border-outline-variant/10">Synthesis</button>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="font-headline text-[10px] uppercase tracking-tighter">Sorted by: <span class="text-white">Neural Relevance</span></span>
+<span class="material-symbols-outlined cursor-pointer hover:text-white" data-icon="filter_list">filter_list</span>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6 auto-rows-[160px]">
+<!-- Main Featured Card -->
+<article class="col-span-12 md:col-span-8 row-span-2 bg-surface-container-low p-8 flex flex-col justify-end relative overflow-hidden hover:bg-surface-bright transition-colors duration-300">
+<div class="absolute top-8 right-8">
+<span class="bg-primary/10 text-primary border border-primary/20 px-3 py-1 font-headline text-[10px] uppercase tracking-widest rounded-sm">Primary Focus</span>
+</div>
+<div class="max-w-xl">
+<div class="flex items-center gap-3 mb-4 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+<span class="font-headline text-[11px] uppercase tracking-widest">Autonomous Agent Frameworks v4.2</span>
+</div>
+<h2 class="font-headline text-4xl font-bold leading-none tracking-tighter text-white mb-6">Neural Architecture for Long-Term Memory Synthesis</h2>
+<p class="text-on-surface-variant text-sm line-clamp-2 mb-6 leading-relaxed">AI SUMMARY: A comprehensive breakdown of recursive self-optimization loops in transformer models. Focuses on the elimination of context-window decay through external vector anchoring.</p>
+<div class="flex items-center gap-6">
+<button class="bg-primary text-on-primary px-6 py-2 font-headline text-[11px] font-bold uppercase tracking-widest rounded-sm hover:opacity-90 transition-opacity">Deploy Research</button>
+<span class="text-[10px] font-headline uppercase tracking-widest text-on-surface-variant">Modified 4h ago</span>
+</div>
+</div>
+</article>
+<!-- Metric Card 1 -->
+<article class="col-span-12 md:col-span-4 row-span-1 bg-surface-container-low p-6 flex flex-col justify-between hover:bg-surface-bright transition-colors">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary" data-icon="bolt">bolt</span>
+<span class="text-[10px] font-headline uppercase tracking-widest text-on-surface-variant">Synapse Load</span>
+</div>
+<div>
+<p class="text-3xl font-headline font-bold text-white leading-none tracking-tighter">84.2%</p>
+<p class="text-[10px] font-headline uppercase tracking-widest text-on-surface-variant mt-2">Active Learning Efficiency</p>
+</div>
+</article>
+<!-- Metric Card 2 -->
+<article class="col-span-12 md:col-span-4 row-span-1 bg-surface-container-low p-6 flex flex-col justify-between hover:bg-surface-bright transition-colors">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary" data-icon="database">database</span>
+<span class="text-[10px] font-headline uppercase tracking-widest text-on-surface-variant">Storage</span>
+</div>
+<div>
+<p class="text-3xl font-headline font-bold text-white leading-none tracking-tighter">12.4 TB</p>
+<p class="text-[10px] font-headline uppercase tracking-widest text-on-surface-variant mt-2">Processed Knowledge Base</p>
+</div>
+</article>
+<!-- Standard Library Item 1 -->
+<article class="col-span-12 md:col-span-4 row-span-2 bg-surface-container-low p-6 flex flex-col justify-between hover:bg-surface-bright transition-colors">
+<div class="flex justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="description">description</span>
+<span class="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant">PDF • MIT Review</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/50 cursor-pointer" data-icon="more_vert">more_vert</span>
+</div>
+<div class="mt-auto">
+<h3 class="font-headline text-lg font-bold leading-tight text-white mb-4">Post-Silicon Ethics in Decentralized Nodes</h3>
+<p class="text-xs text-on-surface-variant mb-6 leading-relaxed">AI SUMMARY: Critical analysis of ethics-as-code deployment in serverless edge computing environments.</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-0.5 bg-[#2a2a2a] text-[9px] font-headline uppercase tracking-widest text-white rounded-sm">AI Ethics</span>
+<span class="px-2 py-0.5 bg-[#2a2a2a] text-[9px] font-headline uppercase tracking-widest text-white rounded-sm">Governance</span>
+</div>
+</div>
+</article>
+<!-- Standard Library Item 2 -->
+<article class="col-span-12 md:col-span-4 row-span-2 bg-surface-container-low p-6 flex flex-col justify-between hover:bg-surface-bright transition-colors">
+<div class="flex justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="language">language</span>
+<span class="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant">URL • Reuters Intel</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/50 cursor-pointer" data-icon="more_vert">more_vert</span>
+</div>
+<div class="mt-auto">
+<h3 class="font-headline text-lg font-bold leading-tight text-white mb-4">Quantum Supremacy Benchmarks: Q3 Update</h3>
+<p class="text-xs text-on-surface-variant mb-6 leading-relaxed">AI SUMMARY: Verification of stable coherence in 256-qubit arrays. Breaking encryption standards timeline shortened.</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-0.5 bg-[#2a2a2a] text-[9px] font-headline uppercase tracking-widest text-white rounded-sm">Quantum</span>
+<span class="px-2 py-0.5 bg-[#2a2a2a] text-[9px] font-headline uppercase tracking-widest text-white rounded-sm">Security</span>
+</div>
+</div>
+</article>
+<!-- Data Visualization/Insight Card -->
+<article class="col-span-12 md:col-span-4 row-span-2 bg-[#1b1b1b] p-6 flex flex-col hover:bg-surface-bright transition-colors relative">
+<div class="absolute inset-x-0 bottom-0 h-32 opacity-20 bg-gradient-to-t from-primary to-transparent"></div>
+<div class="relative z-10 flex flex-col h-full">
+<div class="flex justify-between items-start mb-6">
+<span class="material-symbols-outlined text-primary" data-icon="monitoring">monitoring</span>
+<span class="text-[10px] font-headline uppercase tracking-widest text-on-surface-variant">Insight Trend</span>
+</div>
+<p class="text-sm font-headline text-white uppercase tracking-widest font-bold mb-2">Cross-Reference Spike</p>
+<p class="text-xs text-on-surface-variant leading-relaxed">Identified correlation between "Sub-zero Superconductivity" and "Space-X Launch manifest B". Recommended inquiry depth: Level 5.</p>
+<div class="mt-auto pt-4 flex items-end gap-1">
+<div class="w-full h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[70%]"></div>
+</div>
+<span class="text-[9px] font-headline text-white">70%</span>
+</div>
+</div>
+</article>
+<!-- Small Grid Items -->
+<article class="col-span-12 md:col-span-3 row-span-1 bg-surface-container-low p-4 flex items-center gap-4 hover:bg-surface-bright transition-colors">
+<div class="w-10 h-10 bg-[#2a2a2a] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="newspaper">newspaper</span>
+</div>
+<div class="overflow-hidden">
+<p class="text-[10px] font-headline uppercase tracking-widest text-on-surface-variant">News</p>
+<p class="text-xs font-bold text-white truncate">Global Silicon Shortage Projection</p>
+</div>
+</article>
+<article class="col-span-12 md:col-span-3 row-span-1 bg-surface-container-low p-4 flex items-center gap-4 hover:bg-surface-bright transition-colors">
+<div class="w-10 h-10 bg-[#2a2a2a] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="article">article</span>
+</div>
+<div class="overflow-hidden">
+<p class="text-[10px] font-headline uppercase tracking-widest text-on-surface-variant">Draft</p>
+<p class="text-xs font-bold text-white truncate">Whitepaper: Post-Human Synthesis</p>
+</div>
+</article>
+<article class="col-span-12 md:col-span-3 row-span-1 bg-surface-container-low p-4 flex items-center gap-4 hover:bg-surface-bright transition-colors">
+<div class="w-10 h-10 bg-[#2a2a2a] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="science">science</span>
+</div>
+<div class="overflow-hidden">
+<p class="text-[10px] font-headline uppercase tracking-widest text-on-surface-variant">Lab</p>
+<p class="text-xs font-bold text-white truncate">Graphene Lattice Stability Test</p>
+</div>
+</article>
+<article class="col-span-12 md:col-span-3 row-span-1 bg-surface-container-low p-4 flex items-center gap-4 hover:bg-surface-bright transition-colors">
+<div class="w-10 h-10 bg-[#2a2a2a] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="biotech">biotech</span>
+</div>
+<div class="overflow-hidden">
+<p class="text-[10px] font-headline uppercase tracking-widest text-on-surface-variant">Research</p>
+<p class="text-xs font-bold text-white truncate">CRISPR Editing in Bio-Hacker Hubs</p>
+</div>
+</article>
+</div>
+</section>
+<!-- Command Bar Overlay (Implicit Ghost) -->
+<footer class="bg-surface-container px-8 py-3 flex justify-between items-center border-t border-outline-variant/10">
+<div class="flex items-center gap-6">
+<span class="flex items-center gap-2 text-[10px] font-headline uppercase tracking-widest text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                    Neural Engine Linked
+                </span>
+<span class="text-[10px] font-headline uppercase tracking-widest text-on-surface-variant/50">v1.0.4-Obsidian</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-headline uppercase tracking-widest text-on-surface-variant">Press <kbd class="px-1.5 py-0.5 bg-surface-container-high rounded-sm text-white">CMD+K</kbd> to Query</span>
+<div class="w-1 h-4 bg-outline-variant/30"></div>
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="wifi">wifi</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="battery_charging_80">battery_charging_80</span>
+</div>
+</div>
+</footer>
+</main>
+<!-- Floating Action Button (FAB) Suppression check: Only on Dashboard/Library -->
+<button class="fixed bottom-12 right-12 w-14 h-14 bg-primary text-on-primary flex items-center justify-center rounded-sm transition-all active:scale-95 z-50 group shadow-2xl">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span class="absolute right-full mr-4 px-3 py-1 bg-surface-container-high text-white font-headline text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">Ingest Source</span>
+</button>
+</body></html>

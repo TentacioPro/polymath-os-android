@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Obsidian Instrument | Journal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-fixed": "#1b1c1c",
+                        "tertiary-fixed": "#f4e2a9",
+                        "on-primary-container": "#6b4900",
+                        "on-background": "#e5e2e1",
+                        "on-secondary": "#303030",
+                        "tertiary": "#efdda5",
+                        "secondary-container": "#474746",
+                        "on-error-container": "#ffdad6",
+                        "on-primary": "#432c00",
+                        "tertiary-fixed-dim": "#d7c690",
+                        "surface-container-low": "#1c1b1b",
+                        "on-tertiary-container": "#5b4e23",
+                        "primary-fixed": "#ffdeac",
+                        "primary-fixed-dim": "#ffba38",
+                        "on-error": "#690005",
+                        "error": "#ffb4ab",
+                        "secondary": "#c8c6c5",
+                        "on-tertiary-fixed-variant": "#52461c",
+                        "surface": "#131313",
+                        "surface-dim": "#131313",
+                        "inverse-primary": "#7e5700",
+                        "on-surface": "#e5e2e1",
+                        "inverse-on-surface": "#313030",
+                        "on-secondary-fixed-variant": "#474746",
+                        "surface-tint": "#ffba38",
+                        "on-primary-fixed": "#281900",
+                        "surface-container": "#201f1f",
+                        "primary": "#ffd79b",
+                        "error-container": "#93000a",
+                        "surface-container-lowest": "#0e0e0e",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-surface-variant": "#d6c4ac",
+                        "on-primary-fixed-variant": "#604100",
+                        "background": "#131313",
+                        "surface-bright": "#393939",
+                        "surface-container-high": "#2a2a2a",
+                        "outline-variant": "#514532",
+                        "secondary-fixed": "#e4e2e1",
+                        "on-secondary-container": "#b7b5b4",
+                        "tertiary-container": "#d2c18b",
+                        "surface-container-highest": "#353534",
+                        "on-tertiary-fixed": "#231b00",
+                        "surface-variant": "#353534",
+                        "primary-container": "#ffb300",
+                        "inverse-surface": "#e5e2e1",
+                        "on-tertiary": "#3a3007",
+                        "outline": "#9e8e78"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .glass-panel {
+            background: rgba(19, 19, 19, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(81, 69, 50, 0.1);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #514532; border-radius: 10px; }
+        .amber-glow {
+            text-shadow: 0 0 8px rgba(255, 215, 155, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body overflow-hidden">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-[#131313] flex justify-between items-center w-full px-8 py-4 border-none">
+<div class="flex items-center gap-12">
+<span class="text-2xl font-black tracking-tighter text-slate-50 font-headline">Obsidian Instrument</span>
+<nav class="hidden md:flex gap-8">
+<a class="font-headline tracking-tight text-sm font-bold uppercase text-slate-500 hover:bg-[#2a2a2a] transition-colors duration-200" href="#">Workspace</a>
+<a class="font-headline tracking-tight text-sm font-bold uppercase text-white border-b-2 border-white pb-1" href="#">Library</a>
+<a class="font-headline tracking-tight text-sm font-bold uppercase text-slate-500 hover:bg-[#2a2a2a] transition-colors duration-200" href="#">Neural Lab</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative flex items-center bg-surface-container-highest px-4 py-1.5 rounded-sm">
+<span class="material-symbols-outlined text-sm text-outline mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none text-xs focus:ring-0 w-48 placeholder:text-outline/50 uppercase font-headline tracking-widest" placeholder="Search Archives..." type="text"/>
+</div>
+<div class="flex gap-4 items-center">
+<span class="material-symbols-outlined text-slate-500 hover:text-primary transition-colors cursor-pointer" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-slate-500 hover:text-primary transition-colors cursor-pointer" data-icon="settings">settings</span>
+<div class="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-primary-container p-[1px]">
+<img class="h-full w-full rounded-full object-cover grayscale contrast-125" data-alt="User profile with silver status" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATYS-xVao0YNo4BenV9H4pCe-mZOuDxyg_ElMoSzTeXdSHXqa1j_djqnvmCSosZLB2PrbgD698Q3LXr-U2voYj7gz-IrWPv6nXvo-ScaE9ihF7oKkOke1asHeVVBYzFbfUaCyjt91yXyfuKX6W5ELCg3Xt-q-eUvnP_P6E0-v-Ic9jZt1k5V2yY9l5e_3ChgKXAOpmIH3MzNtka6l0yrxUB-HYGTPd7LwgznTUMGCzYW64fh4l9cq0hQgW0YK00uJKrLd-PuQa2iA"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Left Rail) -->
+<aside class="fixed left-0 top-0 h-screen w-20 hover:w-64 transition-all duration-300 z-40 bg-[#131313] border-r border-[#474747]/15 flex flex-col py-8 items-center group overflow-hidden">
+<div class="mt-16 flex flex-col items-center gap-8 w-full">
+<div class="flex flex-col items-center gap-1 w-full px-4 mb-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="h-12 w-12 rounded-sm bg-surface-container-high flex items-center justify-center border border-outline-variant/20">
+<span class="material-symbols-outlined text-primary" data-icon="psychology" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<span class="font-headline text-[10px] font-bold tracking-[0.2em] uppercase text-primary mt-2">System Alpha</span>
+<span class="font-headline text-[8px] text-outline uppercase">Mastery Level 4</span>
+</div>
+<div class="flex flex-col gap-2 w-full px-3">
+<div class="flex items-center gap-4 p-3 text-slate-500 hover:text-white hover:bg-[#1b1b1b] rounded-sm transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined shrink-0" data-icon="dashboard">dashboard</span>
+<span class="font-headline text-[11px] font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity">Dashboard</span>
+</div>
+<div class="flex items-center gap-4 p-3 text-slate-500 hover:text-white hover:bg-[#1b1b1b] rounded-sm transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined shrink-0" data-icon="biotech">biotech</span>
+<span class="font-headline text-[11px] font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity">Research</span>
+</div>
+<div class="flex items-center gap-4 p-3 text-white bg-[#2a2a2a] rounded-sm transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined shrink-0" data-icon="psychology" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span class="font-headline text-[11px] font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity">Synthesis</span>
+</div>
+<div class="flex items-center gap-4 p-3 text-slate-500 hover:text-white hover:bg-[#1b1b1b] rounded-sm transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined shrink-0" data-icon="inventory_2">inventory_2</span>
+<span class="font-headline text-[11px] font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity">Archive</span>
+</div>
+<div class="flex items-center gap-4 p-3 text-slate-500 hover:text-white hover:bg-[#1b1b1b] rounded-sm transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined shrink-0" data-icon="memory">memory</span>
+<span class="font-headline text-[11px] font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity">Neural Engine</span>
+</div>
+</div>
+</div>
+<div class="mt-auto flex flex-col gap-2 w-full px-3">
+<button class="mb-4 bg-primary text-on-primary px-4 py-2 rounded-sm font-headline text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                New Insight
+            </button>
+<div class="flex items-center gap-4 p-3 text-slate-500 hover:text-white transition-all cursor-pointer">
+<span class="material-symbols-outlined shrink-0" data-icon="help_outline">help_outline</span>
+<span class="font-headline text-[11px] font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity">Support</span>
+</div>
+<div class="flex items-center gap-4 p-3 text-slate-500 hover:text-white transition-all cursor-pointer">
+<span class="material-symbols-outlined shrink-0" data-icon="logout">logout</span>
+<span class="font-headline text-[11px] font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity">Sign Out</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-20 mt-[72px] flex h-[calc(100vh-72px)] overflow-hidden">
+<!-- Column 1: Journal Entry List -->
+<section class="w-80 flex flex-col bg-surface-container-lowest border-r border-outline-variant/10 shrink-0">
+<div class="p-6">
+<h2 class="font-headline text-xs font-black tracking-[0.2em] uppercase text-outline mb-6">Historical Logs</h2>
+<div class="space-y-4">
+<!-- Active Entry -->
+<div class="group cursor-pointer p-4 bg-surface-container-high rounded-sm relative transition-all duration-200 border-l-2 border-primary">
+<span class="font-headline text-[9px] text-primary/60 uppercase tracking-widest">Oct 24, 2023 · 21:42</span>
+<h3 class="font-headline text-sm font-bold text-white mt-1 group-hover:text-primary transition-colors">Neural Convergence Theory</h3>
+<p class="text-xs text-on-surface-variant line-clamp-2 mt-2 font-body leading-relaxed">Observing atypical resonance patterns in the Alpha-5 node. Preliminary data suggests...</p>
+</div>
+<!-- Entry -->
+<div class="group cursor-pointer p-4 bg-surface-container-low hover:bg-surface-container transition-all duration-200 rounded-sm">
+<span class="font-headline text-[9px] text-outline uppercase tracking-widest">Oct 22, 2023 · 08:15</span>
+<h3 class="font-headline text-sm font-bold text-on-surface mt-1 group-hover:text-primary transition-colors">The Obsidian Protocol</h3>
+<p class="text-xs text-on-surface-variant line-clamp-2 mt-2 font-body leading-relaxed">Mapping the architecture for the next phase of the Sovereign Archive...</p>
+</div>
+<!-- Entry -->
+<div class="group cursor-pointer p-4 bg-surface-container-low hover:bg-surface-container transition-all duration-200 rounded-sm">
+<span class="font-headline text-[9px] text-outline uppercase tracking-widest">Oct 20, 2023 · 23:59</span>
+<h3 class="font-headline text-sm font-bold text-on-surface mt-1 group-hover:text-primary transition-colors">Fragmented Memory Core</h3>
+<p class="text-xs text-on-surface-variant line-clamp-2 mt-2 font-body leading-relaxed">Retrieved segments from the 2019 vault. Integrity check is currently at 84%...</p>
+</div>
+<!-- Entry -->
+<div class="group cursor-pointer p-4 bg-surface-container-low hover:bg-surface-container transition-all duration-200 rounded-sm">
+<span class="font-headline text-[9px] text-outline uppercase tracking-widest">Oct 18, 2023 · 14:30</span>
+<h3 class="font-headline text-sm font-bold text-on-surface mt-1 group-hover:text-primary transition-colors">Cognitive Load Baseline</h3>
+<p class="text-xs text-on-surface-variant line-clamp-2 mt-2 font-body leading-relaxed">Establishing new metrics for deep work sessions. The neural engine requires...</p>
+</div>
+</div>
+</div>
+<div class="mt-auto p-4 flex justify-between items-center border-t border-outline-variant/5">
+<span class="font-headline text-[10px] text-outline uppercase font-bold">142 Entries Found</span>
+<span class="material-symbols-outlined text-outline text-lg cursor-pointer hover:text-white" data-icon="filter_list">filter_list</span>
+</div>
+</section>
+<!-- Column 2: Markdown Editor -->
+<section class="flex-1 flex flex-col bg-surface-container-low relative">
+<!-- Toolbar -->
+<div class="px-10 py-4 flex items-center justify-between border-b border-outline-variant/10">
+<div class="flex items-center gap-6">
+<button class="flex items-center gap-2 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="edit_note">edit_note</span>
+<span class="font-headline text-[10px] font-bold uppercase tracking-widest">Write</span>
+</button>
+<button class="flex items-center gap-2 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="visibility">visibility</span>
+<span class="font-headline text-[10px] font-bold uppercase tracking-widest">Preview</span>
+</button>
+<div class="h-4 w-[1px] bg-outline-variant/30 mx-2"></div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-outline hover:text-white cursor-pointer" data-icon="format_bold">format_bold</span>
+<span class="material-symbols-outlined text-outline hover:text-white cursor-pointer" data-icon="format_italic">format_italic</span>
+<span class="material-symbols-outlined text-outline hover:text-white cursor-pointer" data-icon="link">link</span>
+<span class="material-symbols-outlined text-outline hover:text-white cursor-pointer" data-icon="image">image</span>
+</div>
+</div>
+<div class="flex gap-4 items-center">
+<span class="font-headline text-[9px] text-outline uppercase font-bold tracking-widest">Auto-saved 2m ago</span>
+<button class="bg-primary-container text-on-primary-container px-4 py-1.5 rounded-sm font-headline text-[10px] font-black uppercase tracking-widest">
+                        Publish Entry
+                    </button>
+</div>
+</div>
+<!-- Editor Content -->
+<div class="flex-1 overflow-y-auto px-10 pt-12 pb-24">
+<div class="max-w-4xl mx-auto">
+<input class="w-full bg-transparent border-none text-4xl font-black font-headline text-white placeholder:text-outline/20 focus:ring-0 mb-8 amber-glow" type="text" value="Neural Convergence Theory"/>
+<div class="flex flex-wrap gap-2 mb-10">
+<div class="flex items-center gap-1.5 bg-surface-container-highest px-3 py-1 rounded-full border border-outline-variant/20">
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="bolt" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-headline text-[10px] font-bold uppercase tracking-widest text-on-surface">High Cognitive Load</span>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-highest px-3 py-1 rounded-full border border-outline-variant/20">
+<span class="material-symbols-outlined text-[14px] text-tertiary" data-icon="science" style="font-variation-settings: 'FILL' 1;">science</span>
+<span class="font-headline text-[10px] font-bold uppercase tracking-widest text-on-surface">Alpha Testing</span>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-highest px-3 py-1 rounded-full border border-outline-variant/20">
+<span class="material-symbols-outlined text-[14px] text-outline" data-icon="location_on" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<span class="font-headline text-[10px] font-bold uppercase tracking-widest text-on-surface">Vault-7 Sector</span>
+</div>
+</div>
+<textarea class="w-full bg-transparent border-none focus:ring-0 text-lg text-on-surface leading-relaxed font-body min-h-[500px] resize-none" spellcheck="false">## Synthesis Parameters
+
+Testing the new resonance nodes across the sovereign archive reveals a startling pattern. We aren't just storing data anymore; the obsidian interface is beginning to reflect cognitive states in real-time.
+
+### Preliminary Observations
+1. **Response Latency:** Down to 4ms in local environments.
+2. **Visual Fidelity:** The amber neural theme provides optimal contrast for deep work sessions.
+3. **Connectivity:** Linked nodes are showing synchronous growth patterns.
+
+As I continue the research into fragmented memory cores, the goal remains clear: total digital autonomy through the Polymath OS. The Obsidian Instrument is more than a tool—it's an extension of the scholar's own mind.
+
+&gt; "The true archive is not a library of the past, but a machine for the future." 
+— Anonymous Protocol</textarea>
+</div>
+</div>
+</section>
+<!-- Sidebar: Tag & Metadata Management -->
+<section class="w-64 bg-surface flex flex-col shrink-0 border-l border-outline-variant/10">
+<div class="p-6">
+<h2 class="font-headline text-xs font-black tracking-[0.2em] uppercase text-outline mb-6">Taxonomy</h2>
+<div class="space-y-8">
+<div>
+<h4 class="font-headline text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-4">Top Clusters</h4>
+<div class="space-y-3">
+<div class="flex items-center justify-between group cursor-pointer">
+<span class="text-xs font-headline font-bold uppercase tracking-widest text-outline group-hover:text-primary transition-colors">Neural_Arch</span>
+<span class="text-[10px] text-outline/50 font-headline">42</span>
+</div>
+<div class="flex items-center justify-between group cursor-pointer">
+<span class="text-xs font-headline font-bold uppercase tracking-widest text-outline group-hover:text-primary transition-colors">Bio_Logic</span>
+<span class="text-[10px] text-outline/50 font-headline">28</span>
+</div>
+<div class="flex items-center justify-between group cursor-pointer">
+<span class="text-xs font-headline font-bold uppercase tracking-widest text-outline group-hover:text-primary transition-colors">Obsidian_OS</span>
+<span class="text-[10px] text-outline/50 font-headline">12</span>
+</div>
+<div class="flex items-center justify-between group cursor-pointer">
+<span class="text-xs font-headline font-bold uppercase tracking-widest text-outline group-hover:text-primary transition-colors">Void_Theory</span>
+<span class="text-[10px] text-outline/50 font-headline">07</span>
+</div>
+</div>
+</div>
+<div class="pt-6 border-t border-outline-variant/10">
+<h4 class="font-headline text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-4">Related Nodes</h4>
+<div class="grid grid-cols-1 gap-3">
+<div class="bg-surface-container-low p-3 rounded-sm flex items-center gap-3">
+<img class="h-8 w-8 object-cover grayscale brightness-75" data-alt="Abstract neural network visual" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIQOBd-wv7ZeuUh0jHTWnz5zj_WFHrWmL_VCii6tK_iYOGDCgFocISfXqQl-QgldH3FcdPOVBUhByXazR_uJJwKsf3PfyP9c477N5BiChadk4qBEFEqMA5DL-OSqaBEWsWAL1E1YqnY_B6npxdR0ugiGcoxvAJgsj-DAdsAK9KCpxlHqBsXvkxYLm0dqSakUgl_XGXAwqpKigGK_xRNycBufgEMTrcT8trAXtGb7tytAysgj1wpaIzvXl4c7w8UoS-rBouL4usLWs"/>
+<div class="overflow-hidden">
+<span class="block text-[10px] font-headline font-bold uppercase text-on-surface truncate">Archive_Node_01</span>
+<span class="block text-[8px] font-headline text-outline uppercase">Linked 4h ago</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-sm flex items-center gap-3">
+<img class="h-8 w-8 object-cover grayscale brightness-75" data-alt="Microscopic crystalline structure" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBB5pNhvJ5cU76DuX06IQ4_kiR7goHOEwET_x-4h22d-a1FD8FhobI7ednDUGz7YeO6muac5AgibUI1kwuZ87vAMB5GjjTJNg-M-lNoaF-JIC9RFiNyxlDRdF5m75EN-w1mdRXuHUNsnUCIUHmNfDI2bkXgNibblpzZ2se6iwmvzixTxJ9JX5JEgStigiiJJsdDi-m2vsBmxcyAa4oJAmh1b-d5aNEjm1emDOrK3sA_FwR5L5FhR8lMCPgd7XZOQJhngH_9OtoPpEo"/>
+<div class="overflow-hidden">
+<span class="block text-[10px] font-headline font-bold uppercase text-on-surface truncate">Crystal_Sync_05</span>
+<span class="block text-[8px] font-headline text-outline uppercase">Linked 1d ago</span>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-6 border-t border-outline-variant/10">
+<h4 class="font-headline text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-4">Vault Status</h4>
+<div class="bg-surface-container-lowest p-4 rounded-sm">
+<div class="flex justify-between items-end mb-2">
+<span class="text-[9px] font-headline text-outline uppercase">Storage Density</span>
+<span class="text-[11px] font-headline font-black text-primary">82%</span>
+</div>
+<div class="h-1 w-full bg-surface-container-high overflow-hidden rounded-full">
+<div class="h-full bg-primary" style="width: 82%"></div>
+</div>
+<p class="text-[8px] text-outline/40 mt-3 font-headline uppercase leading-tight">Encryption: Level 9 Obsidian Standard. Identity Locked.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Contextual FAB (Only for Main Dashboard/Journal Flow) -->
+<div class="fixed bottom-10 right-10 z-50">
+<button class="h-14 w-14 bg-primary text-on-primary flex items-center justify-center rounded-sm shadow-[0_0_20px_rgba(255,215,155,0.3)] active:scale-95 transition-all duration-100 group">
+<span class="material-symbols-outlined text-2xl group-hover:rotate-90 transition-transform" data-icon="add">add</span>
+</button>
+</div>
+</body></html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Polymath OS - Appearance Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Space+Grotesk:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline-variant": "#474747",
+                        "inverse-primary": "#5d5e5f",
+                        "surface-container-highest": "#353535",
+                        "surface": "#131313",
+                        "on-background": "#e2e2e2",
+                        "inverse-on-surface": "#303030",
+                        "primary-container": "#d4d4d4",
+                        "surface-bright": "#393939",
+                        "background": "#131313",
+                        "inverse-surface": "#e2e2e2",
+                        "tertiary-container": "#919191",
+                        "on-secondary-container": "#e2e2e2",
+                        "surface-variant": "#353535",
+                        "surface-tint": "#c6c6c6",
+                        "on-secondary": "#1b1b1b",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-fixed": "#ffffff",
+                        "secondary": "#c6c6c6",
+                        "surface-dim": "#131313",
+                        "on-primary-fixed-variant": "#e3e2e2",
+                        "outline": "#919191",
+                        "on-surface": "#e2e2e2",
+                        "error": "#ffb4ab",
+                        "secondary-fixed": "#c6c6c6",
+                        "on-primary-container": "#000000",
+                        "primary": "#ffffff",
+                        "primary-fixed-dim": "#464747",
+                        "on-tertiary-container": "#000000",
+                        "on-tertiary": "#1b1b1b",
+                        "primary-fixed": "#5d5e5f",
+                        "secondary-fixed-dim": "#ababab",
+                        "on-secondary-fixed-variant": "#3b3b3b",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container-high": "#2a2a2a",
+                        "tertiary": "#e2e2e2",
+                        "on-primary": "#1a1c1c",
+                        "error-container": "#93000a",
+                        "secondary-container": "#474747",
+                        "on-surface-variant": "#c6c6c6",
+                        "on-secondary-fixed": "#1b1b1b",
+                        "on-error": "#690005",
+                        "tertiary-fixed-dim": "#474747",
+                        "on-tertiary-fixed-variant": "#e2e2e2",
+                        "surface-container-low": "#1b1b1b",
+                        "surface-container": "#1f1f1f",
+                        "tertiary-fixed": "#5e5e5e",
+                        "on-tertiary-fixed": "#ffffff"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.75rem;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-container-lowest text-on-surface font-body selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar Navigation Shell -->
+<header class="bg-[#131313] dark:bg-[#0e0e0e] docked full-width top-0 z-50">
+<div class="flex items-center justify-between px-6 h-16 w-full max-w-none">
+<div class="flex items-center gap-4">
+<button class="hover:bg-[#2a2a2a] transition-colors duration-200 p-2 scale-95 active:opacity-80 transition-all">
+<span class="material-symbols-outlined text-neutral-100 dark:text-neutral-50">arrow_back</span>
+</button>
+<h1 class="font-['Space_Grotesk'] tracking-tight font-bold text-lg text-neutral-100 dark:text-neutral-50">System Appearance</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="hover:bg-[#2a2a2a] transition-colors duration-200 p-2 scale-95 active:opacity-80 transition-all">
+<span class="material-symbols-outlined text-neutral-100 dark:text-neutral-50">settings_input_component</span>
+</button>
+</div>
+</div>
+<div class="bg-[#1b1b1b] h-[1px] w-full"></div>
+</header>
+<!-- Main Content Canvas -->
+<main class="max-w-7xl mx-auto px-6 pt-24 pb-32">
+<div class="bento-grid">
+<!-- Section Title Module -->
+<div class="col-span-12 mb-4">
+<p class="font-label text-[0.6875rem] uppercase tracking-[0.1rem] text-outline mb-2">Interface Engine</p>
+<h2 class="font-headline text-4xl font-bold tracking-tight text-primary">Obsidian Monolith</h2>
+</div>
+<!-- System Toggles Bento Card -->
+<div class="col-span-12 md:col-span-5 bg-surface-container-low p-7 flex flex-col justify-between min-h-[320px] group hover:bg-surface-bright transition-colors duration-300">
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold text-on-surface">Neural Mesh Sync</p>
+<p class="text-xs text-on-surface-variant">Real-time synaptic state optimization</p>
+</div>
+<div class="w-10 h-5 bg-primary rounded-full relative p-0.5 cursor-pointer">
+<div class="w-4 h-4 bg-on-primary rounded-full translate-x-5"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold text-on-surface">AI Context Tracking</p>
+<p class="text-xs text-on-surface-variant">Persistent cognitive vector analysis</p>
+</div>
+<div class="w-10 h-5 bg-surface-container-highest rounded-full relative p-0.5 cursor-pointer">
+<div class="w-4 h-4 bg-on-surface-variant translate-x-0"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold text-on-surface">Haptic Transitions</p>
+<p class="text-xs text-on-surface-variant">Kinetic feedback on focus shifts</p>
+</div>
+<div class="w-10 h-5 bg-primary rounded-full relative p-0.5 cursor-pointer">
+<div class="w-4 h-4 bg-on-primary rounded-full translate-x-5"></div>
+</div>
+</div>
+</div>
+<div class="mt-8 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">tune</span>
+<span class="font-label text-[0.6875rem] uppercase tracking-[0.1rem] text-outline">System Controls</span>
+</div>
+</div>
+<!-- Theme Swatches Bento Card -->
+<div class="col-span-12 md:col-span-7 bg-surface-container-low p-7 flex flex-col justify-between group hover:bg-surface-bright transition-colors duration-300">
+<div>
+<div class="flex justify-between items-start mb-8">
+<h3 class="font-headline text-xl font-bold">Theme Swatches</h3>
+<div class="h-0.5 w-12 bg-gradient-to-r from-secondary to-primary"></div>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4 scroll-smooth">
+<!-- Obsidian -->
+<div class="flex-shrink-0 flex flex-col items-center gap-3">
+<div class="w-16 h-16 rounded-lg bg-surface-container-lowest border border-primary/20 flex items-center justify-center">
+<div class="w-8 h-8 rounded-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.3)]"></div>
+</div>
+<span class="font-label text-[10px] uppercase tracking-wider text-primary">Obsidian</span>
+</div>
+<!-- Nova -->
+<div class="flex-shrink-0 flex flex-col items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
+<div class="w-16 h-16 rounded-lg bg-slate-100 flex items-center justify-center">
+<div class="w-8 h-8 rounded-full bg-slate-900"></div>
+</div>
+<span class="font-label text-[10px] uppercase tracking-wider">Nova</span>
+</div>
+<!-- Amber -->
+<div class="flex-shrink-0 flex flex-col items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
+<div class="w-16 h-16 rounded-lg bg-amber-950 flex items-center justify-center">
+<div class="w-8 h-8 rounded-full bg-amber-400"></div>
+</div>
+<span class="font-label text-[10px] uppercase tracking-wider">Amber</span>
+</div>
+<!-- Cyber -->
+<div class="flex-shrink-0 flex flex-col items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
+<div class="w-16 h-16 rounded-lg bg-blue-950 flex items-center justify-center">
+<div class="w-8 h-8 rounded-full bg-cyan-400"></div>
+</div>
+<span class="font-label text-[10px] uppercase tracking-wider">Cyber</span>
+</div>
+<!-- Emerald -->
+<div class="flex-shrink-0 flex flex-col items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
+<div class="w-16 h-16 rounded-lg bg-emerald-950 flex items-center justify-center">
+<div class="w-8 h-8 rounded-full bg-emerald-400"></div>
+</div>
+<span class="font-label text-[10px] uppercase tracking-wider">Emerald</span>
+</div>
+<!-- Crimson -->
+<div class="flex-shrink-0 flex flex-col items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
+<div class="w-16 h-16 rounded-lg bg-red-950 flex items-center justify-center">
+<div class="w-8 h-8 rounded-full bg-red-500"></div>
+</div>
+<span class="font-label text-[10px] uppercase tracking-wider">Crimson</span>
+</div>
+<!-- Cosmic -->
+<div class="flex-shrink-0 flex flex-col items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
+<div class="w-16 h-16 rounded-lg bg-purple-950 flex items-center justify-center">
+<div class="w-8 h-8 rounded-full bg-fuchsia-400"></div>
+</div>
+<span class="font-label text-[10px] uppercase tracking-wider">Cosmic</span>
+</div>
+</div>
+</div>
+<div class="mt-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-outline">palette</span>
+<span class="font-label text-[0.6875rem] uppercase tracking-[0.1rem] text-outline">Visual Archetype</span>
+</div>
+</div>
+<!-- Typography Engine Bento Card -->
+<div class="col-span-12 md:col-span-8 bg-surface-container-low p-7 flex flex-col justify-between min-h-[400px] group hover:bg-surface-bright transition-colors duration-300 relative overflow-hidden">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+<div>
+<h3 class="font-headline text-xl font-bold mb-8">Typography Engine</h3>
+<div class="space-y-4">
+<p class="font-label text-[10px] uppercase tracking-widest text-outline">Active Family</p>
+<div class="space-y-2">
+<button class="w-full flex justify-between items-center py-3 border-b border-outline-variant/30 text-on-surface font-['DM_Sans']">
+<span>DM Sans</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<button class="w-full flex justify-between items-center py-3 border-b border-outline-variant/30 text-on-surface-variant font-['Inter'] hover:text-on-surface transition-colors">
+<span>Inter</span>
+</button>
+<button class="w-full flex justify-between items-center py-3 border-b border-outline-variant/30 text-on-surface-variant font-['Outfit'] hover:text-on-surface transition-colors">
+<span>Outfit</span>
+</button>
+<button class="w-full flex justify-between items-center py-3 border-b border-outline-variant/30 text-on-surface-variant font-['Space_Grotesk'] hover:text-on-surface transition-colors">
+<span>Space Grotesk</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex flex-col justify-center">
+<div class="mb-12">
+<p class="font-label text-[10px] uppercase tracking-widest text-outline mb-6">Geometric Scaling</p>
+<div class="relative h-1 w-full bg-surface-container-highest">
+<div class="absolute h-1 bg-primary w-2/3"></div>
+<div class="absolute -top-2 left-2/3 w-5 h-5 bg-primary rounded-full border-4 border-surface-container-low"></div>
+</div>
+<div class="flex justify-between mt-4">
+<span class="font-label text-[10px] text-outline">1.2x</span>
+<span class="font-label text-[10px] text-primary font-bold">1.42x</span>
+<span class="font-label text-[10px] text-outline">1.5x</span>
+</div>
+</div>
+<div class="p-6 bg-surface-container-highest rounded-lg">
+<p class="text-[0.6875rem] uppercase tracking-[0.1rem] text-outline mb-2">Live Preview</p>
+<p class="font-headline text-2xl font-bold leading-tight">Mastery of the abstract instrument.</p>
+<p class="text-on-surface-variant text-sm mt-2 leading-relaxed">The high-performance workspace demands typographic precision and editorial clarity.</p>
+</div>
+</div>
+</div>
+<div class="mt-8 flex items-center gap-2">
+<span class="material-symbols-outlined text-outline">text_fields</span>
+<span class="font-label text-[0.6875rem] uppercase tracking-[0.1rem] text-outline">Type Hierarchy</span>
+</div>
+</div>
+<!-- Status Card Asymmetric -->
+<div class="col-span-12 md:col-span-4 flex flex-col gap-7">
+<div class="bg-primary p-7 h-1/2 flex flex-col justify-between group">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-on-primary">bolt</span>
+<span class="font-label text-[10px] font-bold text-on-primary uppercase">Active Preset</span>
+</div>
+<div>
+<h4 class="font-headline text-2xl font-bold text-on-primary">Performance Mode</h4>
+<p class="text-on-primary/70 text-xs mt-2">GPU Acceleration Enabled</p>
+</div>
+</div>
+<div class="bg-surface-container-high p-7 h-1/2 flex flex-col justify-between group hover:bg-surface-bright transition-colors duration-300">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary">visibility</span>
+<span class="font-label text-[10px] font-bold text-outline uppercase">Display Engine</span>
+</div>
+<div>
+<h4 class="font-headline text-2xl font-bold">120Hz Fluidity</h4>
+<p class="text-on-surface-variant text-xs mt-2">ProMotion Dynamic Scale</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-4 pb-safe bg-[#131313] dark:bg-[#0e0e0e] border-t border-white/5 z-50">
+<!-- Appearance Active -->
+<a class="flex flex-col items-center justify-center text-white bg-[#2a2a2a] rounded-sm py-1 px-4 transition-transform duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">palette</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.1rem] font-bold mt-1">Appearance</span>
+</a>
+<a class="flex flex-col items-center justify-center text-neutral-500 py-1 px-4 hover:text-neutral-200 transition-transform duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.1rem] font-bold mt-1">Layout</span>
+</a>
+<a class="flex flex-col items-center justify-center text-neutral-500 py-1 px-4 hover:text-neutral-200 transition-transform duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">auto_awesome</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.1rem] font-bold mt-1">Presets</span>
+</a>
+<a class="flex flex-col items-center justify-center text-neutral-500 py-1 px-4 hover:text-neutral-200 transition-transform duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">tune</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.1rem] font-bold mt-1">Advanced</span>
+</a>
+</nav>
+<!-- AI Pulse Indicator -->
+<div class="fixed top-0 left-0 w-full h-[2px] z-[60] overflow-hidden">
+<div class="h-full w-full bg-gradient-to-r from-transparent via-primary to-transparent -translate-x-full animate-[pulse_3s_infinite]" style="animation: pulse 3s infinite linear;"></div>
+</div>
+<style>
+        @keyframes pulse {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
+</body></html>

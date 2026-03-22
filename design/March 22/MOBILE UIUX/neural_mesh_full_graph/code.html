@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Neural Mesh | POLYMATH OS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-variant": "#353535",
+                        "outline-variant": "#474747",
+                        "on-error": "#690005",
+                        "on-primary-container": "#000000",
+                        "surface-container-highest": "#353535",
+                        "on-secondary": "#1b1b1b",
+                        "secondary": "#c6c6c6",
+                        "secondary-container": "#474747",
+                        "on-secondary-container": "#e2e2e2",
+                        "on-tertiary": "#1b1b1b",
+                        "tertiary-fixed": "#5e5e5e",
+                        "on-primary-fixed": "#ffffff",
+                        "error": "#ffb4ab",
+                        "surface": "#131313",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-secondary-fixed-variant": "#3b3b3b",
+                        "secondary-fixed": "#c6c6c6",
+                        "inverse-surface": "#e2e2e2",
+                        "on-tertiary-fixed": "#ffffff",
+                        "on-primary": "#1a1c1c",
+                        "on-primary-fixed-variant": "#e3e2e2",
+                        "tertiary-fixed-dim": "#474747",
+                        "inverse-on-surface": "#303030",
+                        "primary": "#ffffff",
+                        "surface-tint": "#c6c6c6",
+                        "on-background": "#e2e2e2",
+                        "inverse-primary": "#5d5e5f",
+                        "surface-container": "#1f1f1f",
+                        "outline": "#919191",
+                        "tertiary-container": "#919191",
+                        "tertiary": "#e2e2e2",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-fixed-variant": "#e2e2e2",
+                        "surface-dim": "#131313",
+                        "primary-fixed-dim": "#464747",
+                        "primary-container": "#d4d4d4",
+                        "primary-fixed": "#5d5e5f",
+                        "error-container": "#93000a",
+                        "surface-bright": "#393939",
+                        "on-tertiary-container": "#000000",
+                        "surface-container-low": "#1b1b1b",
+                        "on-secondary-fixed": "#1b1b1b",
+                        "on-surface-variant": "#c6c6c6",
+                        "on-error-container": "#ffdad6",
+                        "background": "#131313",
+                        "on-surface": "#e2e2e2",
+                        "secondary-fixed-dim": "#ababab"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(53, 53, 53, 0.6);
+            backdrop-filter: blur(20px);
+        }
+        .ai-pulse-bar {
+            height: 2px;
+            background: linear-gradient(90deg, #c6c6c6, #ffffff, #c6c6c6);
+            background-size: 200% 100%;
+        }
+        .mesh-line {
+            stroke: rgba(255, 255, 255, 0.08);
+            stroke-width: 1;
+        }
+        body {
+            background-color: #0e0e0e;
+            color: #c6c6c6;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="overflow-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#131313] dark:bg-[#0e0e0e]">
+<div class="flex items-center gap-4">
+<button class="text-neutral-100 hover:bg-[#2a2a2a] transition-colors duration-200 p-2 rounded">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="text-lg tracking-[0.2em] font-light text-neutral-100 font-['Space_Grotesk'] uppercase">POLYMATH OS</h1>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex gap-8">
+<a class="text-white font-['Space_Grotesk'] tracking-tighter font-bold uppercase text-sm" href="#">Neural Mesh</a>
+<a class="text-neutral-500 hover:bg-[#2a2a2a] transition-colors duration-200 text-sm font-['Space_Grotesk'] tracking-tighter uppercase" href="#">Knowledge Base</a>
+<a class="text-neutral-500 hover:bg-[#2a2a2a] transition-colors duration-200 text-sm font-['Space_Grotesk'] tracking-tighter uppercase" href="#">Voice Vault</a>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center text-[10px] font-bold">
+                JD
+            </div>
+</div>
+</header>
+<!-- AI Pulse Indicator -->
+<div class="fixed top-16 left-0 w-full z-40 ai-pulse-bar opacity-50"></div>
+<!-- Main Canvas: Neural Mesh Visualization -->
+<main class="relative w-screen h-screen pt-16 pb-20 overflow-hidden bg-surface-container-lowest">
+<!-- Background Grid/Lines (Decorative SVG) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none opacity-40">
+<pattern height="100" id="grid" patternunits="userSpaceOnUse" width="100">
+<path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"></path>
+</pattern>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+<!-- Connection Lines -->
+<line class="mesh-line" x1="20%" x2="45%" y1="30%" y2="50%"></line>
+<line class="mesh-line" x1="45%" x2="70%" y1="50%" y2="25%"></line>
+<line class="mesh-line" x1="45%" x2="35%" y1="50%" y2="75%"></line>
+<line class="mesh-line" x1="70%" x2="85%" y1="25%" y2="55%"></line>
+<line class="mesh-line" x1="35%" x2="60%" y1="75%" y2="85%"></line>
+</svg>
+<!-- Floating Timeline Slider -->
+<div class="absolute top-24 left-1/2 -translate-x-1/2 w-full max-w-xl px-4 z-30">
+<div class="glass-panel rounded-xl p-4 border border-outline-variant/10 flex flex-col gap-3">
+<div class="flex justify-between items-center">
+<span class="text-[10px] font-['Space_Grotesk'] uppercase tracking-widest text-on-surface-variant">Temporal Filter</span>
+<span class="text-[10px] font-['Space_Grotesk'] font-bold text-primary">Q3 2024 — PRESENT</span>
+</div>
+<div class="relative h-1 bg-surface-container-highest rounded-full">
+<div class="absolute top-0 left-1/4 right-0 h-full bg-primary rounded-full"></div>
+<div class="absolute top-1/2 left-1/4 -translate-y-1/2 w-3 h-3 bg-primary rounded-full ring-4 ring-primary/20 cursor-pointer"></div>
+</div>
+<div class="flex justify-between text-[8px] font-['Space_Grotesk'] text-neutral-500">
+<span>JAN 2024</span>
+<span>JUN 2024</span>
+<span>DEC 2024</span>
+</div>
+</div>
+</div>
+<!-- Node Cards (Asymmetric Layout) -->
+<!-- Node 1: Primary Focus -->
+<div class="absolute top-[30%] left-[20%] -translate-x-1/2 -translate-y-1/2 w-64 group">
+<div class="glass-panel border border-outline-variant/20 p-6 rounded-lg transition-all duration-300 group-hover:bg-surface-bright group-hover:border-primary/30">
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary text-xl">hub</span>
+<div class="flex gap-1">
+<div class="w-1 h-1 rounded-full bg-primary"></div>
+<div class="w-1 h-1 rounded-full bg-primary/30"></div>
+</div>
+</div>
+<div>
+<span class="block text-[10px] font-['Space_Grotesk'] uppercase tracking-widest text-secondary-fixed mb-1">Architecture</span>
+<h3 class="font-headline text-lg font-bold text-white leading-tight">Neural Lattice Synthesis</h3>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-[10px] font-medium text-neutral-500">
+<span>84 CONNECTIONS</span>
+<span class="material-symbols-outlined text-sm">arrow_outward</span>
+</div>
+</div>
+</div>
+<!-- Node 2: Secondary Focus -->
+<div class="absolute top-[50%] left-[45%] -translate-x-1/2 -translate-y-1/2 w-72 group">
+<div class="bg-surface-container-high border border-primary/10 p-8 rounded-lg transition-all duration-300 group-hover:bg-surface-bright">
+<div class="flex flex-col gap-6">
+<div class="w-12 h-12 rounded bg-surface-container-highest flex items-center justify-center border border-white/5">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">database</span>
+</div>
+<div>
+<span class="block text-[10px] font-['Space_Grotesk'] uppercase tracking-widest text-primary mb-2">Active Node</span>
+<h2 class="font-headline text-2xl font-bold text-white tracking-tighter">Quantum Ledger Verification</h2>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed opacity-70">
+                        Cross-referencing theoretical axioms with real-world sensor telemetry in the scanner sub-module.
+                    </p>
+</div>
+</div>
+</div>
+<!-- Node 3: Tiny Metadata Node -->
+<div class="absolute top-[25%] left-[70%] -translate-x-1/2 -translate-y-1/2 w-48 group">
+<div class="glass-panel border border-white/5 p-4 rounded-sm">
+<span class="text-[9px] font-['Space_Grotesk'] uppercase tracking-widest text-neutral-500">Category</span>
+<p class="text-sm font-bold text-secondary mt-1">Biometric Hash</p>
+<div class="mt-4 flex gap-2">
+<div class="h-1 flex-1 bg-surface-container-highest">
+<div class="h-full w-2/3 bg-secondary"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Node 4: Abstract Node -->
+<div class="absolute top-[55%] left-[85%] -translate-x-1/2 -translate-y-1/2 w-56 group">
+<div class="bg-surface-container-low border border-outline-variant/10 p-5 rounded-lg flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-white/10 to-transparent border border-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-neutral-400">mic_none</span>
+</div>
+<div>
+<h4 class="text-xs font-bold text-white">Voice Vault Echo</h4>
+<span class="text-[9px] text-neutral-500">3 minutes ago</span>
+</div>
+</div>
+</div>
+<!-- Node 5: Connection Point -->
+<div class="absolute top-[75%] left-[35%] -translate-x-1/2 -translate-y-1/2">
+<div class="relative">
+<div class="w-4 h-4 rounded-full bg-primary ring-8 ring-primary/10"></div>
+<div class="absolute top-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
+<span class="text-[10px] font-['Space_Grotesk'] font-bold text-white tracking-widest uppercase">Sync Point Beta</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 pb-safe bg-[#131313]/80 dark:bg-[#0e0e0e]/80 backdrop-blur-xl border-t border-white/5">
+<button class="flex flex-col items-center justify-center text-white scale-110 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grain</span>
+<span class="text-[10px] font-['Space_Grotesk'] uppercase tracking-widest mt-1">Mesh</span>
+</button>
+<button class="flex flex-col items-center justify-center text-neutral-600 hover:text-neutral-300 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">settings_voice</span>
+<span class="text-[10px] font-['Space_Grotesk'] uppercase tracking-widest mt-1">Vault</span>
+</button>
+<button class="flex flex-col items-center justify-center text-neutral-600 hover:text-neutral-300 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">center_focus_strong</span>
+<span class="text-[10px] font-['Space_Grotesk'] uppercase tracking-widest mt-1">Scan</span>
+</button>
+<button class="flex flex-col items-center justify-center text-neutral-600 hover:text-neutral-300 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-['Space_Grotesk'] uppercase tracking-widest mt-1">Metrics</span>
+</button>
+</nav>
+<!-- Overlay Controls (Asymmetric floating elements) -->
+<div class="fixed bottom-24 right-8 flex flex-col gap-2">
+<button class="w-12 h-12 bg-white text-on-primary rounded flex items-center justify-center hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="w-12 h-12 bg-surface-container-high text-white rounded flex items-center justify-center hover:scale-105 transition-transform border border-outline-variant">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+<!-- User Status (Left side) -->
+<div class="fixed bottom-24 left-8 px-4 py-2 bg-surface-container-low rounded border border-white/5 flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="text-[10px] font-['Space_Grotesk'] font-bold tracking-widest text-on-surface">SYSTEM ONLINE: NODE_42_ALPHA</span>
+</div>
+</body></html>

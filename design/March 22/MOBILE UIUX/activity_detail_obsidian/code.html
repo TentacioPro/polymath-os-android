@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Polymath OS - Activity Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-tint": "#c6c6c6",
+                        "primary-container": "#d4d4d4",
+                        "on-primary-fixed": "#ffffff",
+                        "on-secondary-container": "#e2e2e2",
+                        "on-tertiary-fixed": "#ffffff",
+                        "tertiary-fixed": "#5e5e5e",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-error": "#690005",
+                        "background": "#131313",
+                        "on-primary": "#1a1c1c",
+                        "surface-container-low": "#1b1b1b",
+                        "on-secondary-fixed": "#1b1b1b",
+                        "on-primary-container": "#000000",
+                        "primary": "#ffffff",
+                        "tertiary-fixed-dim": "#474747",
+                        "surface-bright": "#393939",
+                        "outline-variant": "#474747",
+                        "secondary-container": "#474747",
+                        "secondary": "#c6c6c6",
+                        "primary-fixed": "#5d5e5f",
+                        "inverse-on-surface": "#303030",
+                        "tertiary-container": "#919191",
+                        "on-error-container": "#ffdad6",
+                        "primary-fixed-dim": "#464747",
+                        "on-primary-fixed-variant": "#e3e2e2",
+                        "inverse-primary": "#5d5e5f",
+                        "surface-variant": "#353535",
+                        "secondary-fixed": "#c6c6c6",
+                        "surface": "#131313",
+                        "inverse-surface": "#e2e2e2",
+                        "error-container": "#93000a",
+                        "outline": "#919191",
+                        "surface-dim": "#131313",
+                        "on-secondary-fixed-variant": "#3b3b3b",
+                        "error": "#ffb4ab",
+                        "on-tertiary-container": "#000000",
+                        "on-tertiary": "#1b1b1b",
+                        "on-surface-variant": "#c6c6c6",
+                        "surface-container-highest": "#353535",
+                        "on-tertiary-fixed-variant": "#e2e2e2",
+                        "secondary-fixed-dim": "#ababab",
+                        "on-secondary": "#1b1b1b",
+                        "surface-container": "#1f1f1f",
+                        "on-background": "#e2e2e2",
+                        "surface-container-high": "#2a2a2a",
+                        "tertiary": "#e2e2e2",
+                        "on-surface": "#e2e2e2"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(53, 53, 53, 0.6);
+            backdrop-filter: blur(20px);
+        }
+        
+        /* AI Pulse Component */
+        .ai-pulse-bar {
+            height: 2px;
+            width: 100%;
+            background: linear-gradient(90deg, #c6c6c6 0%, #ffffff 50%, #c6c6c6 100%);
+            background-size: 200% 100%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-container-lowest text-on-surface font-body selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar Shell -->
+<header class="bg-[#131313] dark:bg-[#0e0e0e] flex justify-between items-center w-full px-6 h-16 fixed top-0 z-50">
+<div class="flex items-center gap-4">
+<button class="text-[#ffffff] hover:bg-[#393939] transition-colors duration-200 p-2 rounded-sm active:scale-95 opacity-80">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="text-[#ffffff] font-['Space_Grotesk'] tracking-[-0.02em] font-bold text-2xl">Polymath OS</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-[#ffffff] hover:bg-[#393939] transition-colors duration-200 p-2 rounded-sm active:scale-95 opacity-80">
+<span class="material-symbols-outlined">search</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-7xl mx-auto min-h-screen">
+<!-- AI Pulse Indicator (Active Engine) -->
+<div class="mb-8 rounded-full overflow-hidden">
+<div class="ai-pulse-bar"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-7">
+<!-- Left Column: Core Activity Details (Bento Main) -->
+<section class="md:col-span-8 flex flex-col gap-7">
+<!-- Main Content Card (Machined Precision) -->
+<div class="bg-surface-container-low p-7 flex flex-col justify-between min-h-[400px] relative overflow-hidden group">
+<!-- Recessed category tag -->
+<div class="absolute top-7 right-7 px-3 py-1 bg-surface-container-highest text-primary font-label text-[0.6875rem] uppercase tracking-[0.1rem]">
+                        AI • SYSTEM
+                    </div>
+<!-- Visual Anchor -->
+<div class="w-full h-64 bg-surface-container-lowest mb-8 overflow-hidden grayscale contrast-125">
+<img alt="Abstract neural network representation" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" data-alt="Abstract glowing neural network connections on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfk4o5FYsLmoleZFBb5x97RI6WlFNCzP_MlSHxk9KPzXuowENX2Mj2rw0bvUyKoH51XCmVXF3qcyOf36CXLngjmSgGkAZPTgaZDtGLv5vQG75lU_SAUanznI6pCWKzvVa3Oq9H5z6XJxKOMU5Dv0ibIWDBZGK-4TkqcUmg6APUWURdafX_G800y64_OkQ2sevQFRaO2z7awvYC5rEkFKpzhVFFsLkKsnIHxzXTiH-q9bwxXkUsn57mQKBypuqpnh5vyTx040Mrah4"/>
+</div>
+<div class="mt-auto">
+<div class="flex items-center gap-3 mb-3">
+<span class="material-symbols-outlined text-secondary text-sm">play_circle</span>
+<span class="font-label text-[0.6875rem] uppercase tracking-[0.1rem] text-on-surface-variant">Source: YouTube</span>
+</div>
+<h2 class="font-headline text-4xl md:text-5xl font-bold tracking-tight text-primary leading-none mb-4">
+                            Building RAG with LangChain
+                        </h2>
+<p class="text-on-surface-variant text-lg max-w-2xl leading-relaxed font-light">
+                            Deep dive into Retrieval-Augmented Generation architectures. Exploring the synthesis of vector databases and large language models for domain-specific intelligence.
+                        </p>
+</div>
+</div>
+<!-- Metadata Cluster (Bento Secondary) -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-7">
+<div class="bg-surface-container-low p-7">
+<span class="font-label text-[0.6875rem] uppercase tracking-[0.1rem] text-on-surface-variant block mb-6">Duration</span>
+<span class="font-headline text-3xl font-medium text-primary">42:18</span>
+</div>
+<div class="bg-surface-container-low p-7">
+<span class="font-label text-[0.6875rem] uppercase tracking-[0.1rem] text-on-surface-variant block mb-6">Retention</span>
+<span class="font-headline text-3xl font-medium text-primary">84%</span>
+</div>
+<div class="bg-surface-container-low p-7">
+<span class="font-label text-[0.6875rem] uppercase tracking-[0.1rem] text-on-surface-variant block mb-6">Status</span>
+<span class="font-headline text-2xl font-medium text-primary flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary block"></span>
+                            PROCESSED
+                        </span>
+</div>
+</div>
+</section>
+<!-- Right Column: AI Insights & Actions -->
+<aside class="md:col-span-4 flex flex-col gap-7">
+<!-- AI Analysis Panel (Glassmorphism Focus) -->
+<div class="glass-panel p-7 border-l-2 border-primary/20 h-full flex flex-col">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<h3 class="font-headline text-xl font-bold tracking-tight text-primary">AI Analysis</h3>
+</div>
+<div class="space-y-8 flex-grow">
+<div>
+<span class="font-label text-[0.6875rem] uppercase tracking-[0.1rem] text-on-surface-variant block mb-4">Core Concepts</span>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-container-highest px-3 py-1.5 text-primary text-xs font-medium border border-outline-variant/20">RAG</span>
+<span class="bg-surface-container-highest px-3 py-1.5 text-primary text-xs font-medium border border-outline-variant/20">LangChain</span>
+<span class="bg-surface-container-highest px-3 py-1.5 text-primary text-xs font-medium border border-outline-variant/20">Vector DB</span>
+<span class="bg-surface-container-highest px-3 py-1.5 text-primary text-xs font-medium border border-outline-variant/20">Embeddings</span>
+</div>
+</div>
+<div>
+<span class="font-label text-[0.6875rem] uppercase tracking-[0.1rem] text-on-surface-variant block mb-4">Key Takeaway</span>
+<p class="text-sm text-on-surface leading-relaxed italic border-l border-primary/40 pl-4 py-1">
+                                "The efficacy of the system is strictly limited by the retrieval precision of the vector space, not just the LLM's reasoning capabilities."
+                            </p>
+</div>
+<div class="bg-surface-container-highest/40 p-5 rounded-sm">
+<span class="font-label text-[0.6875rem] uppercase tracking-[0.1rem] text-primary block mb-2">Synthesis Recommendation</span>
+<p class="text-xs text-on-surface-variant leading-relaxed">
+                                Related to your previous research on <span class="text-primary underline">Semantic Search</span> and <span class="text-primary underline">Knowledge Graphs</span>.
+                            </p>
+</div>
+</div>
+<!-- Action Button (Luxury Instrument CTA) -->
+<button class="mt-8 w-full py-4 bg-primary text-on-primary font-label text-[0.75rem] font-bold uppercase tracking-[0.2rem] flex items-center justify-center gap-3 group active:scale-[0.98] transition-all">
+                        Find Connections
+                        <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+</button>
+</div>
+<!-- Secondary Control Card -->
+<div class="bg-surface-container-low p-7">
+<span class="font-label text-[0.6875rem] uppercase tracking-[0.1rem] text-on-surface-variant block mb-6">Archive Logic</span>
+<div class="flex items-center justify-between text-on-surface">
+<span class="text-sm font-medium">Auto-summarize</span>
+<div class="w-10 h-5 bg-primary rounded-full relative">
+<div class="absolute right-1 top-1 w-3 h-3 bg-on-primary rounded-full"></div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- BottomNavBar Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-[#131313] dark:bg-[#0e0e0e]">
+<a class="flex flex-col items-center justify-center text-[#c6c6c6] p-3 hover:bg-[#1f1f1f] transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined">bolt</span>
+<span class="font-['Space_Grotesk'] text-[0.6875rem] uppercase tracking-[0.1rem] mt-1">Activity</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#2a2a2a] text-[#ffffff] rounded-sm p-3 hover:bg-[#1f1f1f] transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-['Space_Grotesk'] text-[0.6875rem] uppercase tracking-[0.1rem] mt-1">Insights</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#c6c6c6] p-3 hover:bg-[#1f1f1f] transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined">database</span>
+<span class="font-['Space_Grotesk'] text-[0.6875rem] uppercase tracking-[0.1rem] mt-1">Library</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#c6c6c6] p-3 hover:bg-[#1f1f1f] transition-all active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Space_Grotesk'] text-[0.6875rem] uppercase tracking-[0.1rem] mt-1">System</span>
+</a>
+</nav>
+</body></html>

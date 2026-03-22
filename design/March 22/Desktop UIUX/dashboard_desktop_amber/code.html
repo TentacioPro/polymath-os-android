@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-tint": "#ffba38",
+              "secondary-fixed-dim": "#c8c6c5",
+              "tertiary-fixed-dim": "#d7c690",
+              "on-secondary-container": "#b7b5b4",
+              "on-primary-fixed": "#281900",
+              "on-error-container": "#ffdad6",
+              "on-primary": "#432c00",
+              "inverse-surface": "#e5e2e1",
+              "secondary": "#c8c6c5",
+              "error-container": "#93000a",
+              "primary": "#ffd79b",
+              "on-primary-container": "#6b4900",
+              "tertiary-container": "#d2c18b",
+              "surface-container": "#201f1f",
+              "on-secondary-fixed": "#1b1c1c",
+              "on-tertiary": "#3a3007",
+              "on-surface": "#e5e2e1",
+              "on-surface-variant": "#d6c4ac",
+              "tertiary": "#efdda5",
+              "background": "#131313",
+              "surface-container-highest": "#353534",
+              "primary-container": "#ffb300",
+              "inverse-primary": "#7e5700",
+              "surface-variant": "#353534",
+              "surface-container-lowest": "#0e0e0e",
+              "on-tertiary-fixed": "#231b00",
+              "on-background": "#e5e2e1",
+              "inverse-on-surface": "#313030",
+              "surface-bright": "#393939",
+              "surface-container-low": "#1c1b1b",
+              "secondary-fixed": "#e4e2e1",
+              "outline-variant": "#514532",
+              "outline": "#9e8e78",
+              "tertiary-fixed": "#f4e2a9",
+              "surface": "#131313",
+              "primary-fixed": "#ffdeac",
+              "on-tertiary-fixed-variant": "#52461c",
+              "on-secondary-fixed-variant": "#474746",
+              "secondary-container": "#474746",
+              "primary-fixed-dim": "#ffba38",
+              "on-primary-fixed-variant": "#604100",
+              "surface-dim": "#131313",
+              "surface-container-high": "#2a2a2a",
+              "on-error": "#690005",
+              "on-tertiary-container": "#5b4e23",
+              "error": "#ffb4ab",
+              "on-secondary": "#303030"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["DM Sans"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body {
+            background-color: #131313;
+            color: #e5e2e1;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .font-headline { font-family: 'Space Grotesk', sans-serif; }
+        .font-label { font-family: 'Space Grotesk', sans-serif; }
+        .glass-panel {
+            background: rgba(19, 19, 19, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(81, 69, 50, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary/30">
+<!-- SideNavBar (Rail) -->
+<aside class="fixed left-0 top-0 h-full z-50 flex flex-col items-center py-6 gap-8 bg-[#0e0e0e]/60 backdrop-blur-xl w-20 border-r border-[#514532]/10 shadow-2xl shadow-[#ffba38]/5">
+<div class="flex flex-col items-center gap-1 mb-4">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg rotate-45">
+<span class="material-symbols-outlined text-on-primary -rotate-45" data-icon="polymath">deployed_code</span>
+</div>
+<span class="text-[10px] font-medium font-label uppercase tracking-widest text-primary mt-2">OS.01</span>
+</div>
+<nav class="flex flex-col gap-6 flex-grow">
+<!-- Active: Neural -->
+<a class="group relative flex flex-col items-center gap-1 transition-all text-[#e5e2e1]/40 hover:text-[#e5e2e1] hover:bg-[#1c1b1b] p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="text-[10px] font-medium font-label uppercase tracking-widest">Archive</span>
+</a>
+<a class="group relative flex flex-col items-center gap-1 transition-all text-[#ffd79b] border-r-2 border-[#ffd79b] bg-[#ffd79b]/5 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="psychology" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span class="text-[10px] font-medium font-label uppercase tracking-widest">Neural</span>
+</a>
+<a class="group relative flex flex-col items-center gap-1 transition-all text-[#e5e2e1]/40 hover:text-[#e5e2e1] hover:bg-[#1c1b1b] p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="text-[10px] font-medium font-label uppercase tracking-widest">Synthesis</span>
+</a>
+<a class="group relative flex flex-col items-center gap-1 transition-all text-[#e5e2e1]/40 hover:text-[#e5e2e1] hover:bg-[#1c1b1b] p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="text-[10px] font-medium font-label uppercase tracking-widest">Terminal</span>
+</a>
+<a class="group relative flex flex-col items-center gap-1 transition-all text-[#e5e2e1]/40 hover:text-[#e5e2e1] hover:bg-[#1c1b1b] p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="local_library">local_library</span>
+<span class="text-[10px] font-medium font-label uppercase tracking-widest">Library</span>
+</a>
+</nav>
+<div class="flex flex-col gap-6 mb-2">
+<button class="flex flex-col items-center gap-1 text-[#e5e2e1]/40 hover:text-[#e5e2e1] transition-all">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span class="text-[10px] font-medium font-label uppercase tracking-widest">Support</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#e5e2e1]/40 hover:text-[#e5e2e1] transition-all">
+<span class="material-symbols-outlined" data-icon="memory">memory</span>
+<span class="text-[10px] font-medium font-label uppercase tracking-widest">System</span>
+</button>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full h-16 bg-[#131313] flex justify-between items-center px-8 z-40 ml-16 sm:ml-20">
+<div class="flex items-center gap-8">
+<h1 class="text-xl font-bold tracking-tighter text-[#ffd79b] font-headline">Polymath OS</h1>
+<div class="relative group">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-sm" data-icon="search">search</span>
+<input class="bg-surface-container-highest border-b border-outline-variant focus:border-primary transition-all px-10 py-1.5 text-xs font-label tracking-widest outline-none w-64 uppercase" placeholder="QUERY ARCHIVE..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="p-2 hover:bg-[#2a2a2a] transition-all duration-200 ease-out hover:scale-[1.02] text-on-surface-variant flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 hover:bg-[#2a2a2a] transition-all duration-200 ease-out hover:scale-[1.02] text-on-surface-variant flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-primary/20">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Portrait of a sophisticated scholar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMEFppY9MYviI1DHx_piPSzFPkYuFIeqpRxxxRIdaBT80jCA0Ah5GGUWBIpKTQqLoCByV4JBiogf6SuFZVSe5HOT-ThYGEVla7PvPGp3Fs061Cml4BTIxe-nl-oPqZWHajgsrFJRKI7c7CbyfpX0r73iRcvzQYumCzyk2C423mMkFpEUwFiCP-PKHCbNvYFncTQHGxcvIgJaq7MqVrVR3K0XOsiZAK6VULx8FOPWSYLQj3RKEFKJsR3yB-QTKVXdrQ4yncDWk3oHE"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-24 pl-24 pr-8 pb-12 min-h-screen">
+<div class="max-w-[1600px] mx-auto grid grid-cols-12 gap-8">
+<!-- Left & Center Content: Bento Layout -->
+<div class="col-span-12 lg:col-span-9 space-y-8">
+<!-- Hero Bento: StatRings -->
+<section class="bg-surface-container-low rounded-xl p-8 border border-outline-variant/5">
+<div class="flex items-end justify-between mb-8">
+<div>
+<span class="text-[11px] font-label text-primary uppercase tracking-[0.2em]">Neural Status</span>
+<h2 class="text-3xl font-headline font-bold text-on-surface tracking-tight mt-1">Sovereign Cognition</h2>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-label uppercase tracking-widest rounded-full">System Active</span>
+<span class="px-3 py-1 bg-surface-container-highest text-on-surface-variant text-[10px] font-label uppercase tracking-widest rounded-full">Sync: 99.4%</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+<!-- Stat 1 -->
+<div class="flex items-center gap-6">
+<div class="relative w-24 h-24 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90">
+<circle class="text-surface-container-highest" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-primary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="60" stroke-width="4"></circle>
+</svg>
+<span class="absolute font-headline font-bold text-xl">842</span>
+</div>
+<div>
+<p class="text-[10px] font-label text-outline uppercase tracking-widest">Total Activities</p>
+<p class="text-sm font-medium text-on-surface mt-1">+12% from yesterday</p>
+</div>
+</div>
+<!-- Stat 2 -->
+<div class="flex items-center gap-6">
+<div class="relative w-24 h-24 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90">
+<circle class="text-surface-container-highest" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-primary-container" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="180" stroke-width="4"></circle>
+</svg>
+<span class="absolute font-headline font-bold text-xl">56</span>
+</div>
+<div>
+<p class="text-[10px] font-label text-outline uppercase tracking-widest">Connections</p>
+<p class="text-sm font-medium text-on-surface mt-1">4 Active Nodes</p>
+</div>
+</div>
+<!-- Stat 3 -->
+<div class="flex items-center gap-6">
+<div class="relative w-24 h-24 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90">
+<circle class="text-surface-container-highest" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-tertiary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="30" stroke-width="4"></circle>
+</svg>
+<span class="absolute font-headline font-bold text-xl">1.2k</span>
+</div>
+<div>
+<p class="text-[10px] font-label text-outline uppercase tracking-widest">Journals</p>
+<p class="text-sm font-medium text-on-surface mt-1">Archived thoughts</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Activity Feed: Masonry-style Grid -->
+<section>
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-headline font-bold tracking-tight">Neural Feed</h3>
+<div class="flex gap-4">
+<button class="text-[10px] font-label uppercase tracking-widest text-primary border-b border-primary pb-1">All Activity</button>
+<button class="text-[10px] font-label uppercase tracking-widest text-outline hover:text-on-surface transition-colors pb-1">AI Insights</button>
+<button class="text-[10px] font-label uppercase tracking-widest text-outline hover:text-on-surface transition-colors pb-1">Research</button>
+</div>
+</div>
+<div class="columns-1 md:columns-2 xl:columns-3 gap-8 space-y-8">
+<!-- AI Activity Card -->
+<div class="break-inside-avoid bg-surface-container-high rounded-xl overflow-hidden hover:scale-[1.02] transition-all group border border-transparent hover:border-outline-variant/20">
+<div class="h-40 w-full relative">
+<img alt="AI Visualization" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Abstract neon neural network visualization" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqEdQH1xeCJjesA9oSKSKw4pslsO9mF0J-URQNghJjNWk3Wd1XSFmugGO_bCoEk_pdI2Zu0Qwi0TxfK_1rXz-frDMJhmiG4QVaLFBC8V__3vDGZQuAl8epsoNPh2Q-kLy1Aeb9DODZk06DfGCX-OjjttG21VDTGE3ZSnvPziB2nQ4Q01HT_ume-G9ntL7c1A38aE-AOI46spBe6xafbdUHefrPB66IXWr5pwVZKISL4FkAASt5McRRErf4i8Ifzay26TF0lrcGYYQ"/>
+<div class="absolute top-4 left-4">
+<span class="px-2 py-0.5 bg-primary text-on-primary text-[9px] font-label uppercase tracking-tighter font-bold rounded">AI AGENT</span>
+</div>
+</div>
+<div class="p-6">
+<h4 class="font-headline font-bold text-on-surface mb-2">Large Language Model Synthesis complete for "Project Obsidian"</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">The synthesis revealed 14 new cross-references in the legal archive relating to smart contract autonomy.</p>
+<div class="mt-4 flex items-center justify-between">
+<span class="text-[10px] font-label text-outline uppercase">2 mins ago</span>
+<button class="material-symbols-outlined text-primary text-lg" data-icon="arrow_right_alt">arrow_right_alt</button>
+</div>
+</div>
+</div>
+<!-- News Card -->
+<div class="break-inside-avoid bg-surface-container-high rounded-xl p-6 border border-transparent hover:border-outline-variant/20 transition-all">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-tertiary" data-icon="public">public</span>
+<span class="text-[10px] font-label text-tertiary uppercase tracking-widest">Global Intelligence</span>
+</div>
+<h4 class="font-headline font-bold text-on-surface mb-2">Market Volatility: Neural Trends identified in Sector 7</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Automated tracking indicates a 4.5% shift in liquidity towards decentralized obsidian storage assets.</p>
+<div class="mt-4 pt-4 border-t border-outline-variant/10 flex items-center justify-between">
+<span class="text-[10px] font-label text-outline uppercase">14 mins ago</span>
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-surface-container-high bg-primary"></div>
+<div class="w-6 h-6 rounded-full border-2 border-surface-container-high bg-tertiary"></div>
+</div>
+</div>
+</div>
+<!-- Research Card -->
+<div class="break-inside-avoid bg-surface-container-high rounded-xl p-6 border border-transparent hover:border-outline-variant/20 transition-all">
+<div class="aspect-square bg-surface rounded-lg mb-4 flex items-center justify-center border border-outline-variant/10">
+<span class="material-symbols-outlined text-primary text-4xl" data-icon="menu_book">menu_book</span>
+</div>
+<span class="px-2 py-0.5 bg-surface-container-highest text-outline text-[9px] font-label uppercase tracking-tighter mb-2 inline-block">RESEARCH</span>
+<h4 class="font-headline font-bold text-on-surface mb-2">New Entry: The Ethics of Digital Sovereignty</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Annotated 42 pages of the recent symposium on post-human archives.</p>
+<div class="mt-4 flex items-center justify-between">
+<span class="text-[10px] font-label text-outline uppercase">1 hour ago</span>
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer" data-icon="bookmark">bookmark</span>
+</div>
+</div>
+<!-- Activity Small -->
+<div class="break-inside-avoid bg-surface-container-low border border-outline-variant/20 rounded-xl p-4 flex items-center gap-4">
+<div class="w-10 h-10 rounded bg-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary" data-icon="sync">sync</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface">Cloud Library Sync Complete</p>
+<p class="text-[10px] text-outline">2.4 GB metadata indexed</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Panel: Synthesis Agent & Notifications -->
+<aside class="col-span-12 lg:col-span-3 space-y-8">
+<!-- Synthesis Agent Recommendations -->
+<div class="glass-panel rounded-xl p-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-6xl" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<h3 class="text-sm font-label text-primary uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="bolt">bolt</span>
+                        Synthesis Agent
+                    </h3>
+<div class="space-y-6">
+<div class="p-4 bg-surface-container-highest/50 rounded-lg border-l-2 border-primary">
+<p class="text-xs text-on-surface font-medium">Potential Connection Found</p>
+<p class="text-[11px] text-on-surface-variant mt-2 leading-relaxed">Your research on "Smart Contracts" matches 3 entries in your "Legal Philosophy" library.</p>
+<button class="mt-3 text-[10px] font-label text-primary uppercase tracking-widest font-bold hover:underline">Link Nodes</button>
+</div>
+<div class="p-4 bg-surface-container-highest/50 rounded-lg border-l-2 border-tertiary">
+<p class="text-xs text-on-surface font-medium">Optimization Suggestion</p>
+<p class="text-[11px] text-on-surface-variant mt-2 leading-relaxed">Archive 2023 financial reports to reduce neural load by 12%.</p>
+<button class="mt-3 text-[10px] font-label text-tertiary uppercase tracking-widest font-bold hover:underline">Execute</button>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/10">
+<div class="flex items-center justify-between mb-4">
+<span class="text-[10px] font-label text-outline uppercase tracking-widest">Active Tasks</span>
+<span class="text-[10px] font-label text-primary">3 RUNNING</span>
+</div>
+<div class="space-y-3">
+<div class="flex items-center gap-3">
+<div class="w-1 h-1 rounded-full bg-primary animate-pulse"></div>
+<span class="text-[11px] text-on-surface-variant">Deep Indexing: Archive.01</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-1 h-1 rounded-full bg-surface-container-highest"></div>
+<span class="text-[11px] text-on-surface-variant opacity-50">Backing up Neural Net</span>
+</div>
+</div>
+</div>
+</div>
+<!-- System Notifications -->
+<div class="bg-surface-container rounded-xl p-6">
+<h3 class="text-xs font-label text-outline uppercase tracking-[0.2em] mb-4">System Alerts</h3>
+<div class="space-y-4">
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-error-container/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-error text-sm" data-icon="warning">warning</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface">Security Bypass Attempt</p>
+<p class="text-[10px] text-outline mt-1 leading-tight">Unauthorized query from Node.88 blocked.</p>
+<span class="text-[9px] text-outline uppercase mt-2 block">12:44 PM</span>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="update">update</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface">Kernel v2.4 Available</p>
+<p class="text-[10px] text-outline mt-1 leading-tight">Improvements to lexical synthesis engine.</p>
+<span class="text-[9px] text-outline uppercase mt-2 block">Yesterday</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Action FAB (Contextual for Home) -->
+<button class="w-full py-4 bg-primary text-on-primary rounded-xl font-label font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:scale-[0.98] transition-all active:scale-[0.95] shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                    New Entry
+                </button>
+</aside>
+</div>
+</main>
+<!-- Subtle Background Texture -->
+<div class="fixed inset-0 pointer-events-none opacity-[0.03] z-[-1] overflow-hidden">
+<svg height="100%" width="100%">
+<pattern height="40" id="grid" patternunits="userSpaceOnUse" width="40">
+<path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="1"></path>
+</pattern>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+</body></html>

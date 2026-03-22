@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Polymath OS | System Overlays &amp; UI Kit</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-tint": "#c6c6c6",
+                        "surface-container": "#1f1f1f",
+                        "secondary": "#c6c6c6",
+                        "tertiary": "#e2e2e2",
+                        "surface-container-lowest": "#0e0e0e",
+                        "outline": "#919191",
+                        "on-tertiary-fixed": "#ffffff",
+                        "error-container": "#93000a",
+                        "on-error-container": "#ffdad6",
+                        "surface": "#131313",
+                        "on-tertiary": "#1b1b1b",
+                        "error": "#ffb4ab",
+                        "background": "#131313",
+                        "on-secondary-fixed": "#1b1b1b",
+                        "tertiary-fixed": "#5e5e5e",
+                        "surface-container-highest": "#353535",
+                        "on-primary-fixed-variant": "#e3e2e2",
+                        "primary": "#ffffff",
+                        "surface-container-high": "#2a2a2a",
+                        "on-primary": "#1a1c1c",
+                        "surface-bright": "#393939",
+                        "on-primary-container": "#000000",
+                        "inverse-primary": "#5d5e5f",
+                        "tertiary-container": "#919191",
+                        "on-error": "#690005",
+                        "surface-container-low": "#1b1b1b",
+                        "inverse-surface": "#e2e2e2",
+                        "on-secondary-container": "#e2e2e2",
+                        "on-background": "#e2e2e2",
+                        "on-surface-variant": "#c6c6c6",
+                        "secondary-fixed": "#c6c6c6",
+                        "on-primary-fixed": "#ffffff",
+                        "primary-fixed-dim": "#464747",
+                        "outline-variant": "#474747",
+                        "secondary-container": "#474747",
+                        "inverse-on-surface": "#303030",
+                        "primary-container": "#d4d4d4",
+                        "surface-dim": "#131313",
+                        "secondary-fixed-dim": "#ababab",
+                        "primary-fixed": "#5d5e5f",
+                        "tertiary-fixed-dim": "#474747",
+                        "on-tertiary-container": "#000000",
+                        "on-surface": "#e2e2e2",
+                        "on-secondary": "#1b1b1b",
+                        "on-secondary-fixed-variant": "#3b3b3b",
+                        "surface-variant": "#353535",
+                        "on-tertiary-fixed-variant": "#e2e2e2"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #000000;
+            color: #e2e2e2;
+            overflow-x: hidden;
+        }
+        .glass-overlay {
+            background: rgba(53, 53, 53, 0.6);
+            backdrop-filter: blur(20px);
+        }
+        .tech-void-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #ababab 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-primary selection:text-on-primary">
+<!-- SideNavBar (Rail) -->
+<nav class="fixed left-0 top-0 h-full z-50 flex flex-col items-center py-6 bg-neutral-950/60 backdrop-blur-xl w-20 border-r border-amber-900/10 shadow-2xl shadow-amber-900/5">
+<div class="mb-12">
+<span class="text-amber-500 font-bold tracking-tighter text-xl font-headline">P</span>
+</div>
+<div class="flex flex-col gap-8 flex-1">
+<button class="text-neutral-500 hover:text-amber-200/70 hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+</button>
+<button class="text-neutral-500 hover:text-amber-200/70 hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="library_books">library_books</span>
+</button>
+<button class="text-neutral-500 hover:text-amber-200/70 hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+</button>
+<button class="text-neutral-500 hover:text-amber-200/70 hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+</button>
+<button class="text-neutral-500 hover:text-amber-200/70 hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+</button>
+<button class="text-neutral-500 hover:text-amber-200/70 hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+</button>
+<button class="text-amber-400 bg-amber-400/10 rounded-lg scale-110 p-2 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="mt-auto">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="Cybernetic scholarly avatar in grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7dn2_k_Si2GHJ7dCVT7ZXT5cAQmmTX4ml8zVEg4mn5SsXIuMJWWW_0-BD7_kxcBbWVD6T9CQ0ckQDC7PpO__EzyxMUe-LC3s7fViDy83b5g9EPBh-9owblWmnw2KFiWXenNH0OFgwNCVsCz5a8RefO5NiBmTG526MmxPKSjZdHa3-bTVmbG0qYoaDBEfLWNJiDAhOEMHDt45Z2gC817YnLBefeKcghncRCYjaUy_c0qavrx0lfmoV5jiWXWT0b29jeXVqImaAGaM"/>
+</div>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-20 z-40 flex justify-between items-center px-8 h-16 bg-neutral-900/40 backdrop-blur-md border-b border-outline-variant/10">
+<div class="flex items-center gap-6">
+<h1 class="text-lg font-black tracking-widest text-amber-500 font-headline">POLYMATH OS</h1>
+<div class="h-8 w-[1px] bg-outline-variant/30"></div>
+<div class="flex items-center bg-white/5 px-4 py-1.5 rounded-sm border border-outline-variant/10">
+<span class="material-symbols-outlined text-sm mr-2 text-neutral-400" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm text-on-surface placeholder:text-neutral-600 w-64" placeholder="Neural Search..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-neutral-400 cursor-pointer hover:text-amber-400 transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-neutral-400 cursor-pointer hover:text-amber-400 transition-colors" data-icon="cloud_done">cloud_done</span>
+<span class="material-symbols-outlined text-neutral-400 cursor-pointer hover:text-amber-400 transition-colors" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-20 pt-16 pb-8 min-h-screen bg-surface-container-lowest">
+<!-- AI Pulse Indicator -->
+<div class="h-[2px] w-full tech-void-gradient absolute top-16 left-20"></div>
+<div class="p-10 max-w-7xl mx-auto grid grid-cols-12 gap-8">
+<!-- Header Section -->
+<section class="col-span-12 mb-8">
+<p class="font-label text-[10px] uppercase tracking-[0.2em] text-amber-600 mb-2">System Architecture</p>
+<h2 class="font-headline text-5xl font-bold tracking-tight text-primary">UI KIT &amp; OVERLAYS</h2>
+</section>
+<!-- 1. Desktop Dialog (Bento Grid Style Content) -->
+<div class="col-span-12 lg:col-span-7 bg-surface-container-low p-10 relative overflow-hidden group">
+<div class="flex justify-between items-end mb-12">
+<h3 class="font-headline text-xl font-medium text-on-surface tracking-wide">SYSTEM DIALOG</h3>
+<span class="font-label text-[10px] text-neutral-500 uppercase tracking-widest">Component 01</span>
+</div>
+<!-- Dialog Preview Frame -->
+<div class="aspect-video bg-surface-container-lowest border border-outline-variant/10 rounded-lg flex items-center justify-center relative overflow-hidden p-8">
+<!-- Fake Desktop Background -->
+<div class="absolute inset-0 opacity-20 pointer-events-none">
+<img alt="Desktop Background" class="w-full h-full object-cover grayscale" data-alt="Abstract dark geometric wallpaper texture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBL19pscYe109-8F3EyJhRMeUc0cpUf49mVIQYgn0OiCRqYVqvPLDrGeczfj3uJSRNJCXONB58IUivkRL3H6Voj9eedZX_s4mfTF3kLzFzpCFR-7--lMV60mh5oTkwj0LVPnEJHACmLbRZk3My6zj0hEQ-5adNh9J3oxp8NrI5QT575YjTFCNXl6IOSIuMcRAGNwR4BzXLqVB8527fO-dBSncuw6CIaB9REliN91-u3J5IkJemK98h49qzpLx_sDMG8drTyH0ia7KQ"/>
+</div>
+<!-- The Dialog Component -->
+<div class="glass-overlay w-full max-w-md p-8 border border-outline-variant/20 shadow-none z-10">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h4 class="font-headline text-lg font-bold text-primary mb-1">UNAUTHORIZED ACCESS</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">System has detected a neural bypass attempt. Confirm identity or initiate lockdown.</p>
+</div>
+</div>
+<div class="flex gap-4 justify-end mt-8">
+<button class="px-6 py-2 bg-surface-container-highest text-on-surface text-sm font-medium hover:bg-surface-bright transition-colors">DEFER</button>
+<button class="px-6 py-2 bg-primary text-on-primary text-sm font-bold tracking-tighter">VALIDATE</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 2. State Matrix: Buttons -->
+<div class="col-span-12 lg:col-span-5 bg-surface-container-low p-10">
+<div class="flex justify-between items-end mb-12">
+<h3 class="font-headline text-xl font-medium text-on-surface tracking-wide">STATE MATRIX</h3>
+<span class="font-label text-[10px] text-neutral-500 uppercase tracking-widest">Component 02</span>
+</div>
+<div class="space-y-6">
+<div class="flex items-center justify-between group">
+<span class="font-label text-[10px] text-neutral-500 uppercase tracking-widest">DEFAULT</span>
+<button class="w-48 py-3 bg-primary text-on-primary text-xs font-bold tracking-[0.1em] text-center">CORE_EXECUTE</button>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label text-[10px] text-neutral-500 uppercase tracking-widest">HOVER</span>
+<button class="w-48 py-3 bg-primary text-on-primary text-xs font-bold tracking-[0.1em] text-center scale-[1.02] ring-1 ring-primary/20 transition-transform">CORE_EXECUTE</button>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label text-[10px] text-neutral-500 uppercase tracking-widest">PRESSED</span>
+<button class="w-48 py-3 bg-primary text-on-primary text-xs font-bold tracking-[0.1em] text-center scale-[0.98] transition-transform">CORE_EXECUTE</button>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label text-[10px] text-neutral-500 uppercase tracking-widest">DISABLED</span>
+<button class="w-48 py-3 bg-surface-container-highest text-neutral-600 text-xs font-bold tracking-[0.1em] text-center cursor-not-allowed">CORE_EXECUTE</button>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label text-[10px] text-neutral-500 uppercase tracking-widest">LOADING</span>
+<button class="w-48 py-3 bg-primary text-on-primary text-xs font-bold tracking-[0.1em] text-center flex items-center justify-center gap-2">
+<span class="w-3 h-3 border-2 border-on-primary/20 border-t-on-primary rounded-full animate-spin"></span>
+                            PROCESSING
+                        </button>
+</div>
+</div>
+</div>
+<!-- 3. Toast Notifications & Popover -->
+<div class="col-span-12 lg:col-span-8 grid grid-cols-2 gap-8">
+<!-- Toast Notifications -->
+<div class="bg-surface-container-low p-10 flex flex-col">
+<div class="flex justify-between items-end mb-8">
+<h3 class="font-headline text-xl font-medium text-on-surface tracking-wide">NOTIFICATIONS</h3>
+<span class="font-label text-[10px] text-neutral-500 uppercase tracking-widest">Component 03</span>
+</div>
+<div class="space-y-4">
+<!-- Success Toast -->
+<div class="p-4 bg-surface-container-high border-l-2 border-primary flex items-start gap-4">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle">check_circle</span>
+<div class="flex-1">
+<p class="text-xs font-bold tracking-tight text-primary uppercase">SYNC_COMPLETE</p>
+<p class="text-[11px] text-on-surface-variant">Mesh network successfully integrated.</p>
+</div>
+</div>
+<!-- Info Toast -->
+<div class="p-4 bg-surface-container-high border-l-2 border-outline-variant flex items-start gap-4">
+<span class="material-symbols-outlined text-neutral-400 text-lg" data-icon="info">info</span>
+<div class="flex-1">
+<p class="text-xs font-bold tracking-tight text-on-surface uppercase">SYSTEM_UPDATE</p>
+<p class="text-[11px] text-on-surface-variant">Version 4.2.0 is now available for deployment.</p>
+</div>
+</div>
+<!-- Error Toast -->
+<div class="p-4 bg-surface-container-high border-l-2 border-error flex items-start gap-4">
+<span class="material-symbols-outlined text-error text-lg" data-icon="warning">warning</span>
+<div class="flex-1">
+<p class="text-xs font-bold tracking-tight text-error uppercase">THERMAL_WARNING</p>
+<p class="text-[11px] text-on-surface-variant">Amber Neural core exceeding safe parameters.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Popover Contextual -->
+<div class="bg-surface-container-low p-10 flex flex-col">
+<div class="flex justify-between items-end mb-8">
+<h3 class="font-headline text-xl font-medium text-on-surface tracking-wide">POPOVER</h3>
+<span class="font-label text-[10px] text-neutral-500 uppercase tracking-widest">Component 04</span>
+</div>
+<div class="flex-1 flex flex-col items-center justify-center gap-6">
+<div class="relative">
+<div class="p-4 bg-surface-container-highest border border-outline-variant/30 rounded-lg w-56 relative z-10">
+<p class="font-label text-[9px] text-amber-500 uppercase tracking-[0.2em] mb-2">NEURAL_ID</p>
+<p class="text-xs text-on-surface leading-snug mb-4">Unique identifier for the current scholar instance. Do not share across public mesh nodes.</p>
+<div class="h-[1px] w-full bg-outline-variant/20 mb-3"></div>
+<button class="text-[10px] font-bold text-primary flex items-center gap-1 hover:gap-2 transition-all uppercase tracking-widest">
+                                    Manage Keys <span class="material-symbols-outlined text-xs" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<!-- Arrow pointer shadow-free -->
+<div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-surface-container-highest border-b border-r border-outline-variant/30 rotate-45 z-0"></div>
+</div>
+<button class="px-8 py-2 border border-outline-variant text-xs font-label uppercase tracking-widest text-neutral-400">Trigger UI</button>
+</div>
+</div>
+</div>
+<!-- 4. Typography Hierarchy -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container-low p-10 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-end mb-12">
+<h3 class="font-headline text-xl font-medium text-on-surface tracking-wide">TYPOGRAPHY</h3>
+<span class="font-label text-[10px] text-neutral-500 uppercase tracking-widest">Spec</span>
+</div>
+<div class="space-y-8">
+<div>
+<p class="font-label text-[9px] text-neutral-600 uppercase mb-2">Display Large</p>
+<h4 class="font-headline text-4xl font-bold tracking-tight text-primary">Obsidian</h4>
+</div>
+<div>
+<p class="font-label text-[9px] text-neutral-600 uppercase mb-2">Headline Medium</p>
+<h4 class="font-headline text-xl text-on-surface">Precision Instrument</h4>
+</div>
+<div>
+<p class="font-label text-[9px] text-neutral-600 uppercase mb-2">Body Text</p>
+<p class="text-sm text-on-surface-variant leading-relaxed">Synthesis of architectural data through neural networks requires zero-latency visualization layers.</p>
+</div>
+</div>
+</div>
+<div class="mt-12 p-4 bg-surface-container-lowest border border-outline-variant/10">
+<p class="font-label text-[8px] text-amber-600 uppercase mb-1">Color Palette</p>
+<div class="flex h-4 w-full">
+<div class="flex-1 bg-surface-container-lowest"></div>
+<div class="flex-1 bg-surface-container-low"></div>
+<div class="flex-1 bg-surface-container-high"></div>
+<div class="flex-1 bg-surface-container-highest"></div>
+<div class="flex-1 bg-primary"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomStatusBar -->
+<footer class="fixed bottom-0 right-0 left-20 z-40 flex items-center px-6 justify-between h-8 bg-neutral-950 border-t border-amber-900/5">
+<div class="flex items-center gap-4">
+<span class="font-label text-[10px] text-amber-600 uppercase tracking-widest">System Health: Optimal | Sync: 100%</span>
+</div>
+<div class="flex items-center gap-6">
+<a class="font-label text-[10px] text-neutral-600 uppercase tracking-widest hover:text-amber-300 transition-colors" href="#">Privacy</a>
+<a class="font-label text-[10px] text-neutral-600 uppercase tracking-widest hover:text-amber-300 transition-colors" href="#">Security</a>
+<a class="font-label text-[10px] text-neutral-600 uppercase tracking-widest hover:text-amber-300 transition-colors" href="#">Documentation</a>
+</div>
+</footer>
+</body></html>

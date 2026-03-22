@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Polymath OS - Camera Scan</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-variant": "#353535",
+                        "outline-variant": "#474747",
+                        "on-error": "#690005",
+                        "on-primary-container": "#000000",
+                        "surface-container-highest": "#353535",
+                        "on-secondary": "#1b1b1b",
+                        "secondary": "#c6c6c6",
+                        "secondary-container": "#474747",
+                        "on-secondary-container": "#e2e2e2",
+                        "on-tertiary": "#1b1b1b",
+                        "tertiary-fixed": "#5e5e5e",
+                        "on-primary-fixed": "#ffffff",
+                        "error": "#ffb4ab",
+                        "surface": "#131313",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-secondary-fixed-variant": "#3b3b3b",
+                        "secondary-fixed": "#c6c6c6",
+                        "inverse-surface": "#e2e2e2",
+                        "on-tertiary-fixed": "#ffffff",
+                        "on-primary": "#1a1c1c",
+                        "on-primary-fixed-variant": "#e3e2e2",
+                        "tertiary-fixed-dim": "#474747",
+                        "inverse-on-surface": "#303030",
+                        "primary": "#ffffff",
+                        "surface-tint": "#c6c6c6",
+                        "on-background": "#e2e2e2",
+                        "inverse-primary": "#5d5e5f",
+                        "surface-container": "#1f1f1f",
+                        "outline": "#919191",
+                        "tertiary-container": "#919191",
+                        "tertiary": "#e2e2e2",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-fixed-variant": "#e2e2e2",
+                        "surface-dim": "#131313",
+                        "primary-fixed-dim": "#464747",
+                        "primary-container": "#d4d4d4",
+                        "primary-fixed": "#5d5e5f",
+                        "error-container": "#93000a",
+                        "surface-bright": "#393939",
+                        "on-tertiary-container": "#000000",
+                        "surface-container-low": "#1b1b1b",
+                        "on-secondary-fixed": "#1b1b1b",
+                        "on-surface-variant": "#c6c6c6",
+                        "on-error-container": "#ffdad6",
+                        "background": "#131313",
+                        "on-surface": "#e2e2e2",
+                        "secondary-fixed-dim": "#ababab"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .scan-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ffffff, transparent);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+        .glass-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(19, 19, 19, 0.6);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-container-lowest text-on-surface font-body selection:bg-primary selection:text-on-primary">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#131313] dark:bg-[#0e0e0e]">
+<div class="flex items-center gap-4">
+<button class="p-2 text-neutral-500 hover:bg-[#2a2a2a] transition-colors duration-200 active:scale-95 duration-100">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+<span class="font-headline tracking-tighter font-bold uppercase text-neutral-100 text-sm">Scanner Engine</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-neutral-500 hover:bg-[#2a2a2a] transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="flash_on">flash_on</span>
+</button>
+<button class="p-2 text-neutral-500 hover:bg-[#2a2a2a] transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Viewfinder -->
+<main class="relative w-full h-screen overflow-hidden bg-black">
+<!-- Mock Camera Background -->
+<div class="absolute inset-0 z-0">
+<img alt="Document overview" class="w-full h-full object-cover opacity-60 grayscale brightness-75" data-alt="Technical document spread on a black workstation" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeb5Zdo8s2xQiOUUgn2vKBXKAcNU4rWILzZLrWQfFVX76oUf52LfOHSGUrRUR7fwdL22-KA9KgtdXGARCjoIRtM2dJekTLx1evftn0E-v9w1LI1l7mIo8U36F8lvDOoES9I9tWX4GXfueFeJspXazk2ts0GYFky1JHPxmkD_z9UkG5qxHmh6npdPInTAoGXoL3sLTGKbPz6MS5ULzwyB30kHqZG1sPmA9wBZJXHCJPjZBg4GxN3goJDJNqRbKA2pTQIEfCfXrqGys"/>
+</div>
+<!-- Scanning HUD Overlay -->
+<div class="absolute inset-0 z-10 flex flex-col items-center justify-center p-8">
+<!-- Scan Focus Area -->
+<div class="relative w-full max-w-lg aspect-[3/4] flex items-center justify-center">
+<!-- Tactical Corners -->
+<div class="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary"></div>
+<div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-primary"></div>
+<div class="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary"></div>
+<div class="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary"></div>
+<!-- AI Bounding Boxes -->
+<!-- Box 1: Header Text -->
+<div class="absolute top-[15%] left-[10%] w-[40%] h-[5%] border border-primary/40 bg-primary/5 flex items-end">
+<div class="absolute -top-6 left-0 flex items-center gap-2">
+<span class="bg-primary text-on-primary text-[10px] font-headline font-bold uppercase px-1.5 py-0.5">TEXT_BLOCK</span>
+<span class="text-primary text-[10px] font-label font-bold tracking-widest opacity-80">98.4% CONF</span>
+</div>
+</div>
+<!-- Box 2: Table/Data -->
+<div class="absolute top-[35%] right-[15%] w-[60%] h-[30%] border border-primary/20 bg-primary/5">
+<div class="absolute -top-6 right-0 flex items-center gap-2">
+<span class="bg-primary text-on-primary text-[10px] font-headline font-bold uppercase px-1.5 py-0.5">DATA_MATRIX</span>
+</div>
+</div>
+<!-- Floating Labels -->
+<div class="absolute bottom-12 left-12 flex flex-col gap-1">
+<span class="text-[10px] font-label tracking-tighter text-secondary opacity-50 uppercase">Exposure: AUTO</span>
+<span class="text-[10px] font-label tracking-tighter text-secondary opacity-50 uppercase">ISO: 400</span>
+<span class="text-[10px] font-label tracking-tighter text-secondary opacity-50 uppercase">Focal: 24mm</span>
+</div>
+<!-- Scanning Animation Visual -->
+<div class="absolute inset-x-8 top-1/2 scan-line z-20 opacity-40"></div>
+</div>
+</div>
+<!-- AI Insights Sidebar (Asymmetric Editorial Element) -->
+<div class="absolute right-6 top-24 bottom-32 w-64 z-30 hidden lg:flex flex-col gap-6">
+<div class="bg-surface-container-low p-6 flex flex-col gap-4 border-l-2 border-primary">
+<div class="flex flex-col gap-1">
+<span class="text-[10px] font-label tracking-[0.2em] text-on-surface-variant uppercase">Neural Link</span>
+<h2 class="font-headline text-xl font-bold leading-none">ANALYSIS</h2>
+</div>
+<div class="space-y-4">
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-label uppercase text-secondary">
+<span>Recognition</span>
+<span>Active</span>
+</div>
+<div class="w-full h-[1px] bg-surface-container-highest overflow-hidden">
+<div class="w-2/3 h-full bg-primary"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex items-start gap-3 p-3 bg-surface-container-high">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="description">description</span>
+<div class="flex flex-col">
+<span class="text-[11px] font-bold text-on-surface uppercase font-headline">Patent Doc Detected</span>
+<span class="text-[10px] text-on-surface-variant leading-tight font-body">Cross-referencing legal database...</span>
+</div>
+</div>
+<div class="flex items-start gap-3 p-3 bg-surface-container-high opacity-50">
+<span class="material-symbols-outlined text-sm" data-icon="schema">schema</span>
+<div class="flex flex-col">
+<span class="text-[11px] font-bold text-on-surface uppercase font-headline">Entity Extraction</span>
+<span class="text-[10px] text-on-surface-variant leading-tight font-body">Pending capture focus.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Controls & Navigation -->
+<footer class="fixed bottom-0 left-0 w-full z-50 flex flex-col">
+<!-- Capture Action Layer -->
+<div class="flex items-center justify-between px-10 pb-12 w-full max-w-2xl mx-auto">
+<div class="w-12 h-12 rounded-lg bg-surface-container border border-outline-variant/30 flex items-center justify-center overflow-hidden grayscale opacity-70">
+<img alt="Recent Scan" class="w-full h-full object-cover" data-alt="Abstract dark grey geometric pattern" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPkb2I4OvQhKD8UEcCIbHV3sFtBx47YwgNZV2Vmo04gIwHjj1CLMg4dIjCcdrzVJw0LFMy-C3GAGWZIIm-NEbH2lp88uH3kQVNkAKauhND9WTJ1MJPxqIpfvDJkpXj6-HR8AZplrUDa6Fi6e9rXlDBaC_re7_pcOfpcpHmvhfrjXAvCb94waU0ulbIulMY_mq5aqPbLtdRs-BFr3V46KOzQqZfpKgg2HuMBtdhNWml61Joo6TDgPD1RrGOwes4pPVHXZbHvpNw5TI"/>
+</div>
+<button class="relative w-20 h-20 rounded-full border-2 border-primary flex items-center justify-center active:scale-90 transition-transform p-1">
+<div class="w-full h-full bg-primary rounded-full hover:bg-secondary transition-colors"></div>
+</button>
+<button class="w-12 h-12 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+</button>
+</div>
+<!-- Mode Selector (Shared Component Logic - BottomNavBar Style) -->
+<nav class="bg-[#131313]/80 dark:bg-[#0e0e0e]/80 backdrop-blur-xl border-t border-white/5 flex justify-around items-center h-20 pb-safe">
+<button class="flex flex-col items-center justify-center text-neutral-600 hover:text-neutral-300 transition-transform active:scale-90">
+<span class="material-symbols-outlined" data-icon="grain">grain</span>
+<span class="text-[10px] font-label uppercase tracking-widest mt-1">OBJECT</span>
+</button>
+<button class="flex flex-col items-center justify-center text-white scale-110">
+<span class="material-symbols-outlined" data-icon="center_focus_strong">center_focus_strong</span>
+<span class="text-[10px] font-label uppercase tracking-widest mt-1 font-bold">SCAN</span>
+</button>
+<button class="flex flex-col items-center justify-center text-neutral-600 hover:text-neutral-300 transition-transform active:scale-90">
+<span class="material-symbols-outlined" data-icon="settings_voice">settings_voice</span>
+<span class="text-[10px] font-label uppercase tracking-widest mt-1">OCR</span>
+</button>
+<button class="flex flex-col items-center justify-center text-neutral-600 hover:text-neutral-300 transition-transform active:scale-90">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="text-[10px] font-label uppercase tracking-widest mt-1">LIVE</span>
+</button>
+</nav>
+</footer>
+<!-- AI Pulse (Signature Component) -->
+<div class="fixed top-0 left-0 w-full z-[60] h-[2px]">
+<div class="h-full bg-gradient-to-r from-secondary to-primary animate-pulse"></div>
+</div>
+</body></html>

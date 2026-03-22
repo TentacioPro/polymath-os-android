@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Integrations &amp; Config | Polymath OS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-fixed": "#1b1c1c",
+                        "tertiary-fixed": "#f4e2a9",
+                        "on-primary-container": "#6b4900",
+                        "on-background": "#e5e2e1",
+                        "on-secondary": "#303030",
+                        "tertiary": "#efdda5",
+                        "secondary-container": "#474746",
+                        "on-error-container": "#ffdad6",
+                        "on-primary": "#432c00",
+                        "tertiary-fixed-dim": "#d7c690",
+                        "surface-container-low": "#1c1b1b",
+                        "on-tertiary-container": "#5b4e23",
+                        "primary-fixed": "#ffdeac",
+                        "primary-fixed-dim": "#ffba38",
+                        "on-error": "#690005",
+                        "error": "#ffb4ab",
+                        "secondary": "#c8c6c5",
+                        "on-tertiary-fixed-variant": "#52461c",
+                        "surface": "#131313",
+                        "surface-dim": "#131313",
+                        "inverse-primary": "#7e5700",
+                        "on-surface": "#e5e2e1",
+                        "inverse-on-surface": "#313030",
+                        "on-secondary-fixed-variant": "#474746",
+                        "surface-tint": "#ffba38",
+                        "on-primary-fixed": "#281900",
+                        "surface-container": "#201f1f",
+                        "primary": "#ffd79b",
+                        "error-container": "#93000a",
+                        "surface-container-lowest": "#0e0e0e",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-surface-variant": "#d6c4ac",
+                        "on-primary-fixed-variant": "#604100",
+                        "background": "#131313",
+                        "surface-bright": "#393939",
+                        "surface-container-high": "#2a2a2a",
+                        "outline-variant": "#514532",
+                        "secondary-fixed": "#e4e2e1",
+                        "on-secondary-container": "#b7b5b4",
+                        "tertiary-container": "#d2c18b",
+                        "surface-container-highest": "#353534",
+                        "on-tertiary-fixed": "#231b00",
+                        "surface-variant": "#353534",
+                        "primary-container": "#ffb300",
+                        "inverse-surface": "#e5e2e1",
+                        "on-tertiary": "#3a3007",
+                        "outline": "#9e8e78"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(19, 19, 19, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(81, 69, 50, 0.1);
+        }
+        .amber-glow {
+            box-shadow: 0 0 40px -10px rgba(255, 186, 56, 0.15);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0e0e0e; }
+        ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="fixed top-0 z-50 w-full bg-[#131313] dark:bg-[#0e0e0e] flex justify-between items-center px-8 py-4 border-none">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black tracking-tighter text-slate-50 dark:text-white font-headline">Obsidian Instrument</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="font-headline tracking-tight text-sm font-bold uppercase text-slate-500 dark:text-slate-400 hover:bg-[#2a2a2a] transition-colors duration-200 px-2 py-1" href="#">Workspace</a>
+<a class="font-headline tracking-tight text-sm font-bold uppercase text-slate-500 dark:text-slate-400 hover:bg-[#2a2a2a] transition-colors duration-200 px-2 py-1" href="#">Library</a>
+<a class="font-headline tracking-tight text-sm font-bold uppercase text-slate-500 dark:text-slate-400 hover:bg-[#2a2a2a] transition-colors duration-200 px-2 py-1" href="#">Neural Lab</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors cursor-pointer">notifications</span>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined text-white border-b-2 border-white pb-1 transition-colors cursor-pointer">settings</span>
+</div>
+<div class="h-8 w-8 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="High-tech profile avatar of a scholar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCguPNNu6nuAwEpjiHv_ykT-SHvUAbJ84plWeMkhRdd5zSjZmg9Mt-QCtD_F-sw5r1b566fv08xk0Vc4z4bxcAeR1YAgeLcrQk3E8WTnwbwi8ih7WE-l4uPCSPXDY1_BYui2-jr2oSllMTAG6gxRJO9ou3qCwkEJlDVMoLiiNT9Ih2p-k1vMy0oF9m8ZulLr0ZT4BZv2qYLonSvvbcIoTiM8KEhWDDaV2WFxU8T-HW6jVZZZmZKfoK9zA4J08NRqFzzIPFOA_Cd99Y"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-20 hover:w-64 transition-all duration-300 z-40 bg-[#0e0e0e] dark:bg-[#0e0e0e] border-r border-[#474747]/15 flex flex-col py-8 items-center overflow-hidden group">
+<div class="mb-12 flex flex-col items-center group-hover:items-start group-hover:px-6 w-full transition-all">
+<div class="w-10 h-10 rounded-sm bg-primary flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-on-primary">memory</span>
+</div>
+<div class="hidden group-hover:block">
+<p class="font-headline text-[11px] font-bold tracking-widest uppercase text-slate-200">System Alpha</p>
+<p class="text-[10px] text-primary/70 uppercase tracking-tighter">Mastery Level 4</p>
+</div>
+</div>
+<nav class="flex-1 w-full space-y-2 px-3">
+<div class="flex items-center gap-4 p-3 text-slate-500 dark:text-slate-400 hover:text-white hover:bg-[#1b1b1b] transition-all duration-200 rounded-sm cursor-pointer">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="hidden group-hover:block font-headline text-[11px] font-bold tracking-widest uppercase">Dashboard</span>
+</div>
+<div class="flex items-center gap-4 p-3 text-slate-500 dark:text-slate-400 hover:text-white hover:bg-[#1b1b1b] transition-all duration-200 rounded-sm cursor-pointer">
+<span class="material-symbols-outlined">biotech</span>
+<span class="hidden group-hover:block font-headline text-[11px] font-bold tracking-widest uppercase">Research</span>
+</div>
+<div class="flex items-center gap-4 p-3 text-slate-500 dark:text-slate-400 hover:text-white hover:bg-[#1b1b1b] transition-all duration-200 rounded-sm cursor-pointer">
+<span class="material-symbols-outlined">psychology</span>
+<span class="hidden group-hover:block font-headline text-[11px] font-bold tracking-widest uppercase">Synthesis</span>
+</div>
+<div class="flex items-center gap-4 p-3 text-white bg-[#2a2a2a] rounded-sm transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">settings</span>
+<span class="hidden group-hover:block font-headline text-[11px] font-bold tracking-widest uppercase">Settings</span>
+</div>
+</nav>
+<div class="mt-auto w-full px-3 space-y-2">
+<button class="w-full bg-primary text-on-primary py-3 rounded-sm flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined">add</span>
+<span class="hidden group-hover:block font-headline text-[11px] font-bold tracking-widest uppercase">New Insight</span>
+</button>
+<div class="flex items-center gap-4 p-3 text-slate-500 dark:text-slate-400 hover:text-white hover:bg-[#1b1b1b] transition-all duration-200 rounded-sm cursor-pointer mt-4">
+<span class="material-symbols-outlined">logout</span>
+<span class="hidden group-hover:block font-headline text-[11px] font-bold tracking-widest uppercase">Sign Out</span>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-20 pt-24 px-8 pb-12 transition-all duration-300">
+<!-- Hero Section -->
+<header class="mb-12 max-w-6xl">
+<h1 class="font-headline text-5xl font-black tracking-tighter text-on-surface mb-2">Integrations &amp; Config</h1>
+<p class="text-on-surface-variant font-body text-lg max-w-2xl">
+                Orchestrate your neural architecture. Connect specialized providers and tune system-wide behavioral parameters for high-performance synthesis.
+            </p>
+</header>
+<!-- Provider Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-7xl">
+<!-- OpenAI Card -->
+<div class="surface-container-low rounded-xl p-6 amber-glow flex flex-col relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4">
+<div class="flex items-center gap-2 px-2 py-1 bg-green-500/10 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+<span class="text-[10px] font-headline font-bold text-green-500 uppercase tracking-widest">Active</span>
+</div>
+</div>
+<div class="mb-6">
+<div class="w-12 h-12 bg-white/5 flex items-center justify-center rounded-lg mb-4 border border-outline-variant">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<h3 class="font-headline text-xl font-bold text-white uppercase tracking-tight">OpenAI</h3>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest mt-1">Tier: GPT-4o Protocol</p>
+</div>
+<div class="space-y-4 flex-1">
+<div class="space-y-1">
+<label class="font-headline text-[10px] font-bold uppercase tracking-widest text-outline">API KEY</label>
+<div class="flex items-center bg-surface-container-highest border-b border-outline-variant focus-within:border-primary transition-all p-2">
+<input class="bg-transparent border-none text-sm w-full focus:ring-0 text-on-surface" type="password" value="sk-••••••••••••••••"/>
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary">visibility</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mt-6">
+<div class="bg-surface p-3 rounded-lg">
+<p class="text-[10px] text-outline uppercase font-bold tracking-widest mb-1">Latency</p>
+<p class="font-headline text-lg font-bold text-primary">124ms</p>
+</div>
+<div class="bg-surface p-3 rounded-lg">
+<p class="text-[10px] text-outline uppercase font-bold tracking-widest mb-1">Uptime</p>
+<p class="font-headline text-lg font-bold text-primary">99.9%</p>
+</div>
+</div>
+</div>
+<button class="mt-8 w-full py-2 bg-secondary-container text-on-secondary-container hover:bg-surface-container-high font-headline text-xs font-bold uppercase tracking-widest transition-all">Configure Models</button>
+</div>
+<!-- Anthropic Card -->
+<div class="surface-container-low rounded-xl p-6 flex flex-col relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4">
+<div class="flex items-center gap-2 px-2 py-1 bg-surface-container-highest rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-on-surface-variant"></span>
+<span class="text-[10px] font-headline font-bold text-on-surface-variant uppercase tracking-widest">Standby</span>
+</div>
+</div>
+<div class="mb-6 opacity-80 group-hover:opacity-100 transition-opacity">
+<div class="w-12 h-12 bg-white/5 flex items-center justify-center rounded-lg mb-4 border border-outline-variant">
+<span class="material-symbols-outlined text-secondary">psychology_alt</span>
+</div>
+<h3 class="font-headline text-xl font-bold text-white uppercase tracking-tight">Anthropic</h3>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest mt-1">Tier: Claude 3.5 Sonnet</p>
+</div>
+<div class="space-y-4 flex-1">
+<div class="space-y-1">
+<label class="font-headline text-[10px] font-bold uppercase tracking-widest text-outline">API KEY</label>
+<div class="flex items-center bg-surface-container-highest border-b border-outline-variant focus-within:border-primary transition-all p-2">
+<input class="bg-transparent border-none text-sm w-full focus:ring-0 text-on-surface" placeholder="sk-ant-••••••••••" type="password"/>
+<span class="material-symbols-outlined text-outline cursor-pointer">add</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mt-6">
+<div class="bg-surface p-3 rounded-lg">
+<p class="text-[10px] text-outline uppercase font-bold tracking-widest mb-1">Accuracy</p>
+<p class="font-headline text-lg font-bold text-secondary">92.4%</p>
+</div>
+<div class="bg-surface p-3 rounded-lg">
+<p class="text-[10px] text-outline uppercase font-bold tracking-widest mb-1">Context</p>
+<p class="font-headline text-lg font-bold text-secondary">200k</p>
+</div>
+</div>
+</div>
+<button class="mt-8 w-full py-2 bg-primary text-on-primary hover:scale-[1.02] transition-all font-headline text-xs font-bold uppercase tracking-widest">Connect Provider</button>
+</div>
+<!-- Mistral Card -->
+<div class="surface-container-low rounded-xl p-6 flex flex-col relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4">
+<div class="flex items-center gap-2 px-2 py-1 bg-primary/10 rounded-full border border-primary/20">
+<span class="text-[10px] font-headline font-bold text-primary uppercase tracking-widest">Local Engine</span>
+</div>
+</div>
+<div class="mb-6">
+<div class="w-12 h-12 bg-white/5 flex items-center justify-center rounded-lg mb-4 border border-outline-variant">
+<span class="material-symbols-outlined text-primary">terminal</span>
+</div>
+<h3 class="font-headline text-xl font-bold text-white uppercase tracking-tight">Mistral AI</h3>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest mt-1">Tier: Mixtral 8x7B (Ollama)</p>
+</div>
+<div class="space-y-4 flex-1">
+<div class="space-y-1">
+<label class="font-headline text-[10px] font-bold uppercase tracking-widest text-outline">Endpoint URL</label>
+<div class="flex items-center bg-surface-container-highest border-b border-outline-variant focus-within:border-primary transition-all p-2">
+<input class="bg-transparent border-none text-sm w-full focus:ring-0 text-on-surface font-mono" type="text" value="http://localhost:11434"/>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-2 mt-6">
+<div class="bg-surface p-3 rounded-lg flex items-center justify-between">
+<p class="text-[10px] text-outline uppercase font-bold tracking-widest">VRAM Usage</p>
+<div class="w-24 h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[65%]"></div>
+</div>
+<p class="font-headline text-xs font-bold text-primary">65%</p>
+</div>
+</div>
+</div>
+<button class="mt-8 w-full py-2 bg-secondary-container text-on-secondary-container hover:bg-surface-container-high font-headline text-xs font-bold uppercase tracking-widest transition-all">Optimize Performance</button>
+</div>
+</section>
+<!-- System Settings Section -->
+<section class="max-w-7xl">
+<div class="flex items-center justify-between mb-8 border-b border-outline-variant pb-4">
+<div class="flex items-center gap-4">
+<h2 class="font-headline text-2xl font-bold uppercase tracking-tighter">System Configuration</h2>
+<span class="px-2 py-0.5 bg-primary text-on-primary text-[10px] font-black uppercase rounded-sm">Global</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-4 py-2 text-on-surface-variant text-xs font-headline font-bold uppercase tracking-widest hover:text-white transition-colors">Reset Defaults</button>
+<button class="px-6 py-2 bg-primary text-on-primary text-xs font-headline font-bold uppercase tracking-widest hover:scale-[1.02] transition-all">Save Matrix</button>
+</div>
+</div>
+<div class="glass-panel rounded-xl overflow-hidden border border-outline-variant/20">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant/30">
+<th class="p-6 font-headline text-[10px] font-black uppercase tracking-widest text-outline">Parameter</th>
+<th class="p-6 font-headline text-[10px] font-black uppercase tracking-widest text-outline">Current Value</th>
+<th class="p-6 font-headline text-[10px] font-black uppercase tracking-widest text-outline">Cognitive Mode</th>
+<th class="p-6 font-headline text-[10px] font-black uppercase tracking-widest text-outline">Risk Level</th>
+<th class="p-6"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-high/40 transition-colors">
+<td class="p-6">
+<p class="text-sm font-bold text-white mb-1">Reasoning Depth</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Recursive analysis iterations per query</p>
+</td>
+<td class="p-6">
+<div class="flex items-center gap-3">
+<span class="text-primary font-mono text-sm">Level 07</span>
+<div class="flex gap-1">
+<div class="w-1.5 h-3 bg-primary"></div>
+<div class="w-1.5 h-3 bg-primary"></div>
+<div class="w-1.5 h-3 bg-primary"></div>
+<div class="w-1.5 h-3 bg-primary"></div>
+<div class="w-1.5 h-3 bg-outline-variant"></div>
+</div>
+</div>
+</td>
+<td class="p-6">
+<span class="px-2 py-1 bg-surface-container-highest text-[10px] font-bold text-white uppercase tracking-widest rounded-sm">Scholarly</span>
+</td>
+<td class="p-6">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-blue-400"></span>
+<span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Low</span>
+</div>
+</td>
+<td class="p-6 text-right">
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary">tune</span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-high/40 transition-colors bg-surface-container-low/20">
+<td class="p-6">
+<p class="text-sm font-bold text-white mb-1">Synthesis Temperature</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Creative variance in neural output</p>
+</td>
+<td class="p-6">
+<span class="text-primary font-mono text-sm">0.82 Δ</span>
+</td>
+<td class="p-6">
+<span class="px-2 py-1 bg-surface-container-highest text-[10px] font-bold text-white uppercase tracking-widest rounded-sm">Creative</span>
+</td>
+<td class="p-6">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-amber-400"></span>
+<span class="text-[10px] font-bold text-amber-400 uppercase tracking-widest">Medium</span>
+</div>
+</td>
+<td class="p-6 text-right">
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary">tune</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-high/40 transition-colors">
+<td class="p-6">
+<p class="text-sm font-bold text-white mb-1">Knowledge Cutoff</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Historical temporal boundary for research</p>
+</td>
+<td class="p-6">
+<span class="text-primary font-mono text-sm">2024.Q2</span>
+</td>
+<td class="p-6">
+<span class="px-2 py-1 bg-surface-container-highest text-[10px] font-bold text-white uppercase tracking-widest rounded-sm">Historical</span>
+</td>
+<td class="p-6">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-400"></span>
+<span class="text-[10px] font-bold text-green-400 uppercase tracking-widest">Minimal</span>
+</div>
+</td>
+<td class="p-6 text-right">
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary">tune</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Floating FAB - Only for specific task context -->
+<div class="fixed bottom-8 right-8 group">
+<button class="bg-primary text-on-primary h-16 w-16 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all amber-glow">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</button>
+<div class="absolute bottom-full right-0 mb-4 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+<div class="bg-surface-container-high px-4 py-2 rounded-lg border border-outline-variant">
+<p class="text-[10px] font-headline font-bold uppercase tracking-widest text-primary">Execute System Check</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Visual Accents -->
+<div class="fixed top-0 right-0 w-1/3 h-screen pointer-events-none opacity-10">
+<div class="absolute inset-0 bg-gradient-to-l from-primary/30 to-transparent"></div>
+<div class="h-full w-full bg-[radial-gradient(circle_at_70%_20%,rgba(255,215,155,0.1),transparent_40%)]"></div>
+</div>
+</body></html>

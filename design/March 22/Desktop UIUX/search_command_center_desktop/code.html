@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface": "#131313",
+              "on-tertiary": "#3a3007",
+              "error-container": "#93000a",
+              "on-error-container": "#ffdad6",
+              "on-tertiary-fixed": "#231b00",
+              "surface-container": "#201f1f",
+              "secondary": "#c8c6c5",
+              "surface-tint": "#ffba38",
+              "tertiary": "#efdda5",
+              "surface-container-lowest": "#0e0e0e",
+              "outline": "#9e8e78",
+              "surface-container-low": "#1c1b1b",
+              "on-error": "#690005",
+              "tertiary-container": "#d2c18b",
+              "on-primary": "#432c00",
+              "surface-container-high": "#2a2a2a",
+              "inverse-primary": "#7e5700",
+              "surface-bright": "#393939",
+              "on-primary-container": "#6b4900",
+              "on-secondary-fixed": "#1b1c1c",
+              "error": "#ffb4ab",
+              "background": "#131313",
+              "primary": "#ffd79b",
+              "tertiary-fixed": "#f4e2a9",
+              "surface-container-highest": "#353534",
+              "on-primary-fixed-variant": "#604100",
+              "primary-fixed-dim": "#ffba38",
+              "outline-variant": "#514532",
+              "secondary-fixed": "#e4e2e1",
+              "on-primary-fixed": "#281900",
+              "on-surface-variant": "#d6c4ac",
+              "inverse-surface": "#e5e2e1",
+              "on-secondary-container": "#b7b5b4",
+              "on-background": "#e5e2e1",
+              "on-secondary-fixed-variant": "#474746",
+              "surface-variant": "#353534",
+              "on-tertiary-fixed-variant": "#52461c",
+              "surface-dim": "#131313",
+              "secondary-fixed-dim": "#c8c6c5",
+              "primary-fixed": "#ffdeac",
+              "tertiary-fixed-dim": "#d7c690",
+              "on-tertiary-container": "#5b4e23",
+              "on-surface": "#e5e2e1",
+              "on-secondary": "#303030",
+              "primary-container": "#ffb300",
+              "secondary-container": "#474746",
+              "inverse-on-surface": "#313030"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["DM Sans"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(19, 19, 19, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(81, 69, 50, 0.1);
+        }
+        body {
+            background-color: #0A0A0A;
+            color: #e5e2e1;
+            font-family: 'DM Sans', sans-serif;
+            overflow: hidden;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="flex min-h-screen">
+<!-- SideNavBar (Rail) -->
+<nav class="fixed left-0 top-0 h-full z-50 flex flex-col items-center py-6 bg-neutral-950/60 backdrop-blur-xl h-screen w-20 flex flex-col border-r border-amber-900/10 shadow-2xl shadow-amber-900/5">
+<div class="mb-12">
+<span class="text-amber-500 font-bold tracking-tighter text-2xl font-headline">P</span>
+</div>
+<div class="flex flex-col gap-8 flex-1 items-center">
+<!-- Home -->
+<button class="text-neutral-500 hover:text-amber-200/70 hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined text-2xl" data-icon="home">home</span>
+</button>
+<!-- Library -->
+<button class="text-neutral-500 hover:text-amber-200/70 hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined text-2xl" data-icon="library_books">library_books</span>
+</button>
+<!-- Mesh -->
+<button class="text-neutral-500 hover:text-amber-200/70 hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined text-2xl" data-icon="hub">hub</span>
+</button>
+<!-- Chat -->
+<button class="text-neutral-500 hover:text-amber-200/70 hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined text-2xl" data-icon="chat_bubble">chat_bubble</span>
+</button>
+<!-- Journal -->
+<button class="text-neutral-500 hover:text-amber-200/70 hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined text-2xl" data-icon="auto_stories">auto_stories</span>
+</button>
+<!-- Agent -->
+<button class="text-neutral-500 hover:text-amber-200/70 hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined text-2xl" data-icon="smart_toy">smart_toy</span>
+</button>
+</div>
+<button class="text-neutral-500 hover:text-amber-200/70 hover:scale-105 transition-transform duration-200 mt-auto">
+<span class="material-symbols-outlined text-2xl" data-icon="settings">settings</span>
+</button>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-20 z-40 flex justify-between items-center px-8 bg-neutral-900/40 backdrop-blur-md docked full-width top-0 h-16 border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<h1 class="text-lg font-black tracking-widest text-amber-500 font-headline">Polymath OS</h1>
+<span class="text-[10px] font-headline uppercase tracking-widest text-amber-600/60 pt-1">Amber Neural v4.2</span>
+</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-neutral-400 hover:bg-white/5 p-2 rounded-lg transition-colors cursor-pointer" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-neutral-400 hover:bg-white/5 p-2 rounded-lg transition-colors cursor-pointer" data-icon="cloud_done">cloud_done</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-amber-900/20">
+<img class="w-full h-full object-cover" data-alt="User Profile Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrN-wD5C5aycZGt7DtoIT7-l6vT3qGXyTA4jDWKZZ2Dpps8FLNBKdptlNM0cWj3kBWaLS6UwlbZ1qAA0R9z-BUAdtzjCNBhH6nRss2FlE816g1osxo-R6wZZvJIYTvgM5CVdBVQ3Ds7IqgQWSphZqQtTr5iCcZYVoh_99hIDH-D5bWJs3WPzY9YDsFbb2iWt7WvVoXrHmD8ma6A8FaH6ZPyExsVoIR0wVRasPu9Alx84va8pjsZmnWkFzAx693NSq8neZ4qvFcvBM"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-20 pt-16 pb-8 px-8 flex items-center justify-center relative bg-[#0A0A0A]">
+<!-- Background Ambient Glows -->
+<div class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-amber-500/5 blur-[120px] rounded-full pointer-events-none"></div>
+<div class="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-primary-container/5 blur-[100px] rounded-full pointer-events-none"></div>
+<!-- Command Palette -->
+<div class="w-full max-w-3xl glass-panel rounded-[28px] overflow-hidden flex flex-col z-10 transition-all duration-300">
+<!-- Search Header -->
+<div class="p-6 flex items-center gap-4 bg-surface-container-high/40">
+<span class="material-symbols-outlined text-amber-400 text-3xl" data-icon="search">search</span>
+<input autofocus="" class="bg-transparent border-none text-on-surface text-2xl font-headline focus:ring-0 w-full placeholder:text-neutral-600" placeholder="Command your archive..." type="text"/>
+<div class="flex gap-2">
+<kbd class="px-3 py-1 bg-surface-container-highest rounded-lg text-[10px] font-headline uppercase tracking-widest text-neutral-400 flex items-center border border-outline-variant/10">⌘ K</kbd>
+</div>
+</div>
+<!-- Scrollable Results -->
+<div class="max-h-[614px] overflow-y-auto no-scrollbar pb-6">
+<!-- Category: Actions -->
+<section class="mt-4">
+<header class="px-8 py-2">
+<span class="text-[10px] font-headline uppercase tracking-[0.2em] text-amber-600/80 font-bold">System Actions</span>
+</header>
+<div class="px-4 space-y-1">
+<div class="flex items-center gap-4 px-4 py-3 hover:bg-white/5 rounded-xl cursor-pointer group transition-all duration-200">
+<div class="w-10 h-10 flex items-center justify-center bg-amber-400/10 text-amber-400 rounded-lg group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="model_training">model_training</span>
+</div>
+<div class="flex-1">
+<div class="text-on-surface font-headline font-medium">/train</div>
+<div class="text-xs text-neutral-500">Initiate local LLM fine-tuning on recent entries</div>
+</div>
+<span class="text-[10px] text-neutral-600 font-headline uppercase">Command</span>
+</div>
+<div class="flex items-center gap-4 px-4 py-3 hover:bg-white/5 rounded-xl cursor-pointer group transition-all duration-200">
+<div class="w-10 h-10 flex items-center justify-center bg-amber-400/10 text-amber-400 rounded-lg group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="compress">compress</span>
+</div>
+<div class="flex-1">
+<div class="text-on-surface font-headline font-medium">/consolidate</div>
+<div class="text-xs text-neutral-500">Merge disparate neural nodes into unified concepts</div>
+</div>
+<span class="text-[10px] text-neutral-600 font-headline uppercase">Command</span>
+</div>
+</div>
+</section>
+<!-- Category: Neural Mesh -->
+<section class="mt-6">
+<header class="px-8 py-2">
+<span class="text-[10px] font-headline uppercase tracking-[0.2em] text-amber-600/80 font-bold">Neural Mesh</span>
+</header>
+<div class="px-4 grid grid-cols-2 gap-2">
+<div class="flex items-center gap-4 px-4 py-4 bg-surface-container-low/30 hover:bg-surface-container-high/50 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-amber-400/20">
+<div class="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-sm" data-icon="bubble_chart">bubble_chart</span>
+</div>
+<div class="overflow-hidden">
+<div class="text-sm font-headline text-on-surface truncate">Cognitive Architecture</div>
+<div class="text-[10px] text-amber-500/60 uppercase">12 Connections</div>
+</div>
+</div>
+<div class="flex items-center gap-4 px-4 py-4 bg-surface-container-low/30 hover:bg-surface-container-high/50 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-amber-400/20">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-amber-400">
+<span class="material-symbols-outlined text-sm" data-icon="psychology">psychology</span>
+</div>
+<div class="overflow-hidden">
+<div class="text-sm font-headline text-on-surface truncate">Heuristic Models</div>
+<div class="text-[10px] text-amber-500/60 uppercase">8 Connections</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Category: Library -->
+<section class="mt-6">
+<header class="px-8 py-2">
+<span class="text-[10px] font-headline uppercase tracking-[0.2em] text-amber-600/80 font-bold">Library Activities</span>
+</header>
+<div class="px-4 space-y-1">
+<div class="flex items-center gap-4 px-4 py-3 hover:bg-white/5 rounded-xl cursor-pointer group">
+<span class="material-symbols-outlined text-neutral-500 group-hover:text-amber-400" data-icon="description">description</span>
+<div class="flex-1 text-sm font-body text-neutral-300">The Obsidian Archive: Design Specification</div>
+<span class="text-[10px] text-neutral-600">PDF</span>
+</div>
+<div class="flex items-center gap-4 px-4 py-3 hover:bg-white/5 rounded-xl cursor-pointer group">
+<span class="material-symbols-outlined text-neutral-500 group-hover:text-amber-400" data-icon="movie">movie</span>
+<div class="flex-1 text-sm font-body text-neutral-300">Neural Network Visualization Demo</div>
+<span class="text-[10px] text-neutral-600">MP4</span>
+</div>
+</div>
+</section>
+<!-- Category: Journal -->
+<section class="mt-6">
+<header class="px-8 py-2 flex justify-between items-center">
+<span class="text-[10px] font-headline uppercase tracking-[0.2em] text-amber-600/80 font-bold">Journal Entries</span>
+<span class="text-[10px] text-neutral-600 font-headline tracking-widest cursor-pointer hover:text-amber-400">View All</span>
+</header>
+<div class="px-8 mt-2 space-y-4">
+<div class="relative pl-6 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[2px] before:bg-amber-900/30">
+<div class="text-xs text-amber-500/60 font-headline uppercase mb-1">Oct 24, 2023</div>
+<p class="text-sm font-body text-neutral-300 leading-relaxed italic">"The transition between obsidian layers requires a more subtle tonal shift. Current 1px borders feel too clinical..."</p>
+</div>
+<div class="relative pl-6 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[2px] before:bg-amber-900/30">
+<div class="text-xs text-amber-500/60 font-headline uppercase mb-1">Oct 22, 2023</div>
+<p class="text-sm font-body text-neutral-300 leading-relaxed italic">"Synthesizing Kole Jain's structural philosophy with material design principles. The 'Sovereign Scholar' persona is emerging."</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Palette Footer -->
+<div class="px-8 py-4 bg-neutral-950/40 border-t border-outline-variant/10 flex justify-between items-center">
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<kbd class="px-2 py-0.5 bg-surface-container rounded text-[9px] font-headline text-neutral-500 border border-outline-variant/10">↑↓</kbd>
+<span class="text-[10px] text-neutral-500 font-headline uppercase tracking-widest">Navigate</span>
+</div>
+<div class="flex items-center gap-2">
+<kbd class="px-2 py-0.5 bg-surface-container rounded text-[9px] font-headline text-neutral-500 border border-outline-variant/10">Enter</kbd>
+<span class="text-[10px] text-neutral-500 font-headline uppercase tracking-widest">Select</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+<span class="text-[10px] text-amber-500/80 font-headline uppercase tracking-widest">Neural Sync Active</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomStatusBar -->
+<footer class="fixed bottom-0 right-0 left-20 z-40 flex items-center px-6 justify-between bg-neutral-950 docked full-width bottom-0 h-8 border-t border-amber-900/5">
+<div class="flex items-center gap-4">
+<span class="text-amber-600 label-sm font-headline uppercase tracking-widest text-[10px]">System Health: Optimal | Sync: 100%</span>
+</div>
+<div class="flex items-center gap-6">
+<a class="text-neutral-600 hover:text-amber-300 label-sm font-headline uppercase tracking-widest text-[10px]" href="#">Privacy</a>
+<a class="text-neutral-600 hover:text-amber-300 label-sm font-headline uppercase tracking-widest text-[10px]" href="#">Security</a>
+<a class="text-neutral-600 hover:text-amber-300 label-sm font-headline uppercase tracking-widest text-[10px]" href="#">Documentation</a>
+</div>
+</footer>
+</body></html>

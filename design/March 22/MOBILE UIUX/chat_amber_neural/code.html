@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Polymath OS | Neural Chat</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary": "#3a3007",
+                        "on-secondary-container": "#b7b5b4",
+                        "inverse-surface": "#e5e2e1",
+                        "secondary-container": "#474746",
+                        "on-tertiary-fixed-variant": "#52461c",
+                        "on-primary-fixed-variant": "#604100",
+                        "surface-container-highest": "#353534",
+                        "error-container": "#93000a",
+                        "tertiary-fixed-dim": "#d7c690",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container": "#201f1f",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed": "#1b1c1c",
+                        "surface-tint": "#ffba38",
+                        "outline-variant": "#514532",
+                        "tertiary-container": "#d2c18b",
+                        "on-surface-variant": "#d6c4ac",
+                        "on-error": "#690005",
+                        "on-tertiary-fixed": "#231b00",
+                        "on-error-container": "#ffdad6",
+                        "tertiary": "#efdda5",
+                        "on-tertiary-container": "#5b4e23",
+                        "surface": "#131313",
+                        "inverse-primary": "#7e5700",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "secondary-fixed": "#e4e2e1",
+                        "tertiary-fixed": "#f4e2a9",
+                        "primary": "#ffd79b",
+                        "on-secondary-fixed-variant": "#474746",
+                        "inverse-on-surface": "#313030",
+                        "background": "#131313",
+                        "primary-container": "#ffb300",
+                        "on-secondary": "#303030",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-dim": "#131313",
+                        "on-background": "#e5e2e1",
+                        "outline": "#9e8e78",
+                        "on-primary-fixed": "#281900",
+                        "on-primary-container": "#6b4900",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-bright": "#393939",
+                        "primary-fixed-dim": "#ffba38",
+                        "surface-variant": "#353534",
+                        "on-primary": "#432c00",
+                        "secondary": "#c8c6c5",
+                        "primary-fixed": "#ffdeac",
+                        "on-surface": "#e5e2e1"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 10px; }
+        .amber-glow {
+            box-shadow: 0 0 20px rgba(255, 215, 155, 0.05);
+        }
+        .glass-blur {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar Execution -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#131313] dark:bg-[#0e0e0e] border-b border-transparent bg-gradient-to-b from-[#1b1b1b] to-transparent">
+<div class="flex items-center gap-4">
+<button class="text-[#ffffff] hover:bg-[#2a2a2a] transition-colors duration-200 scale-95 active:scale-90 transition-transform p-2">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="text-xl font-bold tracking-[-0.02em] text-[#ffffff] font-['Space_Grotesk']">POLYMATH OS</h1>
+</div>
+<div class="flex items-center gap-3">
+<div class="hidden md:flex gap-6 mr-6">
+<span class="text-[#ffffff] font-['Space_Grotesk'] font-bold tracking-tight text-sm cursor-pointer">Home</span>
+<span class="text-[#ababab] font-['Space_Grotesk'] font-bold tracking-tight text-sm cursor-pointer hover:text-[#ffffff] transition-colors">Knowledge</span>
+<span class="text-[#ababab] font-['Space_Grotesk'] font-bold tracking-tight text-sm cursor-pointer hover:text-[#ffffff] transition-colors">Mesh</span>
+<span class="text-[#ffffff] font-['Space_Grotesk'] font-bold tracking-tight text-sm cursor-pointer">Chat</span>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant/20">
+<img alt="Profile" data-alt="User profile avatar with minimalist design" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1RkAhaRMqxsy3xsFUerNyu75Sre854Datl6OhSa1EE1V4qIQWt55fdVGFmuKcNi6Lg7OkoLMaeYiPKoYTnjI5whL92kscXliQGuNLyKJIxwxpMMxpotE1NTDPxUnfhAHItb07n5ikJ-kF_9nQD7hGPr3PcJnck3jZt7bY_lUt7QfmqepxoG4QpslCxLouUt-kHgkLgdweDSsdtkvcp-GGyhX-Wm8X1FLrys4Ew2wHE_3xc0yicw8-l3POdkuRVTpM5TgddF8w9NI"/>
+</div>
+</div>
+</header>
+<!-- NavigationDrawer (Hidden on mobile by default, shown for layout reference) -->
+<aside class="hidden md:flex fixed inset-y-0 left-0 z-[60] flex-col p-8 w-80 bg-[#0e0e0e] bg-[#1b1b1b] shadow-[20px_0_40px_rgba(0,0,0,0.5)] transition-all duration-300 ease-in-out">
+<div class="flex flex-col gap-1 mb-10">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-12 h-12 bg-surface-container-high rounded-full overflow-hidden">
+<img alt="Polymath" data-alt="Polymath OS system avatar icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAwOKkrs-rP-tvQ-r8ye-XS3H3kno1FshucQvquqzrboQzrG-zqoEn2NyWp0K3QpYFIhkSWaN8S4DHanImf0lPKevte1O6J4cUT27Wqp9gpKmpT0LcPG4113Pc1GpbhOL1vTKSwfC0clN0YIGxAAJsYYAhs-LY8cXfcxy1nRfuj-vkgL1LUrVkwrhTkxhSboqKO7YISPH_820Rs0KRKaCm0MTC-M1x30-y3YGzqB098semzx6WVvDgR9Khre-8J5mheUn6lEiqW6Y"/>
+</div>
+<div>
+<h2 class="text-lg font-['Space_Grotesk'] text-[#ffffff]">Sovereign Scholar</h2>
+<p class="text-xs text-on-surface-variant font-label tracking-wider uppercase opacity-70">Tier III Access</p>
+</div>
+</div>
+<div class="px-2 py-1 bg-primary/10 rounded-sm inline-block w-fit">
+<span class="text-[10px] text-primary font-label uppercase tracking-widest">Active Node</span>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-4 p-3 font-['Inter'] text-sm tracking-wide text-[#c6c6c6] hover:bg-[#1b1b1b] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="neurology">neurology</span>
+<span>Neural Feed</span>
+</a>
+<a class="flex items-center gap-4 p-3 font-['Inter'] text-sm tracking-wide text-[#c6c6c6] hover:bg-[#1b1b1b] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span>Archive</span>
+</a>
+<a class="flex items-center gap-4 p-3 font-['Inter'] text-sm tracking-wide text-[#c6c6c6] hover:bg-[#1b1b1b] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-4 p-3 font-['Inter'] text-sm tracking-wide text-[#c6c6c6] hover:bg-[#1b1b1b] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span>Support</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-80 pt-16 pb-32 min-h-screen bg-surface flex flex-col">
+<!-- Persona Header -->
+<section class="sticky top-16 z-40 bg-surface/80 glass-blur px-6 py-4 flex items-center justify-between border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest border border-primary/30 p-0.5 overflow-hidden">
+<img alt="Nova" data-alt="Abstract neural guide persona avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0WWgayuPrGn2sK2jybvLEb0ve2zM4UEiKLxkXmrmtWtTLxBkBtoQPKsauS3raMwK7HqFQMsbd9J4k2Ag3vx4-o3LcbMaCH7SF4zf5hJtL2c9KY5Pg9anojd70j2cK6eeLSIECMaePxJ5VeRFM6wcPj77FSG1tStiLgWBgPfP-lBGvr47rRWrgy44ZMnjxEgqAlZmoQXDDn6jng45C_2cOnl4WeExIEeNUukHeeiTUwNTn3FGly8vTzW1mFHgOOGQM5qRcplpK8tk"/>
+</div>
+<div class="absolute -bottom-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-surface"></div>
+</div>
+<div>
+<h3 class="font-headline font-bold text-on-surface leading-tight">Nova</h3>
+<p class="text-[11px] font-label text-on-surface-variant tracking-wider uppercase">Polymath Guide • Active</p>
+</div>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-full border border-outline-variant/20">
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="memory">memory</span>
+<span class="text-[10px] font-label font-bold tracking-[0.05rem] text-primary uppercase">Neural Link Active</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse ml-1"></span>
+</div>
+</section>
+<!-- Chat Scroll Area -->
+<section class="flex-1 px-4 py-8 space-y-10 max-w-4xl mx-auto w-full">
+<!-- Date Divider -->
+<div class="flex items-center justify-center">
+<div class="h-px bg-outline-variant/10 flex-1"></div>
+<span class="mx-4 text-[10px] font-label tracking-widest text-on-surface-variant/50 uppercase">Synaptic Session: 14.03.2024</span>
+<div class="h-px bg-outline-variant/10 flex-1"></div>
+</div>
+<!-- Agent Message -->
+<div class="flex flex-col gap-2 max-w-[85%]">
+<div class="bg-surface-container-high p-5 rounded-xl rounded-tl-none border border-outline-variant/5">
+<p class="text-sm leading-relaxed text-on-surface/90 font-body">
+                        Welcome back, Sovereign. I've indexed your recent inquiries regarding <span class="text-primary font-medium">Asymmetric Cryptography</span>. How shall we expand the archive today?
+                    </p>
+</div>
+<span class="text-[10px] font-label text-on-surface-variant/40 ml-1">09:41 AM • NOVA</span>
+</div>
+<!-- User Message -->
+<div class="flex flex-col items-end gap-2 ml-auto max-w-[85%]">
+<div class="bg-primary-container p-5 rounded-xl rounded-tr-none amber-glow">
+<p class="text-sm leading-relaxed text-on-primary font-medium font-body">
+                        Explain the relationship between zero-knowledge proofs and the current mesh network protocols. Keep it technical.
+                    </p>
+</div>
+<span class="text-[10px] font-label text-on-surface-variant/40 mr-1">09:42 AM • NODE_01</span>
+</div>
+<!-- Agent Message (Complex Response) -->
+<div class="flex flex-col gap-2 max-w-[90%]">
+<div class="bg-surface-container-high p-5 rounded-xl rounded-tl-none border border-outline-variant/5 space-y-4">
+<p class="text-sm leading-relaxed text-on-surface/90 font-body">
+                        ZKP integration within the Polymath Mesh operates on two primary layers:
+                    </p>
+<ul class="space-y-3">
+<li class="flex gap-3 items-start">
+<span class="material-symbols-outlined text-primary text-sm mt-1" data-icon="schema">schema</span>
+<span class="text-sm text-on-surface-variant font-body"><strong>Identity Persistence:</strong> Validating node authority without exposing session metadata or geographical origin.</span>
+</li>
+<li class="flex gap-3 items-start">
+<span class="material-symbols-outlined text-primary text-sm mt-1" data-icon="terminal">terminal</span>
+<span class="text-sm text-on-surface-variant font-body"><strong>Data integrity:</strong> Recursive SNARKs allow for constant-time verification of the entire ledger state.</span>
+</li>
+</ul>
+<div class="p-3 bg-surface-container-lowest rounded-lg border-l-2 border-primary">
+<p class="text-xs font-mono text-primary/80">system_log: optimizing_neural_weights...</p>
+</div>
+</div>
+<span class="text-[10px] font-label text-on-surface-variant/40 ml-1">09:43 AM • NOVA</span>
+</div>
+<!-- Placeholder for streaming -->
+<div class="flex items-center gap-2 px-1">
+<div class="flex gap-1">
+<div class="w-1 h-1 bg-primary rounded-full animate-bounce"></div>
+<div class="w-1 h-1 bg-primary rounded-full animate-bounce [animation-delay:0.2s]"></div>
+<div class="w-1 h-1 bg-primary rounded-full animate-bounce [animation-delay:0.4s]"></div>
+</div>
+<span class="text-[10px] font-label text-primary/60 uppercase tracking-widest">Nova is synthesizing</span>
+</div>
+</section>
+</main>
+<!-- Bottom Input Area (Glassmorphic) -->
+<div class="fixed bottom-20 md:bottom-0 md:ml-80 left-0 right-0 p-4 md:p-8 z-50 pointer-events-none">
+<div class="max-w-4xl mx-auto w-full pointer-events-auto">
+<div class="bg-surface-container-highest/60 glass-blur border border-outline-variant/20 rounded-2xl flex items-end p-2 gap-2 shadow-2xl">
+<button class="p-3 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+</button>
+<div class="flex-1 py-3 px-1">
+<textarea class="w-full bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/40 text-sm font-body resize-none overflow-hidden" placeholder="Enter command or inquiry..." rows="1"></textarea>
+</div>
+<div class="flex items-center gap-2 p-1">
+<button class="p-3 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="mic">mic</span>
+</button>
+<button class="bg-primary text-on-primary w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined" data-icon="send" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- BottomNavBar Execution -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 pb-safe px-4 bg-[#131313]/90 backdrop-blur-xl border-t border-[#474747]/15 shadow-[0_-4px_40px_rgba(255,255,255,0.04)] md:hidden">
+<a class="flex flex-col items-center justify-center text-[#ababab] py-1 px-3 hover:text-[#ffffff] transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home_max">home_max</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-[0.1rem]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#ababab] py-1 px-3 hover:text-[#ffffff] transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="database">database</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-[0.1rem]">Knowledge</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#ababab] py-1 px-3 hover:text-[#ffffff] transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="hub">hub</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-[0.1rem]">Mesh</span>
+</a>
+<!-- Chat Active State -->
+<a class="flex flex-col items-center justify-center text-[#ffffff] bg-[#353535] rounded-sm py-1 px-3 active:scale-95 transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="chat_bubble" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-[0.1rem]">Chat</span>
+</a>
+</nav>
+</body></html>
