@@ -139,10 +139,10 @@ export default function IntegrationsPage() {
   }
 
   return (
-    <div className="pt-4 flex flex-col gap-5">
+    <div className="@container pt-4 flex flex-col gap-5">
       {/* Header */}
       <div className="px-1">
-        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Integrations</h1>
+        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight display-kerning">Integrations</h1>
         <p className="text-[12px] text-m3-on-surface-variant mt-0.5">System configuration</p>
       </div>
 

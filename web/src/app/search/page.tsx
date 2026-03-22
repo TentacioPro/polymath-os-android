@@ -142,7 +142,7 @@ export default function SearchPage() {
   }, []);
 
   return (
-    <div className="pt-4 flex flex-col gap-4">
+    <div className="@container pt-4 flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center gap-3 px-1">
         <button
@@ -152,7 +152,7 @@ export default function SearchPage() {
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
         </button>
         <div className="flex-1">
-          <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Search</h1>
+          <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight display-kerning">Search</h1>
           <p className="text-[12px] text-m3-on-surface-variant mt-0.5">
             {filteredResults.length} result{filteredResults.length !== 1 ? 's' : ''}
           </p>

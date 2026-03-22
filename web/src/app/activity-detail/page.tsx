@@ -49,7 +49,7 @@ function ActivityDetailContent() {
           <span className="material-symbols-outlined text-[20px] text-m3-on-surface">arrow_back</span>
         </Link>
         <div className="flex-1 min-w-0">
-          <h1 className="text-[18px] font-bold text-m3-on-surface leading-tight">{activity.title}</h1>
+          <h1 className="text-[18px] font-bold text-m3-on-surface leading-tight display-kerning">{activity.title}</h1>
           <p className="text-[12px] text-m3-on-surface-variant mt-1">
             {new Date(activity.timestamp).toLocaleDateString('en-US', {
               weekday: 'short',
@@ -95,7 +95,7 @@ function ActivityDetailContent() {
       {activity.notes && (
         <div className="p-4 rounded-2xl border border-m3-outline-variant bg-m3-surface-container">
           <p className="text-[11px] font-medium text-m3-on-surface-variant tracking-wide mb-2">NOTES</p>
-          <p className="text-[14px] text-m3-on-surface leading-relaxed whitespace-pre-wrap">{activity.notes}</p>
+          <p className="text-[14px] text-m3-on-surface leading-relaxed whitespace-pre-wrap prose-line-cap">{activity.notes}</p>
         </div>
       )}
 
@@ -103,7 +103,7 @@ function ActivityDetailContent() {
       {activity.ai_summary && (
         <div className="p-4 rounded-2xl border border-m3-outline-variant bg-m3-surface-container">
           <p className="text-[11px] font-medium text-m3-on-surface-variant tracking-wide mb-2">AI ANALYSIS</p>
-          <p className="text-[13px] text-m3-on-surface leading-relaxed mb-3">{activity.ai_summary}</p>
+          <p className="text-[13px] text-m3-on-surface leading-relaxed mb-3 prose-line-cap">{activity.ai_summary}</p>
 
           {/* Key Concepts */}
           {activity.key_concepts?.length > 0 && (

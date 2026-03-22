@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { FontCollection, FONT_COLLECTIONS } from '../../../../shared/preferences';
 
 // Layout options matching mobile customize.tsx
 const DASHBOARD_LAYOUTS = [
@@ -36,8 +37,7 @@ interface Preferences {
   profileLayout: 'full' | 'minimal';
   sidebarPosition: 'left' | 'right' | 'hidden';
   visibleScreens: Record<string, boolean>;
-  fontFamily: 'dm-sans' | 'inter' | 'outfit' | 'space-grotesk';
-  monoFont: 'jetbrains-mono' | 'space-mono';
+  fontCollection: FontCollection;
   fontScale: number;
 }
 
@@ -55,8 +55,7 @@ const DEFAULT_PREFERENCES: Preferences = {
     integrations: true,
     alerts: true,
   },
-  fontFamily: 'dm-sans',
-  monoFont: 'jetbrains-mono',
+  fontCollection: 'industrial',
   fontScale: 1,
 };
 
@@ -119,21 +118,17 @@ const MONO_VAR_MAP: Record<string, string> = {
 
 function applyFontPreferences(prefs: Preferences) {
   const root = document.documentElement;
-  root.style.setProperty('--active-font', FONT_VAR_MAP[prefs.fontFamily] || FONT_VAR_MAP['dm-sans']);
-  root.style.setProperty('--active-mono', MONO_VAR_MAP[prefs.monoFont] || MONO_VAR_MAP['jetbrains-mono']);
+  const config = FONT_COLLECTIONS[prefs.fontCollection] || FONT_COLLECTIONS['industrial'];
+  root.style.setProperty('--active-font', FONT_VAR_MAP[config.sans] || FONT_VAR_MAP['dm-sans']);
+  root.style.setProperty('--active-mono', MONO_VAR_MAP[config.mono] || MONO_VAR_MAP['jetbrains-mono']);
   root.style.setProperty('--font-scale', String(prefs.fontScale));
 }
 
-const FONT_OPTIONS = [
-  { key: 'dm-sans', label: 'DM Sans', cssVar: '--font-dm-sans', sample: 'The quick brown fox' },
-  { key: 'inter', label: 'Inter', cssVar: '--font-inter', sample: 'The quick brown fox' },
-  { key: 'outfit', label: 'Outfit', cssVar: '--font-outfit', sample: 'The quick brown fox' },
-  { key: 'space-grotesk', label: 'Space Grotesk', cssVar: '--font-space-grotesk', sample: 'The quick brown fox' },
-];
-
-const MONO_OPTIONS = [
-  { key: 'jetbrains-mono', label: 'JetBrains Mono', cssVar: '--font-jetbrains-mono', sample: 'const x = 42;' },
-  { key: 'space-mono', label: 'Space Mono', cssVar: '--font-space-mono', sample: 'const x = 42;' },
+const COLLECTION_OPTIONS: { key: FontCollection; label: string; desc: string; sample: string }[] = [
+  { key: 'industrial', label: 'Industrial', desc: 'Tech & System', sample: 'P' },
+  { key: 'editorial', label: 'Editorial', desc: 'Reading focus', sample: 'G' },
+  { key: 'geometric', label: 'Geometric', desc: 'Modern & Clean', sample: 'a' },
+  { key: 'neo-brutalist', label: 'Neo-Brutalist', desc: 'Bold & Raw', sample: 'S' },
 ];
 
 export default function CustomizePage() {
@@ -249,93 +244,60 @@ export default function CustomizePage() {
   );
 
   return (
-    <div className="pt-4 flex flex-col gap-5 stagger-children">
+    <div className="@container pt-4 flex flex-col gap-5 stagger-children">
       {/* Header */}
       <div className="px-1">
-        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Customize</h1>
+        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight display-kerning">Customize</h1>
         <p className="text-[12px] text-m3-on-surface-variant mt-0.5">Typography, layout & visibility</p>
       </div>
 
       {/* ── TYPOGRAPHY ── */}
       <div>
         <p className="text-[11px] font-medium text-m3-on-surface-variant tracking-wide mb-3 px-1">
-          FONT FAMILY
+          TYPOGRAPHY STYLE
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {FONT_OPTIONS.map((opt) => {
-            const isActive = preferences.fontFamily === opt.key;
+        <div className="grid grid-cols-2 @[600px]:grid-cols-4 gap-2">
+          {COLLECTION_OPTIONS.map((opt) => {
+            const isActive = preferences.fontCollection === opt.key;
+            const config = FONT_COLLECTIONS[opt.key];
+            const cssVar = FONT_VAR_MAP[config.sans] || '--font-inter';
             return (
               <button
                 key={opt.key}
-                onClick={() => updatePreference('fontFamily', opt.key as any)}
-                className={`relative p-4 rounded-2xl border transition-standard text-left ${
+                onClick={() => updatePreference('fontCollection', opt.key as any)}
+                className={`relative p-5 rounded-2xl border transition-standard text-left ${
                   isActive
                     ? 'bg-m3-primary border-m3-primary'
                     : 'bg-m3-surface-container border-m3-outline-variant hover:bg-m3-surface-container-high'
                 }`}
               >
+                <span
+                  className={`block text-[32px] font-bold mb-2 leading-none ${
+                    isActive ? 'text-m3-on-primary' : 'text-m3-on-surface'
+                  }`}
+                  style={{ fontFamily: `var(${cssVar})` }}
+                >
+                  {opt.sample}
+                </span>
                 <span
                   className={`block text-[14px] font-semibold mb-1 ${
                     isActive ? 'text-m3-on-primary' : 'text-m3-on-surface'
                   }`}
-                  style={{ fontFamily: `var(${opt.cssVar})` }}
+                  style={{ fontFamily: `var(${cssVar})` }}
                 >
                   {opt.label}
                 </span>
                 <span
-                  className={`block text-[12px] ${
+                  className={`block text-[11px] ${
                     isActive ? 'text-m3-on-primary opacity-80' : 'text-m3-on-surface-variant'
                   }`}
-                  style={{ fontFamily: `var(${opt.cssVar})` }}
+                  style={{ fontFamily: `var(${cssVar})` }}
                 >
-                  {opt.sample}
+                  {config.sans} / {config.mono}
                 </span>
                 {isActive && (
-                  <div className="absolute top-1.5 right-1.5 w-4 h-4 flex items-center justify-center bg-m3-on-primary rounded-full">
-                    <span className="material-symbols-outlined text-[12px] text-m3-primary">check</span>
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div>
-        <p className="text-[11px] font-medium text-m3-on-surface-variant tracking-wide mb-3 px-1">
-          MONOSPACE FONT
-        </p>
-        <div className="grid grid-cols-2 gap-2">
-          {MONO_OPTIONS.map((opt) => {
-            const isActive = preferences.monoFont === opt.key;
-            return (
-              <button
-                key={opt.key}
-                onClick={() => updatePreference('monoFont', opt.key as any)}
-                className={`relative p-4 rounded-2xl border transition-standard text-left ${
-                  isActive
-                    ? 'bg-m3-primary border-m3-primary'
-                    : 'bg-m3-surface-container border-m3-outline-variant hover:bg-m3-surface-container-high'
-                }`}
-              >
-                <span
-                  className={`block text-[13px] font-semibold mb-1 ${
-                    isActive ? 'text-m3-on-primary' : 'text-m3-on-surface'
-                  }`}
-                >
-                  {opt.label}
-                </span>
-                <span
-                  className={`block text-[12px] ${
-                    isActive ? 'text-m3-on-primary opacity-80' : 'text-m3-on-surface-variant'
-                  }`}
-                  style={{ fontFamily: `var(${opt.cssVar})` }}
-                >
-                  {opt.sample}
-                </span>
-                {isActive && (
-                  <div className="absolute top-1.5 right-1.5 w-4 h-4 flex items-center justify-center bg-m3-on-primary rounded-full">
-                    <span className="material-symbols-outlined text-[12px] text-m3-primary">check</span>
+                  <div className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center bg-m3-on-primary rounded-full shadow-sm">
+                    <span className="material-symbols-outlined text-[14px] text-m3-primary">check</span>
                   </div>
                 )}
               </button>

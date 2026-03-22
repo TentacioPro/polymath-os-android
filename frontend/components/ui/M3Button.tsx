@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Pressable, Text, StyleSheet, ViewStyle, ActivityIndicator } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { hapticPress } from '../../utils/haptics';
 import { m3Typography, m3Radii, m3TouchTarget, m3Motion } from '../../../shared/design-tokens';
@@ -132,7 +132,9 @@ export default function M3Button({
         {/* Default / normal */}
         {!loading && !error && !success && (
           <>
-            {icon}
+            {typeof icon === 'string' ? (
+              <MaterialIcons name={icon as any} size={18} color={textColor} style={styles.stateIcon} />
+            ) : icon ? icon : null}
             <Text style={[styles.label, { color: textColor, marginLeft: icon ? 8 : 0 }]}>
               {label}
             </Text>
@@ -150,7 +152,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: m3Radii.full,
+    borderRadius: m3Radii.lg,
   },
   label: {
     fontSize: m3Typography.labelLarge.fontSize,

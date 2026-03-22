@@ -3,7 +3,7 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   Share,
   StyleSheet,
 } from 'react-native';
@@ -16,8 +16,9 @@ import { Paths, File as ExpoFile } from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import * as Sharing from 'expo-sharing';
 import { useTheme, spacing } from '../theme';
-import { m3Typography, m3Radii } from '../../shared/design-tokens';
+import { m3Typography, m3Radii, m3TouchTarget } from '../../shared/design-tokens';
 import M3Button from '../components/ui/M3Button';
+import { useCardWidth } from '../utils/responsive';
 import M3Progress from '../components/ui/M3Progress';
 import { hapticLight, hapticPress, hapticSuccess, hapticWarning, hapticSelection } from '../utils/haptics';
 import { getBackendUrlSync } from '../utils/backend';
@@ -38,6 +39,7 @@ export default function ExportScreen() {
   const [selectedFormat, setSelectedFormat] = useState(0);
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
+  const { cardWidth: formatCardWidth } = useCardWidth(2);
 
   let dialog: any = null;
   try { if (useDialog) dialog = useDialog(); } catch {}
@@ -97,12 +99,12 @@ export default function ExportScreen() {
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+          style={({ pressed }) => [styles.backBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.8 : 1 }]}
         >
           <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
-        </TouchableOpacity>
+        </Pressable>
         <View style={styles.headerText}>
           <Text style={[styles.headerTitle, { color: theme.onSurface }]}>Export</Text>
           <Text style={[styles.headerSub, { color: theme.onSurfaceVariant }]}>Knowledge package</Text>
@@ -121,12 +123,14 @@ export default function ExportScreen() {
             {EXPORT_FORMATS.map((fmt, i) => {
               const isSelected = selectedFormat === i;
               return (
-                <TouchableOpacity
+                <Pressable
                   key={i}
-                  style={[
+                  style={({ pressed }) => [
                     styles.formatCard,
                     {
                       backgroundColor: isSelected ? theme.primaryContainer : theme.surfaceContainer,
+                      opacity: pressed ? 0.8 : 1,
+                      width: formatCardWidth,
                     },
                   ]}
                   onPress={() => { hapticSelection(); setSelectedFormat(i); }}
@@ -151,7 +155,7 @@ export default function ExportScreen() {
                       <MaterialIcons name="check" size={12} color={theme.onPrimary} />
                     </View>
                   )}
-                </TouchableOpacity>
+                </Pressable>
               );
             })}
           </View>
@@ -217,8 +221,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   backBtn: {
-    width: 44,
-    height: 44,
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
     borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -250,7 +254,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   formatCard: {
-    width: '48%',
     alignItems: 'center',
     padding: spacing.lg,
     borderRadius: m3Radii.xl,

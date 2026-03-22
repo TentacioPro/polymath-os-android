@@ -59,10 +59,10 @@ export default function ConnectionsPage() {
   };
 
   return (
-    <div className="pt-4 flex flex-col gap-4 stagger-children">
+    <div className="@container pt-4 flex flex-col gap-4 stagger-children">
       {/* Header */}
       <div className="px-1">
-        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">
+        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight display-kerning">
           Neural Mesh
         </h1>
         <p className="text-[12px] text-m3-on-surface-variant mt-0.5">
@@ -165,7 +165,7 @@ export default function ConnectionsPage() {
             {suggestionsFetching ? 'Generating...' : 'Generate AI Suggestions'}
           </button>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3">
             {suggestions?.map((suggestion: any, index: number) => (
               <div
                 key={suggestion.id || index}
@@ -181,10 +181,10 @@ export default function ConnectionsPage() {
                         {suggestion.priority || 'Normal'}
                       </span>
                     </div>
-                    <p className="text-[13px] text-m3-on-surface mb-1.5">
+                    <p className="text-[13px] text-m3-on-surface mb-1.5 prose-line-cap">
                       {suggestion.suggestion}
                     </p>
-                    <p className="text-[11px] text-m3-on-surface-variant">
+                    <p className="text-[11px] text-m3-on-surface-variant prose-line-cap">
                       {suggestion.reasoning}
                     </p>
                   </div>

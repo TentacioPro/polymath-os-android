@@ -3,29 +3,32 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme, spacing, fs, sw, ThemeName, themes, themeNames } from '../theme';
+import { useTheme, spacing, ThemeName, themes, themeNames } from '../theme';
+import { m3Typography, m3Radii, m3TouchTarget } from '../../shared/design-tokens';
 import { hapticLight, hapticPress, hapticSuccess } from '../utils/haptics';
+import { useCardWidth } from '../utils/responsive';
 
 // Theme metadata with display names and variants
 const THEME_META: Record<ThemeName, { name: string; variant: 'dark' | 'light'; description: string }> = {
-  void: { name: 'Void', variant: 'dark', description: 'Pure black, green accent' },
-  nova: { name: 'Nova', variant: 'light', description: 'Clean white, teal accent' },
-  amber: { name: 'Amber Void', variant: 'dark', description: 'Black with warm amber' },
+  void: { name: 'Void', variant: 'dark', description: 'Achromatic monochrome, white accent' },
+  nova: { name: 'Nova', variant: 'light', description: 'Clean light, minimal dark accent' },
+  amber: { name: 'Amber Void', variant: 'dark', description: 'Dark void, warm amber accent' },
   ocean: { name: 'Ocean Depth', variant: 'dark', description: 'Deep blue, calm focus' },
-  forest: { name: 'Forest Canopy', variant: 'dark', description: 'Natural green tones' },
+  forest: { name: 'Forest Canopy', variant: 'dark', description: 'Emerald green, nature-inspired' },
   sunset: { name: 'Sunset Blaze', variant: 'dark', description: 'Warm orange glow' },
-  midnight: { name: 'Midnight Purple', variant: 'dark', description: 'Rich purple hues' },
+  midnight: { name: 'Midnight Purple', variant: 'dark', description: 'Deep purple night' },
 };
 
 export default function AppearanceScreen() {
   const { theme, themeName, setTheme } = useTheme();
   const insets = useSafeAreaInsets();
+  const { cardWidth: themeCardWidth } = useCardWidth(2);
 
   // Colors — M3 token mapping
   const bg = theme.surface;                    // M3: base background
@@ -49,17 +52,18 @@ export default function AppearanceScreen() {
     const isActive = themeName === name;
 
     return (
-      <TouchableOpacity
-        style={[
+      <Pressable
+        style={({ pressed }) => [
           styles.themeCard,
           {
             backgroundColor: surface,
             borderColor: isActive ? accent : border,
             borderWidth: isActive ? 2 : 1,
+            opacity: pressed ? 0.8 : 1,
+            width: themeCardWidth,
           },
         ]}
         onPress={() => handleThemeSelect(name)}
-        activeOpacity={0.7}
       >
         {/* Preview */}
         <View style={[styles.preview, { backgroundColor: t.surface }]}>
@@ -78,6 +82,13 @@ export default function AppearanceScreen() {
           </View>
         </View>
 
+        {/* Live swatch previews */}
+        <View style={styles.swatchRow}>
+          <View style={[styles.swatchDot, { backgroundColor: t.primary }]} />
+          <View style={[styles.swatchDot, { backgroundColor: t.surface }]} />
+          <View style={[styles.swatchDot, { backgroundColor: t.secondary }]} />
+        </View>
+
         {/* Info */}
         <View style={styles.themeInfo}>
           <View style={styles.themeNameRow}>
@@ -90,7 +101,7 @@ export default function AppearanceScreen() {
           </View>
           <Text style={[styles.themeDesc, { color: textMuted }]}>{meta.description}</Text>
         </View>
-      </TouchableOpacity>
+      </Pressable>
     );
   };
 
@@ -98,12 +109,12 @@ export default function AppearanceScreen() {
     <View style={[styles.container, { backgroundColor: bg }]}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.iconBtn, { backgroundColor: surface }]}
+          style={({ pressed }) => [styles.iconBtn, { backgroundColor: surface, opacity: pressed ? 0.8 : 1 }]}
         >
           <MaterialIcons name="arrow-back" size={20} color={text} />
-        </TouchableOpacity>
+        </Pressable>
         <View style={styles.headerText}>
           <Text style={[styles.title, { color: text }]}>Appearance</Text>
           <Text style={[styles.subtitle, { color: textMuted }]}>Customize theme</Text>
@@ -159,12 +170,12 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   headerText: { flex: 1, marginLeft: spacing.sm },
-  title: { fontSize: fs(20), fontWeight: '700' },
-  subtitle: { fontSize: fs(12), marginTop: 2 },
+  title: { fontSize: m3Typography.titleLarge.fontSize, fontWeight: '700' },
+  subtitle: { fontSize: m3Typography.bodySmall.fontSize, marginTop: 2 },
   iconBtn: {
-    width: sw(44),
-    height: sw(44),
-    borderRadius: sw(12),
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
+    borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -173,7 +184,7 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: spacing.lg },
   sectionTitle: {
-    fontSize: fs(10),
+    fontSize: m3Typography.labelSmall.fontSize,
     fontWeight: '600',
     letterSpacing: 1,
     marginTop: spacing.xl,
@@ -196,12 +207,12 @@ const styles = StyleSheet.create({
   },
   currentInfo: { flex: 1 },
   currentLabel: {
-    fontSize: fs(10),
+    fontSize: m3Typography.labelSmall.fontSize,
     fontWeight: '600',
     letterSpacing: 0.5,
   },
   currentName: {
-    fontSize: fs(18),
+    fontSize: m3Typography.titleMedium.fontSize,
     fontWeight: '700',
     marginTop: 4,
   },
@@ -213,7 +224,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   themeCard: {
-    width: '47%',
     borderRadius: 14,
     overflow: 'hidden',
   },
@@ -281,6 +291,21 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
 
+  /* Swatch Previews */
+  swatchRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+  },
+  swatchDot: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+
   /* Theme Info */
   themeInfo: {
     padding: spacing.md,
@@ -291,7 +316,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   themeName: {
-    fontSize: fs(14),
+    fontSize: m3Typography.bodyMedium.fontSize,
     fontWeight: '600',
   },
   activeBadge: {
@@ -302,7 +327,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   themeDesc: {
-    fontSize: fs(11),
+    fontSize: m3Typography.labelSmall.fontSize,
     marginTop: 4,
   },
 });

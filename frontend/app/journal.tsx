@@ -3,7 +3,8 @@ import {
   View,
   Text,
   FlatList,
-  TouchableOpacity,
+  ScrollView,
+  Pressable,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
@@ -14,12 +15,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import axios from 'axios';
 import { useTheme, spacing } from '../theme';
-import { m3Typography, m3Radii } from '../../shared/design-tokens';
+import { m3Typography, m3Radii, m3TouchTarget } from '../../shared/design-tokens';
 import { useStore } from '../store/useStore';
 import M3Progress from '../components/ui/M3Progress';
 import M3Button from '../components/ui/M3Button';
 import M3BottomSheet from '../components/ui/M3BottomSheet';
 import M3TextField from '../components/ui/M3TextField';
+import M3Card from '../components/ui/M3Card';
 import { EmptyState } from '../components/ui/EmptyState';
 import { hapticPress, hapticLight, hapticSuccess, hapticWarning, hapticSelection } from '../utils/haptics';
 import { getBackendUrlSync } from '../utils/backend';
@@ -53,6 +55,7 @@ export default function JournalScreen() {
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
   const [saving, setSaving] = useState(false);
+  const [previewEntry, setPreviewEntry] = useState<JournalEntry | null>(null);
 
   useEffect(() => { loadJournals(); }, []);
 
@@ -206,48 +209,43 @@ export default function JournalScreen() {
   }, {});
 
   const renderEntry = ({ item, index }: { item: JournalEntry; index: number }) => (
-    <Animated.View entering={FadeInRight.delay(index * 60).springify()}>
-      <View style={styles.timelineRow}>
-        {/* Timeline line + dot */}
-        <View style={styles.timelineTrack}>
-          <View style={[styles.timelineDot, { backgroundColor: theme.primary }]} />
-          <View style={[styles.timelineLine, { backgroundColor: theme.outlineVariant }]} />
-        </View>
-
-        {/* Entry card */}
-        <TouchableOpacity
-          style={[styles.entryCard, { backgroundColor: theme.surfaceContainer }]}
-          onPress={() => handleEdit(item)}
-          onLongPress={() => handleDelete(item.id, item.title)}
-          activeOpacity={0.7}
-        >
-          <View style={styles.entryHeader}>
-            <Text style={[styles.entryTitle, { color: theme.onSurface }]} numberOfLines={1}>
-              {item.title}
-            </Text>
-            <Text style={[styles.entryDate, { color: theme.onSurfaceVariant }]}>
-              {formatDate(item.timestamp)}
-            </Text>
-          </View>
-          <Text style={[styles.entryContent, { color: theme.onSurfaceVariant }]} numberOfLines={2}>
-            {item.content}
+    <Animated.View entering={FadeInDown.delay(index * 50).springify() as any}>
+      <Pressable
+        style={({ pressed }) => [
+          styles.entryCard,
+          styles.shadowLight,
+          { backgroundColor: theme.surfaceContainer, opacity: pressed ? 0.85 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] }
+        ] as any}
+        onPress={() => { hapticSelection(); setPreviewEntry(item); }}
+        onLongPress={() => handleDelete(item.id, item.title)}
+      >
+        <View style={styles.entryHeader as any}>
+          <Text style={[styles.entryDate, { color: theme.primary, backgroundColor: theme.primaryContainer, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, overflow: 'hidden' }] as any}>
+            {formatDate(item.timestamp)}
           </Text>
-          {item.tags && item.tags.length > 0 && (
-            <View style={styles.tagsRow}>
-              {item.tags.slice(0, 3).map((tag, i) => (
-                <View key={i} style={[styles.tag, { backgroundColor: theme.primaryContainer }]}>
-                  <Text style={[styles.tagText, { color: theme.onPrimaryContainer }]}>{tag}</Text>
-                </View>
-              ))}
-              {item.tags.length > 3 && (
-                <Text style={[styles.moreTags, { color: theme.onSurfaceVariant }]}>
-                  +{item.tags.length - 3}
-                </Text>
-              )}
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
+          <MaterialIcons name="more-horiz" size={20} color={theme.onSurfaceVariant} />
+        </View>
+        <Text style={[styles.entryTitle, { color: theme.onSurface }] as any} numberOfLines={1}>
+          {item.title}
+        </Text>
+        <Text style={[styles.entryContent, { color: theme.onSurfaceVariant }] as any} numberOfLines={3}>
+          {item.content}
+        </Text>
+        {item.tags && item.tags.length > 0 && (
+          <View style={styles.tagsRow as any}>
+            {item.tags.slice(0, 4).map((tag, i) => (
+              <View key={i} style={[styles.tag, { backgroundColor: theme.surfaceContainerHigh }] as any}>
+                <Text style={[styles.tagText, { color: theme.onSurfaceVariant }] as any}>#{tag}</Text>
+              </View>
+            ))}
+            {item.tags.length > 4 && (
+              <Text style={[styles.moreTags, { color: theme.onSurfaceVariant }] as any}>
+                +{item.tags.length - 4}
+              </Text>
+            )}
+          </View>
+        )}
+      </Pressable>
     </Animated.View>
   );
 
@@ -266,24 +264,24 @@ export default function JournalScreen() {
         entering={FadeInDown.duration(400)}
         style={[styles.header, { paddingTop: insets.top + 8 }]}
       >
-        <TouchableOpacity
+        <Pressable
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+          style={({ pressed }) => [styles.backBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.8 : 1 }]}
         >
           <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
-        </TouchableOpacity>
+        </Pressable>
         <View style={styles.headerText}>
           <Text style={[styles.headerTitle, { color: theme.onSurface }]}>Journal</Text>
           <Text style={[styles.headerSub, { color: theme.onSurfaceVariant }]}>
             {journals.length} entr{journals.length === 1 ? 'y' : 'ies'}
           </Text>
         </View>
-        <TouchableOpacity
+        <Pressable
           onPress={() => { hapticPress(); setShowEditor(true); }}
-          style={[styles.addBtn, { backgroundColor: theme.primary }]}
+          style={({ pressed }) => [styles.addBtn, { backgroundColor: theme.primary, opacity: pressed ? 0.8 : 1 }]}
         >
           <MaterialIcons name="add" size={22} color={theme.onPrimary} />
-        </TouchableOpacity>
+        </Pressable>
       </Animated.View>
 
       {/* Timeline List */}
@@ -305,6 +303,58 @@ export default function JournalScreen() {
         showsVerticalScrollIndicator={false}
       />
 
+      {/* Preview Bottom Sheet (50% snap) */}
+      <M3BottomSheet
+        visible={previewEntry !== null}
+        onDismiss={() => setPreviewEntry(null)}
+        snapPoints={[0.5]}
+      >
+        {previewEntry && (
+          <View style={styles.previewContainer}>
+            <Text style={[styles.previewTitle, { color: theme.onSurface }]}>{previewEntry.title}</Text>
+            <Text style={[styles.previewDate, { color: theme.onSurfaceVariant }]}>
+              {formatFullDate(previewEntry.timestamp)}
+            </Text>
+            <ScrollView style={styles.previewScroll} showsVerticalScrollIndicator={false}>
+              <Text style={[styles.previewContent, { color: theme.onSurface }]}>
+                {previewEntry.content}
+              </Text>
+              {previewEntry.tags && previewEntry.tags.length > 0 && (
+                <View style={[styles.tagsRow, { marginTop: spacing.md }]}>
+                  {previewEntry.tags.map((tag, i) => (
+                    <View key={i} style={[styles.tag, { backgroundColor: theme.primaryContainer }]}>
+                      <Text style={[styles.tagText, { color: theme.onPrimaryContainer }]}>{tag}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </ScrollView>
+            <View style={styles.previewActions}>
+              <M3Button
+                label="Edit"
+                variant="filled"
+                onPress={() => {
+                  const entry = previewEntry;
+                  setPreviewEntry(null);
+                  handleEdit(entry);
+                }}
+                icon="edit"
+              />
+              <M3Button
+                label="Delete"
+                variant="outlined"
+                onPress={() => {
+                  const entry = previewEntry;
+                  setPreviewEntry(null);
+                  handleDelete(entry.id, entry.title);
+                }}
+                icon="delete"
+              />
+            </View>
+          </View>
+        )}
+      </M3BottomSheet>
+
       {/* Editor Bottom Sheet */}
       <M3BottomSheet
         visible={showEditor}
@@ -316,13 +366,23 @@ export default function JournalScreen() {
           style={styles.editorContainer}
         >
           <View style={styles.editorHeader}>
-            <Text style={[styles.editorTitle, { color: theme.onSurface }]}>
-              {editingId ? 'Edit Entry' : 'New Entry'}
-            </Text>
-            <TouchableOpacity onPress={() => { hapticLight(); resetEditor(); }}>
-              <MaterialIcons name="close" size={24} color={theme.onSurface} />
-            </TouchableOpacity>
+            <View>
+              <Text style={[styles.editorTitle, { color: theme.onSurface }]}>
+                {editingId ? 'Edit Entry' : 'New Thought'}
+              </Text>
+              <Text style={[styles.editorSub, { color: theme.onSurfaceVariant }]}>
+                {editingId ? 'Refining your existing reflection' : 'Capture a new cognitive spark'}
+              </Text>
+            </View>
+            <Pressable 
+              onPress={() => { hapticLight(); resetEditor(); }}
+              style={({ pressed }) => [styles.closeBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.7 : 1 }]}
+            >
+              <MaterialIcons name="close" size={20} color={theme.onSurface} />
+            </Pressable>
           </View>
+          
+          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 40) }}>
 
           <M3TextField
             label="Title"
@@ -349,23 +409,26 @@ export default function JournalScreen() {
             value={tags}
             onChangeText={setTags}
             placeholder="learning, ideas, insight"
-            supportingText="Comma-separated"
+            supportingText="Use commas to separate multiple tags"
           />
 
-          <View style={{ height: spacing.xl }} />
+          <View style={{ height: spacing.xl * 1.5 }} />
 
-          <M3Button
-            label={editingId ? 'Update' : 'Save Entry'}
-            variant="filled"
-            onPress={handleSave}
-            disabled={!title.trim() || !content.trim() || saving}
-            loading={saving}
-            fullWidth
-          />
-
-          <Text style={[styles.hint, { color: theme.onSurfaceVariant }]}>
-            Long-press entries to delete
-          </Text>
+          <View style={styles.editorActions}>
+            <M3Button
+              label={editingId ? 'Update Reflection' : 'Save Thought'}
+              variant="filled"
+              onPress={handleSave}
+              disabled={!title.trim() || !content.trim() || saving}
+              loading={saving}
+              style={{ paddingVertical: 12, borderRadius: m3Radii.lg }}
+              fullWidth
+            />
+            <Text style={[styles.hint, { color: theme.onSurfaceVariant }]}>
+              Saved to your persistent cognitive vault
+            </Text>
+          </View>
+          </ScrollView>
         </KeyboardAvoidingView>
       </M3BottomSheet>
     </View>
@@ -385,8 +448,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   backBtn: {
-    width: 44,
-    height: 44,
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
     borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -401,8 +464,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   addBtn: {
-    width: 44,
-    height: 44,
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
     borderRadius: m3Radii.full,
     alignItems: 'center',
     justifyContent: 'center',
@@ -413,63 +476,56 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
   },
-  timelineRow: {
-    flexDirection: 'row',
-    marginBottom: spacing.md,
-  },
-  timelineTrack: {
-    width: 24,
-    alignItems: 'center',
-    paddingTop: 8,
-  },
-  timelineDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-  },
-  timelineLine: {
-    width: 2,
-    flex: 1,
-    marginTop: 4,
+  /* Premium Neural Shadow */
+  shadowLight: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 3,
   },
 
   /* Entry card */
   entryCard: {
-    flex: 1,
-    marginLeft: spacing.sm,
-    padding: spacing.lg,
-    borderRadius: m3Radii.xl,
+    marginBottom: spacing.lg,
+    padding: spacing.xl,
+    borderRadius: m3Radii['2xl'],
+    borderWidth: 1,
+    borderColor: 'rgba(150, 150, 150, 0.05)',
   },
   entryHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  entryTitle: {
-    fontSize: m3Typography.titleMedium.fontSize,
-    fontWeight: '600',
-    flex: 1,
-    marginRight: spacing.sm,
+    alignItems: 'center',
+    marginBottom: spacing.sm,
   },
   entryDate: {
     fontSize: m3Typography.labelSmall.fontSize,
+    fontWeight: '700',
     letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  entryTitle: {
+    fontSize: m3Typography.titleMedium.fontSize,
+    fontWeight: '700',
+    marginBottom: spacing.xs,
+    letterSpacing: -0.5,
   },
   entryContent: {
-    fontSize: m3Typography.bodyMedium.fontSize,
-    lineHeight: m3Typography.bodyMedium.lineHeight,
+    fontSize: m3Typography.bodyLarge.fontSize,
+    lineHeight: m3Typography.bodyLarge.lineHeight,
   },
   tagsRow: {
     flexDirection: 'row',
-    gap: spacing.xs,
-    marginTop: spacing.sm,
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginTop: spacing.md,
     alignItems: 'center',
   },
   tag: {
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
-    borderRadius: m3Radii.full,
+    borderRadius: m3Radii.sm, // Harder corners for Neural look
   },
   tagText: {
     fontSize: m3Typography.labelSmall.fontSize,
@@ -482,21 +538,66 @@ const styles = StyleSheet.create({
 
   /* Editor */
   editorContainer: {
-    padding: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+    flex: 1,
   },
   editorHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.lg,
+    alignItems: 'flex-start',
+    marginBottom: spacing.xl,
   },
   editorTitle: {
     fontSize: m3Typography.headlineSmall.fontSize,
     fontWeight: '700',
+    letterSpacing: -0.5,
+  },
+  editorSub: {
+    fontSize: m3Typography.labelMedium.fontSize,
+    marginTop: 4,
+  },
+  closeBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editorActions: {
+    alignItems: 'center',
+    gap: spacing.md,
   },
   hint: {
     fontSize: m3Typography.labelSmall.fontSize,
     textAlign: 'center',
-    marginTop: spacing.md,
+    opacity: 0.7,
+  },
+
+  /* Preview drawer */
+  previewContainer: {
+    padding: spacing.lg,
+    flex: 1,
+  },
+  previewTitle: {
+    fontSize: m3Typography.headlineSmall.fontSize,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  previewDate: {
+    fontSize: m3Typography.labelMedium.fontSize,
+    marginBottom: spacing.md,
+  },
+  previewScroll: {
+    flex: 1,
+  },
+  previewContent: {
+    fontSize: m3Typography.bodyLarge.fontSize,
+    lineHeight: m3Typography.bodyLarge.lineHeight,
+  },
+  previewActions: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    paddingTop: spacing.lg,
   },
 });

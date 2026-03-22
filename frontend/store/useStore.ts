@@ -1,5 +1,8 @@
 import { create } from 'zustand';
-import type { ThemeName } from '../theme/tokens';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Preferences, defaultPreferences } from '../../shared/preferences';
+import type { ThemeName } from '../../shared/design-tokens';
 
 interface Activity {
   id: string;
@@ -20,37 +23,6 @@ interface Journal {
   tags: string[];
   linked_activities: string[];
   timestamp: string;
-}
-
-// Font preference types
-type FontFamily = 'dm-sans' | 'inter' | 'outfit' | 'space-grotesk';
-type MonoFont = 'jetbrains-mono' | 'space-mono';
-
-// Personalization preferences
-interface Preferences {
-  // Quick Capture visibility
-  showQuickCaptureOnHome: boolean;
-
-  // Layout options
-  dashboardLayout: 'grid' | 'list' | 'compact';
-  profileLayout: 'full' | 'minimal';
-
-  // Typography
-  fontFamily: FontFamily;
-  monoFont: MonoFont;
-  fontScale: number; // 0.85 to 1.30
-
-  // Screen visibility
-  visibleScreens: {
-    dashboard: boolean;
-    knowledge: boolean;
-    mesh: boolean;
-    journal: boolean;
-    chat: boolean;
-    analytics: boolean;
-    integrations: boolean;
-    alerts: boolean;
-  };
 }
 
 interface AppState {
@@ -79,54 +51,51 @@ interface AppState {
   setHasHydrated: (val: boolean) => void;
 }
 
-const defaultPreferences: Preferences = {
-  showQuickCaptureOnHome: true,
-  dashboardLayout: 'grid',
-  profileLayout: 'full',
-  fontFamily: 'dm-sans',
-  monoFont: 'jetbrains-mono',
-  fontScale: 1,
-  visibleScreens: {
-    dashboard: true,
-    knowledge: true,
-    mesh: true,
-    journal: true,
-    chat: true,
-    analytics: true,
-    integrations: true,
-    alerts: true,
-  },
-};
+export const useStore = create<AppState>()(
+  persist(
+    (set) => ({
+      // Theme
+      themeName: 'void' as ThemeName,
+      setThemeName: (themeName) => set({ themeName }),
 
-export const useStore = create<AppState>()((set) => ({
-  // Theme
-  themeName: 'void' as ThemeName,
-  setThemeName: (themeName) => set({ themeName }),
+      // Data (not persisted — comes from API)
+      activities: [],
+      journals: [],
+      connections: [],
+      isLoading: false,
+      setActivities: (activities) => set({ activities }),
+      setJournals: (journals) => set({ journals }),
+      setConnections: (connections) => set({ connections }),
+      setLoading: (loading) => set({ isLoading: loading }),
+      clearAll: () => set({ activities: [], journals: [], connections: [] }),
 
-  // Data
-  activities: [],
-  journals: [],
-  connections: [],
-  isLoading: false,
-  setActivities: (activities) => set({ activities }),
-  setJournals: (journals) => set({ journals }),
-  setConnections: (connections) => set({ connections }),
-  setLoading: (loading) => set({ isLoading: loading }),
-  clearAll: () => set({ activities: [], journals: [], connections: [] }),
+      // Preferences
+      preferences: defaultPreferences,
+      setPreference: (key, value) => set((s) => ({
+        preferences: { ...s.preferences, [key]: value },
+      })),
+      setScreenVisibility: (screen, visible) => set((s) => ({
+        preferences: {
+          ...s.preferences,
+          visibleScreens: { ...s.preferences.visibleScreens, [screen]: visible },
+        },
+      })),
 
-  // Preferences
-  preferences: defaultPreferences,
-  setPreference: (key, value) => set((s) => ({
-    preferences: { ...s.preferences, [key]: value },
-  })),
-  setScreenVisibility: (screen, visible) => set((s) => ({
-    preferences: {
-      ...s.preferences,
-      visibleScreens: { ...s.preferences.visibleScreens, [screen]: visible },
-    },
-  })),
-
-  // Hydration
-  _hasHydrated: false,
-  setHasHydrated: (val) => set({ _hasHydrated: val }),
-}));
+      // Hydration
+      _hasHydrated: false,
+      setHasHydrated: (val) => set({ _hasHydrated: val }),
+    }),
+    {
+      name: 'polymath-app-store',
+      storage: createJSONStorage(() => AsyncStorage),
+      // Only persist theme + preferences, NOT api data
+      partialize: (state) => ({
+        themeName: state.themeName,
+        preferences: state.preferences,
+      }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
+    }
+  )
+);

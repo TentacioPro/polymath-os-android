@@ -3,7 +3,7 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import axios from 'axios';
 import { useTheme, spacing } from '../theme';
-import { m3Typography, m3Radii } from '../../shared/design-tokens';
+import { m3Typography, m3Radii, m3TouchTarget } from '../../shared/design-tokens';
 import M3Progress from '../components/ui/M3Progress';
 import { hapticLight, hapticSelection } from '../utils/haptics';
 import { getBackendUrlSync } from '../utils/backend';
@@ -91,22 +91,22 @@ export default function AnalyticsScreen() {
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+          style={({ pressed }) => [styles.backBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.8 : 1 }]}
         >
           <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
-        </TouchableOpacity>
+        </Pressable>
         <View style={styles.headerText}>
           <Text style={[styles.headerTitle, { color: theme.onSurface }]}>Analytics</Text>
           <Text style={[styles.headerSub, { color: theme.onSurfaceVariant }]}>System diagnostics</Text>
         </View>
-        <TouchableOpacity
+        <Pressable
           onPress={() => { hapticSelection(); onRefresh(); }}
-          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+          style={({ pressed }) => [styles.backBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.8 : 1 }]}
         >
           <MaterialIcons name="refresh" size={20} color={theme.onSurface} />
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       <ScrollView
@@ -208,8 +208,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   backBtn: {
-    width: 44,
-    height: 44,
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
     borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',

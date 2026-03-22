@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from '@/hooks/useTheme';
 import { THEMES } from '@/lib/theme';
+import ResponsiveModal from './ResponsiveModal';
 
 const NAV_LINKS = [
   { href: '/', icon: 'home', label: 'Dashboard' },
@@ -17,6 +18,7 @@ const NAV_LINKS = [
 const TOOL_LINKS = [
   { href: '/search', icon: 'search', label: 'Search' },
   { href: '/analytics', icon: 'bar_chart', label: 'Analytics' },
+  { href: '/agent', icon: 'memory', label: 'Agent Memory' },
   { href: '/integrations', icon: 'extension', label: 'Integrations' },
   { href: '/export', icon: 'file_download', label: 'Export' },
   { href: '/customize', icon: 'tune', label: 'Customize' },
@@ -25,7 +27,9 @@ const TOOL_LINKS = [
 
 export default function Drawer() {
   const [open, setOpen] = useState(false);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, cycleTheme } = useTheme();
 
   useEffect(() => {
@@ -70,7 +74,7 @@ export default function Drawer() {
   return (
     <div className="fixed inset-0 z-60 md:hidden" onClick={() => setOpen(false)}>
       {/* Scrim overlay */}
-      <div className="absolute inset-0" style={{ backgroundColor: 'var(--m3-surface-dim)' }} />
+      <div className="absolute inset-0 glass-overlay" aria-hidden="true" />
 
       {/* Drawer panel */}
       <aside
@@ -119,26 +123,53 @@ export default function Drawer() {
           </p>
           <div className="space-y-1">
             {TOOL_LINKS.map(renderLink)}
+            
+            <button
+              onClick={() => setLogoutModalOpen(true)}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-standard text-m3-error hover:bg-m3-error-container hover:text-m3-on-error-container mt-4"
+            >
+              <span className="material-symbols-outlined text-[20px]">
+                logout
+              </span>
+              <span className="flex-1 text-left text-[14px] font-semibold">Log Out</span>
+              <span className="material-symbols-outlined text-[18px]">
+                chevron_right
+              </span>
+            </button>
           </div>
         </nav>
+      </aside>
 
-        {/* Footer — Theme toggle */}
-        <div className="px-3 py-3 border-t border-m3-outline-variant">
+      {/* Logout Modal */}
+      <ResponsiveModal
+        open={logoutModalOpen}
+        onClose={() => setLogoutModalOpen(false)}
+        title="Confirm Logout"
+        maxWidth="max-w-sm"
+      >
+        <p className="text-[14px] text-m3-on-surface-variant mb-6">
+          Are you sure you want to securely log out of your current session? You will need to re-authenticate to access Polymath OS.
+        </p>
+        <div className="flex justify-end gap-3 pb-2">
           <button
-            onClick={cycleTheme}
-            className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl bg-m3-surface-container-high hover:bg-m3-surface-container-highest transition-standard text-m3-on-surface"
+            onClick={() => setLogoutModalOpen(false)}
+            className="px-5 py-2.5 rounded-full text-[14px] font-medium text-m3-on-surface hover:bg-m3-surface-container-high transition-standard"
           >
-            <span className="material-symbols-outlined text-[20px] text-m3-primary">palette</span>
-            <div className="flex-1 text-left">
-              <span className="block text-[13px] font-semibold text-m3-on-surface">Theme</span>
-              <span className="block text-[10px] font-semibold tracking-wide text-m3-primary mt-0.5 uppercase">
-                {currentTheme?.label}
-              </span>
-            </div>
-            <span className="material-symbols-outlined text-[18px] text-m3-on-surface-variant">sync</span>
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              setLogoutModalOpen(false);
+              setOpen(false);
+              localStorage.removeItem('api_token');
+              router.push('/login');
+            }}
+            className="px-5 py-2.5 rounded-full text-[14px] font-medium bg-m3-error text-m3-on-error hover:opacity-90 transition-standard elevation-1"
+          >
+            Log Out Securely
           </button>
         </div>
-      </aside>
+      </ResponsiveModal>
     </div>
   );
 }

@@ -4,12 +4,13 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { View } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider, useTheme, isDarkTheme } from '../theme';
 import type { ThemeName } from '../theme';
 import { voidTheme } from '../theme/tokens';
 import { useStore } from '../store/useStore';
+import { useAuthStore } from '../store/useAuthStore';
 import ErrorBoundary from '../components/shared/ErrorBoundary';
 import { initBackendUrl } from '../utils/backend';
 import { initSentry } from '../utils/sentry';
@@ -28,10 +29,48 @@ initAnalytics(true);
 function AppContent({ onLayoutReady }: { onLayoutReady: () => void }) {
   const { theme, themeName } = useTheme();
   const bgColor = theme.surface;
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const authLoading = useAuthStore((s) => s.loading);
+  const initializeAuth = useAuthStore((s) => s.initialize);
 
   // Auto-detect status bar style from surface luminance
   const statusStyle = hexLuminance(theme.surface) > 0.5 ? 'dark' : 'light';
 
+  // Initialize auth on mount
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: bgColor, alignItems: 'center', justifyContent: 'center' }} onLayout={onLayoutReady}>
+        <StatusBar style={statusStyle} />
+        <ActivityIndicator size="large" color={theme.primary} />
+      </View>
+    );
+  }
+
+  // Not authenticated — show auth screens
+  if (!isAuthenticated) {
+    return (
+      <View style={{ flex: 1, backgroundColor: bgColor }} onLayout={onLayoutReady}>
+        <StatusBar style={statusStyle} />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: bgColor },
+            animation: 'fade',
+          }}
+        >
+          <Stack.Screen name="login" />
+          <Stack.Screen name="register" />
+        </Stack>
+      </View>
+    );
+  }
+
+  // Authenticated — full app
   return (
     <View style={{ flex: 1, backgroundColor: bgColor }} onLayout={onLayoutReady}>
       <StatusBar style={statusStyle} />
@@ -57,6 +96,8 @@ function AppContent({ onLayoutReady }: { onLayoutReady: () => void }) {
         <Stack.Screen name="activity-detail" />
         <Stack.Screen name="search" />
         <Stack.Screen name="customize" />
+        <Stack.Screen name="appearance" />
+        <Stack.Screen name="onboarding" />
       </Stack>
     </View>
   );

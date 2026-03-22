@@ -94,9 +94,9 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="pt-4 flex flex-col gap-5 stagger-children">
+    <div className="@container pt-4 flex flex-col gap-5 stagger-children">
       <div className="px-1">
-        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Profile</h1>
+        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight display-kerning">Profile</h1>
         <p className="text-[12px] text-m3-on-surface-variant mt-0.5">Settings</p>
       </div>
 

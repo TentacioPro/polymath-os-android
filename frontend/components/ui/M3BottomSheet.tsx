@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import { View, StyleSheet, Pressable, Dimensions, useWindowDimensions } from 'react-native';
+import { BlurView } from 'expo-blur';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -93,12 +94,17 @@ export default function M3BottomSheet({
           style={[
             styles.sheet,
             {
-              backgroundColor: theme.surfaceContainerHighest,
+              backgroundColor: 'transparent',
               height: maxSheetH,
+              overflow: 'hidden',
+              borderWidth: 1,
+              borderColor: theme.outlineVariant,
             },
             sheetStyle,
           ]}
         >
+          <BlurView intensity={60} tint="default" style={StyleSheet.absoluteFill} />
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: theme.surfaceContainerHighest, opacity: 0.9 }]} />
           <View style={styles.handleWrap}>
             <View style={[styles.handle, { backgroundColor: theme.onSurfaceVariant }]} />
           </View>

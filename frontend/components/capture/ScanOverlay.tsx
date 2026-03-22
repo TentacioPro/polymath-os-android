@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
-import { m3Typography } from '../../../shared/design-tokens';
+import { m3Typography, m3TouchTarget } from '../../../shared/design-tokens';
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   instructionBar: {
     position: 'absolute',
     top: 60,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingVertical: 8,
     borderRadius: 9999,
     zIndex: 10,
@@ -167,10 +167,10 @@ const styles = StyleSheet.create({
   closeBtn: {
     position: 'absolute',
     top: 56,
-    right: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    right: 24,
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
+    borderRadius: m3TouchTarget.min / 2,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
@@ -228,9 +228,9 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
   },
   iconBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: m3TouchTarget.comfortable,
+    height: m3TouchTarget.comfortable,
+    borderRadius: m3TouchTarget.comfortable / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },

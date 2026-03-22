@@ -3,7 +3,7 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   Linking,
   StyleSheet,
 } from 'react-native';
@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import axios from 'axios';
 import { useTheme, spacing } from '../theme';
-import { m3Typography, m3Radii } from '../../shared/design-tokens';
+import { m3Typography, m3Radii, m3TouchTarget } from '../../shared/design-tokens';
 import M3Progress from '../components/ui/M3Progress';
 import { EmptyState } from '../components/ui/EmptyState';
 import { hapticLight, hapticSelection } from '../utils/haptics';
@@ -62,12 +62,12 @@ export default function ActivityDetailScreen() {
     return (
       <View style={[styles.container, { backgroundColor: theme.surface }]}>
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-          <TouchableOpacity
+          <Pressable
             onPress={() => { hapticLight(); router.back(); }}
-            style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+            style={({ pressed }) => [styles.backBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.8 : 1 }]}
           >
             <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
-          </TouchableOpacity>
+          </Pressable>
         </View>
         <EmptyState
           variant="empty-activities"
@@ -85,12 +85,12 @@ export default function ActivityDetailScreen() {
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
       {/* Hero Header */}
       <View style={[styles.hero, { paddingTop: insets.top + 8, backgroundColor: theme.primaryContainer }]}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHighest + 'AA' }]}
+          style={({ pressed }) => [styles.backBtn, { backgroundColor: theme.surfaceContainerHighest + 'AA', opacity: pressed ? 0.8 : 1 }]}
         >
           <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
-        </TouchableOpacity>
+        </Pressable>
         <View style={styles.heroContent}>
           <Text style={[styles.heroTitle, { color: theme.onPrimaryContainer }]} numberOfLines={2}>
             {activity.title}
@@ -120,15 +120,15 @@ export default function ActivityDetailScreen() {
               </Text>
             </View>
             {activity.url && (
-              <TouchableOpacity
-                style={styles.urlRow}
+              <Pressable
+                style={({ pressed }) => [styles.urlRow, { opacity: pressed ? 0.8 : 1 }]}
                 onPress={() => { hapticSelection(); Linking.openURL(activity.url); }}
               >
                 <MaterialIcons name="link" size={16} color={theme.primary} />
                 <Text style={[styles.urlText, { color: theme.primary }]} numberOfLines={1}>
                   {activity.url}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             )}
           </View>
         </Animated.View>
@@ -228,8 +228,8 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: m3Radii.xl,
   },
   backBtn: {
-    width: 44,
-    height: 44,
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
     borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',

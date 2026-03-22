@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../theme';
 import type { ThemeTokens } from '../../theme';
-import { m3Typography } from '../../../shared/design-tokens';
+import { m3Typography, m3TouchTarget } from '../../../shared/design-tokens';
 
 type UploadState = 'selected' | 'uploading' | 'processing' | 'success' | 'error';
 
@@ -208,9 +208,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   iconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
+    borderRadius: m3TouchTarget.min / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingVertical: 8,
     borderRadius: 9999,
   },
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
   },
   retryBtn: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingVertical: 8,
     borderRadius: 9999,
   },

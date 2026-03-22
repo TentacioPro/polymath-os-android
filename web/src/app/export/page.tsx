@@ -78,15 +78,15 @@ export default function ExportPage() {
   ];
 
   return (
-    <div className="pt-4 flex flex-col gap-5">
+    <div className="@container pt-4 flex flex-col gap-5">
       <div className="px-1">
-        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Export & Import</h1>
+        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight display-kerning">Export & Import</h1>
         <p className="text-[12px] text-m3-on-surface-variant mt-0.5">Data portability</p>
       </div>
 
       <div>
         <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-3 px-1">Export Data</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 @[600px]:grid-cols-3 gap-3">
           {exportCards.map((card) => (
             <button
               key={card.format}
@@ -104,7 +104,7 @@ export default function ExportPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 @[600px]:grid-cols-2 gap-6">
         <div>
           <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-3 px-1">Restore Data</p>
           <button

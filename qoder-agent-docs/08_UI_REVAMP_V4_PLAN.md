@@ -362,6 +362,7 @@ Phase 6  [Days 9-10]  Empty state completeness
 Phase 7  [Day 10]     Cognitive interruption routing + Popover component
 Phase 8  [Day 11]     Bento dashboard revamp (mobile + web)
 Phase 9  [Day 12]     Kole Jain completeness audit — 12 gaps closed
+Phase 10 [Day 13]     Mobile nav + color theory + web layout + CSS wiring
 ```
 
 ---
@@ -456,6 +457,53 @@ Phase 9  [Day 12]     Kole Jain completeness audit — 12 gaps closed
 
 ---
 
+## Phase 10: Mobile Navigation + Color Theory + Web Layout + CSS Wiring
+
+**Goal**: Fix critical mobile navigation gaps, implement triadic color harmony, optimize web desktop layout, and wire Phase 9 CSS utilities.
+
+### 10.1 — Triadic Color Tokens (Critical — Foundational)
+**Files**: `shared/design-tokens.ts`, `web/src/app/globals.css`
+- Expanded `M3Palette` interface with 8 new secondary/tertiary tokens
+- Added triadic hue rotation (H+120° secondary, H+240° tertiary) for all 7 palettes
+- Achromatic themes (void/nova) use warm/cool neutrals instead
+- Dark mode desaturation: -15-20% saturation on secondary/tertiary
+- Added 8 CSS vars per theme + Tailwind aliases (`bg-m3-secondary-container`, etc.)
+
+### 10.2 — Mobile Drawer + Hamburger (Critical)
+**Files**: `frontend/components/navigation/MobileDrawer.tsx` (NEW), `frontend/components/navigation/CollapsibleHeader.tsx`, `frontend/app/(tabs)/_layout.tsx`
+- Created full slide-from-left navigation drawer with all 12 destinations (matching web sidebar)
+- Animated via Reanimated `translateX` + scrim opacity
+- Theme switcher footer with 7 color swatches
+- BackHandler support for Android back button
+- Added hamburger icon to CollapsibleHeader left section
+
+### 10.3 — Mobile FAB Placement Fix
+**File**: `frontend/app/(tabs)/_layout.tsx`
+- Computed `tabBarHeight = 8 + 36 + Math.max(insets.bottom, 8)` for dynamic clearance
+- FAB positioned at `bottom: tabBarHeight + 16` to avoid tab bar overlap
+
+### 10.4 — Web Desktop Layout Optimization
+**Files**: `web/src/components/SidebarAwareMain.tsx`, `web/src/app/activities/page.tsx`
+- Added `max-w-[1400px] mx-auto w-full` content width cap
+- Activities page restructured to 2-column `@container` grid at `@[860px]` breakpoint
+- Desktop side panel with Quick Add card using new `bg-m3-secondary-container`
+
+### 10.5 — Phase 9 CSS Utilities Wired
+**Files**: 13 web page files
+- `.display-kerning` applied to all `<h1>` display titles across all pages
+- `.prose-line-cap` applied to journal content, agent memory/insight text, activity descriptions, suggestion text
+- `.glass-surface` applied to agent memory allocation stats + persona directives card
+- `.cq-root` applied to dashboard stat blocks + engagement widgets
+- `.transition-micro` applied to delete button icon state transitions
+
+### 10.6 — Web Theme Fixes
+**Files**: `web/src/components/Drawer.tsx`, `web/src/lib/theme.ts`
+- Added missing `/agent` (Agent Memory) link to web Drawer
+- Replaced inline scrim `style` with `.glass-overlay` class
+- Added `mapThemeNameToId()` / `mapThemeIdToName()` utilities for cross-platform theme sync (mobile 'void' ↔ web 'black')
+
+---
+
 ## File Change Summary
 
 | Phase | Files Changed | Key Deliverables |
@@ -469,7 +517,9 @@ Phase 9  [Day 12]     Kole Jain completeness audit — 12 gaps closed
 | 6 | `EmptyState.tsx` (mobile + web), all data screens | Fully wired empty states |
 | 7 | New `Popover.tsx` (mobile + web), dialog call sites | Hick's Law routing |
 | 8 | `index.tsx`, `web/page.tsx` | Bento dashboard |
-| **Total** | **~70 files** | **Kole Jain compliance across entire UI** |
+| 9 | `globals.css`, `design-tokens.ts`, `M3Dialog`, `ConfirmDialog`, `ResponsiveModal`, `AppSidebar`, `TopHeader`, `Drawer`, `Toast`, `ConnectionGraph` | 12 KJ gaps closed |
+| 10 | `design-tokens.ts`, `globals.css`, `MobileDrawer.tsx` (NEW), `CollapsibleHeader.tsx`, `_layout.tsx`, `SidebarAwareMain.tsx`, `activities/page.tsx`, `Drawer.tsx`, `theme.ts`, 13 web page files | Triadic tokens, mobile drawer, FAB fix, desktop layout, CSS utilities wired |
+| **Total** | **~85 files** | **Kole Jain compliance + mobile nav + color theory** |
 
 ---
 
@@ -487,3 +537,4 @@ Phase 9  [Day 12]     Kole Jain completeness audit — 12 gaps closed
 | 7 — Interruption Routing | DONE | 76f972b |
 | 8 — Bento Dashboard | DONE (web ✓ da686eb, mobile ✓ 861a3cf) | 861a3cf |
 | 9 — KJ Completeness Audit | DONE (12/12 gaps closed) | TBD |
+| 10 — Mobile Nav + Color Theory + Web Layout | DONE | TBD |

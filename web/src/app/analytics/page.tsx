@@ -44,9 +44,9 @@ export default function AnalyticsPage() {
   const sources = stats?.source_distribution || [];
 
   return (
-    <div className="pt-4 flex flex-col gap-5">
+    <div className="@container pt-4 flex flex-col gap-5">
       <div className="px-1">
-        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Analytics</h1>
+        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight display-kerning">Analytics</h1>
         <p className="text-[12px] text-m3-on-surface-variant mt-0.5">System diagnostics</p>
       </div>
 

@@ -842,21 +842,35 @@ async def login(login_data: LoginRequest, request: Request):
     """Authenticate user and return JWT tokens."""
     email = login_data.email.lower()
     
+    # DEBUG: Log incoming request
+    print(f"[LOGIN DEBUG] Email: {email}")
+    print(f"[LOGIN DEBUG] Password length: {len(login_data.password)}")
+    print(f"[LOGIN DEBUG] Password first 3 chars: {login_data.password[:3]}")
+    
     # Find user
     user_doc = await db.users.find_one({"email": email})
     if not user_doc:
+        print(f"[LOGIN DEBUG] User NOT FOUND: {email}")
         await log_audit_event("LOGIN", "auth", request, details={"email": email}, success=False)
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    print(f"[LOGIN DEBUG] User found: {user_doc['email']}")
+    print(f"[LOGIN DEBUG] Hash starts with: {user_doc['password_hash'][:20]}")
     
     user = UserInDB(**user_doc)
     
     # Check account lockout
     if user.lockout_until and datetime.utcnow() < user.lockout_until:
         remaining = int((user.lockout_until - datetime.utcnow()).total_seconds() / 60)
+        print(f"[LOGIN DEBUG] Account LOCKED until: {user.lockout_until}")
         raise HTTPException(status_code=423, detail=f"Account locked. Try again in {remaining} minutes.")
     
-    # Verify password
-    if not verify_password(login_data.password, user.password_hash):
+    # Verify password with detailed logging
+    print(f"[LOGIN DEBUG] About to verify password...")
+    password_match = verify_password(login_data.password, user.password_hash)
+    print(f"[LOGIN DEBUG] Password verification result: {password_match}")
+    
+    if not password_match:
         # Increment failed attempts
         new_attempts = user.failed_login_attempts + 1
         update_data = {"failed_login_attempts": new_attempts}

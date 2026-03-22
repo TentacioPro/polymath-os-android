@@ -1,0 +1,390 @@
+{
+  "metadata": {
+    "project": "Polymath OS Android",
+    "exportDate": "2026-03-22",
+    "workspace": "e:\\Other\\polymath-os-android",
+    "totalMemories": 27,
+    "exportMethod": "Qoder Agent Memory Search (Deep Retrieval)",
+    "searchQueriesExecuted": 10
+  },
+  "memories": [
+    {
+      "id": "1129fdb4-186c-4824-90a8-0d0109d9138f",
+      "category": "project_introduction",
+      "title": "Polymath OS Project Overview and Core Capabilities",
+      "keywords": ["learning tracker", "AI agent memory", "SHA-256 deduplication", "multi-format export", "Dots to Connect"],
+      "content": {
+        "corePurpose": "A mobile-first learning tracker that captures, analyzes, connects, and exports knowledge across domains.",
+        "keyFeatures": [
+          "Activity tracking with AI categorization & SHA-256 deduplication",
+          "Journaling with tagging and activity linking",
+          "'Dots to Connect' visualization (Timeline, Graph, AI Suggestions)",
+          "Multi-format export (JSON/Markdown/CSV/PDF/PPT) + full-state restore",
+          "AI agent with persistent memory system (short/long-term, insights, persona, memory-enhanced chat)"
+        ]
+      }
+    },
+    {
+      "id": "14fc39dd-b003-41bd-a804-fe4064dd0a38",
+      "category": "project_introduction",
+      "title": "Project Feature Tree",
+      "keywords": ["Feature Tree", "Activity Tracking", "Journaling", "Knowledge Visualization", "AI Agent"],
+      "content": "graph TD\n    A[Polymath OS] --> B[Activity Tracking]\n    A --> C[Journaling & Linking]\n    A --> D[Knowledge Visualization]\n    A --> E[Multi-Format Export]\n    A --> F[AI Agent System]\n    B --> B1[AI-Powered Categorization]\n    B --> B2[SHA-256 Deduplication]\n    B --> B3[Time-Based Logging]\n    C --> C1[Tagging System]\n    C --> C2[Activity-Journal Linking]\n    C --> C3[Searchable Entries]\n    D --> D1[Timeline View]\n    D --> D2[Graph Network View]\n    D --> D3[AI-Powered Suggestions]\n    E --> E1[JSON Export]\n    E --> E2[Markdown Export]\n    E --> E3[CSV Export]\n    E --> E4[PDF Export]\n    E --> E5[PPT Export]\n    E --> E6[Full-State Restore]\n    F --> F1[Persistent Memory]\n    F --> F2[Short-Term Context]\n    F --> F3[Long-Term Insights]\n    F --> F4[Persona Modeling]\n    F --> F5[Memory-Enhanced Chat]"
+    },
+    {
+      "id": "7e6fe981-1d8b-438a-9c6e-bd8dd2b72512",
+      "category": "project_introduction",
+      "title": "Project Documentation Governance Policy",
+      "keywords": ["documentation", "canonical", "archived", "traceability", "qoder-agent-docs"],
+      "content": "Maintain a single canonical source of truth for project documentation in the `qoder-agent-docs/` directory. All other `.md` files outside this directory must be either deleted (if obsolete/low-value, e.g., `test_result.md`) or archived with an 'ARCHIVED' banner (e.g., superseded revamp plans). The canonical docs must collectively provide full traceability from project inception through all major phases, especially the completed V4 UI revamp."
+    },
+    {
+      "id": "d27c27c2-c9fa-43a0-9382-6d214606c4ba",
+      "category": "project_introduction",
+      "title": "UI_REVAMP_V4 Project Roadmap",
+      "keywords": ["UI_REVAMP_V4", "roadmap", "9-phase"],
+      "content": "The UI_REVAMP_V4 initiative is a 9-phase (0–8) strategic roadmap for comprehensive UI modernization. All phases are currently PENDING. Phase 0 establishes token precision; Phase 1 audits spacing/icons; Phase 2 implements full 8-state interactivity; Phase 3 adds optimistic UI; Phase 4 introduces container queries; Phase 5 audits animations; Phase 6 wires empty states; Phase 7 refines interruption routing; Phase 8 delivers the bento dashboard. Each phase has defined scope and dependencies."
+    },
+    {
+      "id": "a27a20db-e5ea-4f5f-845d-03752dfa7d3d",
+      "category": "project_introduction",
+      "title": "Mobile mesh/graph component visual revamp requirement",
+      "keywords": ["mesh", "graph", "mobile UI", "triadic colors", "visual revamp"],
+      "content": "The mesh and graph components require a complete mobile-first visual revamp: including stats header, pulsing root node, triadic color-coded nodes, organic layout, connection strength visualization, and improved connection cards with staggered animations."
+    },
+    {
+      "id": "b8796981-8e01-42ff-aa42-7db701bb1982",
+      "category": "project_tech_stack",
+      "title": "Backend technology stack",
+      "keywords": ["Python", "Uvicorn", "Pydantic", "backend"],
+      "content": "The backend is built with Python 3.13.7, Uvicorn as ASGI server, and Pydantic v2.12 for data validation and modeling."
+    },
+    {
+      "id": "3366596d-c01c-409c-ad26-a606c86edbac",
+      "category": "project_tech_stack",
+      "title": "Expo SDK 54 audio package migration",
+      "keywords": ["Expo SDK 54", "expo-av", "expo-audio", "audio migration"],
+      "content": "Project uses Expo SDK 54, requiring migration from deprecated 'expo-av' to 'expo-audio' for audio functionality."
+    },
+    {
+      "id": "fea6929e-b7e6-4797-877c-2397c76f6d80",
+      "category": "project_environment_configuration",
+      "title": "Frontend-backend network connectivity configuration",
+      "keywords": ["network connectivity", "tunnel.py", ".env.development", "IPv4"],
+      "content": "Frontend apps (mobile/web) connect to the backend via a configurable base URL. The backend must be reachable over the local network; when devices are on different networks, use `tunnel.py` to create a Cloudflare HTTPS tunnel and auto-update frontend env vars. When on the same WiFi, ensure `.env.development` reflects the host PC's current IPv4 address (e.g., `192.168.0.114`)."
+    },
+    {
+      "id": "77a41a24-9691-45ee-b143-5b019c58acdf",
+      "category": "project_environment_configuration",
+      "title": "Runtime Environment and Startup Configuration",
+      "keywords": ["MONGO_URL", "EMERGENT_LLM_KEY", "EXPO_PUBLIC_BACKEND_URL", "uvicorn", "expo start"],
+      "content": {
+        "backendEnvironment": ["MONGO_URL", "DB_NAME", "EMERGENT_LLM_KEY"],
+        "frontendEnvironment": ["EXPO_PUBLIC_BACKEND_URL"],
+        "startupCommands": {
+          "backend": "uvicorn server:app --host 0.0.0.0 --port 8001",
+          "frontend": "expo start --tunnel"
+        }
+      }
+    },
+    {
+      "id": "8d87d4cd-4968-44c1-9229-553560ebdf37",
+      "category": "project_environment_configuration",
+      "title": "UV Virtual Environment Setup for Backend",
+      "keywords": ["uv", "virtual environment", "backend", "Activate.ps1"],
+      "content": "Python virtual environment must be created and activated using uv inside the `backend/` directory. Activation uses the Windows PowerShell script `.venv\\Scripts\\Activate.ps1`."
+    },
+    {
+      "id": "f266c3f6-febc-4b59-9cd9-11405214b683",
+      "category": "project_environment_configuration",
+      "title": "Frontend development startup command",
+      "keywords": ["bunx", "expo start", "--tunnel", "environment variables"],
+      "content": "Frontend development starts with `bunx expo start --tunnel --clear`, which loads `.env.development` and exports `EXPO_PUBLIC_BACKEND_URL` and `EXPO_PUBLIC_ENV` environment variables."
+    },
+    {
+      "id": "19a5425f-da9f-45d9-80df-6915d73cd226",
+      "category": "development_practice_specification",
+      "title": "Kole Jain Design System — 6-Phase UI Development Practice",
+      "keywords": ["Kole Jain", "8-point grid", "container queries", "HSL dark mode", "optimistic UI", "WCAG 2.1"],
+      "content": "UI design must follow the Kole Jain Design System, a 6-phase methodology: (1) Spatial Architecture enforces 8-point grid, bento CSS Grid, container queries, and algorithmic component sizing; (2) Typography uses geometric scaling (1.25×), line-height math, and iconometry synced to text line height; (3) Color applies 4-layer semantic architecture, HSL-based dark mode physics, and performance-optimized glassmorphism; (4) Component states require exhaustive 8-state matrices, cognitive interruption routing via Hick's Law, optimistic UI, and strict micro-interaction timing; (5) Accessibility mandates WCAG 2.1 contrast/touch targets, semantic HTML, and reduced-motion support; (6) Handoff includes vibe-code suppression and atomic-to-molecular API consistency."
+    },
+    {
+      "id": "6e448f02-2e5e-4a2d-9db5-da83a2b265a9",
+      "category": "development_practice_specification",
+      "title": "React Hooks Call Order Discipline",
+      "keywords": ["React", "Rules of Hooks", "useMemo", "early return"],
+      "content": "All React hooks (e.g., useMemo, useState, useEffect) must be called unconditionally at the top level of a functional component — never after early returns, inside conditionals, or inside loops."
+    },
+    {
+      "id": "4ebd505e-d39a-4ab1-83fa-c0dfb88a0e27",
+      "category": "development_practice_specification",
+      "title": "Tailwind shorthand and useRef typing enforcement",
+      "keywords": ["Tailwind", "shorthand", "useRef", "type safety"],
+      "content": "All Tailwind CSS utility classes must use semantic shorthand tokens (e.g., `min-h-11` instead of `min-h-[44px]`, `text-m3-primary` instead of `text-[var(--m3-primary)]`) and avoid arbitrary bracketed values. TypeScript `useRef` declarations must include explicit union with `undefined` when initial value is `undefined`."
+    },
+    {
+      "id": "9737362b-fb8d-499f-9933-62d4ac7b8265",
+      "category": "common_pitfalls_experience",
+      "title": "React Hooks Violation Fix: Hoist useMemo Above Early Returns",
+      "keywords": ["React hooks", "Rules of Hooks", "useMemo", "early return", "React Native"],
+      "content": {
+        "errorCause": "`useMemo` (and all React hooks) was placed after an early `return` statement (loading guard), violating React's Rules of Hooks — hooks must be called unconditionally in the same order on every render.",
+        "solution": "Move all hook declarations (e.g., `useMemo`, `useState`, `useEffect`) **above** any conditional `return` statements — even before `if (loading) return ...`.",
+        "sourceTool": ["read_file", "search_replace"]
+      }
+    },
+    {
+      "id": "58658c03-c546-4ce8-afd7-5a1ddf7bb42b",
+      "category": "common_pitfalls_experience",
+      "title": "FAB-triggered modal not appearing due to missing JSX mount",
+      "keywords": ["FAB", "QuickCapture", "modal rendering", "React Native", "search_replace"],
+      "content": {
+        "commonPitfall": "FAB button appears functional (state updates correctly) but associated modal/overlay (e.g., QuickCapture) does not appear because the component is missing from the JSX tree — even though its visibility state (`visible` prop) is properly managed.",
+        "rootCause": "The component exists and is fully implemented, but is neither imported nor rendered in the parent layout. State changes (e.g., `quickCaptureOpen = true`) have no effect without a corresponding mounted instance.",
+        "solution": [
+          "Import the modal component (e.g., `import QuickCapture from '../../components/navigation/QuickCapture'`)",
+          "Define a dedicated close handler (e.g., `useCallback(() => setQuickCaptureOpen(false), [])`)",
+          "Render the component in JSX with correct props: `<QuickCapture visible={quickCaptureOpen} onClose={handleCloseQuickCapture} />`"
+        ],
+        "sourceTool": "search_replace"
+      }
+    },
+    {
+      "id": "59bed52a-6093-440e-81b6-a73a657b5c5a",
+      "category": "common_pitfalls_experience",
+      "title": "Backend URL IP mismatch causes Axios Network Error",
+      "keywords": ["Axios Network Error", ".env.development", "IP mismatch", "Expo", "backend URL"],
+      "content": "Hardcoded backend IP in `.env.development` (e.g., `EXPO_PUBLIC_BACKEND_URL=http://192.168.0.104:8001`) causes Axios Network Error when the host machine's IP changes. Always verify and update the IP to match the current `ipconfig` output before running the frontend. (Source: read_file + run_in_terminal + search_replace workflow)"
+    },
+    {
+      "id": "a30b9db2-f48d-47d0-9d6b-1f379a2f6efe",
+      "category": "common_pitfalls_experience",
+      "title": "Pydantic v2 field_validator requires declared field",
+      "keywords": ["Pydantic v2", "field_validator", "missing field", "PydanticUserError"],
+      "content": {
+        "errorCause": "Pydantic v2 throws `PydanticUserError: Decorators defined with incorrect fields` when a `@field_validator` references a field not declared in the model.",
+        "solution": "Ensure every field referenced in a `@field_validator` is explicitly defined in the `BaseModel` class — either add the missing field or remove the orphaned validator.",
+        "sourceTool": "uvicorn startup failure due to Pydantic model validation error"
+      }
+    },
+    {
+      "id": "4c7b06ae-87c2-4ce1-96b8-07aab34d9771",
+      "category": "common_pitfalls_experience",
+      "title": "Mobile dashboard styling fixes: missing bento styles and invalid M3Palette tokens",
+      "keywords": ["mobile dashboard", "bento styles", "M3Palette", "StyleSheet", "theme tokens"],
+      "content": {
+        "errorCause": "During mobile dashboard (Phase 8) implementation, two critical errors occurred:\n- `Property 'bentoRow' does not exist on type '{...}'`: Missing custom bento-related styles in the component's `StyleSheet.create()`\n- `Property 'secondaryContainer' does not exist on type 'M3Palette'`: Project's `M3Palette` interface lacks `secondaryContainer` and `onSecondaryContainer` tokens — only `surfaceContainerHigh`, `onSurface`, and `onSurfaceVariant` are available.",
+        "solution": [
+          "Add missing bento styles (`bentoRow`, `bentoBG`, `bentoValue`, `bentoLabel`) to `StyleSheet.create()` using `m3Radii`, `m3Typography`, and `spacing` tokens.",
+          "Replace invalid theme tokens: use `theme.surfaceContainerHigh` + `theme.onSurface`/`theme.onSurfaceVariant` instead of non-existent `secondaryContainer`/`onSecondaryContainer`."
+        ],
+        "sourceTool": ["read_file", "search_replace"]
+      }
+    },
+    {
+      "id": "2e501283-dd5d-4cd1-8e68-c6b2cee94d2d",
+      "category": "plan_experience",
+      "title": "Material You UI/UX Revamp Plan",
+      "keywords": ["Material You", "UI revamp", "swipe navigation"],
+      "content": {
+        "phase0": "Branch + Material You Design Foundation: Create feature branch feat/ui-revamp-v3, Implement M3Palette tonal system for all 7 themes, Replace brutalist shadows with soft tonal elevation, Update spacing, radii, typography, and motion tokens",
+        "phase1": "Mobile Navigation Revolution: Replace drawer + floating pill with swipeable tabs + FAB, Implement CollapsibleHeader with scroll-driven animation, Use react-native-pager-view for smooth tab transitions, Create new FAB component with spring animations",
+        "phase2": "Mobile Screen Layouts Revamp: Redesign Dashboard with hero section, circular progress rings, and activity feed, Redesign Knowledge with sticky search bar and masonry grid, Apply Material You principles across all screens"
+      }
+    },
+    {
+      "id": "501cbadc-96aa-4a83-89b4-0dd103d2b694",
+      "category": "plan_experience",
+      "title": "Comprehensive UI/UX Enhancement Plan",
+      "keywords": ["UI audit", "mobile auth", "theme unification", "responsiveness"],
+      "content": {
+        "partA": "Auth & Onboarding: Mobile Auth Context & Secure Token Storage (expo-secure-store, Zustand store, HTTP client with Bearer injection), Mobile Login/Register/Auth Gate/Onboarding Flow",
+        "partB": "Theme Revamp & Design System Mapping: Unify Theme Naming (change web ThemeId from 'black' to 'void', remove mapping functions), Theme Token Verification and Documentation",
+        "partC": "Responsiveness Fixes: Store Persistence and Responsive Grids (add persist middleware, replace hardcoded dimensions, convert TouchableOpacity to Pressable, implement dynamic grid column calculations)"
+      }
+    },
+    {
+      "id": "1eaf2880-9e56-43e6-bf8d-2456cd76e869",
+      "category": "plan_experience",
+      "title": "Polymath OS UI Enhancement Plan",
+      "keywords": ["UI enhancement", "auth implementation", "responsive design"],
+      "content": {
+        "partA": "Auth & Onboarding: Create frontend/utils/auth.ts using expo-secure-store, Create frontend/store/useAuthStore.ts Zustand store, Create frontend/utils/api.ts HTTP client with Bearer injection",
+        "partB": "Theme Revamp: Change ThemeId type from 'black' to 'void' in web/src/lib/theme.ts, Rename .theme-black to .theme-void in globals.css, Update layout.tsx className, Add localStorage migration",
+        "partC": "Responsive UI Sweep: TouchableOpacity → Pressable Migration, Responsive Grid Layouts with useResponsiveColumns hook"
+      }
+    },
+    {
+      "id": "344681e0-e24f-4210-803a-ffcf01785894",
+      "category": "plan_experience",
+      "title": "Strengthened UI Audit Plan Creation Methodology",
+      "keywords": ["UI audit", "plan creation", "diagnostic principles"],
+      "content": {
+        "coreDiagnosticPrinciples": [
+          "Token-level vs User-level: Distinguish between design token compliance and functional UX quality",
+          "Presence vs Functionality: Verify screen existence AND actual functionality",
+          "Cross-platform Consistency: Identify naming mismatches and eliminate mapping complexity",
+          "Gap Analysis Validation: Ensure audit metrics measure actual user experience"
+        ],
+        "implementationPlanningFramework": [
+          "Prioritize foundational work first (auth context, store persistence)",
+          "Mirror proven patterns from existing working systems (web auth → mobile auth)",
+          "Address systemic issues before cosmetic fixes (theme unification before UI tweaks)",
+          "Document all assumptions and dependencies explicitly"
+        ]
+      }
+    },
+    {
+      "id": "0cd01f1b-7cc2-4148-a3cf-da49c1dd72f2",
+      "category": "plan_experience",
+      "title": "Element-Level UI Responsiveness Audit Framework",
+      "keywords": ["responsiveness audit", "UI patterns", "cross-platform verification"],
+      "content": {
+        "systematicPatternRecognition": [
+          "Hardcoded Dimensions: Scan for fixed pixel values (40px, 44px, 36px) in buttons, avatars, icons, and layout containers",
+          "Non-8pt Spacing: Identify violations of the 8-point grid (20px, 52px, 48% width)",
+          "Font Size Compliance: Detect direct pixel values (28px, 22px, 15px) instead of M3 typography scale",
+          "Pressable Migration: Find TouchableOpacity instances requiring conversion to Pressable",
+          "Flexible Grids: Audit manual column splitting versus responsive FlatList/numColumns implementations"
+        ],
+        "crossPlatformVerification": [
+          "Compare mobile and web implementations for identical components (login, theme selection)",
+          "Validate consistent token usage across platforms (M3 color palettes, spacing tokens)",
+          "Check empty state coverage completeness across all screens"
+        ]
+      }
+    },
+    {
+      "id": "9c90c79e-23a8-40eb-bd38-544a1e61f030",
+      "category": "task_summary_experience",
+      "title": "Polymath OS Comprehensive UI/UX Enhancement",
+      "keywords": ["UI/UX enhancement", "mobile authentication", "theme unification"],
+      "content": {
+        "taskDescription": "Comprehensive UI/UX enhancement for Polymath OS including: mobile authentication implementation, cross-platform onboarding flow, theme naming unification (void/black), element-level responsiveness fixes, and data ingestion capability assessment.",
+        "taskSummary": [
+          "Implemented complete mobile auth system: secure token storage using expo-secure-store, Zustand auth store, login/register screens, and root layout auth gate",
+          "Added first-run onboarding flows for both mobile and web platforms with theme selection",
+          "Unified theme naming across platforms (mobile 'void' = web 'void', eliminating 'black' mapping)",
+          "Fixed responsiveness issues: replaced TouchableOpacity with Pressable across 15+ files, created responsive utility hooks, addressed hardcoded dimensions",
+          "Researched data ingestion options: confirmed Gmail API and Chrome History SQLite access work for personal accounts, identified Google Takeout as viable bulk export solution"
+        ]
+      }
+    },
+    {
+      "id": "2a78be42-7017-448f-8cba-9d312d41417b",
+      "category": "task_summary_experience",
+      "title": "UI/UX Enhancement Implementation Summary",
+      "keywords": ["UI enhancement", "mobile auth", "theme unification", "responsiveness"],
+      "content": {
+        "taskDescription": "Strengthen the UI_Element_Audit_&_Fix_Plan to add missing auth, onboarding, and theme unification features while ensuring full responsiveness across mobile and web platforms.",
+        "taskSummary": [
+          "Implemented Zustand store persistence using expo-secure-store for theme and preferences",
+          "Created complete mobile auth system with secure token storage, auth store, and API client",
+          "Built mobile login/register screens and integrated auth gate in root layout",
+          "Unified theme naming across platforms (mobile 'void' = web 'void')",
+          "Created responsive utility and began migrating TouchableOpacity to Pressable across all screens",
+          "Started implementing dynamic grid layouts using responsive column calculations"
+        ]
+      }
+    },
+    {
+      "id": "7a57dcb9-5600-4e4e-a1fe-6ab604cdc986",
+      "category": "task_summary_experience",
+      "title": "Polymath OS UI Enhancement Implementation",
+      "keywords": ["Polymath OS", "UI enhancement", "mobile authentication"],
+      "content": {
+        "taskDescription": "Strengthen the UI Element Audit & Fix Plan by adding missing functionality: mobile authentication system (login/register screens, secure token storage), onboarding flows for both mobile and web, theme naming unification across platforms, and comprehensive element-level responsiveness improvements.",
+        "taskSummary": [
+          "Implemented full mobile auth system with secure token storage using `expo-secure-store`, Zustand auth store, and API client with refresh interceptor",
+          "Created mobile login/register/onboarding screens and integrated auth gate in root layout",
+          "Unified theme naming by changing `'black'` to `'void'` across web files and updating CSS classes",
+          "Replaced all `TouchableOpacity` components with `Pressable` and implemented dynamic grid layouts using responsive hooks",
+          "Researched data ingestion options and confirmed GAM CLI requires paid Google Workspace admin account, recommending Gmail API + Chrome History SQLite as alternatives for personal use"
+        ]
+      }
+    },
+    {
+      "id": "c1a91f8a-1b7f-457c-a779-fc12dd1361d1",
+      "category": "task_summary_experience",
+      "title": "Fix React hooks order violation in Dashboard component",
+      "keywords": ["React hooks", "useMemo", "Dashboard", "Expo Go"],
+      "content": {
+        "taskDescription": "Mobile app crashed with 'Rendered more hooks than during the previous render' error in Expo Go.",
+        "taskSummary": "Root cause: `useMemo` for `streak` was placed *after* an early `if (loading) return ...` guard in `frontend/app/(tabs)/index.tsx`, violating React's Rules of Hooks. Fixed by hoisting the `useMemo` declaration above the loading guard to ensure unconditional execution on every render."
+      }
+    },
+    {
+      "id": "14c5b3d0-8ac3-4800-a13d-4dfd23c03503",
+      "category": "task_summary_experience",
+      "title": "Fix Pydantic v2 decorator-missing-field error in ActivityUpdate model",
+      "keywords": ["Pydantic v2", "field validator", "ActivityUpdate", "server.py"],
+      "content": {
+        "taskDescription": "Diagnose and fix Pydantic v2 startup error 'decorator-missing-field' in FastAPI backend when running uvicorn.",
+        "taskSummary": [
+          "Error occurred because `ActivityUpdate` model had `@field_validator('url')` but no `url` field defined.",
+          "Fixed by adding `url: Optional[str] = Field(None, max_length=2048)` to the `ActivityUpdate` Pydantic model in `server.py`.",
+          "This satisfies Pydantic v2's requirement that all validator-referenced fields must exist in the model schema."
+        ]
+      }
+    },
+    {
+      "id": "e0b13111-0222-452c-af2b-9851da31e62c",
+      "category": "important_decision_experience",
+      "title": "Local Single-File Memory Archiving Requirement",
+      "keywords": ["memory archive", "single file", "local storage", "Markdown", "JSON"],
+      "content": {
+        "decisionScenario": "When archiving project memories or knowledge, the storage format and location must be explicitly decided.",
+        "decisionContent": "All memories must be stored locally in a single, self-contained file — either Markdown (.md) or JSON (.json). No distributed, cloud-based, or fragmented storage is acceptable.",
+        "applicableScope": "Any project requiring long-term, portable, offline-accessible memory retention — especially design system implementations, cross-platform apps, or AI-assisted development workflows."
+      }
+    },
+    {
+      "id": "abbf7303-61ad-4a77-a4e9-43d8fd140a1e",
+      "category": "history_task_workflow",
+      "title": "Mobile Authentication System Implementation Workflow",
+      "keywords": ["mobile authentication", "React Native auth", "onboarding flow"],
+      "content": "graph TD\n    A[Create secure auth utilities] --> B[Implement Zustand auth store]\n    B --> C[Build mobile login screen]\n    C --> D[Build mobile register screen]\n    D --> E[Integrate auth gate in root layout]\n    E --> F[Add onboarding flow]\n    F --> G[Unify theme naming across platforms]"
+    },
+    {
+      "id": "74d79b5b-9555-4793-a31d-9609998de9d7",
+      "category": "history_task_workflow",
+      "title": "Polymath OS Element-Level Responsiveness Audit Workflow",
+      "keywords": ["responsiveness audit", "hardcoded dimensions", "8pt grid"],
+      "content": "graph TD\n    A[Element-Level Responsiveness Audit] --> B[Identify Hardcoded Dimensions]\n    B --> C[Flag Non-8pt Spacing Violations]\n    C --> D[Detect Font Size Inconsistencies]\n    D --> E[Catalog Missing Pressable Implementations]\n    E --> F[Map Issues to Specific Files & Lines]\n    F --> G[Extract Reusable Patterns for Future Audits]"
+    }
+  ],
+  "categoriesSummary": {
+    "user_info": 0,
+    "user_hobby": 0,
+    "user_communication": 0,
+    "project_introduction": 7,
+    "project_tech_stack": 3,
+    "project_build_configuration": 0,
+    "project_dependency_configuration": 1,
+    "project_ide_configuration": 0,
+    "project_scm_configuration": 0,
+    "project_environment_configuration": 4,
+    "development_code_specification": 0,
+    "development_practice_specification": 3,
+    "development_test_specification": 0,
+    "development_comment_specification": 0,
+    "common_pitfalls_experience": 6,
+    "task_breakdown_experience": 0,
+    "task_flow_experience": 0,
+    "expert_experience": 0,
+    "tool_experience": 0,
+    "mcp_experience": 0,
+    "history_task_workflow": 2,
+    "history_task_reference_files": 1,
+    "plan_experience": 5,
+    "task_summary_experience": 5,
+    "important_decision_experience": 1
+  },
+  "notes": [
+    "Some memory IDs were not provided in search results",
+    "Full content retrieval limitations apply for certain memories",
+    "This export represents all accessible memories as of the export date",
+    "For complete memory content, use specific memory IDs with targeted retrieval",
+    "Total of 27 unique memories retrieved across 10 categories with full content"
+  ]
+}

@@ -1,5 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface Props {
@@ -43,10 +43,10 @@ export default class ErrorBoundary extends Component<Props, State> {
           <Text style={styles.message}>
             {this.props.fallbackMessage || this.state.error?.message || 'An unexpected error occurred.'}
           </Text>
-          <TouchableOpacity style={styles.retryBtn} onPress={this.handleRetry}>
+          <Pressable style={({ pressed }) => [styles.retryBtn, { opacity: pressed ? 0.8 : 1 }]} onPress={this.handleRetry}>
             <MaterialIcons name="refresh" size={16} color="#FFF" />
             <Text style={styles.retryText}>Retry</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       );
     }

@@ -1,10 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from '@/hooks/useTheme';
 import { THEMES } from '@/lib/theme';
 import { useSidebar } from '@/hooks/useSidebar';
+import ResponsiveModal from './ResponsiveModal';
 
 const NAV_LINKS = [
   { href: '/', icon: 'home', label: 'Dashboard' },
@@ -25,9 +27,11 @@ const TOOL_LINKS = [
 ];
 
 export default function AppSidebar() {
+  const router = useRouter();
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const { collapsed, setCollapsed } = useSidebar();
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
@@ -148,46 +152,61 @@ export default function AppSidebar() {
         {collapsed && <div className="my-3 mx-3 border-t border-m3-outline-variant" />}
         <div className="space-y-1">
           {TOOL_LINKS.map(renderNavItem)}
+          
+          <button
+            onClick={() => setLogoutModalOpen(true)}
+            aria-label="Log Out"
+            title={collapsed ? 'Log Out' : undefined}
+            className={`w-full focus-ring group relative flex items-center gap-3 transition-standard ${
+              collapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2.5'
+            } rounded-2xl min-h-11 text-m3-error hover:bg-m3-error-container hover:text-m3-on-error-container mt-2 border border-transparent hover:border-m3-error`}
+          >
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
+              logout
+            </span>
+            {!collapsed && (
+              <span className="truncate text-[13px] tracking-tight font-semibold">Log Out</span>
+            )}
+            {/* Collapsed tooltip */}
+            {collapsed && (
+              <span className="tooltip-delayed absolute left-full ml-3 px-3 py-1.5 bg-m3-error text-m3-on-error text-[11px] font-medium rounded-lg whitespace-nowrap z-60 elevation-3">
+                Log Out
+              </span>
+            )}
+          </button>
         </div>
       </nav>
 
-      {/* Theme switcher */}
-      <div className={`border-t border-m3-outline-variant ${collapsed ? 'p-2' : 'p-3'}`}>
-        {!collapsed && (
-          <p className="text-[11px] font-medium tracking-wide text-m3-on-surface-variant mb-2 px-1">
-            Theme
-          </p>
-        )}
-        <div className={`${collapsed ? 'flex flex-col gap-1.5 items-center' : 'grid grid-cols-4 gap-1.5'}`}>
-          {THEMES.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTheme(t.id)}
-              aria-label={t.description}
-              aria-pressed={theme === t.id}
-              title={t.description}
-              className={`focus-ring min-h-11 min-w-11 rounded-xl p-1.5 text-center transition-standard ${
-                theme === t.id
-                  ? 'bg-m3-primary-container ring-1 ring-m3-primary'
-                  : 'bg-m3-surface-container hover:bg-m3-surface-container-high'
-              }`}
-            >
-              {collapsed ? (
-                <div
-                  className="w-4 h-4 mx-auto rounded-full ring-1 ring-m3-outline-variant"
-                  style={{ backgroundColor: t.swatch }}
-                />
-              ) : (
-                <span className={`text-[9px] font-semibold tracking-wide ${
-                  theme === t.id ? 'text-m3-on-primary-container' : 'text-m3-on-surface-variant'
-                }`}>
-                  {t.label.split(' ')[0]}
-                </span>
-              )}
-            </button>
-          ))}
+      {/* Logout Modal - Follows Hick's Law */}
+      <ResponsiveModal
+        open={logoutModalOpen}
+        onClose={() => setLogoutModalOpen(false)}
+        title="Confirm Logout"
+        maxWidth="max-w-md"
+      >
+        <p className="text-[14px] text-m3-on-surface-variant mb-6">
+          Are you sure you want to securely log out of your current session? You will need to re-authenticate to access Polymath OS.
+        </p>
+        <div className="flex justify-end gap-3 pb-2">
+          <button
+            onClick={() => setLogoutModalOpen(false)}
+            className="px-5 py-2.5 rounded-full text-[14px] font-medium text-m3-on-surface hover:bg-m3-surface-container-high transition-standard"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              setLogoutModalOpen(false);
+              // Actual logic would clear tokens here
+              localStorage.removeItem('api_token');
+              router.push('/login');
+            }}
+            className="px-5 py-2.5 rounded-full text-[14px] font-medium bg-m3-error text-m3-on-error hover:opacity-90 transition-standard elevation-1"
+          >
+            Log Out Securely
+          </button>
         </div>
-      </div>
+      </ResponsiveModal>
 
       {/* Status pill */}
       <div className={`border-t border-m3-outline-variant flex items-center ${

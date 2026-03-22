@@ -1,9 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   TextInput,
   StyleSheet,
 } from 'react-native';
@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import axios from 'axios';
 import { useTheme, spacing } from '../theme';
-import { m3Typography, m3Radii } from '../../shared/design-tokens';
+import { m3Typography, m3Radii, m3TouchTarget } from '../../shared/design-tokens';
 import M3Progress from '../components/ui/M3Progress';
 import { EmptyState } from '../components/ui/EmptyState';
 import { hapticPress, hapticLight, hapticSelection, hapticWarning } from '../utils/haptics';
@@ -26,22 +26,29 @@ export default function SearchScreen() {
   const [results, setResults] = useState<any>(null);
   const [searching, setSearching] = useState(false);
 
-  const handleSearch = useCallback(async () => {
-    const BACKEND_URL = getBackendUrlSync();
-    const q = query.trim();
-    if (q.length < 2) return;
-    hapticPress();
-    setSearching(true);
-    try {
-      const res = await axios.get(`${BACKEND_URL}/api/search`, { params: { q, limit: 30 } });
-      setResults(res.data);
-    } catch (e) {
-      hapticWarning();
-      console.error('Search failed:', e);
-    } finally {
-      setSearching(false);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSearchDebounced = useCallback((text: string) => {
+    setQuery(text);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    if (text.trim().length < 2) {
+      setResults(null);
+      return;
     }
-  }, [query]);
+    searchTimerRef.current = setTimeout(async () => {
+      const BACKEND_URL = getBackendUrlSync();
+      setSearching(true);
+      try {
+        const res = await axios.get(`${BACKEND_URL}/api/search`, { params: { q: text.trim(), limit: 30 } });
+        setResults(res.data);
+      } catch (e) {
+        hapticWarning();
+        console.error('Search failed:', e);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+  }, []);
 
   const formatDate = (ts: string) => {
     try {
@@ -58,10 +65,9 @@ export default function SearchScreen() {
     trailing?: React.ReactNode;
     onPress?: () => void;
   }) => (
-    <TouchableOpacity
-      style={[styles.resultCard, { backgroundColor: theme.surfaceContainer }]}
+    <Pressable
+      style={({ pressed }) => [styles.resultCard, { backgroundColor: theme.surfaceContainer, opacity: pressed && onPress ? 0.8 : 1 }]}
       onPress={onPress}
-      activeOpacity={0.7}
       disabled={!onPress}
     >
       <View style={[styles.resultIcon, { backgroundColor: theme.primaryContainer }]}>
@@ -76,19 +82,19 @@ export default function SearchScreen() {
         )}
       </View>
       {trailing}
-    </TouchableOpacity>
+    </Pressable>
   );
 
   return (
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
       {/* Header + Search */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+          style={({ pressed }) => [styles.backBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.8 : 1 }]}
         >
           <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
-        </TouchableOpacity>
+        </Pressable>
         <View style={[styles.searchPill, { backgroundColor: theme.surfaceContainerHigh }]}>
           <MaterialIcons name="search" size={20} color={theme.onSurfaceVariant} />
           <TextInput
@@ -96,15 +102,14 @@ export default function SearchScreen() {
             placeholder="Search knowledge..."
             placeholderTextColor={theme.onSurfaceVariant}
             value={query}
-            onChangeText={setQuery}
-            onSubmitEditing={handleSearch}
+            onChangeText={handleSearchDebounced}
             returnKeyType="search"
             autoFocus
           />
           {query.length > 0 && (
-            <TouchableOpacity onPress={() => { hapticLight(); setQuery(''); setResults(null); }}>
+            <Pressable onPress={() => { hapticLight(); handleSearchDebounced(''); }}>
               <MaterialIcons name="close" size={18} color={theme.onSurfaceVariant} />
-            </TouchableOpacity>
+            </Pressable>
           )}
         </View>
       </View>
@@ -232,8 +237,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   backBtn: {
-    width: 44,
-    height: 44,
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
     borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -244,7 +249,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: m3Radii.full,
     paddingHorizontal: spacing.lg,
-    height: 52,
+    height: 48,
     gap: spacing.sm,
   },
   searchInput: {
@@ -256,7 +261,7 @@ const styles = StyleSheet.create({
   /* Content */
   scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: spacing.lg },
-  center: { alignItems: 'center', paddingVertical: spacing.xxxl },
+  center: { alignItems: 'center', paddingVertical: spacing.hero },
   resultCount: {
     fontSize: m3Typography.labelMedium.fontSize,
     marginBottom: spacing.md,

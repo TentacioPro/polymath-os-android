@@ -3,12 +3,14 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   RefreshControl,
   StyleSheet,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -18,12 +20,14 @@ import Animated, {
   Easing,
   FadeInDown,
 } from 'react-native-reanimated';
+import Svg, { Circle as SvgCircle, Line as SvgLine } from 'react-native-svg';
 import axios from 'axios';
 import { useTheme, spacing } from '../../theme';
 import { useStore } from '../../store/useStore';
 import { hapticPress, hapticRefresh, hapticLight } from '../../utils/haptics';
 import { getBackendUrlSync } from '../../utils/backend';
 import { m3Typography, m3Radii } from '../../../shared/design-tokens';
+import { HEADER_MAX } from '../../components/navigation/CollapsibleHeader';
 import StatRing from '../../components/ui/StatRing';
 import M3Progress from '../../components/ui/M3Progress';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -47,7 +51,8 @@ function getDateString(): string {
 
 export default function Dashboard() {
   const { theme } = useTheme();
-  const { activities, setActivities, setJournals } = useStore();
+  const insets = useSafeAreaInsets();
+  const { activities, setActivities, setJournals, journals, connections, preferences } = useStore();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -130,11 +135,15 @@ export default function Dashboard() {
   const topCategories = Object.entries(categories).slice(0, 4);
   const maxCat = Math.max(...Object.values(categories).map((v: any) => Number(v) || 1), 1);
 
+  const layoutMode = preferences?.dashboardLayout || 'grid';
+  const compactStyle = layoutMode === 'compact' ? { minHeight: 80, padding: spacing.md } : {};
+  const compactFont = layoutMode === 'compact' ? { fontSize: 28, letterSpacing: 0 } : {};
+
   return (
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: 100 }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} />
@@ -148,96 +157,61 @@ export default function Dashboard() {
           <Text style={[styles.dateText, { color: theme.onSurfaceVariant }]}>
             {getDateString()}
           </Text>
-
-          {/* Insight pills */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.insightScroll}
-            contentContainerStyle={styles.insightContent}
-          >
-            {totalActivities > 0 && (
-              <View style={[styles.insightPill, { backgroundColor: theme.primaryContainer }]}>
-                <Ionicons name="layers-outline" size={16} color={theme.onPrimaryContainer} />
-                <Text style={[styles.insightText, { color: theme.onPrimaryContainer }]}>
-                  {totalActivities} activities
-                </Text>
-              </View>
-            )}
-            {totalConnections > 0 && (
-              <View style={[styles.insightPill, { backgroundColor: theme.primaryContainer }]}>
-                <Ionicons name="git-network-outline" size={16} color={theme.onPrimaryContainer} />
-                <Text style={[styles.insightText, { color: theme.onPrimaryContainer }]}>
-                  {totalConnections} connections
-                </Text>
-              </View>
-            )}
-            {totalJournals > 0 && (
-              <View style={[styles.insightPill, { backgroundColor: theme.primaryContainer }]}>
-                <Ionicons name="book-outline" size={16} color={theme.onPrimaryContainer} />
-                <Text style={[styles.insightText, { color: theme.onPrimaryContainer }]}>
-                  {totalJournals} journal entries
-                </Text>
-              </View>
-            )}
-          </ScrollView>
         </Animated.View>
 
-        {/* Stat Rings */}
-        <Animated.View entering={FadeInDown.duration(400).delay(150)} style={styles.statsSection}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.statsRow}>
-            <StatRing
-              value={totalActivities}
-              total={Math.max(totalActivities, 50)}
-              label="Activities"
-              onPress={() => { hapticLight(); router.push('/(tabs)/knowledge' as any); }}
-            />
-            <StatRing
-              value={totalJournals}
-              total={Math.max(totalJournals, 20)}
-              label="Journals"
-              onPress={() => { hapticLight(); router.push('/journal' as any); }}
-            />
-            <StatRing
-              value={totalConnections}
-              total={Math.max(totalConnections, 30)}
-              label="Connections"
-              onPress={() => { hapticLight(); router.push('/(tabs)/mesh' as any); }}
-            />
-          </ScrollView>
-        </Animated.View>
-
-        {/* 2-col Bento Row: Streak + Quick Capture (F-pattern row 3) */}
-        <Animated.View entering={FadeInDown.duration(400).delay(250)} style={styles.bentoRow}>
-          {/* Streak bento */}
-          <View style={[styles.bentoBG, { backgroundColor: theme.primaryContainer }]}>
-            <Ionicons name="flame-outline" size={28} color={theme.onPrimaryContainer} />
-            <Text style={[styles.bentoValue, { color: theme.onPrimaryContainer }]}>{streak}</Text>
-            <Text style={[styles.bentoLabel, { color: theme.onPrimaryContainer }]}>Day Streak</Text>
+        {/* Bento Row 1: Fibonacci 1:2 */}
+        <Animated.View entering={FadeInDown.duration(400).delay(150)} style={[styles.bentoRow, layoutMode === 'list' && { flexDirection: 'column' }]}>
+          {/* Streak */}
+          <View style={[styles.bentoCard, styles.shadowLight, { flex: 1, backgroundColor: theme.primaryContainer }, compactStyle]}>
+            <Ionicons name="flame" size={layoutMode === 'compact' ? 20 : 24} color={theme.onPrimaryContainer} style={{ marginBottom: layoutMode === 'compact' ? 4 : 8 }} />
+            <Text style={[styles.bentoValue, { color: theme.onPrimaryContainer }, compactFont]}>{streak}</Text>
+            <Text style={[styles.bentoLabel, { color: theme.onPrimaryContainer, opacity: 0.85 }]}>Day Streak</Text>
           </View>
-          {/* Quick Capture bento */}
-          <TouchableOpacity
-            style={[styles.bentoBG, { backgroundColor: theme.surfaceContainerHigh }]}
-            onPress={() => { hapticPress(); router.push('/(tabs)/knowledge' as any); }}
-            activeOpacity={0.85}
+          
+          {/* Mesh Mini */}
+          <Pressable 
+            style={({ pressed }) => [styles.bentoCard, styles.shadowLight, { flex: 2, backgroundColor: theme.surfaceContainer, opacity: pressed ? 0.85 : 1 }, compactStyle]}
+            onPress={() => { hapticPress(); router.push('/(tabs)/mesh' as any); }}
           >
-            <Ionicons name="add-circle-outline" size={32} color={theme.onSurface} />
-            <Text style={[styles.bentoValue, { color: theme.onSurface, fontSize: m3Typography.titleSmall.fontSize }]}>
-              Quick Add
-            </Text>
-            <Text style={[styles.bentoLabel, { color: theme.onSurfaceVariant }]}>Knowledge</Text>
-          </TouchableOpacity>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: 12 }}>
+              <Ionicons name="git-network" size={24} color={theme.primary} />
+              <Animated.View style={[styles.liveDot, { backgroundColor: theme.success }, pulseDotStyle]} />
+            </View>
+            <Text style={[styles.bentoValue, { color: theme.onSurface }]}>{totalConnections}</Text>
+            <Text style={[styles.bentoLabel, { color: theme.onSurfaceVariant }]}>Active Neural Nodes</Text>
+          </Pressable>
         </Animated.View>
 
-        {/* Recent Activity (F-pattern row 4) */}
+        {/* Bento Row 2: 1:1 Stats */}
+        <Animated.View entering={FadeInDown.duration(400).delay(250)} style={[styles.bentoRow, layoutMode === 'list' && { flexDirection: 'column' }]}>
+          <Pressable 
+            style={({ pressed }) => [styles.bentoCard, styles.shadowLight, { flex: 1, backgroundColor: theme.surfaceContainer, opacity: pressed ? 0.85 : 1 }, compactStyle]}
+            onPress={() => { hapticPress(); router.push('/(tabs)/knowledge' as any); }}
+          >
+            <Ionicons name="layers" size={layoutMode === 'compact' ? 20 : 24} color={theme.primary} style={{ marginBottom: layoutMode === 'compact' ? 4 : 8 }} />
+            <Text style={[styles.bentoValue, { color: theme.onSurface }, compactFont]}>{totalActivities}</Text>
+            <Text style={[styles.bentoLabel, { color: theme.onSurfaceVariant }]}>Activities</Text>
+          </Pressable>
+          
+          <Pressable 
+            style={({ pressed }) => [styles.bentoCard, styles.shadowLight, { flex: 1, backgroundColor: theme.surfaceContainer, opacity: pressed ? 0.85 : 1 }, compactStyle]}
+            onPress={() => { hapticPress(); router.push('/journal' as any); }}
+          >
+            <Ionicons name="book" size={layoutMode === 'compact' ? 20 : 24} color={theme.primary} style={{ marginBottom: layoutMode === 'compact' ? 4 : 8 }} />
+            <Text style={[styles.bentoValue, { color: theme.onSurface }, compactFont]}>{totalJournals}</Text>
+            <Text style={[styles.bentoLabel, { color: theme.onSurfaceVariant }]}>Journals</Text>
+          </Pressable>
+        </Animated.View>
+
+        {/* Recent Activity (F-pattern block) */}
         <Animated.View entering={FadeInDown.duration(400).delay(350)}>
-          <View style={[styles.sectionCard, { backgroundColor: theme.surfaceContainer }]}>
+          <View style={[styles.sectionCard, styles.shadowLight, { backgroundColor: theme.surfaceContainer }]}>
             <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, { color: theme.onSurface }]}>Recent Activity</Text>
+              <Text style={[styles.sectionTitle, { color: theme.onSurface }]}>Recent Knowledge</Text>
               {activities.length > 5 && (
-                <TouchableOpacity onPress={() => { hapticPress(); router.push('/(tabs)/knowledge' as any); }}>
-                  <Text style={[styles.seeAllText, { color: theme.primary }]}>See all</Text>
-                </TouchableOpacity>
+                <Pressable onPress={() => { hapticPress(); router.push('/(tabs)/knowledge' as any); }}>
+                  <Text style={[styles.seeAllText, { color: theme.primary }]}>Explore</Text>
+                </Pressable>
               )}
             </View>
 
@@ -245,14 +219,13 @@ export default function Dashboard() {
               <EmptyState variant="empty-activities" onCTA={() => router.push('/chat' as any)} />
             ) : (
               activities.slice(0, 5).map((activity: any, i: number) => (
-                <TouchableOpacity
+                <Pressable
                   key={activity.id}
-                  style={[
+                  style={({ pressed }) => [
                     styles.activityCard,
-                    { backgroundColor: theme.surface },
+                    { backgroundColor: theme.surface, opacity: pressed ? 0.8 : 1 },
                   ]}
                   onPress={() => { hapticLight(); router.push(`/activity-detail?id=${activity.id}` as any); }}
-                  activeOpacity={0.7}
                 >
                   <View style={[styles.categoryStrip, { backgroundColor: theme.primary }]} />
                   <View style={styles.activityContent}>
@@ -268,52 +241,16 @@ export default function Dashboard() {
                       hour: '2-digit', minute: '2-digit', hour12: false,
                     })}
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               ))
             )}
           </View>
         </Animated.View>
 
-        {/* Neural Mesh Card (F-pattern row 5 — full width) */}
-        <Animated.View entering={FadeInDown.duration(400).delay(450)}>
-          <TouchableOpacity
-            style={[styles.meshCard, { backgroundColor: theme.surfaceContainer }]}
-            onPress={() => { hapticPress(); router.push('/(tabs)/mesh' as any); }}
-            activeOpacity={0.85}
-          >
-            <View style={styles.meshHeader}>
-              <View style={styles.meshTitleRow}>
-                <Text style={[styles.meshTitle, { color: theme.onSurface }]}>Neural Mesh</Text>
-                <Animated.View style={[styles.liveDot, { backgroundColor: theme.success }, pulseDotStyle]} />
-              </View>
-              <Ionicons name="arrow-forward" size={20} color={theme.onSurfaceVariant} />
-            </View>
-            <Text style={[styles.meshDesc, { color: theme.onSurfaceVariant }]}>
-              {totalConnections > 0
-                ? `${totalConnections} connections discovered across your knowledge base.`
-                : 'Start adding content to discover patterns and connections.'}
-            </Text>
-            <View style={styles.meshViz}>
-              {Array.from({ length: 16 }).map((_, i) => (
-                <Animated.View
-                  key={i}
-                  style={[
-                    styles.meshDot,
-                    {
-                      backgroundColor: i % 3 === 0 ? theme.primary : theme.outlineVariant,
-                      opacity: i % 3 === 0 ? 0.8 : 0.3,
-                    },
-                  ]}
-                />
-              ))}
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Top Categories */}
+        {/* Top Domains */}
         {topCategories.length > 0 && (
-          <Animated.View entering={FadeInDown.duration(400).delay(550)}>
-            <View style={[styles.sectionCard, { backgroundColor: theme.surfaceContainer }]}>
+          <Animated.View entering={FadeInDown.duration(400).delay(450)}>
+            <View style={[styles.sectionCard, styles.shadowLight, { backgroundColor: theme.surfaceContainer }]}>
               <Text style={[styles.sectionTitle, { color: theme.onSurface }]}>Top Domains</Text>
               {topCategories.map(([name, count]: any, i) => (
                 <View key={name} style={styles.categoryRow}>
@@ -325,6 +262,37 @@ export default function Dashboard() {
                     {count}
                   </Text>
                 </View>
+              ))}
+            </View>
+          </Animated.View>
+        )}
+
+        {/* Journal Preview */}
+        {journals.length > 0 && (
+          <Animated.View entering={FadeInDown.duration(400).delay(650)}>
+            <View style={[styles.sectionCard, { backgroundColor: theme.surfaceContainer }]}>
+              <View style={styles.sectionHeader}>
+                <Text style={[styles.sectionTitle, { color: theme.onSurface }]}>Recent Journals</Text>
+                <Pressable onPress={() => { hapticPress(); router.push('/journal' as any); }}>
+                  <Text style={[styles.seeAllText, { color: theme.primary }]}>See all</Text>
+                </Pressable>
+              </View>
+              {journals.slice(0, 3).map((j: any) => (
+                <Pressable
+                  key={j.id}
+                  style={({ pressed }) => [styles.journalPreview, { backgroundColor: theme.surface, opacity: pressed ? 0.8 : 1 }]}
+                  onPress={() => { hapticLight(); router.push('/journal' as any); }}
+                >
+                  <Ionicons name="book-outline" size={16} color={theme.onSurfaceVariant} />
+                  <View style={styles.journalPreviewContent}>
+                    <Text style={[styles.journalPreviewTitle, { color: theme.onSurface }]} numberOfLines={1}>
+                      {j.title}
+                    </Text>
+                    <Text style={[styles.journalPreviewBody, { color: theme.onSurfaceVariant }]} numberOfLines={1}>
+                      {j.content}
+                    </Text>
+                  </View>
+                </Pressable>
               ))}
             </View>
           </Animated.View>
@@ -345,80 +313,38 @@ const styles = StyleSheet.create({
   /* Hero */
   hero: { marginBottom: spacing.xl, paddingTop: spacing.sm },
   greeting: { fontSize: m3Typography.displaySmall.fontSize, fontWeight: '700' },
-  dateText: { fontSize: m3Typography.bodyLarge.fontSize, marginTop: 4 },
-  insightScroll: { marginTop: spacing.lg },
-  insightContent: { gap: spacing.sm },
-  insightPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: m3Radii.full,
+  dateText: { fontSize: m3Typography.titleMedium.fontSize, marginTop: 4 },
+  /* Premium Grid / Bento Classes */
+  shadowLight: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 2,
   },
-  insightText: {
-    fontSize: m3Typography.labelMedium.fontSize,
-    fontWeight: '500',
-  },
-
-  /* Stats */
-  statsSection: { marginBottom: spacing.xl },
-  statsRow: { gap: spacing.xl, paddingHorizontal: spacing.sm },
-
-  /* Mesh card */
-  meshCard: {
-    borderRadius: m3Radii.xl,
-    padding: spacing.lg,
-    marginBottom: spacing.lg,
-  },
-  meshHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
-  meshTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  meshTitle: { fontSize: m3Typography.titleMedium.fontSize, fontWeight: '600' },
-  liveDot: { width: 8, height: 8, borderRadius: 4 },
-  meshDesc: { fontSize: m3Typography.bodyMedium.fontSize, lineHeight: 22, marginBottom: spacing.md },
-  meshViz: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, justifyContent: 'center', paddingTop: spacing.sm },
-  meshDot: { width: 8, height: 8, borderRadius: 4 },
-
-  /* Section card */
-  sectionCard: {
-    borderRadius: m3Radii.xl,
-    padding: spacing.lg,
-    marginBottom: spacing.lg,
-  },
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
-  sectionTitle: { fontSize: m3Typography.titleMedium.fontSize, fontWeight: '600', marginBottom: spacing.sm },
-  seeAllText: { fontSize: m3Typography.labelLarge.fontSize, fontWeight: '600' },
-
-  /* Categories */
-  categoryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing.sm },
-  categoryLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  categoryDot: { width: 8, height: 8, borderRadius: 4 },
-  categoryName: { fontSize: m3Typography.bodyMedium.fontSize },
-  categoryCount: { fontSize: m3Typography.bodyMedium.fontSize, fontWeight: '600' },
-
-  /* Bento row */
   bentoRow: {
     flexDirection: 'row',
     gap: spacing.md,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
-  bentoBG: {
-    flex: 1,
+  bentoCard: {
     borderRadius: m3Radii.xl,
     padding: spacing.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-end',
     minHeight: 120,
   },
   bentoValue: {
-    fontSize: m3Typography.headlineSmall.fontSize,
+    fontSize: m3Typography.displaySmall.fontSize,
     fontWeight: '700',
+    letterSpacing: -1,
   },
   bentoLabel: {
     fontSize: m3Typography.labelMedium.fontSize,
     fontWeight: '500',
+    marginTop: 4,
   },
+  liveDot: { width: 8, height: 8, borderRadius: 4 },
 
   /* Activity cards */
   activityCard: {
@@ -438,4 +364,60 @@ const styles = StyleSheet.create({
   activityTitle: { fontSize: m3Typography.titleSmall.fontSize, fontWeight: '600', marginBottom: 2 },
   activityMeta: { fontSize: m3Typography.labelMedium.fontSize },
   activityTime: { fontSize: m3Typography.labelSmall.fontSize, paddingRight: spacing.md },
+
+  /* Journal preview */
+  journalPreview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: m3Radii.md,
+    padding: spacing.md,
+    marginBottom: spacing.xs,
+    gap: spacing.sm,
+  },
+  journalPreviewContent: { flex: 1 },
+  journalPreviewTitle: {
+    fontSize: m3Typography.titleSmall.fontSize,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  journalPreviewBody: {
+    fontSize: m3Typography.bodySmall.fontSize,
+  },
+
+  /* Sections */
+  sectionCard: {
+    borderRadius: m3Radii.xl,
+    padding: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  sectionTitle: {
+    fontSize: m3Typography.titleMedium.fontSize,
+    fontWeight: '700',
+  },
+  seeAllText: {
+    fontSize: m3Typography.labelLarge.fontSize,
+    fontWeight: '600',
+  },
+
+  /* Categories */
+  categoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.sm,
+  },
+  categoryLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  categoryDot: { width: 8, height: 8, borderRadius: 4 },
+  categoryName: { fontSize: m3Typography.bodyMedium.fontSize },
+  categoryCount: { fontSize: m3Typography.labelMedium.fontSize, fontWeight: '600' },
 });

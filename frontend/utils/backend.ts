@@ -5,15 +5,32 @@ const STORAGE_KEY = 'polymath_backend_url';
 
 // Default: env var → platform-appropriate localhost
 //
+// CRITICAL FIX FOR PHYSICAL DEVICES:
+// - Physical Android/iOS devices CANNOT use localhost - it points to the device itself!
+// - Must use your computer's IP address (e.g., 192.168.0.114)
+// - EXPO_PUBLIC_BACKEND_URL from .env.development MUST be set correctly
+//
 // iOS ATS (App Transport Security) notes:
 //   - `localhost` is ATS-exempt on iOS Simulator — works without HTTPS
-//   - LAN IPs (e.g. 192.168.x.x) are NOT exempt — blocked on physical iOS devices
+//   - LAN IPs (e.g. 192.168.x.x) are NOT exempt — blocked on physical iOS devices WITHOUT tunnel
 //   - Android emulator uses 10.0.2.2 to reach the host machine (no ATS)
 //   - For physical iOS testing: use HTTPS tunnel URL or EAS dev client build
-const ENV_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+// TEMPORARY HARDCODE FOR TESTING - Replace with env var once Expo Go loads it properly
+const ENV_URL = 'http://192.168.0.114:8001'; // process.env.EXPO_PUBLIC_BACKEND_URL;
+
+// IMPORTANT: For physical devices, ALWAYS use the ENV_URL if available
+// Only fall back to platform-specific defaults for simulators/emulators
 const DEFAULT_URL = Platform.OS === 'android'
   ? 'http://10.0.2.2:8001'   // Android emulator → host machine
   : 'http://localhost:8001';  // iOS simulator (localhost is ATS-exempt)
+
+// Log the URLs for debugging
+console.log('[BACKEND] URL Configuration:', {
+  ENV_URL,
+  DEFAULT_URL,
+  Platform: Platform.OS,
+  willUse: ENV_URL || DEFAULT_URL
+});
 
 let _backendUrl: string | null = null;
 let _client: AxiosInstance | null = null;
@@ -119,7 +136,14 @@ export async function getBackendUrl(): Promise<string> {
 
 /** Get backend URL synchronously (returns cached or env, never null) */
 export function getBackendUrlSync(): string {
-  return _backendUrl || ENV_URL || DEFAULT_URL;
+  const url = _backendUrl || ENV_URL || DEFAULT_URL;
+  console.log('[BACKEND] getBackendUrlSync() returning:', url, {
+    _backendUrl,
+    ENV_URL,
+    DEFAULT_URL,
+    platform: Platform.OS
+  });
+  return url;
 }
 
 /** Update the backend URL at runtime (persisted across app restarts) */

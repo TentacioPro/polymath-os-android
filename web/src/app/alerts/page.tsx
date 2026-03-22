@@ -48,9 +48,9 @@ export default function AlertsPage() {
   }
 
   return (
-    <div className="pt-4 flex flex-col gap-4">
+    <div className="@container pt-4 flex flex-col gap-4">
       <div className="px-1">
-        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Alerts</h1>
+        <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight display-kerning">Alerts</h1>
         <p className="text-[12px] text-m3-on-surface-variant mt-0.5">{alerts.length} notification{alerts.length !== 1 ? 's' : ''}</p>
       </div>
 

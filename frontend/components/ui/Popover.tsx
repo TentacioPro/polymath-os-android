@@ -3,7 +3,7 @@ import {
   Modal,
   View,
   Text,
-  TouchableOpacity,
+  Pressable,
   TouchableWithoutFeedback,
   StyleSheet,
 } from 'react-native';
@@ -57,10 +57,10 @@ export function Popover({ open, onClose, anchor, actions }: PopoverProps) {
         ]}
       >
         {actions.map((action, i) => (
-          <TouchableOpacity
+          <Pressable
             key={i}
             onPress={() => { onClose(); action.onPress(); }}
-            style={styles.item}
+            style={({ pressed }) => [styles.item, { opacity: pressed ? 0.8 : 1 }]}
             accessibilityRole="menuitem"
           >
             <MaterialIcons
@@ -76,7 +76,7 @@ export function Popover({ open, onClose, anchor, actions }: PopoverProps) {
             >
               {action.label}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         ))}
       </View>
     </Modal>

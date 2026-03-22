@@ -11,7 +11,9 @@ import {
   Animated,
   Keyboard,
   ScrollView,
+  PanResponder,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 import * as Clipboard from 'expo-clipboard';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
@@ -19,7 +21,8 @@ import { AudioModule } from 'expo-audio';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
-import { useTheme, spacing, fs, sw } from '../../theme';
+import { useTheme, spacing } from '../../theme';
+import { m3Typography, m3TouchTarget, m3Radii } from '../../../shared/design-tokens';
 import { hapticPress, hapticSuccess, hapticWarning } from '../../utils/haptics';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
@@ -54,6 +57,40 @@ export default function QuickCapture({ visible, onClose, onSubmit }: QuickCaptur
   const slideAnim = useRef(new Animated.Value(400)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const keyboardHeight = useRef(new Animated.Value(0)).current;
+
+  // Ref to always access latest onClose in PanResponder closure
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  // Drag-to-dismiss: PanResponder on the handle bar
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gs) => gs.dy > 5,
+      onPanResponderMove: (_, gs) => {
+        // Only allow dragging downward
+        if (gs.dy > 0) {
+          slideAnim.setValue(gs.dy);
+        }
+      },
+      onPanResponderRelease: (_, gs) => {
+        if (gs.dy > 80) {
+          // Threshold exceeded — dismiss
+          Keyboard.dismiss();
+          hapticPress();
+          onCloseRef.current();
+        } else {
+          // Snap back
+          Animated.spring(slideAnim, {
+            toValue: 0,
+            useNativeDriver: true,
+            damping: 20,
+            stiffness: 200,
+          }).start();
+        }
+      },
+    })
+  ).current;
 
   // Keyboard listeners to handle gap issue
   useEffect(() => {
@@ -363,14 +400,19 @@ export default function QuickCapture({ visible, onClose, onSubmit }: QuickCaptur
           style={[
             styles.sheet,
             {
-              backgroundColor: bg,
+              backgroundColor: 'transparent',
               paddingBottom: insets.bottom + 16,
               transform: [{ translateY: slideAnim }],
+              overflow: 'hidden',
+              borderWidth: 1,
+              borderColor: border,
             },
           ]}
         >
-          {/* Handle */}
-          <View style={styles.handleRow}>
+          <BlurView intensity={60} tint="default" style={StyleSheet.absoluteFill} />
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: bg, opacity: 0.9 }]} />
+          {/* Handle — drag down to dismiss */}
+          <View style={styles.handleRow} {...panResponder.panHandlers}>
             <View style={[styles.handle, { backgroundColor: textSecondary }]} />
           </View>
 
@@ -501,25 +543,25 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   headerIcon: {
-    width: sw(36),
-    height: sw(36),
-    borderRadius: 10,
+    width: 36,
+    height: 36,
+    borderRadius: m3Radii.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: fs(16),
+    fontSize: m3Typography.titleMedium.fontSize,
     fontWeight: '700',
     letterSpacing: -0.3,
   },
   headerSub: {
-    fontSize: fs(11),
+    fontSize: m3Typography.labelSmall.fontSize,
     marginTop: 2,
   },
   closeBtn: {
-    width: sw(36),
-    height: sw(36),
-    borderRadius: 10,
+    width: 36,
+    height: 36,
+    borderRadius: m3Radii.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -531,7 +573,7 @@ const styles = StyleSheet.create({
     minHeight: 140,
   },
   input: {
-    fontSize: fs(15),
+    fontSize: m3Typography.bodyMedium.fontSize,
     lineHeight: 22,
     flex: 1,
     textAlignVertical: 'top',
@@ -542,7 +584,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   charCount: {
-    fontSize: fs(10),
+    fontSize: m3Typography.labelSmall.fontSize,
     fontWeight: '500',
   },
   actionsRow: {
@@ -566,7 +608,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   actionLabel: {
-    fontSize: fs(10),
+    fontSize: m3Typography.labelSmall.fontSize,
     fontWeight: '600',
     letterSpacing: 0.5,
   },
@@ -580,7 +622,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   submitLabel: {
-    fontSize: fs(13),
+    fontSize: m3Typography.bodySmall.fontSize,
     fontWeight: '700',
     letterSpacing: 1,
   },

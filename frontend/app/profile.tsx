@@ -3,7 +3,7 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -12,10 +12,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import axios from 'axios';
 import { useTheme, spacing } from '../theme';
-import { m3Typography, m3Radii } from '../../shared/design-tokens';
+import { m3Typography, m3Radii, m3TouchTarget } from '../../shared/design-tokens';
 import { useStore } from '../store/useStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { hapticLight, hapticSelection } from '../utils/haptics';
 import { getBackendUrlSync } from '../utils/backend';
+import M3BottomSheet from '../components/ui/M3BottomSheet';
+import M3Button from '../components/ui/M3Button';
 
 export default function ProfileScreen() {
   const { theme, themeName } = useTheme();
@@ -23,6 +26,8 @@ export default function ProfileScreen() {
   const { activities, journals, connections } = useStore();
   const [persona, setPersona] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
+  const [logoutSheetVisible, setLogoutSheetVisible] = useState(false);
+  const logout = useAuthStore((s) => s.logout);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,27 +49,28 @@ export default function ProfileScreen() {
     label,
     desc,
     onPress,
+    isDestructive,
   }: {
     icon: keyof typeof MaterialIcons.glyphMap;
     label: string;
     desc: string;
     onPress?: () => void;
+    isDestructive?: boolean;
   }) => (
-    <TouchableOpacity
-      style={[styles.settingCard, { backgroundColor: theme.surfaceContainer }]}
+    <Pressable
+      style={({ pressed }) => [styles.settingCard, { backgroundColor: isDestructive ? theme.errorContainer : theme.surfaceContainer, opacity: pressed && onPress ? 0.8 : 1 }] as any}
       onPress={onPress}
       disabled={!onPress}
-      activeOpacity={onPress ? 0.7 : 1}
     >
-      <View style={[styles.settingIcon, { backgroundColor: theme.primaryContainer }]}>
-        <MaterialIcons name={icon} size={18} color={theme.onPrimaryContainer} />
+      <View style={[styles.settingIcon, { backgroundColor: isDestructive ? theme.error : theme.primaryContainer }]}>
+        <MaterialIcons name={icon} size={18} color={isDestructive ? theme.onError : theme.onPrimaryContainer} />
       </View>
       <View style={styles.settingText}>
-        <Text style={[styles.settingLabel, { color: theme.onSurface }]}>{label}</Text>
+        <Text style={[styles.settingLabel, { color: isDestructive ? theme.onError : theme.onSurface }]}>{label}</Text>
         <Text style={[styles.settingDesc, { color: theme.onSurfaceVariant }]}>{desc}</Text>
       </View>
-      {onPress && <MaterialIcons name="chevron-right" size={20} color={theme.onSurfaceVariant} />}
-    </TouchableOpacity>
+      {onPress && <MaterialIcons name="chevron-right" size={20} color={isDestructive ? theme.onError : theme.onSurfaceVariant} />}
+    </Pressable>
   );
 
   const statItems = [
@@ -77,12 +83,12 @@ export default function ProfileScreen() {
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+          style={({ pressed }) => [styles.backBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.8 : 1 }] as any}
         >
           <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
-        </TouchableOpacity>
+        </Pressable>
         <View style={styles.headerText}>
           <Text style={[styles.headerTitle, { color: theme.onSurface }]}>Profile</Text>
         </View>
@@ -162,10 +168,55 @@ export default function ProfileScreen() {
             label="About"
             desc="Polymath OS v1.0"
           />
+          <SettingItem
+            icon="logout"
+            label="Log Out"
+            desc="Securely end your session"
+            onPress={() => { hapticSelection(); setLogoutSheetVisible(true); }}
+            isDestructive
+          />
         </Animated.View>
 
         <View style={{ height: 100 }} />
       </ScrollView>
+
+      {/* Logout Bottom Sheet (Hick's Law 90% Snap) */}
+      <M3BottomSheet
+        visible={logoutSheetVisible}
+        onDismiss={() => setLogoutSheetVisible(false)}
+        snapPoints={[0.9]}
+      >
+        <View style={styles.sheetContent}>
+          <View style={styles.sheetHeaderGroup}>
+            <View style={[styles.sheetIconBox, { backgroundColor: theme.errorContainer }]}>
+              <MaterialIcons name="logout" size={28} color={theme.onError} />
+            </View>
+            <Text style={[styles.sheetTitle, { color: theme.onSurface }]}>
+              Confirm Logout
+            </Text>
+            <Text style={[styles.sheetDesc, { color: theme.onSurfaceVariant }]}>
+              Are you sure you want to securely log out of your current session? You will need to re-authenticate to access Polymath OS.
+            </Text>
+          </View>
+          
+          <View style={styles.sheetActions}>
+            <M3Button
+              variant="filled"
+              label="Log Out Securely"
+              onPress={() => {
+                setLogoutSheetVisible(false);
+                logout();
+              }}
+              style={[styles.logoutBtn, { backgroundColor: theme.error }] as any}
+            />
+            <M3Button
+              variant="tonal"
+              label="Cancel"
+              onPress={() => setLogoutSheetVisible(false)}
+            />
+          </View>
+        </View>
+      </M3BottomSheet>
     </View>
   );
 }
@@ -182,8 +233,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   backBtn: {
-    width: 44,
-    height: 44,
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
     borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -273,5 +324,42 @@ const styles = StyleSheet.create({
   settingDesc: {
     fontSize: m3Typography.bodySmall.fontSize,
     marginTop: 2,
+  },
+  
+  /* Sheet */
+  sheetContent: {
+    flex: 1,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.xxl,
+    justifyContent: 'space-between',
+  },
+  sheetHeaderGroup: {
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  sheetIconBox: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xl,
+  },
+  sheetTitle: {
+    fontSize: m3Typography.headlineMedium.fontSize,
+    fontWeight: '700',
+    marginBottom: spacing.md,
+    textAlign: 'center',
+  },
+  sheetDesc: {
+    fontSize: m3Typography.bodyLarge.fontSize,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  sheetActions: {
+    gap: spacing.md,
+  },
+  logoutBtn: {
+    height: 56,
   },
 });

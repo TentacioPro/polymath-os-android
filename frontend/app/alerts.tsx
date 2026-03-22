@@ -1,21 +1,22 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
   FlatList,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Swipeable } from 'react-native-gesture-handler';
 import axios from 'axios';
 import { useTheme, spacing } from '../theme';
-import { m3Typography, m3Radii } from '../../shared/design-tokens';
+import { m3Typography, m3Radii, m3TouchTarget } from '../../shared/design-tokens';
 import M3Progress from '../components/ui/M3Progress';
 import { EmptyState } from '../components/ui/EmptyState';
-import { hapticLight, hapticSelection } from '../utils/haptics';
+import { hapticLight, hapticSelection, hapticWarning, hapticSuccess } from '../utils/haptics';
 import { getBackendUrlSync } from '../utils/backend';
 
 export default function AlertsScreen() {
@@ -40,11 +41,46 @@ export default function AlertsScreen() {
 
   useEffect(() => { fetchAlerts(); }, []);
 
+  const handleDeleteAlert = useCallback((id: string, index: number) => {
+    hapticWarning();
+    // Optimistic removal
+    const snapshot = alerts;
+    setAlerts((prev) => prev.filter((_, i) => i !== index));
+    hapticSuccess();
+    const BACKEND_URL = getBackendUrlSync();
+    axios.delete(`${BACKEND_URL}/api/notifications/${id}`).catch(() => {
+      // Rollback on failure
+      setAlerts(snapshot);
+    });
+  }, [alerts]);
+
+  const renderRightActions = () => (
+    <Pressable
+      style={styles.deleteAction}
+      onPress={() => {}}
+    >
+      <MaterialIcons name="delete" size={24} color="#FFFFFF" />
+      <Text style={styles.deleteActionText}>Delete</Text>
+    </Pressable>
+  );
+
   const onRefresh = useCallback(() => {
     hapticLight();
     setRefreshing(true);
     fetchAlerts();
-  }, []);
+  }, [fetchAlerts]);
+
+  const handleSimulate = () => {
+    hapticSuccess();
+    const mockAlert = {
+      id: `mock-${Date.now()}`,
+      title: 'Neural Insight Generated',
+      desc: 'Agent has discovered a new thematic link between your recent journal and the "Polymath" project.',
+      type: 'success',
+      timestamp: new Date().toISOString(),
+    };
+    setAlerts(prev => [mockAlert, ...prev]);
+  };
 
   const getAlertIcon = (type: string): keyof typeof MaterialIcons.glyphMap => {
     switch (type) {
@@ -89,10 +125,14 @@ export default function AlertsScreen() {
     const bg = getAlertBg(item.type);
     return (
       <Animated.View entering={FadeInDown.delay(index * 50).springify()}>
-        <TouchableOpacity
-          style={[styles.alertCard, { backgroundColor: theme.surfaceContainer }]}
+        <Swipeable
+          renderRightActions={renderRightActions}
+          onSwipeableOpen={() => handleDeleteAlert(item.id, index)}
+          overshootRight={false}
+        >
+        <Pressable
+          style={({ pressed }) => [styles.alertCard, { backgroundColor: theme.surfaceContainer, opacity: pressed ? 0.8 : 1 }]}
           onPress={() => hapticSelection()}
-          activeOpacity={0.7}
         >
           {/* Color strip */}
           <View style={[styles.alertStrip, { backgroundColor: color }]} />
@@ -110,7 +150,8 @@ export default function AlertsScreen() {
           <Text style={[styles.alertTime, { color: theme.onSurfaceVariant }]}>
             {formatTime(item.timestamp)}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
+        </Swipeable>
       </Animated.View>
     );
   };
@@ -127,18 +168,24 @@ export default function AlertsScreen() {
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+          style={({ pressed }) => [styles.backBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.8 : 1 }]}
         >
           <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
-        </TouchableOpacity>
+        </Pressable>
         <View style={styles.headerText}>
           <Text style={[styles.headerTitle, { color: theme.onSurface }]}>Alerts</Text>
           <Text style={[styles.headerSub, { color: theme.onSurfaceVariant }]}>
             {alerts.length} notification{alerts.length !== 1 ? 's' : ''}
           </Text>
         </View>
+        <Pressable
+          onPress={handleSimulate}
+          style={({ pressed }) => [styles.simulateBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.7 : 1 }]}
+        >
+          <MaterialIcons name="bolt" size={20} color={theme.primary} />
+        </Pressable>
       </View>
 
       {/* List */}
@@ -174,8 +221,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   backBtn: {
-    width: 44,
-    height: 44,
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
     borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -229,5 +276,29 @@ const styles = StyleSheet.create({
   },
   alertTime: {
     fontSize: m3Typography.labelSmall.fontSize,
+  },
+
+  /* Swipe delete */
+  deleteAction: {
+    backgroundColor: '#EF4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    borderRadius: m3Radii.xl,
+    marginBottom: spacing.sm,
+    marginLeft: spacing.sm,
+  },
+  deleteActionText: {
+    color: '#FFFFFF',
+    fontSize: m3Typography.labelSmall.fontSize,
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  simulateBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

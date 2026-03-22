@@ -63,11 +63,11 @@ export default function JournalPage() {
   }
 
   return (
-    <div className="pt-4 flex flex-col gap-4 stagger-children">
+    <div className="@container pt-4 flex flex-col gap-4 stagger-children">
       {/* Header */}
       <div className="flex items-center justify-between px-1">
         <div>
-          <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">
+          <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight display-kerning">
             Journal
           </h1>
           <p className="text-[12px] text-m3-on-surface-variant mt-0.5">
@@ -82,8 +82,8 @@ export default function JournalPage() {
         </button>
       </div>
 
-      {/* Journal Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      {/* Journal Cards — auto-fit responsive grid (Kole Jain Phase 1) */}
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-3">
         {journals?.map((journal) => (
           <div
             key={journal.id}
@@ -95,13 +95,13 @@ export default function JournalPage() {
               </h3>
               <button
                 onClick={() => handleDelete(journal.id)}
-                className="opacity-0 group-hover:opacity-100 text-m3-error hover:text-m3-on-error-container transition-standard"
+                className="opacity-0 group-hover:opacity-100 text-m3-error hover:text-m3-on-error-container transition-micro"
               >
                 <span className="material-symbols-outlined text-[16px]">delete</span>
               </button>
             </div>
 
-            <p className="text-[12px] text-m3-on-surface-variant line-clamp-4 mb-3 leading-relaxed">
+            <p className="text-[12px] text-m3-on-surface-variant line-clamp-4 mb-3 leading-relaxed prose-line-cap">
               {journal.content}
             </p>
 

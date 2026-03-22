@@ -11,6 +11,18 @@ export interface M3Palette {
   primaryContainer: string;
   onPrimaryContainer: string;
 
+  // Secondary (triadic: primary hue + 120deg)
+  secondary: string;
+  onSecondary: string;
+  secondaryContainer: string;
+  onSecondaryContainer: string;
+
+  // Tertiary (triadic: primary hue + 240deg)
+  tertiary: string;
+  onTertiary: string;
+  tertiaryContainer: string;
+  onTertiaryContainer: string;
+
   // Surface (tonal elevation ladder)
   surface: string;
   surfaceDim: string;
@@ -129,6 +141,7 @@ export const m3Radii = {
   md: 12,
   lg: 16,
   xl: 28,       // Cards, sheets, dialogs
+  '2xl': 32,    // Large neural cards
   full: 9999,   // Pills, FABs, chips
 } as const;
 
@@ -271,24 +284,34 @@ export type ThemeName = 'void' | 'nova' | 'amber' | 'ocean' | 'forest' | 'sunset
 // ─── Theme Palettes ─────────────────────────────────────────────────────────
 
 const voidPalette: M3Palette = {
-  primary: '#FFFFFF',
+  primary: '#C0C0C0', // Silver
   onPrimary: '#000000',
-  primaryContainer: 'rgba(255,255,255,0.12)',
+  primaryContainer: 'rgba(192,192,192,0.12)',
   onPrimaryContainer: '#FFFFFF',
 
-  surface: '#0A0A0A',
-  surfaceDim: 'rgba(0,0,0,0.80)',
-  surfaceContainer: '#151515',
-  surfaceContainerHigh: '#1E1E1E',
-  surfaceContainerHighest: '#282828',
-  onSurface: '#E6E6E6',
-  onSurfaceVariant: '#A0A0A0',
+  secondary: '#808080',
+  onSecondary: '#000000',
+  secondaryContainer: 'rgba(128,128,128,0.12)',
+  onSecondaryContainer: '#CCCCCC',
 
-  outline: '#404040',
-  outlineVariant: '#2A2A2A',
+  tertiary: '#404040',
+  onTertiary: '#FFFFFF',
+  tertiaryContainer: 'rgba(64,64,64,0.12)',
+  onTertiaryContainer: '#A0A0A0',
+
+  surface: '#000000', // True Obsidian
+  surfaceDim: 'rgba(0,0,0,0.90)',
+  surfaceContainer: '#0A0A0A',
+  surfaceContainerHigh: '#121212',
+  surfaceContainerHighest: '#1A1A1A',
+  onSurface: '#E6E6E6',
+  onSurfaceVariant: '#808080',
+
+  outline: '#333333',
+  outlineVariant: '#1A1A1A',
 
   inverseSurface: '#E6E6E6',
-  inverseOnSurface: '#1A1A1A',
+  inverseOnSurface: '#000000',
 
   error: '#F2B8B5',
   onError: '#601410',
@@ -301,76 +324,96 @@ const voidPalette: M3Palette = {
   infoContainer: '#1A3A6B',
 
   categories: {
-    AI: '#C4B5FD',
-    News: '#93C5FD',
-    Tools: '#6EE7B7',
-    Market: '#FCD34D',
-    Research: '#F9A8D4',
-    Tutorial: '#67E8F9',
-    Other: '#9CA3AF',
+    AI: '#C0C0C0',
+    News: '#808080',
+    Tools: '#A0A0A0',
+    Market: '#E6E6E6',
+    Research: '#CCCCCC',
+    Tutorial: '#666666',
+    Other: '#404040',
   },
 };
 
 const novaPalette: M3Palette = {
-  primary: '#1A1A1A',
+  primary: '#1A1A1A', // Slate-gray type
   onPrimary: '#FFFFFF',
-  primaryContainer: 'rgba(0,0,0,0.08)',
-  onPrimaryContainer: '#1A1A1A',
+  primaryContainer: 'rgba(26,26,26,0.08)',
+  onPrimaryContainer: '#000000',
 
-  surface: '#FAFAFA',
+  secondary: '#475569',
+  onSecondary: '#FFFFFF',
+  secondaryContainer: '#F1F5F9',
+  onSecondaryContainer: '#334155',
+
+  tertiary: '#94A3B8',
+  onTertiary: '#000000',
+  tertiaryContainer: '#F8FAFC',
+  onTertiaryContainer: '#475569',
+
+  surface: '#FFFFFF', // Pure White
   surfaceDim: 'rgba(255,255,255,0.80)',
-  surfaceContainer: '#F0F0F0',
-  surfaceContainerHigh: '#E8E8E8',
-  surfaceContainerHighest: '#E0E0E0',
-  onSurface: '#1A1A1A',
-  onSurfaceVariant: '#5C5C5C',
+  surfaceContainer: '#F8FAFC',
+  surfaceContainerHigh: '#F1F5F9',
+  surfaceContainerHighest: '#E2E8F0',
+  onSurface: '#020617', // Near black for sharp contrast
+  onSurfaceVariant: '#475569',
 
-  outline: '#C0C0C0',
-  outlineVariant: '#E0E0E0',
+  outline: '#CBD5E1',
+  outlineVariant: '#E2E8F0',
 
-  inverseSurface: '#2A2A2A',
-  inverseOnSurface: '#F0F0F0',
+  inverseSurface: '#0F172A',
+  inverseOnSurface: '#FFFFFF',
 
-  error: '#B3261E',
+  error: '#DC2626',
   onError: '#FFFFFF',
-  errorContainer: '#F9DEDC',
-  success: '#1B6D34',
-  successContainer: '#D4F5DC',
-  warning: '#7D5800',
-  warningContainer: '#FFEAB0',
-  info: '#1A5FB4',
-  infoContainer: '#D4E4FA',
+  errorContainer: '#FEE2E2',
+  success: '#16A34A',
+  successContainer: '#DCFCE7',
+  warning: '#D97706',
+  warningContainer: '#FEF3C7',
+  info: '#2563EB',
+  infoContainer: '#DBEAFE',
 
   categories: {
-    AI: '#7C3AED',
-    News: '#2563EB',
-    Tools: '#059669',
-    Market: '#D97706',
-    Research: '#DB2777',
-    Tutorial: '#0891B2',
-    Other: '#6B7280',
+    AI: '#0F172A',
+    News: '#334155',
+    Tools: '#475569',
+    Market: '#020617',
+    Research: '#64748B',
+    Tutorial: '#1E293B',
+    Other: '#94A3B8',
   },
 };
 
 const amberPalette: M3Palette = {
-  primary: '#FFB800',
+  primary: '#FFB800', // Glowing Amber
   onPrimary: '#1A1000',
   primaryContainer: 'rgba(255,184,0,0.15)',
   onPrimaryContainer: '#FFD060',
 
-  surface: '#0C0800',
-  surfaceDim: 'rgba(0,0,0,0.80)',
-  surfaceContainer: '#1A1200',
-  surfaceContainerHigh: '#261A00',
-  surfaceContainerHighest: '#332200',
-  onSurface: '#F0E0C0',
-  onSurfaceVariant: '#B09060',
+  secondary: '#FF8A00',
+  onSecondary: '#1A0E00',
+  secondaryContainer: 'rgba(255,138,0,0.15)',
+  onSecondaryContainer: '#FFAD4D',
 
-  outline: '#5C4000',
-  outlineVariant: '#3D2A00',
+  tertiary: '#FFD700',
+  onTertiary: '#1A1600',
+  tertiaryContainer: 'rgba(255,215,0,0.15)',
+  onTertiaryContainer: '#FFE44D',
 
-  inverseSurface: '#F0E0C0',
-  inverseOnSurface: '#1A1200',
+  surface: '#0A0A0A', // Deep Charcoal
+  surfaceDim: 'rgba(10,10,10,0.80)',
+  surfaceContainer: '#121212',
+  surfaceContainerHigh: '#1C1C1C',
+  surfaceContainerHighest: '#262626',
+  onSurface: '#F5F5F5',
+  onSurfaceVariant: '#A3A3A3',
+
+  outline: '#404040',
+  outlineVariant: '#262626',
+
+  inverseSurface: '#F5F5F5',
+  inverseOnSurface: '#0A0A0A',
 
   error: '#FFB4AB',
   onError: '#690005',
@@ -384,34 +427,44 @@ const amberPalette: M3Palette = {
 
   categories: {
     AI: '#FFD060',
-    News: '#FFB800',
-    Tools: '#FFA000',
-    Market: '#FF8C00',
-    Research: '#FFD060',
-    Tutorial: '#FFB800',
-    Other: '#8B6914',
+    News: '#FF8A00',
+    Tools: '#FFD700',
+    Market: '#FFB800',
+    Research: '#FFB800',
+    Tutorial: '#FF8A00',
+    Other: '#FFE44D',
   },
 };
 
 const oceanPalette: M3Palette = {
-  primary: '#60A5FA',
-  onPrimary: '#0A1628',
-  primaryContainer: 'rgba(59,130,246,0.15)',
-  onPrimaryContainer: '#93C5FD',
+  primary: '#00F2FF', // Cyan
+  onPrimary: '#001A1A',
+  primaryContainer: 'rgba(0,242,255,0.15)',
+  onPrimaryContainer: '#80F8FF',
 
-  surface: '#080E1A',
-  surfaceDim: 'rgba(8,14,26,0.80)',
-  surfaceContainer: '#0F1A2E',
-  surfaceContainerHigh: '#162640',
-  surfaceContainerHighest: '#1E3355',
-  onSurface: '#D6E4F0',
-  onSurfaceVariant: '#7DA0C4',
+  secondary: '#007AFF', // Electric Blue
+  onSecondary: '#000A1A',
+  secondaryContainer: 'rgba(0,122,255,0.15)',
+  onSecondaryContainer: '#80BDFF',
 
-  outline: '#2E5080',
-  outlineVariant: '#1A3355',
+  tertiary: '#0044FF',
+  onTertiary: '#00051A',
+  tertiaryContainer: 'rgba(0,68,255,0.15)',
+  onTertiaryContainer: '#80A2FF',
 
-  inverseSurface: '#D6E4F0',
-  inverseOnSurface: '#0F1A2E',
+  surface: '#050A15', // Deep Navy
+  surfaceDim: 'rgba(5,10,21,0.80)',
+  surfaceContainer: '#0A1224',
+  surfaceContainerHigh: '#101C33',
+  surfaceContainerHighest: '#162542',
+  onSurface: '#E0EEFF',
+  onSurfaceVariant: '#80A8CC',
+
+  outline: '#203A66',
+  outlineVariant: '#101C33',
+
+  inverseSurface: '#E0EEFF',
+  inverseOnSurface: '#050A15',
 
   error: '#FFB4AB',
   onError: '#690005',
@@ -420,44 +473,54 @@ const oceanPalette: M3Palette = {
   successContainer: '#0D5526',
   warning: '#E8C568',
   warningContainer: '#6B4E00',
-  info: '#60A5FA',
-  infoContainer: '#1A3A6B',
+  info: '#00F2FF',
+  infoContainer: '#007AFF',
 
   categories: {
-    AI: '#93C5FD',
-    News: '#60A5FA',
-    Tools: '#34D399',
-    Market: '#FCD34D',
-    Research: '#F9A8D4',
-    Tutorial: '#67E8F9',
-    Other: '#7DA0C4',
+    AI: '#00F2FF',
+    News: '#007AFF',
+    Tools: '#80F8FF',
+    Market: '#80BDFF',
+    Research: '#0044FF',
+    Tutorial: '#00F2FF',
+    Other: '#80A8CC',
   },
 };
 
 const forestPalette: M3Palette = {
-  primary: '#34D399',
-  onPrimary: '#0A1A0A',
-  primaryContainer: 'rgba(16,185,129,0.15)',
-  onPrimaryContainer: '#6EE7B7',
+  primary: '#00FF88', // Neon Green
+  onPrimary: '#001A0E',
+  primaryContainer: 'rgba(0,255,136,0.15)',
+  onPrimaryContainer: '#80FFC3',
 
-  surface: '#060E06',
-  surfaceDim: 'rgba(6,14,6,0.80)',
-  surfaceContainer: '#0F1E0F',
-  surfaceContainerHigh: '#162A16',
-  surfaceContainerHighest: '#1E381E',
-  onSurface: '#D0E8D0',
-  onSurfaceVariant: '#70A870',
+  secondary: '#00CC6A',
+  onSecondary: '#00140A',
+  secondaryContainer: 'rgba(0,204,106,0.15)',
+  onSecondaryContainer: '#80E5B4',
 
-  outline: '#2E6B2E',
-  outlineVariant: '#1A401A',
+  tertiary: '#00994F',
+  onTertiary: '#000F08',
+  tertiaryContainer: 'rgba(0,153,79,0.15)',
+  onTertiaryContainer: '#80CCA7',
 
-  inverseSurface: '#D0E8D0',
-  inverseOnSurface: '#0F1E0F',
+  surface: '#080C08', // Dark Obsidian
+  surfaceDim: 'rgba(8,12,8,0.80)',
+  surfaceContainer: '#0D140D',
+  surfaceContainerHigh: '#141E14',
+  surfaceContainerHighest: '#1B291B',
+  onSurface: '#E3F2E3',
+  onSurfaceVariant: '#8CB38C',
+
+  outline: '#2E4D2E',
+  outlineVariant: '#141E14',
+
+  inverseSurface: '#E3F2E3',
+  inverseOnSurface: '#080C08',
 
   error: '#FFB4AB',
   onError: '#690005',
   errorContainer: '#93000A',
-  success: '#34D399',
+  success: '#00FF88',
   successContainer: '#0D5526',
   warning: '#E8C568',
   warningContainer: '#6B4E00',
@@ -465,76 +528,96 @@ const forestPalette: M3Palette = {
   infoContainer: '#1A3A6B',
 
   categories: {
-    AI: '#6EE7B7',
-    News: '#34D399',
-    Tools: '#10B981',
-    Market: '#FCD34D',
-    Research: '#F9A8D4',
-    Tutorial: '#67E8F9',
-    Other: '#70A870',
+    AI: '#00FF88',
+    News: '#00CC6A',
+    Tools: '#80FFC3',
+    Market: '#80E5B4',
+    Research: '#00994F',
+    Tutorial: '#00FF88',
+    Other: '#8CB38C',
   },
 };
 
 const sunsetPalette: M3Palette = {
-  primary: '#FB923C',
-  onPrimary: '#1A0A0A',
-  primaryContainer: 'rgba(249,115,22,0.15)',
-  onPrimaryContainer: '#FDBA74',
+  primary: '#FF4D4D', // Crimson
+  onPrimary: '#1A0808',
+  primaryContainer: 'rgba(255,77,77,0.15)',
+  onPrimaryContainer: '#FFA6A6',
 
-  surface: '#100606',
-  surfaceDim: 'rgba(16,6,6,0.80)',
-  surfaceContainer: '#1E0E0E',
-  surfaceContainerHigh: '#2E1616',
-  surfaceContainerHighest: '#3E1E1E',
-  onSurface: '#F0D0C0',
-  onSurfaceVariant: '#B07060',
+  secondary: '#FF7043',
+  onSecondary: '#1A0B06',
+  secondaryContainer: 'rgba(255,112,67,0.15)',
+  onSecondaryContainer: '#FFB8A1',
 
-  outline: '#6B3520',
-  outlineVariant: '#401E12',
+  tertiary: '#FFCA28',
+  onTertiary: '#1A1404',
+  tertiaryContainer: 'rgba(255,202,40,0.15)',
+  onTertiaryContainer: '#FFE494',
 
-  inverseSurface: '#F0D0C0',
-  inverseOnSurface: '#1E0E0E',
+  surface: '#120505', // Deep Crimson Black
+  surfaceDim: 'rgba(18,5,5,0.80)',
+  surfaceContainer: '#1A0808',
+  surfaceContainerHigh: '#260C0C',
+  surfaceContainerHighest: '#331010',
+  onSurface: '#FCECEC',
+  onSurfaceVariant: '#C29393',
+
+  outline: '#662E2E',
+  outlineVariant: '#260C0C',
+
+  inverseSurface: '#FCECEC',
+  inverseOnSurface: '#120505',
 
   error: '#FFB4AB',
   onError: '#690005',
   errorContainer: '#93000A',
   success: '#81C995',
   successContainer: '#0D5526',
-  warning: '#FB923C',
+  warning: '#FFCA28',
   warningContainer: '#6B3520',
   info: '#8AB4F8',
   infoContainer: '#1A3A6B',
 
   categories: {
-    AI: '#FDBA74',
-    News: '#FB923C',
-    Tools: '#F97316',
-    Market: '#FCD34D',
-    Research: '#F9A8D4',
-    Tutorial: '#67E8F9',
-    Other: '#B07060',
+    AI: '#FF4D4D',
+    News: '#FF7043',
+    Tools: '#FFA6A6',
+    Market: '#FFCA28',
+    Research: '#FFB8A1',
+    Tutorial: '#FF4D4D',
+    Other: '#C29393',
   },
 };
 
 const midnightPalette: M3Palette = {
-  primary: '#C084FC',
-  onPrimary: '#0F0A1A',
-  primaryContainer: 'rgba(168,85,247,0.15)',
-  onPrimaryContainer: '#D8B4FE',
+  primary: '#FF00FF', // Fuchsia
+  onPrimary: '#1A001A',
+  primaryContainer: 'rgba(255,0,255,0.15)',
+  onPrimaryContainer: '#FF80FF',
 
-  surface: '#0A061A',
-  surfaceDim: 'rgba(10,6,26,0.80)',
-  surfaceContainer: '#150E28',
-  surfaceContainerHigh: '#201638',
-  surfaceContainerHighest: '#2C1E4A',
-  onSurface: '#E0D0F0',
-  onSurfaceVariant: '#9070B0',
+  secondary: '#A855F7', // Vivid Violet
+  onSecondary: '#110818',
+  secondaryContainer: 'rgba(168,85,247,0.15)',
+  onSecondaryContainer: '#D4AAFB',
 
-  outline: '#553A80',
-  outlineVariant: '#352255',
+  tertiary: '#00F2FF', // Cyber Cyan accent
+  onTertiary: '#001A1A',
+  tertiaryContainer: 'rgba(0,242,255,0.15)',
+  onTertiaryContainer: '#80F8FF',
 
-  inverseSurface: '#E0D0F0',
-  inverseOnSurface: '#150E28',
+  surface: '#0A0515', // Deep Purple Void
+  surfaceDim: 'rgba(10,5,21,0.80)',
+  surfaceContainer: '#110822',
+  surfaceContainerHigh: '#190C33',
+  surfaceContainerHighest: '#221144',
+  onSurface: '#EBE5F5',
+  onSurfaceVariant: '#9E8CB3',
+
+  outline: '#442288',
+  outlineVariant: '#190C33',
+
+  inverseSurface: '#EBE5F5',
+  inverseOnSurface: '#0A0515',
 
   error: '#FFB4AB',
   onError: '#690005',
@@ -543,17 +626,17 @@ const midnightPalette: M3Palette = {
   successContainer: '#0D5526',
   warning: '#E8C568',
   warningContainer: '#6B4E00',
-  info: '#C084FC',
+  info: '#00F2FF',
   infoContainer: '#352255',
 
   categories: {
-    AI: '#D8B4FE',
-    News: '#C084FC',
-    Tools: '#A855F7',
-    Market: '#FCD34D',
-    Research: '#F9A8D4',
-    Tutorial: '#67E8F9',
-    Other: '#9070B0',
+    AI: '#FF00FF',
+    News: '#A855F7',
+    Tools: '#FF80FF',
+    Market: '#00F2FF',
+    Research: '#D4AAFB',
+    Tutorial: '#FF00FF',
+    Other: '#9E8CB3',
   },
 };
 
@@ -572,13 +655,13 @@ export const m3Themes: Record<ThemeName, M3Palette> = {
 export const themeNames: ThemeName[] = ['void', 'nova', 'amber', 'ocean', 'forest', 'sunset', 'midnight'];
 
 export const themeLabels: Record<ThemeName, string> = {
-  void: 'VOID',
-  nova: 'NOVA',
-  amber: 'AMBER VOID',
-  ocean: 'OCEAN DEPTH',
-  forest: 'FOREST CANOPY',
-  sunset: 'SUNSET BLAZE',
-  midnight: 'MIDNIGHT PURPLE',
+  void: 'TRUE TECH VOID',
+  nova: 'NOVA LIGHT',
+  amber: 'AMBER NEURAL',
+  ocean: 'CYBER OCEAN',
+  forest: 'EMERALD FOREST',
+  sunset: 'CRIMSON BLAZE',
+  midnight: 'COSMIC MIDNIGHT',
 };
 
 export const getNextTheme = (current: ThemeName): ThemeName => {

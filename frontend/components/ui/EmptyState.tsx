@@ -20,7 +20,9 @@ type EmptyVariant =
   | 'empty-search'
   | 'empty-alerts'
   | 'empty-memories'
-  | 'empty-export';
+  | 'empty-export'
+  | 'empty-chat'
+  | 'empty-integrations';
 
 interface EmptyStateProps {
   variant?: EmptyVariant;
@@ -73,6 +75,18 @@ const VARIANT_DEFAULTS: Record<EmptyVariant, { icon: string; title: string; desc
     title: 'Nothing to export yet',
     description: 'Add some activities or journal entries first, then export your knowledge base.',
     cta: 'Add Activities',
+  },
+  'empty-chat': {
+    icon: 'chatbubble-outline',
+    title: 'Start a conversation',
+    description: 'Ask your Polymath agent anything about your knowledge base, ideas, or research.',
+    cta: '',
+  },
+  'empty-integrations': {
+    icon: 'extension-puzzle-outline',
+    title: 'No integrations configured',
+    description: 'Connect your tools and services to automatically import knowledge into Polymath.',
+    cta: 'Browse Integrations',
   },
 };
 

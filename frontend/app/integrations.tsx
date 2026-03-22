@@ -3,7 +3,7 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   TextInput,
   StyleSheet,
   KeyboardAvoidingView,
@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import axios from 'axios';
 import { useTheme, spacing } from '../theme';
-import { m3Typography, m3Radii } from '../../shared/design-tokens';
+import { m3Typography, m3Radii, m3TouchTarget } from '../../shared/design-tokens';
 import M3Progress from '../components/ui/M3Progress';
 import M3Button from '../components/ui/M3Button';
 import M3TextField from '../components/ui/M3TextField';
@@ -111,11 +111,10 @@ export default function IntegrationsScreen() {
     containerColor: string;
     onPress?: () => void;
   }) => (
-    <TouchableOpacity
-      style={[styles.statusCard, { backgroundColor: theme.surfaceContainer }]}
+    <Pressable
+      style={({ pressed }) => [styles.statusCard, { backgroundColor: theme.surfaceContainer, opacity: pressed && onPress ? 0.8 : 1 }]}
       onPress={onPress}
       disabled={!onPress}
-      activeOpacity={onPress ? 0.7 : 1}
     >
       <View style={[styles.statusIcon, { backgroundColor: containerColor }]}>
         <MaterialIcons name={icon} size={20} color={statusColor} />
@@ -127,7 +126,7 @@ export default function IntegrationsScreen() {
       <View style={[styles.statusBadge, { backgroundColor: containerColor }]}>
         <Text style={[styles.statusBadgeText, { color: statusColor }]}>{status}</Text>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 
   if (loading) {
@@ -142,12 +141,12 @@ export default function IntegrationsScreen() {
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+          style={({ pressed }) => [styles.backBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.8 : 1 }]}
         >
           <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
-        </TouchableOpacity>
+        </Pressable>
         <View style={styles.headerText}>
           <Text style={[styles.headerTitle, { color: theme.onSurface }]}>Integrations</Text>
           <Text style={[styles.headerSub, { color: theme.onSurfaceVariant }]}>System config</Text>
@@ -219,17 +218,17 @@ export default function IntegrationsScreen() {
                   }
                 }}
               />
-              <TouchableOpacity
+              <Pressable
                 onPress={async () => {
                   await resetBackendUrl();
                   setBackendUrlInput(getBackendUrlSync());
                   hapticLight();
                   if (dialog) dialog.showAlert('Reset', 'Backend URL reset to default.');
                 }}
-                style={[styles.resetBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+                style={({ pressed }) => [styles.resetBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.8 : 1 }]}
               >
                 <MaterialIcons name="refresh" size={20} color={theme.onSurfaceVariant} />
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             <View style={styles.infoRow}>
@@ -302,8 +301,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   backBtn: {
-    width: 44,
-    height: 44,
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
     borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -338,8 +337,8 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   statusIcon: {
-    width: 44,
-    height: 44,
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',

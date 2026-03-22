@@ -4,6 +4,7 @@ import { useStats } from '@/hooks/useStats';
 import { useActivities } from '@/hooks/useActivities';
 import { useJournals } from '@/hooks/useJournals';
 import EngagementWidgets from '@/components/EngagementWidgets';
+import { BentoGrid, BentoCard } from '@/components/layout/BentoGrid';
 import Link from 'next/link';
 
 function getGreeting(): string {
@@ -51,9 +52,8 @@ export default function Dashboard() {
   const topCategories = Object.entries(categories).slice(0, 4);
 
   return (
-    /* @container root — lets children query the content-area width, not the viewport */
-    <div className="@container pt-4">
-      <div className="grid grid-cols-1 @[680px]:grid-cols-12 gap-5 stagger-children">
+    <div className="@container pt-4 pb-8">
+      <BentoGrid className="stagger-children">
 
         {/* ── Row 1: Header (12) ──────────────────────────────── */}
         <div className="@[680px]:col-span-12 flex justify-between items-center px-1">
@@ -61,7 +61,7 @@ export default function Dashboard() {
             <p className="text-[11px] uppercase tracking-widest text-m3-on-surface-variant mb-0.5">
               {getGreeting()}
             </p>
-            <h1 className="text-[22px] font-bold text-m3-on-surface tracking-tight">
+            <h1 className="text-[22px] font-bold text-m3-on-surface tracking-tight display-kerning">
               Dashboard
             </h1>
           </div>
@@ -84,8 +84,8 @@ export default function Dashboard() {
         </div>
 
         {/* ── Row 2a: Quick Actions (12 → 4) ─────────────────── */}
-        <div className="@[680px]:col-span-4">
-          <div className="grid grid-cols-4 @[680px]:grid-cols-2 gap-2 h-full">
+        <BentoCard className="@[680px]/bento:col-span-4" tilt={false}>
+          <div className="grid grid-cols-4 @[680px]/bento:grid-cols-2 gap-2 h-full p-3 bg-transparent border-none">
             {[
               { icon: 'add', label: 'Add', href: '/chat', accent: true },
               { icon: 'chat_bubble_outline', label: 'Chat', href: '/chat', accent: false },
@@ -108,11 +108,11 @@ export default function Dashboard() {
               </Link>
             ))}
           </div>
-        </div>
+        </BentoCard>
 
         {/* ── Row 2b: Stats Row (12 → 8) ─────────────────────── */}
-        <div className="@[680px]:col-span-8">
-          <div className="grid grid-cols-3 gap-2 h-full">
+        <BentoCard className="@[680px]/bento:col-span-8 cq-root p-4">
+          <div className="grid grid-cols-3 gap-3 h-full">
             <Link
               href="/activities"
               className="flex flex-col items-center gap-1 py-5 px-3 rounded-2xl bg-m3-surface-container border border-m3-outline-variant transition-standard hover:bg-m3-surface-container-high"
@@ -138,21 +138,21 @@ export default function Dashboard() {
               <span className="text-[10px] uppercase tracking-wider opacity-80">Mesh</span>
             </Link>
           </div>
-        </div>
+        </BentoCard>
 
         {/* ── Row 3a: Engagement Widgets (12 → 5) ────────────── */}
-        <div className="@[680px]:col-span-5">
+        <BentoCard className="@[680px]/bento:col-span-5 cq-root p-0" tilt={false}>
           <EngagementWidgets
             activityTimestamps={(activities || []).map((a) => a.timestamp)}
             journalTimestamps={(journals || []).map((j) => j.timestamp)}
           />
-        </div>
+        </BentoCard>
 
         {/* ── Row 3b: Neural Mesh (12 → 7) ───────────────────── */}
-        <div className="@[680px]:col-span-7">
+        <BentoCard className="@[680px]/bento:col-span-7">
           <Link
             href="/connections"
-            className="flex flex-col justify-between h-full p-5 rounded-3xl bg-m3-surface-container border border-m3-outline-variant transition-standard hover:bg-m3-surface-container-high"
+            className="flex flex-col justify-between h-full p-6 text-current"
           >
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
@@ -161,7 +161,7 @@ export default function Dashboard() {
               </div>
               <span className="material-symbols-outlined text-[20px] text-m3-on-surface-variant">arrow_forward</span>
             </div>
-            <p className="text-[13px] text-m3-on-surface-variant leading-5 mb-3">
+            <p className="text-[13px] text-m3-on-surface-variant leading-5 mb-3 prose-line-cap">
               {totalConnections > 0
                 ? `${totalConnections} connections discovered across your knowledge base.`
                 : 'Start adding content to discover patterns and connections.'}
@@ -175,77 +175,106 @@ export default function Dashboard() {
               ))}
             </div>
           </Link>
-        </div>
+        </BentoCard>
 
-        {/* ── Row 4a: Recent Activity (12 → 7 or 12) ─────────── */}
-        <div className={`${topCategories.length > 0 ? '@[680px]:col-span-7' : '@[680px]:col-span-12'}`}>
-          <div className="p-5 rounded-3xl bg-m3-surface-container border border-m3-outline-variant h-full">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-[14px] font-bold text-m3-on-surface">Recent Activity</h3>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-m3-success-container" role="status" aria-label="Live activity updates">
-                <div className="w-1.5 h-1.5 rounded-full bg-m3-success animate-pulse" aria-hidden="true" />
-                <span className="text-[9px] font-bold tracking-wider text-m3-success uppercase">LIVE</span>
+        {/* ── Row 4: Main content (8) + Journal sidebar (4) ───── */}
+        <div className={`${topCategories.length > 0 ? '@[680px]/bento:col-span-8' : '@[680px]/bento:col-span-12'}`}>
+          <div className="flex flex-col gap-5 h-full">
+            {/* Recent Activity */}
+            <BentoCard className="flex-1" tilt={false}>
+              <div className="p-6 h-full">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-[14px] font-bold text-m3-on-surface">Recent Activity</h3>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-m3-success-container" role="status" aria-label="Live activity updates">
+                  <div className="w-1.5 h-1.5 rounded-full bg-m3-success animate-pulse" aria-hidden="true" />
+                  <span className="text-[9px] font-bold tracking-wider text-m3-success uppercase">LIVE</span>
+                </div>
               </div>
-            </div>
 
-            {!activities || activities.length === 0 ? (
-              <div className="flex flex-col items-center py-10">
-                <span className="material-symbols-outlined text-[40px] text-m3-outline-variant">inbox</span>
-                <p className="text-[14px] text-m3-on-surface-variant mt-3">No activities yet</p>
-                <p className="text-[12px] text-m3-on-surface-variant mt-1">Tap + to add your first entry</p>
-              </div>
-            ) : (
-              <div className="flex flex-col">
-                {activities.slice(0, 5).map((activity, i) => (
-                  <Link
-                    key={activity.id}
-                    href={`/activity-detail?id=${activity.id}`}
-                    className="flex items-center gap-3 py-3 transition-standard hover:opacity-80"
-                    style={{
-                      borderBottom: i < Math.min(activities.length, 5) - 1 ? '1px solid var(--m3-outline-variant)' : 'none',
-                    }}
-                  >
-                    <div className={`w-2 h-2 rounded-full shrink-0 ${i === 0 ? 'bg-m3-primary' : 'bg-m3-outline-variant'}`} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[14px] font-semibold text-m3-on-surface truncate">{activity.title}</p>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <p className="text-[11px] text-m3-on-surface-variant">
-                          {activity.source}{activity.category ? ` · ${activity.category}` : ''}
-                        </p>
-                        {getDomain(activity.url) && (
-                          <span className="text-[9px] text-m3-primary hidden @[400px]:inline">
-                            · {getDomain(activity.url)}
-                          </span>
-                        )}
+              {!activities || activities.length === 0 ? (
+                <div className="flex flex-col items-center py-10">
+                  <span className="material-symbols-outlined text-[40px] text-m3-outline-variant">inbox</span>
+                  <p className="text-[14px] text-m3-on-surface-variant mt-3">No activities yet</p>
+                  <p className="text-[12px] text-m3-on-surface-variant mt-1">Tap + to add your first entry</p>
+                </div>
+              ) : (
+                <div className="flex flex-col">
+                  {activities.slice(0, 5).map((activity, i) => (
+                    <Link
+                      key={activity.id}
+                      href={`/activity-detail?id=${activity.id}`}
+                      className="flex items-center gap-3 py-3 transition-standard hover:opacity-80"
+                      style={{
+                        borderBottom: i < Math.min(activities.length, 5) - 1 ? '1px solid var(--m3-outline-variant)' : 'none',
+                      }}
+                    >
+                      <div className={`w-2 h-2 rounded-full shrink-0 ${i === 0 ? 'bg-m3-primary' : 'bg-m3-outline-variant'}`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[14px] font-semibold text-m3-on-surface truncate">{activity.title}</p>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <p className="text-[11px] text-m3-on-surface-variant">
+                            {activity.source}{activity.category ? ` · ${activity.category}` : ''}
+                          </p>
+                          {getDomain(activity.url) && (
+                            <span className="text-[9px] text-m3-primary hidden @[400px]:inline">
+                              · {getDomain(activity.url)}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <span className="text-[11px] text-m3-on-surface-variant shrink-0">
-                      {new Date(activity.timestamp).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false,
-                      })}
-                    </span>
-                  </Link>
-                ))}
-                {activities.length > 5 && (
-                  <Link
-                    href="/activities"
-                    className="flex items-center justify-center gap-2 pt-4 mt-2 border-t border-m3-outline-variant"
-                  >
-                    <span className="text-[13px] font-bold text-m3-primary">View all</span>
-                    <span className="material-symbols-outlined text-[16px] text-m3-primary">arrow_forward</span>
-                  </Link>
-                )}
+                      <span className="text-[11px] text-m3-on-surface-variant shrink-0">
+                        {new Date(activity.timestamp).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: false,
+                        })}
+                      </span>
+                    </Link>
+                  ))}
+                  {activities.length > 5 && (
+                    <Link
+                      href="/activities"
+                      className="flex items-center justify-center gap-2 pt-4 mt-2 border-t border-m3-outline-variant"
+                    >
+                      <span className="text-[13px] font-bold text-m3-primary">View all</span>
+                      <span className="material-symbols-outlined text-[16px] text-m3-primary">arrow_forward</span>
+                    </Link>
+                  )}
+                </div>
+              )}
               </div>
+            </BentoCard>
+
+            {/* Top Domains (below recent activity on mobile, in same column on desktop) */}
+            {topCategories.length > 0 && (
+              <BentoCard className="@[680px]/bento:hidden flex-none" tilt={false}>
+                <div className="p-6">
+                <h3 className="text-[14px] font-bold text-m3-on-surface mb-4">Top Domains</h3>
+                <div className="flex flex-col">
+                  {topCategories.map(([name, count]: any, i) => (
+                    <div key={name} className="flex justify-between items-center py-2">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-m3-primary' : 'bg-m3-outline-variant'}`} />
+                        <span className="text-[13px] text-m3-on-surface">{name}</span>
+                      </div>
+                      <span className={`text-[13px] font-semibold ${i === 0 ? 'text-m3-primary' : 'text-m3-on-surface-variant'}`}>
+                        {count}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </BentoCard>
             )}
           </div>
         </div>
 
-        {/* ── Row 4b: Top Domains (12 → 5) ───────────────────── */}
+        {/* ── Row 4b: Sidebar — Top Domains + Recent Journals (4) ── */}
         {topCategories.length > 0 && (
-          <div className="@[680px]:col-span-5">
-            <div className="p-5 rounded-3xl bg-m3-surface-container border border-m3-outline-variant h-full">
+          <div className="hidden @[680px]/bento:flex @[680px]/bento:col-span-4 flex-col gap-5">
+            {/* Top Domains */}
+            <BentoCard className="flex-none" tilt={false}>
+              <div className="p-6">
               <h3 className="text-[14px] font-bold text-m3-on-surface mb-4">Top Domains</h3>
               <div className="flex flex-col">
                 {topCategories.map(([name, count]: any, i) => (
@@ -260,11 +289,51 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            </div>
+              </div>
+            </BentoCard>
+
+            {/* Recent Journals sidebar */}
+            <BentoCard className="flex-1" tilt={false}>
+              <div className="p-6 h-full flex flex-col">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-[14px] font-bold text-m3-on-surface">Recent Journals</h3>
+                <Link href="/journal" className="text-m3-primary">
+                  <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                </Link>
+              </div>
+              {journals && journals.length > 0 ? (
+                <div className="flex flex-col gap-3">
+                  {journals.slice(0, 4).map((journal) => (
+                    <Link
+                      key={journal.id}
+                      href="/journal"
+                      className="flex items-start gap-2.5 p-3 rounded-xl bg-m3-surface hover:bg-m3-surface-container-high transition-standard border border-m3-outline-variant"
+                    >
+                      <span className="material-symbols-outlined text-[16px] text-m3-primary shrink-0 mt-0.5">edit_note</span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[12px] font-semibold text-m3-on-surface truncate">{journal.title}</p>
+                        <p className="text-[10px] text-m3-on-surface-variant mt-0.5 line-clamp-2 leading-relaxed">
+                          {journal.content}
+                        </p>
+                        <p className="text-[9px] text-m3-on-surface-variant mt-1">
+                          {new Date(journal.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center py-6 text-center">
+                  <span className="material-symbols-outlined text-[24px] text-m3-outline-variant mb-2">edit_note</span>
+                  <p className="text-[11px] text-m3-on-surface-variant">No journal entries yet</p>
+                </div>
+              )}
+              </div>
+            </BentoCard>
           </div>
         )}
 
-      </div>
+      </BentoGrid>
     </div>
   );
 }

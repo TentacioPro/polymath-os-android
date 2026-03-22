@@ -3,23 +3,24 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   FlatList,
   RefreshControl,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import axios from 'axios';
 import { useTheme, spacing } from '../../theme';
 import { useStore } from '../../store/useStore';
 import { hapticPress, hapticLight, hapticSuccess, hapticWarning, hapticSelection } from '../../utils/haptics';
 import { getBackendUrlSync } from '../../utils/backend';
-import { m3Typography, m3Radii } from '../../../shared/design-tokens';
+import { m3Typography, m3Radii, m3TouchTarget } from '../../../shared/design-tokens';
+import { HEADER_MAX } from '../../components/navigation/CollapsibleHeader';
 import M3Progress from '../../components/ui/M3Progress';
 import M3Chip from '../../components/ui/M3Chip';
 import M3BottomSheet from '../../components/ui/M3BottomSheet';
@@ -28,11 +29,9 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import M3Button from '../../components/ui/M3Button';
 import { Popover } from '../../components/ui/Popover';
 import { useDialog } from '../../components/ui/DialogProvider';
+import { useResponsiveColumns } from '../../utils/responsive';
 
 const FILTERS = ['All', 'Article', 'PDF', 'Link', 'Audio', 'File'];
-const { width: SCREEN_W } = Dimensions.get('window');
-const CARD_GAP = spacing.sm;
-const CARD_W = (SCREEN_W - spacing.lg * 2 - CARD_GAP) / 2;
 
 const TYPE_ICONS: Record<string, string> = {
   article: 'document-text-outline',
@@ -52,9 +51,10 @@ function getIcon(item: any): string {
   return TYPE_ICONS.default;
 }
 
-export default function Knowledge() {
+export default function KnowledgeScreen() {
   const { theme } = useTheme();
-  const { activities, setActivities } = useStore();
+  const insets = useSafeAreaInsets();
+  const { activities, setActivities, preferences } = useStore();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState('All');
@@ -208,11 +208,15 @@ export default function Knowledge() {
   }
 
   const renderCard = (item: any, delay: number) => (
-    <Animated.View key={item.id} entering={FadeInDown.duration(300).delay(delay)}>
-      <TouchableOpacity
-        style={[styles.gridCard, { backgroundColor: theme.surfaceContainer }]}
+    <Animated.View key={item.id} entering={FadeInDown.duration(400).delay(delay).springify().damping(15) as any}>
+      <Pressable
+        style={({ pressed }) => [
+          styles.gridCard,
+          styles.shadowLight,
+          { backgroundColor: theme.surfaceContainer, opacity: pressed ? 0.85 : 1, transform: [{ scale: pressed ? 0.97 : 1 }] }
+        ] as any}
         onPress={() => { hapticLight(); router.push(`/activity-detail?id=${item.id}` as any); }}
-        onLongPress={(e) => {
+        onLongPress={(e: any) => {
           hapticLight();
           setPopoverTarget({
             id: item.id,
@@ -225,39 +229,49 @@ export default function Knowledge() {
             },
           });
         }}
-        activeOpacity={0.7}
       >
-        <View style={[styles.cardIcon, { backgroundColor: theme.primaryContainer }]}>
-          <Ionicons name={getIcon(item) as any} size={24} color={theme.onPrimaryContainer} />
+        <View style={styles.cardHeader as any}>
+          <View style={[styles.cardIcon, { backgroundColor: theme.primaryContainer }] as any}>
+            <Ionicons name={getIcon(item) as any} size={20} color={theme.onPrimaryContainer} />
+          </View>
         </View>
-        <Text style={[styles.cardTitle, { color: theme.onSurface }]} numberOfLines={2}>
+        <Text style={[styles.cardTitle, { color: theme.onSurface }] as any} numberOfLines={3}>
           {item.title}
         </Text>
-        <Text style={[styles.cardMeta, { color: theme.onSurfaceVariant }]} numberOfLines={1}>
-          {item.source}
-        </Text>
-        {item.category && (
-          <Text style={[styles.cardTime, { color: theme.onSurfaceVariant }]}>
-            {item.category}
+        <View style={styles.cardFooter as any}>
+          <Text style={[styles.cardMeta, { color: theme.primary }] as any} numberOfLines={1}>
+            {item.source}
           </Text>
-        )}
-      </TouchableOpacity>
+          {item.category && (
+            <Text style={[styles.cardTime, { color: theme.onSurfaceVariant }] as any}>
+              {item.category}
+            </Text>
+          )}
+        </View>
+      </Pressable>
     </Animated.View>
   );
 
   return (
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
-      {/* Search bar */}
-      <TouchableOpacity
-        style={[styles.searchBar, { backgroundColor: theme.surfaceContainerHigh }]}
-        onPress={() => { hapticPress(); router.push('/search' as any); }}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="search-outline" size={20} color={theme.onSurfaceVariant} />
-        <Text style={[styles.searchPlaceholder, { color: theme.onSurfaceVariant }]}>
-          Search {activities.length} sources...
-        </Text>
-      </TouchableOpacity>
+      {/* Search bar + Add */}
+      <View style={[styles.headerRow, { paddingTop: Platform.OS === 'ios' ? 50 : 20, paddingBottom: 10 }]}>
+        <Pressable
+          style={({ pressed }) => [styles.searchBar, styles.shadowMedium, { backgroundColor: theme.surface, zIndex: 10, opacity: pressed ? 0.8 : 1 }] as any}
+          onPress={() => { hapticPress(); router.push('/search' as any); }}
+        >
+          <Ionicons name="search-outline" size={20} color={theme.onSurfaceVariant} />
+          <Text style={[styles.searchPlaceholder, { color: theme.onSurfaceVariant }] as any}>
+            Search {activities.length} sources...
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => { hapticPress(); setShowAddSheet(true); }}
+          style={({ pressed }) => [styles.addBtn, styles.shadowStrong, { backgroundColor: theme.primary, opacity: pressed ? 0.85 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] }] as any}
+        >
+          <Ionicons name="add" size={26} color={theme.onPrimary} />
+        </Pressable>
+      </View>
 
       {/* Filter chips */}
       <ScrollView
@@ -383,17 +397,32 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 
-  /* Search */
-  searchBar: {
+  /* Header */
+  headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 56,
+    paddingHorizontal: spacing.lg,
+    gap: spacing.sm,
+  },
+
+  /* Search */
+  searchBar: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 52,
     borderRadius: m3Radii.full,
     paddingHorizontal: 16,
-    marginHorizontal: spacing.lg,
-    gap: 8,
+    gap: 12,
   },
-  searchPlaceholder: { fontSize: m3Typography.bodyLarge.fontSize },
+  searchPlaceholder: { fontSize: m3Typography.bodyLarge.fontSize, fontWeight: '500' },
+  addBtn: {
+    width: 52,
+    height: 52,
+    borderRadius: 26, // Full circular
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
 
   /* Filters */
   filterScroll: { maxHeight: 52, marginTop: spacing.md },
@@ -401,24 +430,60 @@ const styles = StyleSheet.create({
 
   /* Grid */
   gridScroll: { flex: 1 },
-  gridContent: { paddingHorizontal: spacing.lg, paddingTop: spacing.md },
-  masonryRow: { flexDirection: 'row', gap: CARD_GAP },
-  masonryCol: { flex: 1, gap: CARD_GAP },
+  gridContent: { paddingHorizontal: spacing.lg, paddingTop: spacing.xl },
+  masonryRow: { flexDirection: 'row', gap: spacing.md },
+  masonryCol: { flex: 1, gap: spacing.md },
+
+  /* Shadows */
+  shadowLight: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(150, 150, 150, 0.05)',
+  },
+  shadowMedium: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(150, 150, 150, 0.08)',
+  },
+  shadowStrong: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 6,
+  },
 
   gridCard: {
-    borderRadius: m3Radii.xl,
-    padding: spacing.lg,
-    gap: spacing.sm,
+    borderRadius: m3Radii['2xl'], // Soft neural corners
+    padding: spacing.xl, // Increase breathing room
+    gap: spacing.md,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   cardIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cardTitle: { fontSize: m3Typography.titleSmall.fontSize, fontWeight: '600' },
-  cardMeta: { fontSize: m3Typography.labelMedium.fontSize },
+  cardTitle: { fontSize: m3Typography.titleMedium.fontSize, fontWeight: '700', lineHeight: 22 },
+  cardFooter: {
+    marginTop: spacing.xs,
+    gap: 4,
+  },
+  cardMeta: { fontSize: m3Typography.labelSmall.fontSize, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
   cardTime: { fontSize: m3Typography.labelSmall.fontSize },
 
   /* Sheet */

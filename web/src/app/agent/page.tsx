@@ -128,11 +128,11 @@ export default function AgentPage() {
   ];
 
   return (
-    <div className="pt-6 flex flex-col gap-6 stagger-children">
+    <div className="@container pt-6 flex flex-col gap-6 stagger-children">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-xl font-bold text-m3-on-surface tracking-tight">
+          <h1 className="text-xl font-bold text-m3-on-surface tracking-tight display-kerning">
             Agent Memory
           </h1>
           <p className="text-[11px] text-m3-on-surface-variant tracking-wide mt-1">
@@ -170,7 +170,7 @@ export default function AgentPage() {
       {view === 'memories' && (
         <div className="flex flex-col gap-4">
           {/* Stats */}
-          <div className="rounded-2xl border border-m3-outline-variant bg-m3-surface-container p-4">
+          <div className="rounded-2xl border border-m3-outline-variant bg-m3-surface-container p-4 glass-surface">
             <div className="flex justify-between items-center mb-3">
               <span className="text-[11px] tracking-wide text-m3-on-surface-variant">
                 Memory Allocation
@@ -232,7 +232,7 @@ export default function AgentPage() {
               <div className="w-6 h-6 border-2 border-m3-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : memories && memories.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3">
               {memories.map((memory) => (
                 <div
                   key={memory.id}
@@ -246,13 +246,13 @@ export default function AgentPage() {
                     </span>
                     <button
                       onClick={() => handleDeleteMemory(memory.id)}
-                      className="opacity-0 group-hover:opacity-100 text-m3-error hover:text-red-400 transition-standard"
+                      className="opacity-0 group-hover:opacity-100 text-m3-error hover:text-red-400 transition-micro"
                     >
                       <span className="material-symbols-outlined text-[16px]">delete</span>
                     </button>
                   </div>
 
-                  <p className="text-xs text-m3-on-surface leading-relaxed mb-3">
+                  <p className="text-xs text-m3-on-surface leading-relaxed mb-3 prose-line-cap">
                     {memory.content}
                   </p>
 
@@ -345,8 +345,8 @@ export default function AgentPage() {
                   <h3 className="text-[11px] font-medium text-m3-on-surface-variant mb-2 uppercase tracking-wide">
                     Directives
                   </h3>
-                  <div className="rounded-2xl border border-m3-outline-variant bg-m3-surface-container p-4">
-                    <p className="text-xs text-m3-on-surface leading-relaxed">
+                  <div className="rounded-2xl border border-m3-outline-variant bg-m3-surface-container p-4 glass-surface">
+                    <p className="text-xs text-m3-on-surface leading-relaxed prose-line-cap">
                       {persona.custom_instructions}
                     </p>
                   </div>
@@ -398,7 +398,7 @@ export default function AgentPage() {
               <div className="w-6 h-6 border-2 border-m3-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : learningLogs && learningLogs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 @[500px]:grid-cols-2 gap-3">
               {learningLogs.map((log: any) => (
                 <div
                   key={log.id}
@@ -412,7 +412,7 @@ export default function AgentPage() {
                       {new Date(log.learned_at).toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-xs text-m3-on-surface leading-relaxed mb-2">
+                  <p className="text-xs text-m3-on-surface leading-relaxed mb-2 prose-line-cap">
                     {log.insight}
                   </p>
                   {log.source_data?.type && (
@@ -442,7 +442,7 @@ export default function AgentPage() {
       {/* Edit Persona Modal */}
       <ResponsiveModal open={editPersonaModal} onClose={() => setEditPersonaModal(false)} title="Edit Persona" maxWidth="max-w-xl">
         <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 @[500px]:grid-cols-2 gap-4">
             <div>
               <label className="text-[11px] font-medium text-m3-on-surface-variant mb-2 block uppercase tracking-wide">
                 Name

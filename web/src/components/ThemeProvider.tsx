@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { ThemeContext } from '@/hooks/useTheme';
 import { DEFAULT_THEME, THEME_STORAGE_KEY, THEMES, THEME_CLASSES, type ThemeId } from '@/lib/theme';
+import { FONT_COLLECTIONS, FontCollection } from '../../../shared/preferences';
 
 export default function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeId>(DEFAULT_THEME);
@@ -10,7 +11,11 @@ export default function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem(THEME_STORAGE_KEY) as ThemeId | null;
-    if (stored && THEMES.some((t) => t.id === stored)) {
+    // Migrate legacy 'black' -> 'void'
+    if (stored === 'black' as any) {
+      setThemeState('void');
+      localStorage.setItem(THEME_STORAGE_KEY, 'void');
+    } else if (stored && THEMES.some((t) => t.id === stored)) {
       setThemeState(stored);
     }
 
@@ -28,12 +33,19 @@ export default function ThemeProvider({ children }: { children: ReactNode }) {
         'space-mono': 'var(--font-space-mono)',
       };
       const root = document.documentElement;
-      if (prefs.fontFamily && fontVarMap[prefs.fontFamily]) {
-        root.style.setProperty('--active-font', fontVarMap[prefs.fontFamily]);
+
+      const currentCollection = prefs.fontCollection as FontCollection || 'industrial';
+      const config = FONT_COLLECTIONS[currentCollection];
+
+      if (config) {
+        if (fontVarMap[config.sans]) {
+          root.style.setProperty('--active-font', fontVarMap[config.sans]);
+        }
+        if (monoVarMap[config.mono]) {
+          root.style.setProperty('--active-mono', monoVarMap[config.mono]);
+        }
       }
-      if (prefs.monoFont && monoVarMap[prefs.monoFont]) {
-        root.style.setProperty('--active-mono', monoVarMap[prefs.monoFont]);
-      }
+
       if (prefs.fontScale && typeof prefs.fontScale === 'number') {
         root.style.setProperty('--font-scale', String(prefs.fontScale));
       }

@@ -7,13 +7,19 @@ import { m3Radii, m3Spacing, m3Motion } from '../../../shared/design-tokens';
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type ElevationLevel = 0 | 1 | 2 | 3;
+type BentoSize = 'small' | 'medium' | 'large' | 'full';
 
 interface M3CardProps extends ViewProps {
   elevation?: ElevationLevel;
   padding?: 'none' | 'sm' | 'md' | 'lg';
   tinted?: boolean;
+  bentoSize?: BentoSize;
+  glass?: boolean;
+  disabled?: boolean;
   /** When provided the card becomes a tappable Pressable with press animation */
   onPress?: () => void;
+  /** Long press action */
+  onLongPress?: () => void;
   /** Hover elevation — bg shifts up one step on hover (visual only via press state on mobile) */
   hoverElevation?: boolean;
 }
@@ -24,7 +30,11 @@ export default function M3Card({
   elevation = 1,
   padding = 'md',
   tinted,
+  bentoSize,
+  glass,
   onPress,
+  onLongPress,
+  disabled,
   hoverElevation = true,
   style,
   children,
@@ -71,9 +81,21 @@ export default function M3Card({
     scale.value = withTiming(1.0, { duration: m3Motion.duration.short3 });
   }, [scale]);
 
+  const bentoFlexMap = {
+    small: 1,    // 1 column equivalent
+    medium: 2,   // 2 column equivalent
+    large: 3,    // 3 column equivalent (full row on some screens)
+    full: '100%', // Fixed full width
+  };
+
   const cardStyle = [
     styles.card,
     { padding: paddingMap[padding] },
+    bentoSize && { 
+      flex: bentoSize === 'full' ? undefined : bentoFlexMap[bentoSize],
+      width: bentoSize === 'full' ? ('100%' as any) : undefined
+    },
+    glass && styles.glassBase,
     style,
   ];
 
@@ -91,11 +113,13 @@ export default function M3Card({
 
   // Interactive / pressable card
   return (
-    <Animated.View style={[animatedStyle]}>
+    <Animated.View style={[animatedStyle, { opacity: disabled ? 0.6 : 1 }]}>
       <Pressable
         onPress={onPress}
+        onLongPress={onLongPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
+        disabled={disabled}
         accessibilityRole="button"
         style={({ pressed }) => [
           cardStyle,
@@ -118,4 +142,12 @@ const styles = StyleSheet.create({
     borderRadius: m3Radii.xl,
     overflow: 'hidden',
   },
+  glassBase: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    // Note: react-native doesn't support backdrop-filter out of the box. 
+    // True glass requires expo-blur, but we simulate it here with semi-transparent bg and borders
+    // as per Kole Jain Phase 3.4 performance optimizations.
+  }
 });

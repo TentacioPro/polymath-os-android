@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -12,7 +12,7 @@ import Animated, {
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../theme';
-import { m3Typography } from '../../../shared/design-tokens';
+import { m3Typography, m3TouchTarget } from '../../../shared/design-tokens';
 
 type RecordingState = 'idle' | 'recording' | 'paused' | 'review';
 
@@ -152,68 +152,66 @@ export function VoiceRecorder({ onSend, onDiscard, onClose }: VoiceRecorderProps
       {/* Controls */}
       <View style={styles.controls}>
         {state === 'idle' && (
-          <TouchableOpacity
-            style={[styles.primaryBtn, { backgroundColor: theme.primaryContainer }]}
+          <Pressable
+            style={({ pressed }) => [styles.primaryBtn, { backgroundColor: theme.primaryContainer, opacity: pressed ? 0.8 : 1 }]}
             onPress={handleRecord}
-            activeOpacity={0.7}
           >
             <Ionicons name="mic" size={28} color={theme.onPrimaryContainer} />
             <Text style={[styles.btnLabel, { color: theme.onPrimaryContainer }]}>
               Tap to record
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         )}
 
         {state === 'recording' && (
           <>
-            <TouchableOpacity
-              style={[styles.circleBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+            <Pressable
+              style={({ pressed }) => [styles.circleBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.8 : 1 }]}
               onPress={handlePause}
             >
               <Ionicons name="pause" size={24} color={theme.onSurface} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.circleBtn, { backgroundColor: theme.errorContainer }]}
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.circleBtn, { backgroundColor: theme.errorContainer, opacity: pressed ? 0.8 : 1 }]}
               onPress={handleStop}
             >
               <Ionicons name="stop" size={24} color={theme.error} />
-            </TouchableOpacity>
+            </Pressable>
           </>
         )}
 
         {state === 'paused' && (
           <>
-            <TouchableOpacity
-              style={[styles.circleBtn, { backgroundColor: theme.primaryContainer }]}
+            <Pressable
+              style={({ pressed }) => [styles.circleBtn, { backgroundColor: theme.primaryContainer, opacity: pressed ? 0.8 : 1 }]}
               onPress={handleResume}
             >
               <Ionicons name="play" size={24} color={theme.onPrimaryContainer} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.circleBtn, { backgroundColor: theme.errorContainer }]}
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.circleBtn, { backgroundColor: theme.errorContainer, opacity: pressed ? 0.8 : 1 }]}
               onPress={handleStop}
             >
               <Ionicons name="stop" size={24} color={theme.error} />
-            </TouchableOpacity>
+            </Pressable>
           </>
         )}
 
         {state === 'review' && (
           <>
-            <TouchableOpacity
-              style={[styles.circleBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+            <Pressable
+              style={({ pressed }) => [styles.circleBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.8 : 1 }]}
               onPress={handleDiscard}
             >
               <Ionicons name="trash-outline" size={22} color={theme.onSurfaceVariant} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.sendBtn, { backgroundColor: theme.primary }]}
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.sendBtn, { backgroundColor: theme.primary, opacity: pressed ? 0.8 : 1 }]}
               onPress={handleSend}
-              activeOpacity={0.7}
             >
               <Text style={[styles.sendLabel, { color: theme.onPrimary }]}>Send</Text>
               <Ionicons name="send" size={18} color={theme.onPrimary} />
-            </TouchableOpacity>
+            </Pressable>
           </>
         )}
       </View>
@@ -274,9 +272,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   circleBtn: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: m3TouchTarget.comfortable,
+    height: m3TouchTarget.comfortable,
+    borderRadius: m3TouchTarget.comfortable / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -3,7 +3,7 @@ import { Text, TextProps, TextStyle } from 'react-native';
 import { useTheme, typography } from '../../theme';
 import { useStore } from '../../store/useStore';
 import { resolveFonts, resolveMonoFont } from '../../../shared/design-tokens';
-import type { FontFamilyPref, MonoFontPref } from '../../../shared/design-tokens';
+import { FontCollection, FONT_COLLECTIONS } from '../../../shared/preferences';
 
 interface ThemedTextProps extends TextProps {
   variant?: 'display' | 'heading' | 'body' | 'caption' | 'mono'
@@ -28,12 +28,12 @@ export default function ThemedText({
   ...rest
 }: ThemedTextProps) {
   const { theme } = useTheme();
-  const fontFamily = useStore((s) => s.preferences.fontFamily) as FontFamilyPref;
-  const monoFont = useStore((s) => s.preferences.monoFont) as MonoFontPref;
+  const fontCollection = useStore((s) => s.preferences.fontCollection) as FontCollection;
   const fontScale = useStore((s) => s.preferences.fontScale);
 
-  const resolved = resolveFonts(fontFamily);
-  const resolvedMono = resolveMonoFont(monoFont);
+  const collectionConfig = FONT_COLLECTIONS[fontCollection] || FONT_COLLECTIONS['industrial'];
+  const resolved = resolveFonts(collectionConfig.sans as any);
+  const resolvedMono = resolveMonoFont(collectionConfig.mono as any);
 
   const colorMap: Record<string, string> = {
     primary: theme.onSurface,

@@ -158,11 +158,11 @@ export default function ActivitiesPage() {
   }
 
   return (
-    <div className="pt-4 flex flex-col gap-4 stagger-children">
+    <div className="@container pt-4">
       {/* Header */}
-      <div className="flex items-center justify-between px-1">
+      <div className="flex items-center justify-between px-1 mb-4">
         <div>
-          <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight">Knowledge</h1>
+          <h1 className="text-[20px] font-bold text-m3-on-surface tracking-tight display-kerning">Knowledge</h1>
           <p className="text-[12px] text-m3-on-surface-variant mt-0.5">{activities?.length || 0} sources</p>
         </div>
         <div className="flex gap-2">
@@ -197,39 +197,30 @@ export default function ActivitiesPage() {
         </div>
       </div>
 
-      {/* Filter Chips — M3 style */}
-      <div className="flex gap-2 overflow-x-auto no-scrollbar px-1">
-        {FILTERS.map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-2 text-[12px] font-semibold shrink-0 transition-standard rounded-full border ${
-              filter === f
-                ? 'bg-m3-primary text-m3-on-primary border-m3-primary'
-                : 'bg-m3-surface-container text-m3-on-surface border-m3-outline-variant hover:bg-m3-surface-container-high'
-            }`}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
+      {/* 2-column desktop layout: list + side panel */}
+      <div className="grid grid-cols-1 @[860px]:grid-cols-[1fr_320px] gap-5">
+        {/* Column 1: Filters + Activity List */}
+        <div className="flex flex-col gap-4 stagger-children">
+          {/* Filter Chips — M3 style */}
+          <div className="flex gap-2 overflow-x-auto no-scrollbar px-1">
+            {FILTERS.map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-4 py-2 text-[12px] font-semibold shrink-0 transition-standard rounded-full border ${
+                  filter === f
+                    ? 'bg-m3-primary text-m3-on-primary border-m3-primary'
+                    : 'bg-m3-surface-container text-m3-on-surface border-m3-outline-variant hover:bg-m3-surface-container-high'
+                }`}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
 
-      {/* Drag-and-Drop Zone */}
-      <div
-        className={`border-2 border-dashed rounded-2xl p-4 text-center transition-standard ${
-          dragOver ? 'border-m3-primary bg-m3-primary-container' : 'border-m3-outline-variant'
-        }`}
-        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={handleDrop}
-      >
-        <span className="material-symbols-outlined text-[20px] text-m3-on-surface-variant mb-1 block">upload_file</span>
-        <p className="text-[10px] text-m3-on-surface-variant uppercase tracking-wider">Drop JSON file to import</p>
-      </div>
-
-      {/* Activity List */}
-      <div className="flex flex-col gap-2">
-        {filtered?.map((activity) => (
+          {/* Activity List */}
+          <div className="flex flex-col gap-2">
+            {filtered?.map((activity) => (
           <div
             key={activity.id}
             className="relative flex items-center gap-3 p-3 rounded-2xl bg-m3-surface-container border border-m3-outline-variant transition-standard hover:bg-m3-surface-container-high group"
@@ -310,44 +301,105 @@ export default function ActivitiesPage() {
             </div>
           </div>
         ))}
+          </div>
+
+          {/* Context Popover — Hick's Law: simple actions stay in Popover */}
+          <Popover
+            open={popoverOpenId !== null}
+            onClose={() => setPopoverOpenId(null)}
+            anchorRef={activeMenuBtnRef as React.RefObject<HTMLElement | null>}
+          >
+            <PopoverItem
+              icon="edit"
+              label="Rename"
+              onClick={() => {
+                const act = activities?.find((a) => a.id === popoverOpenId);
+                if (act) {
+                  setRenameValue(act.title);
+                  setRenameId(popoverOpenId);
+                }
+                setPopoverOpenId(null);
+              }}
+            />
+            <PopoverItem
+              icon="delete"
+              label="Delete"
+              variant="danger"
+              onClick={() => {
+                const id = popoverOpenId!;
+                setPopoverOpenId(null);
+                handleDelete(id);
+              }}
+            />
+          </Popover>
+
+          {filtered?.length === 0 && (
+            <EmptyState
+              variant="empty-activities"
+              onCTA={() => setShowModal(true)}
+            />
+          )}
+        </div>
+
+        {/* Column 2: Side panel — drag-and-drop + quick stats (desktop only) */}
+        <div className="hidden @[860px]:flex flex-col gap-4">
+          {/* Drag-and-Drop Zone */}
+          <div
+            className={`border-2 border-dashed rounded-2xl p-5 text-center transition-standard ${
+              dragOver ? 'border-m3-primary bg-m3-primary-container' : 'border-m3-outline-variant'
+            }`}
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
+          >
+            <span className="material-symbols-outlined text-[28px] text-m3-on-surface-variant mb-2 block">upload_file</span>
+            <p className="text-[11px] text-m3-on-surface-variant uppercase tracking-wider font-semibold">Drop JSON to import</p>
+          </div>
+
+          {/* Quick Add Card */}
+          <button
+            onClick={() => setShowModal(true)}
+            className="p-5 rounded-2xl bg-m3-secondary-container border border-m3-outline-variant transition-standard hover:opacity-90 text-left"
+          >
+            <span className="material-symbols-outlined text-[22px] text-m3-on-secondary-container mb-2 block">add_circle</span>
+            <p className="text-[14px] font-bold text-m3-on-secondary-container">Quick Add</p>
+            <p className="text-[11px] text-m3-on-secondary-container opacity-70 mt-1">Add a new knowledge entry</p>
+          </button>
+
+          {/* Filter Summary */}
+          <div className="p-4 rounded-2xl bg-m3-surface-container border border-m3-outline-variant">
+            <p className="text-[11px] uppercase tracking-wider text-m3-on-surface-variant font-semibold mb-3">Summary</p>
+            <div className="flex flex-col gap-2">
+              {FILTERS.filter((f) => f !== 'All').map((f) => {
+                const count = activities?.filter((a) =>
+                  (a.content_type || a.source || '').toLowerCase().includes(f.toLowerCase())
+                ).length || 0;
+                return (
+                  <div key={f} className="flex justify-between items-center">
+                    <span className="text-[12px] text-m3-on-surface">{f}</span>
+                    <span className="text-[12px] font-semibold text-m3-on-surface-variant">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Context Popover — Hick's Law: simple actions stay in Popover */}
-      <Popover
-        open={popoverOpenId !== null}
-        onClose={() => setPopoverOpenId(null)}
-        anchorRef={activeMenuBtnRef as React.RefObject<HTMLElement | null>}
-      >
-        <PopoverItem
-          icon="edit"
-          label="Rename"
-          onClick={() => {
-            const act = activities?.find((a) => a.id === popoverOpenId);
-            if (act) {
-              setRenameValue(act.title);
-              setRenameId(popoverOpenId);
-            }
-            setPopoverOpenId(null);
-          }}
-        />
-        <PopoverItem
-          icon="delete"
-          label="Delete"
-          variant="danger"
-          onClick={() => {
-            const id = popoverOpenId!;
-            setPopoverOpenId(null);
-            handleDelete(id);
-          }}
-        />
-      </Popover>
-
-      {filtered?.length === 0 && (
-        <EmptyState
-          variant="empty-activities"
-          onCTA={() => setShowModal(true)}
-        />
-      )}
+      {/* Mobile-only drag-and-drop (below list) */}
+      <div className="@[860px]:hidden mt-4">
+        <div
+          className={`border-2 border-dashed rounded-2xl p-4 text-center transition-standard ${
+            dragOver ? 'border-m3-primary bg-m3-primary-container' : 'border-m3-outline-variant'
+          }`}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={handleDrop}
+        >
+          <span className="material-symbols-outlined text-[20px] text-m3-on-surface-variant mb-1 block">upload_file</span>
+          <p className="text-[10px] text-m3-on-surface-variant uppercase tracking-wider">Drop JSON file to import</p>
+        </div>
+      </div>
 
       {/* Add Modal */}
       <ResponsiveModal open={showModal} onClose={() => setShowModal(false)} title="Add Knowledge">

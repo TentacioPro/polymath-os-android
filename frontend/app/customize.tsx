@@ -3,7 +3,7 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -11,11 +11,12 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme, spacing } from '../theme';
-import { m3Typography, m3Radii, resolveFonts, resolveMonoFont } from '../../shared/design-tokens';
-import type { FontFamilyPref, MonoFontPref } from '../../shared/design-tokens';
+import { m3Typography, m3Radii, m3TouchTarget, resolveFonts } from '../../shared/design-tokens';
+import { FontCollection, FONT_COLLECTIONS } from '../../shared/preferences';
 import { useStore } from '../store/useStore';
 import M3Switch from '../components/ui/M3Switch';
 import { hapticLight, hapticSuccess, hapticSelection } from '../utils/haptics';
+import { useCardWidth } from '../utils/responsive';
 
 const DASHBOARD_LAYOUTS = [
   { value: 'grid', label: 'Grid', desc: 'Card grid with stats', icon: 'grid-view' as const },
@@ -28,16 +29,11 @@ const PROFILE_LAYOUTS = [
   { value: 'minimal', label: 'Minimal', desc: 'Essential info only', icon: 'person-outline' as const },
 ];
 
-const FONT_OPTIONS: { value: FontFamilyPref; label: string; sample: string }[] = [
-  { value: 'dm-sans', label: 'DM Sans', sample: 'The quick brown fox' },
-  { value: 'inter', label: 'Inter', sample: 'The quick brown fox' },
-  { value: 'outfit', label: 'Outfit', sample: 'The quick brown fox' },
-  { value: 'space-grotesk', label: 'Space Grotesk', sample: 'The quick brown fox' },
-];
-
-const MONO_OPTIONS: { value: MonoFontPref; label: string; sample: string }[] = [
-  { value: 'jetbrains-mono', label: 'JetBrains Mono', sample: 'const x = 42;' },
-  { value: 'space-mono', label: 'Space Mono', sample: 'const x = 42;' },
+const COLLECTION_OPTIONS: { value: FontCollection; label: string; sample: string; desc: string }[] = [
+  { value: 'industrial', label: 'Industrial', sample: 'P', desc: 'Tech & System' },
+  { value: 'editorial', label: 'Editorial', sample: 'G', desc: 'Reading focus' },
+  { value: 'geometric', label: 'Geometric', sample: 'a', desc: 'Modern & Clean' },
+  { value: 'neo-brutalist', label: 'Neo-Brutalist', sample: 'S', desc: 'Bold & Raw' },
 ];
 
 const FONT_SIZES: { value: number; label: string }[] = [
@@ -64,6 +60,8 @@ export default function CustomizeScreen() {
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
   const { preferences, setPreference, setScreenVisibility } = useStore();
+  const { cardWidth: layoutCardWidth } = useCardWidth(3);
+  const { cardWidth: fontCardWidth } = useCardWidth(2);
 
   const LayoutOption = ({
     label,
@@ -78,15 +76,17 @@ export default function CustomizeScreen() {
     isActive: boolean;
     onPress: () => void;
   }) => (
-    <TouchableOpacity
-      style={[
-        styles.layoutOption,
-        {
-          backgroundColor: isActive ? theme.primaryContainer : theme.surfaceContainer,
-        },
-      ]}
+    <Pressable
+      style={({ pressed }) => [
+          styles.layoutOption,
+          styles.shadowLight,
+          {
+            backgroundColor: isActive ? theme.primaryContainer : theme.surfaceContainer,
+            opacity: pressed ? 0.8 : 1,
+            width: layoutCardWidth,
+          },
+        ]}
       onPress={onPress}
-      activeOpacity={0.7}
     >
       <View style={[styles.layoutIcon, {
         backgroundColor: isActive ? theme.primary : theme.surfaceContainerHigh,
@@ -112,7 +112,7 @@ export default function CustomizeScreen() {
           <MaterialIcons name="check" size={12} color={theme.onPrimary} />
         </View>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 
   const ScreenToggle = ({
@@ -147,12 +147,12 @@ export default function CustomizeScreen() {
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => { hapticLight(); router.back(); }}
-          style={[styles.backBtn, { backgroundColor: theme.surfaceContainerHigh }]}
+          style={({ pressed }) => [styles.backBtn, { backgroundColor: theme.surfaceContainerHigh, opacity: pressed ? 0.8 : 1 }]}
         >
           <MaterialIcons name="arrow-back" size={20} color={theme.onSurface} />
-        </TouchableOpacity>
+        </Pressable>
         <View style={styles.headerText}>
           <Text style={[styles.headerTitle, { color: theme.onSurface }]}>Customize</Text>
           <Text style={[styles.headerSub, { color: theme.onSurfaceVariant }]}>Layout & visibility</Text>
@@ -168,78 +168,47 @@ export default function CustomizeScreen() {
         <Animated.View entering={FadeInDown.delay(50)}>
           <Text style={[styles.sectionTitle, { color: theme.onSurfaceVariant }]}>Typography</Text>
 
-          {/* Font Family */}
-          <Text style={[styles.subsectionLabel, { color: theme.onSurfaceVariant }]}>Font Family</Text>
+          {/* Font Collection */}
+          <Text style={[styles.subsectionLabel, { color: theme.onSurfaceVariant }]}>Typography Style</Text>
           <View style={styles.fontGrid}>
-            {FONT_OPTIONS.map((opt) => {
-              const isActive = preferences.fontFamily === opt.value;
-              const resolved = resolveFonts(opt.value);
+            {COLLECTION_OPTIONS.map((opt) => {
+              const isActive = preferences.fontCollection === opt.value;
+              const config = FONT_COLLECTIONS[opt.value];
+              const resolved = resolveFonts(config.sans as any);
               return (
-                <TouchableOpacity
+                <Pressable
                   key={opt.value}
-                  style={[
+                  style={({ pressed }) => [
                     styles.fontCard,
-                    { backgroundColor: isActive ? theme.primaryContainer : theme.surfaceContainer },
+                    styles.shadowLight,
+                    { backgroundColor: isActive ? theme.primaryContainer : theme.surfaceContainer, opacity: pressed ? 0.8 : 1, width: fontCardWidth },
                   ]}
-                  onPress={() => { hapticSelection(); setPreference('fontFamily', opt.value); }}
-                  activeOpacity={0.7}
+                  onPress={() => { hapticSelection(); setPreference('fontCollection', opt.value); }}
                 >
                   <Text style={[
                     styles.fontSample,
-                    { color: isActive ? theme.onPrimaryContainer : theme.onSurface, fontFamily: resolved.regular },
+                    { color: isActive ? theme.primary : theme.onSurface, fontFamily: resolved.bold, fontSize: 32 },
                   ]}>
                     {opt.sample}
                   </Text>
                   <Text style={[
                     styles.fontName,
-                    { color: isActive ? theme.onPrimaryContainer : theme.onSurfaceVariant, fontFamily: resolved.medium },
+                    { color: isActive ? theme.onPrimaryContainer : theme.onSurface, fontFamily: resolved.medium },
                   ]}>
                     {opt.label}
+                  </Text>
+                  <Text style={[
+                    styles.fontDesc,
+                    { color: isActive ? theme.onPrimaryContainer : theme.onSurfaceVariant, fontFamily: resolved.regular },
+                  ]}>
+                    {config.sans}/{config.mono}
                   </Text>
                   {isActive && (
                     <View style={[styles.activeCheck, { backgroundColor: theme.primary }]}>
                       <MaterialIcons name="check" size={12} color={theme.onPrimary} />
                     </View>
                   )}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          {/* Monospace Font */}
-          <Text style={[styles.subsectionLabel, { color: theme.onSurfaceVariant, marginTop: spacing.lg }]}>Monospace Font</Text>
-          <View style={styles.monoGrid}>
-            {MONO_OPTIONS.map((opt) => {
-              const isActive = preferences.monoFont === opt.value;
-              const resolved = resolveMonoFont(opt.value);
-              return (
-                <TouchableOpacity
-                  key={opt.value}
-                  style={[
-                    styles.fontCard,
-                    { flex: 1, backgroundColor: isActive ? theme.primaryContainer : theme.surfaceContainer },
-                  ]}
-                  onPress={() => { hapticSelection(); setPreference('monoFont', opt.value); }}
-                  activeOpacity={0.7}
-                >
-                  <Text style={[
-                    styles.monoSample,
-                    { color: isActive ? theme.onPrimaryContainer : theme.onSurface, fontFamily: resolved.regular },
-                  ]}>
-                    {opt.sample}
-                  </Text>
-                  <Text style={[
-                    styles.fontName,
-                    { color: isActive ? theme.onPrimaryContainer : theme.onSurfaceVariant },
-                  ]}>
-                    {opt.label}
-                  </Text>
-                  {isActive && (
-                    <View style={[styles.activeCheck, { backgroundColor: theme.primary }]}>
-                      <MaterialIcons name="check" size={12} color={theme.onPrimary} />
-                    </View>
-                  )}
-                </TouchableOpacity>
+                </Pressable>
               );
             })}
           </View>
@@ -250,14 +219,13 @@ export default function CustomizeScreen() {
             {FONT_SIZES.map((sz) => {
               const isActive = Math.abs(preferences.fontScale - sz.value) < 0.01;
               return (
-                <TouchableOpacity
+                <Pressable
                   key={sz.value}
-                  style={[
+                  style={({ pressed }) => [
                     styles.fontSizeBtn,
-                    { backgroundColor: isActive ? theme.primary : 'transparent' },
+                    { backgroundColor: isActive ? theme.primary : 'transparent', opacity: pressed ? 0.8 : 1 },
                   ]}
                   onPress={() => { hapticSelection(); setPreference('fontScale', sz.value); }}
-                  activeOpacity={0.7}
                 >
                   <Text style={[
                     styles.fontSizeBtnLabel,
@@ -265,7 +233,7 @@ export default function CustomizeScreen() {
                   ]}>
                     {sz.label}
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               );
             })}
           </View>
@@ -356,8 +324,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   backBtn: {
-    width: 44,
-    height: 44,
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
     borderRadius: m3Radii.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -386,6 +354,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     marginTop: -spacing.sm,
   },
+  shadowLight: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
 
   /* Layout Options */
   layoutGrid: {
@@ -394,7 +369,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   layoutOption: {
-    width: '31%',
     padding: spacing.md,
     borderRadius: m3Radii.xl,
     alignItems: 'center',
@@ -440,7 +414,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   fontCard: {
-    width: '48%',
     padding: spacing.md,
     borderRadius: m3Radii.xl,
     position: 'relative',
@@ -451,16 +424,13 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   fontName: {
-    fontSize: m3Typography.labelSmall.fontSize,
-    marginTop: 2,
+    fontSize: m3Typography.labelLarge.fontSize,
+    fontWeight: '600',
+    marginTop: 4,
   },
-  monoGrid: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  monoSample: {
-    fontSize: 13,
-    lineHeight: 20,
+  fontDesc: {
+    fontSize: 10,
+    opacity: 0.8,
   },
   fontSizeRow: {
     flexDirection: 'row',

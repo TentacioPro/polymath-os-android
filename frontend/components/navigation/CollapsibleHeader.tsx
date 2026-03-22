@@ -10,33 +10,32 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../theme';
+import { m3Typography, m3TouchTarget } from '../../../shared/design-tokens';
 
-const HEADER_MAX = 96;
+const HEADER_MAX = 56;
 const HEADER_MIN = 56;
-const SCROLL_RANGE = HEADER_MAX - HEADER_MIN;
+const SCROLL_RANGE = 1;
 
 interface CollapsibleHeaderProps {
   /** Shared scroll Y value from the tab content */
   scrollY: SharedValue<number>;
-  /** Screen title shown when collapsed */
+  /** Screen title shown in header */
   title?: string;
-  /** Greeting text shown when expanded */
-  greeting?: string;
   /** Number for notification badge */
   notificationCount?: number;
+  /** Callback when hamburger button is pressed */
+  onHamburgerPress?: () => void;
 }
 
 export default function CollapsibleHeader({
   scrollY,
   title = 'Polymath',
-  greeting,
   notificationCount = 0,
+  onHamburgerPress,
 }: CollapsibleHeaderProps) {
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-
-  const greetingText = greeting || getGreeting();
 
   const headerStyle = useAnimatedStyle(() => {
     const height = interpolate(
@@ -48,47 +47,32 @@ export default function CollapsibleHeader({
     return { height: height + insets.top, paddingTop: insets.top };
   });
 
-  const greetingStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [0, SCROLL_RANGE * 0.5],
-      [1, 0],
-      Extrapolation.CLAMP,
-    );
-    const translateY = interpolate(
-      scrollY.value,
-      [0, SCROLL_RANGE],
-      [0, -10],
-      Extrapolation.CLAMP,
-    );
-    return { opacity, transform: [{ translateY }] };
-  });
-
   const titleStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [SCROLL_RANGE * 0.5, SCROLL_RANGE],
-      [0, 1],
-      Extrapolation.CLAMP,
-    );
-    return { opacity };
+    return { opacity: 1 };
   });
 
   return (
     <Animated.View style={[styles.header, { backgroundColor: theme.surface }, headerStyle]}>
       <View style={styles.content}>
-        {/* Left: Greeting (expanded) / Title (collapsed) */}
-        <View style={styles.leftSection}>
-          <Animated.View style={greetingStyle}>
-            <Text style={[styles.greeting, { color: theme.onSurface }]}>
-              {greetingText}
-            </Text>
-          </Animated.View>
-          <Animated.View style={[styles.titleWrap, titleStyle]}>
-            <Text style={[styles.title, { color: theme.onSurface }]}>
-              {title}
-            </Text>
-          </Animated.View>
+        {/* Left: Hamburger + Greeting/Title */}
+        <View style={styles.leftRow}>
+          {onHamburgerPress && (
+            <Pressable
+              onPress={onHamburgerPress}
+              style={[styles.iconBtn, { backgroundColor: theme.surfaceContainer }]}
+              accessibilityLabel="Open navigation menu"
+              accessibilityRole="button"
+            >
+              <Ionicons name="menu" size={20} color={theme.onSurface} />
+            </Pressable>
+          )}
+          <View style={styles.leftSection}>
+            <Animated.View style={[styles.titleWrap, titleStyle]}>
+              <Text style={[styles.title, { color: theme.onSurface }]}>
+                {title}
+              </Text>
+            </Animated.View>
+          </View>
         </View>
 
         {/* Right: Actions */}
@@ -126,22 +110,12 @@ export default function CollapsibleHeader({
   );
 }
 
-function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
-}
+
 
 export { HEADER_MAX, HEADER_MIN, SCROLL_RANGE };
 
 const styles = StyleSheet.create({
   header: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
     overflow: 'hidden',
   },
   content: {
@@ -155,18 +129,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  greeting: {
-    fontSize: 28,
-    fontWeight: '400',
-    letterSpacing: 0,
+  leftRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
+
   titleWrap: {
     position: 'absolute',
     left: 0,
     right: 0,
   },
   title: {
-    fontSize: 22,
+    fontSize: m3Typography.titleLarge.fontSize,
     fontWeight: '500',
     letterSpacing: 0,
   },
@@ -176,8 +152,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   iconBtn: {
-    width: 40,
-    height: 40,
+    width: m3TouchTarget.min,
+    height: m3TouchTarget.min,
     borderRadius: 9999,
     alignItems: 'center',
     justifyContent: 'center',
@@ -201,7 +177,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   badgeText: {
-    fontSize: 10,
+    fontSize: m3Typography.labelSmall.fontSize,
     fontWeight: '600',
   },
 });
