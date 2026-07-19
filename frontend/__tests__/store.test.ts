@@ -144,8 +144,7 @@ describe('Zustand Store Tests', () => {
       expect(preferences.showQuickCaptureOnHome).toBe(true);
       expect(preferences.dashboardLayout).toBe('grid');
       expect(preferences.profileLayout).toBe('full');
-      expect(preferences.fontFamily).toBe('dm-sans');
-      expect(preferences.monoFont).toBe('jetbrains-mono');
+      expect(preferences.fontCollection).toBe('industrial');
       expect(preferences.fontScale).toBe(1);
     });
 
@@ -184,9 +183,12 @@ describe('Zustand Store Tests', () => {
   });
 
   describe('Hydration', () => {
-    it('should not be hydrated by default', () => {
-      const { _hasHydrated } = useStore.getState();
-      expect(_hasHydrated).toBe(false);
+    it('hydrates to true with AsyncStorage mock (mock resolves synchronously)', async () => {
+      // AsyncStorage jest mock resolves synchronously; persist middleware calls
+      // setHasHydrated(true) before any test assertion runs.
+      // Flush microtask queue to ensure onRehydrateStorage callback completes.
+      await Promise.resolve();
+      expect(useStore.getState()._hasHydrated).toBe(true);
     });
 
     it('should set hydration state', () => {

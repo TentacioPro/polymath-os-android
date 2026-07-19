@@ -79,7 +79,7 @@ describe('CollapsibleHeader', () => {
   it('renders custom greeting', () => {
     const scrollY = createMockScrollY();
     const { getByText } = wrap(
-      <CollapsibleHeader scrollY={scrollY} greeting="Welcome back!" />,
+      <CollapsibleHeader scrollY={scrollY} title="Welcome back!" />,
     );
     expect(getByText('Welcome back!')).toBeTruthy();
   });
@@ -208,11 +208,13 @@ describe('CollapsibleHeader constants', () => {
     expect(typeof SCROLL_RANGE).toBe('number');
   });
 
-  it('HEADER_MAX is greater than HEADER_MIN', () => {
-    expect(HEADER_MAX).toBeGreaterThan(HEADER_MIN);
+  it('header is fixed-height (MAX equals MIN at 56)', () => {
+    expect(HEADER_MAX).toBe(56);
+    expect(HEADER_MIN).toBe(56);
+    expect(HEADER_MAX).toBe(HEADER_MIN);
   });
 
-  it('SCROLL_RANGE equals HEADER_MAX minus HEADER_MIN', () => {
-    expect(SCROLL_RANGE).toBe(HEADER_MAX - HEADER_MIN);
+  it('SCROLL_RANGE is min-safe 1 for zero-range interpolation', () => {
+    expect(SCROLL_RANGE).toBe(1);
   });
 });

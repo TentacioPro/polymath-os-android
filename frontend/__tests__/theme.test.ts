@@ -140,11 +140,11 @@ describe('Theme System Tests', () => {
 
   describe('Theme color identity', () => {
     it('void theme should have dark surface', () => {
-      expect(themes.void.surface).toBe('#0A0A0A');
+      expect(themes.void.surface).toBe('#000000');
     });
 
     it('nova theme should have light surface', () => {
-      expect(themes.nova.surface).toBe('#FAFAFA');
+      expect(themes.nova.surface).toBe('#FFFFFF');
     });
 
     it('amber theme should have amber primary', () => {
@@ -152,11 +152,11 @@ describe('Theme System Tests', () => {
     });
 
     it('ocean theme should have blue primary', () => {
-      expect(themes.ocean.primary).toBe('#60A5FA');
+      expect(themes.ocean.primary).toBe('#00F2FF');
     });
 
-    it('void theme has white primary (monochrome)', () => {
-      expect(themes.void.primary).toBe('#FFFFFF');
+    it('void theme has silver primary (monochrome #C0C0C0)', () => {
+      expect(themes.void.primary).toBe('#C0C0C0');
     });
   });
 
