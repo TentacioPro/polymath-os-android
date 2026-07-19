@@ -93,3 +93,9 @@ The 7 failing Jest tests are real failures that must be green before any depende
 **Remediation (2026-07-19):** Keys regenerated silently using a Python script that writes directly to `backend/.env` without printing values. Confirmed via `git check-ignore -v backend/.env` → `.gitignore:92:*.env` — file is ignored and untracked.
 
 **Rule going forward:** Any secret generation must use file-write-only paths (no `print`, no stdout capture of secret values). Prefer `secrets.token_urlsafe()` written inline to file. Never echo, print, or pipe secret material through shell output.
+
+---
+
+## Decision 7: docs/setup/ in repo is canonical; pack folder is stale
+
+`docs/setup/` in `polymath-os-android` (committed on `chore/spec-system`) is now the canonical home for: `setup-local-env.md`, `kickoff-prompt.md`, `prompt-optimizer.skill.md`, `model-playbook.md`. The originals in `D:\Cognitive OS july 2026\` and `cognitive-os-spec-pack\` are a stale download — do not edit them; edit only the repo copies.
