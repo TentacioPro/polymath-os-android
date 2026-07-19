@@ -99,3 +99,30 @@ The 7 failing Jest tests are real failures that must be green before any depende
 ## Decision 7: docs/setup/ in repo is canonical; pack folder is stale
 
 `docs/setup/` in `polymath-os-android` (committed on `chore/spec-system`) is now the canonical home for: `setup-local-env.md`, `kickoff-prompt.md`, `prompt-optimizer.skill.md`, `model-playbook.md`. The originals in `D:\Cognitive OS july 2026\` and `cognitive-os-spec-pack\` are a stale download — do not edit them; edit only the repo copies.
+
+---
+
+## Deviation #8: reference/scaffold never created — reuse maps derived from spec prose, not source
+
+**What happened:** Phase B originally included extracting `personal-cognitive-os-architecture_tar.gz`
+to `reference/scaffold/`. When Phase B was rewritten for Windows-native, the tar.gz extraction
+step was dropped because the file was not present at the time. `reference/scaffold/` was never
+created. Task 02 and 03 specs were written without verifying the scaffold source on disk.
+
+**Consequence:** T03's four guardrail checks were derived from spec prose
+(`validation-error-handling.spec.md` discrepancies), not the actual `guardrails.py` file in the
+scaffold. Two of the four checks were wrong: `length_and_format` and `pii_detection` are not
+scaffold checks. The real checks include `check_provenance_downgrade` (REJECT) and
+`check_external_output_eligible` (REJECT), which were missing entirely. T02's rbac.js reuse map
+was also written without verifying the actual pattern (data-driven matrix,
+`auditDenialReason`, deny-by-default for unknown roles).
+
+**Remediation:** Owner to place `personal-cognitive-os-architecture_tar.gz` at confirmed path;
+extract to `D:\cognitive-os\reference\scaffold\`; read actual source files before rewriting specs.
+
+**Rule going forward:** Reuse maps MUST point at verified, on-disk file paths. "Derive from spec"
+is only valid after the owner explicitly confirms the source file does not exist. Any reuse map
+entry that cannot be verified by `ls <path>` before spec commit is a defect. This applies to
+ALL future task specs — check the file exists before naming it as a reference.
+
+*Note: this is recorded as deviation #8; deviation #7 is the docs canonicalization decision above.*
