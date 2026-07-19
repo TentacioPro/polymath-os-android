@@ -26,7 +26,8 @@ from models.user import User, UserInDB, RefreshToken, TokenPair
 logger = logging.getLogger(__name__)
 
 # JWT Configuration from environment
-JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'dev-secret-key-change-in-production')
+# Hard-fail on startup if unset — see rbac.verify_startup_config()
+JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', '')
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('JWT_ACCESS_TOKEN_EXPIRE_MINUTES', '30'))
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.environ.get('JWT_REFRESH_TOKEN_EXPIRE_DAYS', '7'))

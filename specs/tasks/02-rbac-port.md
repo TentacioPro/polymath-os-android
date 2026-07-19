@@ -16,43 +16,110 @@ handler → audit** (system-design.spec.md rule 2).
 - `specs/modules/testing.spec.md` (every new backend module ships its own unit suite)
 
 ## REUSE MAP
-- `backend/auth.py::get_current_user` — existing JWT dependency; RBAC wraps it, never replaces it
-- `backend/auth.py::ACCESS_TOKEN_EXPIRE_MINUTES` — reference for token shape
-- Testing heritage: testing.spec.md notes "12 Jest (rbac/audit/validation patterns)" from scaffold;
-  port the structural pattern (role→resource→action matrix), not the JS test syntax
+**Authoritative source (verified on disk — read before implementing):**
+- `reference/scaffold/backend/src/middleware/rbac.js` — verified ✓ (read in full 2026-07-19)
+- `reference/scaffold/backend/src/__tests__/rbac.test.js` — verified ✓ (5 of 12 scaffold Jest tests)
+- Scaffold backend suite: 12/12 green before porting (confirmed 2026-07-19)
+
+**Port the structural pattern from scaffold — do not re-derive from spec prose.**
+
+### Key patterns from scaffold (translate JS → Python):
+
+**1. Data-driven matrix (not if/elif branching):**
+```js
+// scaffold JS pattern — port structure, not syntax
+const PERMISSIONS = {
+  owner: ['read', 'write_staged', 'commit', 'modify_schema', 'read_audit', 'grant_role'],
+  'agent:read_only': ['read'],
+  'agent:staged_write': ['read', 'write_staged'],
+};
+```
+Our Python equivalent uses the same dict-of-lists pattern with our action names (see matrix below).
+
+**2. Deny-by-default for unknown roles:**
+```js
+const allowed = PERMISSIONS[identity.role] || [];  // unknown role → empty list → denied
+```
+
+**3. auditDenialReason on every denial (REQUIRED — feeds audit trail):**
+```js
+req.auditDenialReason = `role '${identity.role}' lacks '${requiredAction}'`;
+req.auditDenialReason = 'role escalation attempt by non-owner identity';
+```
+Python equivalent: set `request.state.audit_denial_reason` before raising HTTPException.
+
+**4. Escalation hard-stop (checked before permission matrix):**
+```js
+const ROLE_ESCALATION_ACTIONS = new Set(['grant_role']);
+if (ROLE_ESCALATION_ACTIONS.has(requiredAction) && identity.role !== 'owner') → 403
+```
+
+**5. Missing/unauthenticated identity → 401 (not 403):**
+```js
+if (!identity || !identity.role) return res.status(401).json({...});
+```
 
 ## ROLES & PERMISSION MATRIX (to encode)
-Four roles from security.spec.md:
-- `owner` — full access to all operations on all resources
-- `agent:read_only` — read all resources; no writes, deletes, or exports of sensitive data
-- `agent:staged_write` — write operations land in staging queue, owner must confirm
-- `agent:service` — internal service-to-service; access to agent-specific endpoints only
 
-Resource classes: `activity`, `journal`, `connection`, `memory`, `user`, `export`, `audit_log`
+**3 scaffold roles + 1 spec-added role:**
+- `owner` — scaffold-sourced; full access to all actions
+- `agent:read_only` — scaffold-sourced; read only
+- `agent:staged_write` — scaffold-sourced; read + write_staged (writes land in staging queue, owner confirms)
+- `agent:service` — **spec-ADDED** (not in scaffold); internal service-to-service; access to
+  agent-specific endpoints only; must be recorded in `02-rbac-port-decisions.md`
 
-Operations: `read`, `write`, `delete`, `export`, `admin` (grant/revoke roles)
+**Actions (translated from scaffold flat names to our system's operations):**
 
-Matrix rule: if a role×operation×resource combination is not explicitly granted, it is denied.
-No implicit inheritance. No role self-escalation (a role cannot grant itself higher permissions).
+| Action | owner | agent:read_only | agent:staged_write | agent:service |
+|---|---|---|---|---|
+| `read` | ✓ | ✓ | ✓ | — |
+| `write_staged` | ✓ | — | ✓ | — |
+| `write_commit` | ✓ | — | — | — |
+| `delete` | ✓ | — | — | — |
+| `export` | ✓ | — | — | — |
+| `read_audit` | ✓ | — | — | ✓ |
+| `grant_role` | ✓ | — | — | — |
+| `agent_invoke` | ✓ | ✓ | ✓ | ✓ |
+
+Matrix rule: any action not explicitly granted → denied. No implicit inheritance.
+`grant_role` is escalation-guarded (escalation check runs BEFORE matrix lookup).
 
 ## TDD CONTRACT
 **Unit tests** (`backend/tests/test_rbac.py` — no live server, no DB, pure logic):
-- `test_owner_has_full_access` — owner passes all resource/operation combinations
-- `test_agent_read_only_can_read_not_write` — agent:read_only blocked on write/delete/export
-- `test_agent_staged_write_is_allowed_but_flagged` — staged_write routes to staging, not direct
-- `test_agent_service_limited_to_service_endpoints` — service role blocked on user resources
-- `test_no_role_self_escalation` — no role can grant itself owner
-- `test_missing_jwt_secret_raises_on_startup` — `verify_startup_config()` raises `RuntimeError`
-  when JWT_SECRET_KEY is missing or is the literal string "your-256-bit-random-secret-key-here"
-- `test_rbac_denied_produces_correct_error_shape` — denied access raises HTTPException with
-  `{"code": "rbac_denied", "details": [...], "request_id": "..."}` shape
+
+Translate scaffold rbac.test.js structure (1–5), then add our system-specific tests (6–8):
+
+1. `test_unauthenticated_returns_401` — missing identity/role → HTTPException 401 (scaffold test 1)
+2. `test_agent_read_only_cannot_write_staged` — write_staged denied → 403 + audit_denial_reason set
+   (scaffold test 2: "agent:read_only cannot write_staged → 403 with reason")
+3. `test_agent_staged_write_can_write_staged` — write_staged allowed → no exception raised
+   (scaffold test 3: "agent:staged_write CAN write_staged → 202")
+4. `test_grant_role_escalation_blocked_for_non_owner` — agent:staged_write + grant_role → 403
+   escalation reason; owner + grant_role → passes (scaffold test 4)
+5. `test_no_agent_role_has_write_commit` — no agent:* role contains write_commit in PERMISSIONS
+   (scaffold test 5: "No agent role contains 'commit'" — pure dict inspection, no request needed)
+6. `test_owner_has_full_access` — owner passes all actions including grant_role
+7. `test_agent_service_limited_to_audit_and_invoke` — agent:service blocked on read/write/delete/export
+8. `test_missing_jwt_secret_raises_on_startup` — `verify_startup_config()` raises `RuntimeError`
+   when JWT_SECRET_KEY is absent or equals the default literal "your-256-bit-random-secret-key-here"
+9. `test_rbac_denied_produces_correct_error_shape` — HTTPException detail has
+   `{"code": "rbac_denied", "details": [...], "request_id": "..."}` shape
+
+10. `test_no_permissive_bypass_flag_exists` — assert that no env-based bypass flag, permissive
+    mode toggle, or development-mode shortcut exists in rbac.py (import the module, inspect
+    its module-level constants and check_permission function signature — no bypass path)
 
 **Integration** (existing 22-test suite must still pass unchanged after wiring):
-- Existing smoke tests hit development mode where RBAC is in permissive mode (same as current
-  rate limiting — skip in development), so they must remain green
+- Enforcement is identical in dev and prod. No env-based security bypass exists.
+  The existing 22 smoke tests pass because the authenticated test user maps to role `owner`;
+  public endpoints (health/root) carry no RBAC dependency.
+  If any of the 22 tests break under enforcement, STOP and report which and why — do not add
+  a bypass.
 
 ## GUARDRAIL-PROVENANCE
-No provenance claims in this module. The permission matrix is owner-authored at task-spec time.
+No provenance claims in this module. The permission matrix is owner-authored at task-spec time;
+the structural pattern (data-driven dict, deny-by-default, auditDenialReason) is scaffold-sourced.
+The `agent:service` role addition is spec-owned and must be justified in the decisions file.
 
 ## FILE SCOPE
 ONLY these paths may be modified:
@@ -72,9 +139,10 @@ ONLY these paths may be modified:
 - Multi-tenant or cross-user RBAC (single-owner system; agent roles are the target)
 
 ## DONE MEANS
-- `uv run pytest backend/tests/test_rbac.py -v` — all unit tests pass (no live server)
+- `uv run pytest backend/tests/test_rbac.py -v` — all 10 unit tests pass (no live server)
 - `uv run pytest tests/ -q` — all 22 integration tests still pass (with server+Mongo up)
 - `npx jest` in frontend/ — 303/303 still green (no regression)
-- `02-rbac-port-decisions.md` written (role design rationale, rejected alternatives)
+- `02-rbac-port-decisions.md` written: data-driven matrix rationale, auditDenialReason pattern,
+  agent:service role addition justification, rejected alternatives
 - State file updated to `done`, branch pushed to `origin/task/02-rbac-port`
 - Merge gate: full suite run on merge result into `feat/ui-revamp-v4`
