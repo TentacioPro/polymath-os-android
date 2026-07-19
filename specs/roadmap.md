@@ -4,8 +4,9 @@ Phases are USABILITY milestones; inside each, lanes run in parallel (disjoint FI
 spec-system §C). You start using the system at the end of every phase, not at the end.
 
 ## Phase 0 — Foundation (serial, ~1 session)
-T01: ff-merge v4 → main, delete v3, fix 7 theme tests. Everything else branches from here.
-✔ Usable: a clean, green main you trust.
+T01: fix 7 stale Jest tests (4 theme-identity + 3 CollapsibleHeader). Fast-forward to main REMOVED — trunk is feat/ui-revamp-v4 (see 00-environment-decisions.md §4).
+T09a: design-language token layer (soft-minimal, typography-led). Runs before T09.
+✔ Usable: green baseline on the real trunk; design language locked.
 
 ## Phase 1 — Security surface (2 lanes, parallel)
 Lane A: T02 RBAC port (+ JWT-secret hard-fail)   Lane B: T03 guardrails port
@@ -39,7 +40,8 @@ concepts from YOUR polymath-os "Archivist" · T15 CUA importer (staged; browser-
 control reference; linkwarden pattern for bookmarks; wacli for WhatsApp links) · T16 voice
 interface (the JARVIS moment) · T17 mail-agent (Gmail; see ledger) · T18 memory manager
 (memory.spec.md) — consider pulling into Phase 4 if daily use makes context-carry painful ·
-T19 polymath-mcp + OKF export (interop.spec.md) · Shepherd runtime adoption when mature.
+T19 polymath-mcp + OKF export (interop.spec.md) · T20 docs-site (MkDocs Material → GitHub Pages,
+low priority, markdown-in-git stays canonical) · Shepherd runtime adoption when mature.
 
 ## Rules
 1. A phase ends when its ✔ line is true in daily use, not when code merges.
