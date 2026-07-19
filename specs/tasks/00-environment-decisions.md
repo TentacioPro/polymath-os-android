@@ -117,12 +117,32 @@ scaffold checks. The real checks include `check_provenance_downgrade` (REJECT) a
 was also written without verifying the actual pattern (data-driven matrix,
 `auditDenialReason`, deny-by-default for unknown roles).
 
-**Remediation:** Owner to place `personal-cognitive-os-architecture_tar.gz` at confirmed path;
-extract to `D:\cognitive-os\reference\scaffold\`; read actual source files before rewriting specs.
+**Remediation (2026-07-19):** Owner placed tar.gz at `D:\Cognitive OS july 2026\personal-cognitive-os-architecture.tar.gz`.
+SHA-256 verified: `4d5ec552e2f9aa93bedee18ac90790f066445220e4fd6abfe0a74e17c71eb9af`. Extracted to
+`D:\cognitive-os\reference\scaffold\`. Both scaffold suites confirmed green: 12/12 Jest (backend),
+25/25 pytest (agent-service). T02 and T03 specs rewritten from verified source files.
 
 **Rule going forward:** Reuse maps MUST point at verified, on-disk file paths. "Derive from spec"
 is only valid after the owner explicitly confirms the source file does not exist. Any reuse map
 entry that cannot be verified by `ls <path>` before spec commit is a defect. This applies to
 ALL future task specs — check the file exists before naming it as a reference.
 
-*Note: this is recorded as deviation #8; deviation #7 is the docs canonicalization decision above.*
+*Note: this is recorded as deviation #8; deviation #7 is the docs canonicalization decision above.
+The initial record of this deviation was committed directly to `feat/ui-revamp-v4` (trunk), which
+itself violated the process note below (Deviation #9). That commit stands; this entry supersedes it
+on the canonical chore/spec-system branch.*
+
+---
+
+## Deviation #9: Doc-only spec appends must go through chore/* branch (process rule)
+
+**What happened:** Deviation #8 was committed directly to `feat/ui-revamp-v4` (trunk) instead of
+going through a `chore/*` branch. This bypassed the branching discipline that keeps doc-only
+changes reviewable and auditable.
+
+**Rule going forward (binding for all future sessions):**
+- All doc-only appends to `specs/tasks/00-*.md`, `specs/modules/*.spec.md`, and `docs/setup/`
+  that do not accompany implementation work MUST go through a `chore/*` branch.
+- Commit on `chore/*` → push → merge into `feat/ui-revamp-v4`.
+- Exception: if an implementation task branch is already open and the doc change is directly
+  tied to that task's spec, commit it on the task branch alongside the code.
