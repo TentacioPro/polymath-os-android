@@ -43,6 +43,7 @@ from auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES
 )
 from crypto import field_encryptor, encrypt_field, decrypt_field
+from rbac import require_permission, verify_startup_config
 from models.user import (
     User as UserModel, UserCreate, UserUpdate, UserInDB, 
     RefreshToken, TokenPair, LoginRequest, RefreshRequest
@@ -1011,7 +1012,7 @@ async def get_current_user_profile(request: Request, user: dict = Depends(get_cu
     return UserModel(**user_doc)
 
 # ACTIVITIES
-@api_router.post("/activities/manual", response_model=Activity)
+@api_router.post("/activities/manual", response_model=Activity, dependencies=[Depends(require_permission("write_staged"))])
 async def create_manual_activity(input: ActivityCreate):
     """Create a manual activity entry"""
     timestamp = input.timestamp or datetime.utcnow()
@@ -1039,7 +1040,7 @@ async def create_manual_activity(input: ActivityCreate):
     await db.activities.insert_one(activity.dict())
     return activity
 
-@api_router.post("/activities/upload")
+@api_router.post("/activities/upload", dependencies=[Depends(require_permission("write_staged"))])
 async def upload_activities(file: UploadFile = File(...)):
     """Upload and parse activity history files"""
     content = await file.read()
@@ -1218,7 +1219,7 @@ async def get_notifications(limit: int = 20):
     notifications.sort(key=lambda n: n.get("timestamp", ""), reverse=True)
     return notifications[:limit]
 
-@api_router.delete("/activities/{activity_id}")
+@api_router.delete("/activities/{activity_id}", dependencies=[Depends(require_permission("delete"))])
 async def delete_activity(activity_id: str):
     """Delete an activity"""
     result = await db.activities.delete_one({"id": activity_id})
@@ -1226,7 +1227,7 @@ async def delete_activity(activity_id: str):
         raise HTTPException(status_code=404, detail="Activity not found")
     return {"message": "Activity deleted"}
 
-@api_router.patch("/activities/{activity_id}")
+@api_router.patch("/activities/{activity_id}", dependencies=[Depends(require_permission("write_staged"))])
 async def update_activity(activity_id: str, input: ActivityUpdate):
     """Rename / update mutable fields of an activity"""
     update_data = {k: v for k, v in input.dict().items() if v is not None}
@@ -1307,7 +1308,7 @@ def _sync_extract(url: str) -> Dict[str, Any]:
     return result
 
 # JOURNALS
-@api_router.post("/journals", response_model=Journal)
+@api_router.post("/journals", response_model=Journal, dependencies=[Depends(require_permission("write_staged"))])
 async def create_journal(input: JournalCreate):
     """Create a journal entry"""
     journal = Journal(
@@ -1325,7 +1326,7 @@ async def get_journals(skip: int = 0, limit: int = 100):
     journals = await db.journals.find().sort("timestamp", -1).skip(skip).limit(limit).to_list(limit)
     return [Journal(**journal) for journal in journals]
 
-@api_router.put("/journals/{journal_id}", response_model=Journal)
+@api_router.put("/journals/{journal_id}", response_model=Journal, dependencies=[Depends(require_permission("write_staged"))])
 async def update_journal(journal_id: str, input: JournalCreate):
     """Update a journal entry"""
     result = await db.journals.find_one({"id": journal_id})
@@ -1345,7 +1346,7 @@ async def update_journal(journal_id: str, input: JournalCreate):
     updated = await db.journals.find_one({"id": journal_id})
     return Journal(**updated)
 
-@api_router.delete("/journals/{journal_id}")
+@api_router.delete("/journals/{journal_id}", dependencies=[Depends(require_permission("delete"))])
 async def delete_journal(journal_id: str):
     """Delete a journal entry"""
     result = await db.journals.delete_one({"id": journal_id})
@@ -1455,7 +1456,7 @@ async def get_ai_config():
     return config or {"provider": "openai", "model": "gpt-4o-mini", "api_key": "sk-emerge..."}
 
 # EXPORT/IMPORT
-@api_router.post("/export/json")
+@api_router.post("/export/json", dependencies=[Depends(require_permission("export"))])
 async def export_json():
     """Export all data as JSON"""
     activities = await db.activities.find().to_list(10000)
@@ -1482,7 +1483,7 @@ async def export_json():
     
     return export_data
 
-@api_router.post("/export/markdown")
+@api_router.post("/export/markdown", dependencies=[Depends(require_permission("export"))])
 async def export_markdown():
     """Export data as Markdown"""
     activities = await db.activities.find().sort("timestamp", -1).to_list(10000)
@@ -1515,7 +1516,7 @@ async def export_markdown():
     
     return {"content": md_content, "filename": f"polymath_export_{datetime.utcnow().strftime('%Y%m%d')}.md"}
 
-@api_router.post("/export/csv")
+@api_router.post("/export/csv", dependencies=[Depends(require_permission("export"))])
 async def export_csv():
     """Export activities as CSV"""
     activities = await db.activities.find().sort("timestamp", -1).to_list(10000)
@@ -1536,7 +1537,7 @@ async def export_csv():
     
     return {"content": output.getvalue(), "filename": f"polymath_export_{datetime.utcnow().strftime('%Y%m%d')}.csv"}
 
-@api_router.post("/import/restore", response_model=Dict[str, int])
+@api_router.post("/import/restore", response_model=Dict[str, int], dependencies=[Depends(require_permission("write_commit"))])
 async def import_restore(data: Dict[str, Any]):
     """Restore app state from exported data"""
     try:
@@ -1625,7 +1626,7 @@ async def get_agent_memories(memory_type: Optional[str] = None, limit: int = 50)
     memories = [clean_document(doc) for doc in memories]
     return memories
 
-@api_router.post("/agent/memory", response_model=AgentMemory)
+@api_router.post("/agent/memory", response_model=AgentMemory, dependencies=[Depends(require_permission("agent_invoke"))])
 async def create_agent_memory(memory_type: str, content: str, source: str, importance: float = 0.5):
     """Manually create agent memory"""
     memory = AgentMemory(
@@ -1637,7 +1638,7 @@ async def create_agent_memory(memory_type: str, content: str, source: str, impor
     await db.agent_memory.insert_one(memory.dict())
     return memory
 
-@api_router.put("/agent/memory/{memory_id}")
+@api_router.put("/agent/memory/{memory_id}", dependencies=[Depends(require_permission("agent_invoke"))])
 async def update_agent_memory(memory_id: str, content: str, importance: Optional[float] = None):
     """Update agent memory"""
     update_data = {"content": content}
@@ -1655,7 +1656,7 @@ async def update_agent_memory(memory_id: str, content: str, importance: Optional
     updated = await db.agent_memory.find_one({"id": memory_id})
     return updated
 
-@api_router.delete("/agent/memory/{memory_id}")
+@api_router.delete("/agent/memory/{memory_id}", dependencies=[Depends(require_permission("delete"))])
 async def delete_agent_memory(memory_id: str):
     """Delete agent memory"""
     result = await db.agent_memory.delete_one({"id": memory_id})
@@ -1663,7 +1664,7 @@ async def delete_agent_memory(memory_id: str):
         raise HTTPException(status_code=404, detail="Memory not found")
     return {"message": "Memory deleted"}
 
-@api_router.post("/agent/learn")
+@api_router.post("/agent/learn", dependencies=[Depends(require_permission("agent_invoke"))])
 async def trigger_learning():
     """Trigger agent to learn from current data"""
     try:
@@ -1699,7 +1700,7 @@ async def trigger_learning():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Learning failed: {str(e)}")
 
-@api_router.post("/agent/consolidate")
+@api_router.post("/agent/consolidate", dependencies=[Depends(require_permission("agent_invoke"))])
 async def trigger_memory_consolidation():
     """Consolidate short-term memories into long-term insights"""
     result = await consolidate_memories()
@@ -1726,7 +1727,7 @@ async def get_agent_persona():
         del persona["_id"]
     return persona
 
-@api_router.put("/agent/persona")
+@api_router.put("/agent/persona", dependencies=[Depends(require_permission("write_staged"))])
 async def update_agent_persona(update: PersonaUpdate):
     """Update agent persona"""
     persona = await db.agent_persona.find_one({"is_active": True})
@@ -1886,11 +1887,12 @@ logger = logging.getLogger(__name__)
 # Log security configuration on startup
 @app.on_event("startup")
 async def log_security_config():
+    verify_startup_config()  # Hard-fail if JWT_SECRET_KEY is unset or default sentinel
     logger.info(f"Environment: {ENVIRONMENT}")
     logger.info(f"CORS origins: {cors_origins}")
     logger.info(f"Rate limiting: {RATE_LIMIT_REQUESTS} requests per {RATE_LIMIT_WINDOW}s")
     logger.info(f"API key auth: {'enabled' if API_KEY else 'disabled'}")
-    logger.info(f"JWT auth: {'enabled' if os.environ.get('JWT_SECRET_KEY') else 'dev mode'}")
+    logger.info(f"JWT auth: configured (startup check passed)")
     logger.info(f"Field encryption: {'enabled' if field_encryptor.is_enabled else 'disabled'}")
     logger.info(f"Max request body: {MAX_REQUEST_BODY_SIZE / 1024 / 1024:.1f}MB")
 
