@@ -208,11 +208,13 @@ describe('CollapsibleHeader constants', () => {
     expect(typeof SCROLL_RANGE).toBe('number');
   });
 
-  it('HEADER_MAX is greater than HEADER_MIN', () => {
-    expect(HEADER_MAX).toBeGreaterThanOrEqual(HEADER_MIN);
+  it('header is fixed-height (MAX equals MIN at 56)', () => {
+    expect(HEADER_MAX).toBe(56);
+    expect(HEADER_MIN).toBe(56);
+    expect(HEADER_MAX).toBe(HEADER_MIN);
   });
 
-  it('SCROLL_RANGE is a positive safe value (min 1 prevents zero-range interpolation)', () => {
-    expect(SCROLL_RANGE).toBeGreaterThan(0);
+  it('SCROLL_RANGE is min-safe 1 for zero-range interpolation', () => {
+    expect(SCROLL_RANGE).toBe(1);
   });
 });

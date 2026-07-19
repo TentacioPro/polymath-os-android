@@ -5,10 +5,6 @@
  * Run with: bun run test __tests__/ui-components.test.tsx
  */
 
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
-);
-
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { ThemeProvider } from '../theme/ThemeContext';

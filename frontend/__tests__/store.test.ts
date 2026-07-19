@@ -4,10 +4,6 @@
  * Tests the global state management store.
  */
 
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
-);
-
 import { useStore } from '../store/useStore';
 
 // Reset store between tests
@@ -187,12 +183,12 @@ describe('Zustand Store Tests', () => {
   });
 
   describe('Hydration', () => {
-    it('should resolve hydration with AsyncStorage mock (mock resolves synchronously)', () => {
-      // With the AsyncStorage jest mock, persist middleware hydrates synchronously.
-      // In production, _hasHydrated starts false and becomes true after async storage read.
-      // Here we verify the boolean type and that setHasHydrated can toggle it.
-      const { _hasHydrated } = useStore.getState();
-      expect(typeof _hasHydrated).toBe('boolean');
+    it('hydrates to true with AsyncStorage mock (mock resolves synchronously)', async () => {
+      // AsyncStorage jest mock resolves synchronously; persist middleware calls
+      // setHasHydrated(true) before any test assertion runs.
+      // Flush microtask queue to ensure onRehydrateStorage callback completes.
+      await Promise.resolve();
+      expect(useStore.getState()._hasHydrated).toBe(true);
     });
 
     it('should set hydration state', () => {

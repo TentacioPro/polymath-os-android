@@ -46,5 +46,10 @@ jest.mock('expo-splash-screen', () => ({
   hideAsync: jest.fn(),
 }));
 
+// Mock @react-native-async-storage/async-storage (native module, null in Jest)
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+);
+
 // Silence the warning about act()
 global.__DEV__ = true;

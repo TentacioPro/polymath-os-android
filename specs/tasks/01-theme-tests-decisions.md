@@ -82,3 +82,18 @@ suite pass without further modification once the mock is present.
 `ui-components.test.tsx` (18 tests, previously 0 visible) to run for the first time.
 Both suites were previously counted as "failed to run" — their individual tests were
 not included in the 250 total. The 303 total is the correct baseline going forward.
+
+---
+
+## Gate: this task ran frontend Jest only as primary gate — acceptable once, not precedent
+
+Initial completion ran only `npx jest` (frontend, 303/303) before committing. The backend
+pytest gate was added in the polish pass (22 passed, 1 warning — unchanged).
+
+**Why acceptable this time:** Diff was 100% test-file-local: `frontend/__tests__/*.ts(x)` and
+`frontend/jest.setup.js`. No production source files, no backend code, no shared types changed.
+
+**Why NOT precedent:** Full gate (frontend Jest + backend pytest, both green) is required before
+any future task is done, regardless of how frontend-only the diff looks. A future change that
+appears frontend-only may still affect a shared module or API contract. The cost of running
+both suites is low; missing a regression is not.

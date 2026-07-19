@@ -155,7 +155,7 @@ describe('Theme System Tests', () => {
       expect(themes.ocean.primary).toBe('#00F2FF');
     });
 
-    it('void theme has white primary (monochrome)', () => {
+    it('void theme has silver primary (monochrome #C0C0C0)', () => {
       expect(themes.void.primary).toBe('#C0C0C0');
     });
   });
