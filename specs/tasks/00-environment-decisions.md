@@ -83,3 +83,13 @@ Progress tracking is fully covered by the spec system: `specs/tasks/NN-name.stat
 The 7 failing Jest tests are real failures that must be green before any dependent task can gate. Dropping them would leave the baseline in a known-bad state. The merge portion was dropped because it conflicts with Decision 4 (trunk is v4, not main). The test-fix work is independent and should proceed.
 
 **Recorded in:** `00-spec-system.md` task ledger (original row preserved per append-only rule; revised row added)
+
+---
+
+## Deviation #6: Secrets printed to terminal during Phase C (remediated)
+
+**What happened:** During Phase C setup, the agent generated JWT_SECRET_KEY and ENCRYPTION_KEY via `python -c "print(...)"` which printed the values to terminal output before writing them to `backend/.env`. This violated Phase A rule #7 (secrets policy) and the principle that credentials should never appear in session output.
+
+**Remediation (2026-07-19):** Keys regenerated silently using a Python script that writes directly to `backend/.env` without printing values. Confirmed via `git check-ignore -v backend/.env` → `.gitignore:92:*.env` — file is ignored and untracked.
+
+**Rule going forward:** Any secret generation must use file-write-only paths (no `print`, no stdout capture of secret values). Prefer `secrets.token_urlsafe()` written inline to file. Never echo, print, or pipe secret material through shell output.
