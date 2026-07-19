@@ -45,6 +45,7 @@ from auth import (
 from crypto import field_encryptor, encrypt_field, decrypt_field
 from rbac import require_permission, verify_startup_config
 from guardrails import run_guardrails, GuardrailOutcome, format_error_response
+from audit import AuditLog, log_audit_event, init_db
 from models.user import (
     User as UserModel, UserCreate, UserUpdate, UserInDB, 
     RefreshToken, TokenPair, LoginRequest, RefreshRequest
@@ -212,44 +213,8 @@ def sanitize_dict_fields(data: dict, fields: list) -> dict:
     return result
 
 # ── Audit Logging ────────────────────────────────
-class AuditLog(BaseModel):
-    """Audit log entry for tracking sensitive operations."""
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    user_id: Optional[str] = None
-    action: str  # CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT
-    resource_type: str  # activity, journal, connection, user, auth
-    resource_id: Optional[str] = None
-    ip_address: str
-    user_agent: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
-    details: Dict[str, Any] = {}
-    success: bool = True
-
-async def log_audit_event(
-    action: str,
-    resource_type: str,
-    request: Request,
-    user_id: Optional[str] = None,
-    resource_id: Optional[str] = None,
-    details: Dict[str, Any] = None,
-    success: bool = True
-):
-    """Log an audit event to the database."""
-    try:
-        ip_address, user_agent = get_client_info(request)
-        audit_entry = AuditLog(
-            user_id=user_id,
-            action=action,
-            resource_type=resource_type,
-            resource_id=resource_id,
-            ip_address=ip_address,
-            user_agent=user_agent,
-            details=details or {},
-            success=success
-        )
-        await db.audit_logs.insert_one(audit_entry.model_dump())
-    except Exception as e:
-        logging.error(f"Failed to log audit event: {e}")
+# AuditLog model and log_audit_event are now in audit.py (T04).
+# Imported at top of file: from audit import AuditLog, log_audit_event, init_db
 
 # ── API Key Authentication ────────────────────────────────
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
@@ -1935,6 +1900,7 @@ logger = logging.getLogger(__name__)
 @app.on_event("startup")
 async def log_security_config():
     verify_startup_config()  # Hard-fail if JWT_SECRET_KEY is unset or default sentinel
+    init_db(db)              # Register Motor db with audit module (T04)
     logger.info(f"Environment: {ENVIRONMENT}")
     logger.info(f"CORS origins: {cors_origins}")
     logger.info(f"Rate limiting: {RATE_LIMIT_REQUESTS} requests per {RATE_LIMIT_WINDOW}s")
