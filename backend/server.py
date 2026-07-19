@@ -44,6 +44,7 @@ from auth import (
 )
 from crypto import field_encryptor, encrypt_field, decrypt_field
 from rbac import require_permission, verify_startup_config
+from guardrails import run_guardrails, GuardrailOutcome, format_error_response
 from models.user import (
     User as UserModel, UserCreate, UserUpdate, UserInDB, 
     RefreshToken, TokenPair, LoginRequest, RefreshRequest
@@ -303,6 +304,52 @@ async def ai_chat(system_message: str, user_prompt: str, model: str = "gpt-4o-mi
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
+
+
+async def guardrails_content_check(request: Request) -> None:
+    """FastAPI dependency: run guardrails on text content in the request body.
+    Reads the raw JSON body; checks content fields for FLAG/REJECT outcomes.
+    REJECT-class outcomes raise HTTPException 422 (guardrail_reject).
+    FLAG-class outcomes annotate request.state but never block the request.
+    Checks are only wired on routes where their required inputs exist (content fields).
+    """
+    import json as _json
+    body_bytes = await request.body()
+    if not body_bytes:
+        return
+    try:
+        body = _json.loads(body_bytes)
+    except _json.JSONDecodeError:
+        return
+
+    # Extract text content for checking (title + content + notes fields)
+    text_parts = []
+    for field in ("content", "title", "notes"):
+        if isinstance(body.get(field), str):
+            text_parts.append(body[field])
+    if not text_parts:
+        return
+
+    combined_text = " ".join(text_parts)
+    payload = {
+        "output_text": combined_text,
+        "source_text": combined_text,  # self-check: PII + cross-doc
+        "pii_content": combined_text,
+        "pii_mode": "flag",
+    }
+    results = run_guardrails(payload)
+
+    request_id = str(uuid.uuid4())
+    for result in results:
+        if result.outcome == GuardrailOutcome.REJECT:
+            raise HTTPException(
+                status_code=422,
+                detail=format_error_response(result, request_id=request_id),
+            )
+    # FLAG outcomes: annotate state for audit (T04 will read this)
+    flag_results = [r for r in results if r.outcome == GuardrailOutcome.FLAG]
+    if flag_results:
+        request.state.guardrail_flags = [r.reason for r in flag_results]
 
 # ============= MODELS =============
 
@@ -1012,7 +1059,7 @@ async def get_current_user_profile(request: Request, user: dict = Depends(get_cu
     return UserModel(**user_doc)
 
 # ACTIVITIES
-@api_router.post("/activities/manual", response_model=Activity, dependencies=[Depends(require_permission("write_staged"))])
+@api_router.post("/activities/manual", response_model=Activity, dependencies=[Depends(require_permission("write_staged")), Depends(guardrails_content_check)])
 async def create_manual_activity(input: ActivityCreate):
     """Create a manual activity entry"""
     timestamp = input.timestamp or datetime.utcnow()
@@ -1308,7 +1355,7 @@ def _sync_extract(url: str) -> Dict[str, Any]:
     return result
 
 # JOURNALS
-@api_router.post("/journals", response_model=Journal, dependencies=[Depends(require_permission("write_staged"))])
+@api_router.post("/journals", response_model=Journal, dependencies=[Depends(require_permission("write_staged")), Depends(guardrails_content_check)])
 async def create_journal(input: JournalCreate):
     """Create a journal entry"""
     journal = Journal(
@@ -1326,7 +1373,7 @@ async def get_journals(skip: int = 0, limit: int = 100):
     journals = await db.journals.find().sort("timestamp", -1).skip(skip).limit(limit).to_list(limit)
     return [Journal(**journal) for journal in journals]
 
-@api_router.put("/journals/{journal_id}", response_model=Journal, dependencies=[Depends(require_permission("write_staged"))])
+@api_router.put("/journals/{journal_id}", response_model=Journal, dependencies=[Depends(require_permission("write_staged")), Depends(guardrails_content_check)])
 async def update_journal(journal_id: str, input: JournalCreate):
     """Update a journal entry"""
     result = await db.journals.find_one({"id": journal_id})
