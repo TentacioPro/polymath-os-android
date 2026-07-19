@@ -46,6 +46,7 @@ from crypto import field_encryptor, encrypt_field, decrypt_field
 from rbac import require_permission, verify_startup_config
 from guardrails import run_guardrails, GuardrailOutcome, format_error_response
 from audit import AuditLog, log_audit_event, init_db
+from error_contract import ErrorCode, make_error, is_already_shaped
 from models.user import (
     User as UserModel, UserCreate, UserUpdate, UserInDB, 
     RefreshToken, TokenPair, LoginRequest, RefreshRequest
@@ -269,6 +270,70 @@ async def ai_chat(system_message: str, user_prompt: str, model: str = "gpt-4o-mi
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
+
+
+# ── Request ID middleware (T05) ────────────────────────────────────────────────
+# Sets request.state.request_id once per request so all handlers + audit entries
+# and error responses can use the same id. api.spec.md: request_id in every response.
+@app.middleware("http")
+async def request_id_middleware(request: Request, call_next):
+    from fastapi.responses import JSONResponse
+    req_id = request.headers.get("x-request-id") or str(uuid.uuid4())
+    request.state.request_id = req_id
+    response = await call_next(request)
+    response.headers["x-request-id"] = req_id
+    return response
+
+
+# ── FastAPI exception handlers (T05) ──────────────────────────────────────────
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse as _JSONResponse
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    req_id = getattr(getattr(request, "state", None), "request_id", None) or str(uuid.uuid4())
+    details = [
+        {"path": list(e.get("loc", [])), "message": e.get("msg", "validation error")}
+        for e in exc.errors()
+    ]
+    return _JSONResponse(
+        status_code=422,
+        content={"code": ErrorCode.VALIDATION_ERROR.value, "details": details, "request_id": req_id},
+    )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    req_id = getattr(getattr(request, "state", None), "request_id", None) or str(uuid.uuid4())
+    # Pass through already-shaped details (guardrails + RBAC emit contract dicts)
+    if is_already_shaped(exc.detail):
+        body = dict(exc.detail)
+        body.setdefault("request_id", req_id)
+        return _JSONResponse(status_code=exc.status_code, content=body)
+    # Map HTTP status to error code
+    status_to_code = {
+        401: ErrorCode.RBAC_DENIED,
+        403: ErrorCode.RBAC_DENIED,
+        404: ErrorCode.NOT_FOUND,
+        409: ErrorCode.CONFLICT,
+    }
+    code = status_to_code.get(exc.status_code, ErrorCode.INTERNAL)
+    message = exc.detail if isinstance(exc.detail, str) else str(exc.detail)
+    return _JSONResponse(
+        status_code=exc.status_code,
+        content=make_error(code, message, request_id=req_id),
+    )
+
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    req_id = getattr(getattr(request, "state", None), "request_id", None) or str(uuid.uuid4())
+    logging.error(f"Unhandled exception [{req_id}]: {exc}", exc_info=True)
+    return _JSONResponse(
+        status_code=500,
+        content=make_error(ErrorCode.INTERNAL, "An internal error occurred.", request_id=req_id),
+    )
 
 
 async def guardrails_content_check(request: Request) -> None:
