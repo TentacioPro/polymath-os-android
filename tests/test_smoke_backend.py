@@ -21,8 +21,10 @@ BACKEND_URL = os.environ.get('BACKEND_URL', 'http://localhost:8001')
 TIMEOUT = 30.0  # seconds
 
 # Smoke-test owner credentials — ephemeral account, never used for real data
-_SMOKE_EMAIL = "smoke-test-owner@polymath.local"
-_SMOKE_PASSWORD = "SmokeAuth@2026!"
+# Domain must be a non-reserved TLD so Pydantic EmailStr accepts it (.local is
+# RFC 2606 special-use and rejected by the validator; example.com is not reserved).
+_SMOKE_EMAIL = os.environ.get("SMOKE_EMAIL", "smoke-test-owner@example.com")
+_SMOKE_PASSWORD = os.environ.get("SMOKE_PASSWORD", "SmokeAuth@2026!")
 
 
 # ── Fixtures ─────────────────────────────────────────────────────────────────
