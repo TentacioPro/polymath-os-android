@@ -3,6 +3,11 @@ Smoke Tests for Polymath OS Backend API
 
 Run with: pytest tests/test_smoke_backend.py -v
 Requires: Backend server running on BACKEND_URL (default: http://localhost:8001)
+
+Auth fixtures (added T02 integration gate):
+  client     — unauthenticated; use for GET/public endpoints (must still pass raw)
+  auth_client — Bearer token for role=owner; use for all mutation routes that
+                require_permission. Registers + logs in once per session (idempotent).
 """
 
 import pytest
@@ -15,11 +20,47 @@ from datetime import datetime
 BACKEND_URL = os.environ.get('BACKEND_URL', 'http://localhost:8001')
 TIMEOUT = 30.0  # seconds
 
-# Test client
+# Smoke-test owner credentials — ephemeral account, never used for real data
+_SMOKE_EMAIL = "smoke-test-owner@polymath.local"
+_SMOKE_PASSWORD = "SmokeAuth@2026!"
+
+
+# ── Fixtures ─────────────────────────────────────────────────────────────────
+
 @pytest.fixture
 def client():
-    """Create httpx client for API calls."""
+    """Unauthenticated client — public/read-only endpoints."""
     return httpx.Client(base_url=BACKEND_URL, timeout=TIMEOUT)
+
+
+@pytest.fixture(scope="session")
+def auth_client():
+    """
+    Session-scoped authenticated client for mutation routes.
+    Registers (idempotent: ignores 400 = already exists) then logs in.
+    Token defaults to role=owner (rbac.py: payload.get('role', 'owner')).
+    """
+    base = httpx.Client(base_url=BACKEND_URL, timeout=TIMEOUT)
+    # Register — 400 means account already exists from a previous run; that's fine
+    base.post("/api/auth/register", json={
+        "email": _SMOKE_EMAIL,
+        "password": _SMOKE_PASSWORD,
+    })
+    login_resp = base.post("/api/auth/login", json={
+        "email": _SMOKE_EMAIL,
+        "password": _SMOKE_PASSWORD,
+    })
+    base.close()
+    assert login_resp.status_code == 200, (
+        f"Auth fixture: login failed {login_resp.status_code} — {login_resp.text}"
+    )
+    token = login_resp.json()["access_token"]
+    with httpx.Client(
+        base_url=BACKEND_URL,
+        timeout=TIMEOUT,
+        headers={"Authorization": f"Bearer {token}"},
+    ) as authenticated:
+        yield authenticated
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -77,9 +118,9 @@ class TestActivities:
         data = response.json()
         assert isinstance(data, list)
     
-    def test_create_activity(self, client, test_activity_data):
+    def test_create_activity(self, auth_client, test_activity_data):
         """Should create a new activity with AI analysis."""
-        response = client.post('/api/activities/manual', json=test_activity_data)
+        response = auth_client.post('/api/activities/manual', json=test_activity_data)
         # 200 or 201 for success, 400 for duplicate (which is fine for smoke test)
         assert response.status_code in [200, 201, 400]
         if response.status_code in [200, 201]:
@@ -123,29 +164,29 @@ class TestJournals:
         data = response.json()
         assert isinstance(data, list)
     
-    def test_create_journal(self, client, test_journal_data):
+    def test_create_journal(self, auth_client, test_journal_data):
         """Should create a new journal entry."""
-        response = client.post('/api/journals', json=test_journal_data)
+        response = auth_client.post('/api/journals', json=test_journal_data)
         assert response.status_code in [200, 201]
         data = response.json()
         assert 'id' in data or '_id' in data
         assert data.get('title') == test_journal_data['title']
         return data
-    
-    def test_journal_crud_flow(self, client, test_journal_data):
+
+    def test_journal_crud_flow(self, auth_client, test_journal_data):
         """Full CRUD flow: create -> read -> delete."""
         # Create
-        create_response = client.post('/api/journals', json=test_journal_data)
+        create_response = auth_client.post('/api/journals', json=test_journal_data)
         assert create_response.status_code in [200, 201]
         journal = create_response.json()
         journal_id = journal.get('id') or journal.get('_id')
-        
-        # Read (via list)
-        list_response = client.get('/api/journals')
+
+        # Read (via list) — GET is public; use the session auth_client for simplicity
+        list_response = auth_client.get('/api/journals')
         assert list_response.status_code == 200
-        
+
         # Delete
-        delete_response = client.delete(f'/api/journals/{journal_id}')
+        delete_response = auth_client.delete(f'/api/journals/{journal_id}')
         assert delete_response.status_code in [200, 204, 404]
 
 
@@ -179,24 +220,24 @@ class TestConnectionsAndAI:
 class TestExport:
     """Critical path: Data export functionality."""
     
-    def test_export_json(self, client):
+    def test_export_json(self, auth_client):
         """Should export all data as JSON."""
-        response = client.post('/api/export/json')
+        response = auth_client.post('/api/export/json')
         assert response.status_code == 200
         data = response.json()
         # Should have activities, journals, connections keys
         assert 'activities' in data or isinstance(data, dict)
-    
-    def test_export_markdown(self, client):
+
+    def test_export_markdown(self, auth_client):
         """Should export as markdown."""
-        response = client.post('/api/export/markdown')
+        response = auth_client.post('/api/export/markdown')
         assert response.status_code == 200
         # Markdown is text content
         assert response.headers.get('content-type', '').startswith(('text/', 'application/'))
-    
-    def test_export_csv(self, client):
+
+    def test_export_csv(self, auth_client):
         """Should export as CSV."""
-        response = client.post('/api/export/csv')
+        response = auth_client.post('/api/export/csv')
         assert response.status_code == 200
 
 

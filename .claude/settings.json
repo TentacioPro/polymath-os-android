@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(git status*)", "Bash(git add*)", "Bash(git commit*)",
+      "Bash(git push origin task/*)", "Bash(git push origin chore/*)",
+      "Bash(git push origin feat/ui-revamp-v4)",
+      "Bash(git checkout*)", "Bash(git merge*)", "Bash(git rebase*)",
+      "Bash(git worktree*)", "Bash(git log*)", "Bash(git diff*)",
+      "Bash(git fetch*)", "Bash(git pull*)", "Bash(git stash*)",
+      "Bash(uv *)", "Bash(npx *)", "Bash(npm *)",
+      "Bash(bun *)", "Bash(bunx *)",
+      "Bash(docker start cog-mongo)",
+      "Bash(docker run --name cog-mongo*mongo:7*)",
+      "Bash(docker ps*)", "Bash(docker logs*)", "Bash(docker inspect*)",
+      "Bash(python *)", "Bash(python3 *)", "Bash(node *)",
+      "Bash(netstat*)", "Bash(Get-NetTCPConnection*)",
+      "Bash(mkdir*)", "Bash(ls*)", "Bash(cat*)", "Bash(cp *)", "Bash(mv *)",
+      "Bash(curl *)",
+      "Bash(tar *)", "Bash(unzip *)",
+      "Bash(Get-Process*)", "Bash(Test-Path*)",
+      "Bash(Get-ChildItem*)", "Bash(Get-Content*)",
+      "Bash(New-Item*)", "Bash(Set-Location*)",
+      "Bash(Copy-Item*)", "Bash(Move-Item*)",
+      "Bash(Select-Object*)", "Bash(Where-Object*)",
+      "Bash(Out-File*)", "Bash(Tee-Object*)",
+      "Bash(Get-Date*)",
+      "Edit", "Write", "Read", "Glob", "Grep"
+    ],
+    "deny": [
+      "Bash(git push*main*)", "Bash(git push --force*)", "Bash(git branch -D*)",
+      "Bash(rm -rf*)", "Bash(git reset --hard*)",
+      "Bash(Remove-Item -Recurse*)", "Bash(Remove-Item -r *)",
+      "Read(./backend/.env)", "Read(**/.env)",
+      "Bash(pkill*)", "Bash(taskkill /IM*)", "Bash(Stop-Process -Name*)",
+      "Bash(docker stop*)", "Bash(docker rm*)", "Bash(docker restart*)",
+      "Bash(docker compose down*)", "Bash(docker kill*)"
+    ]
+  },
+  "disableBundledSkills": true
+}
