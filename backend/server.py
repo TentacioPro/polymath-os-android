@@ -1,13 +1,18 @@
+# .env MUST be loaded before any local module that reads os.environ at import time
+# (auth.py captures JWT_SECRET_KEY at module level; loading late = empty secret).
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
+
 from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Request, Depends, Security
 from fastapi.security import APIKeyHeader
-from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 from motor.motor_asyncio import AsyncIOMotorClient
-import os
 import logging
-from pathlib import Path
 from pydantic import BaseModel, Field, field_validator, EmailStr
 from typing import List, Optional, Dict, Any
 import uuid
@@ -51,9 +56,6 @@ from models.user import (
     User as UserModel, UserCreate, UserUpdate, UserInDB, 
     RefreshToken, TokenPair, LoginRequest, RefreshRequest
 )
-
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
 
 # ── Environment & Security Configuration ────────────────────────────────
 ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')  # development, staging, production
@@ -310,6 +312,18 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     if is_already_shaped(exc.detail):
         body = dict(exc.detail)
         body.setdefault("request_id", req_id)
+        # Audit RBAC denials — completes the enforcement trail missing from T02/T05
+        if exc.status_code in (401, 403) and body.get("code") in ("rbac_denied", "unauthenticated"):
+            denial_reason = (
+                getattr(getattr(request, "state", None), "audit_denial_reason", None)
+                or body.get("code")
+            )
+            await log_audit_event(
+                "AUTH_DENIAL", "system", request,
+                success=False,
+                denial_reason=denial_reason,
+                request_id=req_id,
+            )
         return _JSONResponse(status_code=exc.status_code, content=body)
     # Map HTTP status to error code
     status_to_code = {
@@ -367,6 +381,24 @@ async def guardrails_content_check(request: Request) -> None:
         "pii_content": combined_text,
         "pii_mode": "flag",
     }
+    # Forward provenance fields so REJECT-capable checks are reachable via HTTP.
+    # Values must be Provenance enum members (check_provenance_downgrade calls .value on them).
+    # Invalid strings are silently skipped — route still processes, guardrail just doesn't run.
+    if "claimed_provenance" in body and "actual_provenance" in body:
+        try:
+            from guardrails import Provenance as _Provenance
+            payload["claimed_provenance"] = _Provenance(body["claimed_provenance"])
+            payload["actual_provenance"] = _Provenance(body["actual_provenance"])
+        except ValueError:
+            pass  # Unknown provenance string — skip check, don't crash
+    if body.get("external_output") is True and "actual_provenance" in body:
+        payload["external_output"] = True
+        if "actual_provenance" not in payload:
+            try:
+                from guardrails import Provenance as _Provenance
+                payload["actual_provenance"] = _Provenance(body["actual_provenance"])
+            except ValueError:
+                pass
     results = run_guardrails(payload)
 
     request_id = str(uuid.uuid4())
