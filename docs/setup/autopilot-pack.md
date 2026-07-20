@@ -33,6 +33,14 @@ rate limit.*
 > choices, REJECTED alternatives, deviations. 4. Full gate output pasted in state file
 > (frontend 303 + backend unit + 22 integration). 5. Branch pushed. 6. Metrics block (§4)
 > filled. Only then: done.
+>
+> INTEGRATION GATE RULE (2026-07-20, binding, no exceptions after T02–N1):
+> A task whose DONE MEANS includes the integration gate may NOT merge to trunk until that gate
+> has RUN. "Environment unavailable" is not an exemption when starting the environment is within
+> allowlisted commands. Procedure: `docker start cog-mongo`; port preflight on 8001;
+> `uv run uvicorn server:app --port 8001` (record PID to file); wait for port open;
+> run `uv run pytest tests/test_smoke_backend.py -v`; kill uvicorn by PID; then merge.
+> T02–N1 merges are exceptions #1 and #2 (batched). There is no exception #3.
 
 ## §2 THE QUEUE (execute in order; parallelize only where marked)
 

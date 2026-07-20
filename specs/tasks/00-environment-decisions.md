@@ -146,3 +146,52 @@ changes reviewable and auditable.
 - Commit on `chore/*` → push → merge into `feat/ui-revamp-v4`.
 - Exception: if an implementation task branch is already open and the doc change is directly
   tied to that task's spec, commit it on the task branch alongside the code.
+
+---
+
+## Rule #10: Integration gate must run before merge — environment unavailability is not an exemption
+
+**Rule (binding for all future sessions):**
+
+A task whose DONE MEANS includes the integration gate may NOT merge to trunk until that gate
+has RUN and PASSED. "Environment unavailable" is not an exemption when starting the environment
+is within allowlisted commands (docker start, uv run uvicorn, etc.).
+
+**Background:**
+T02, T03, T04, T05, and N1 were all merged to trunk with integration gates marked `gate_pending`.
+The stated reason was "no live server" — but starting cog-mongo and uvicorn was already in the
+allow list the entire time. This was an agent decision error (conflating "server not currently
+running" with "server not startable"). These five are exceptions #1 and #2 (merged together as
+a batch); there is no exception #3.
+
+**Procedure going forward:**
+1. Before marking a task done, check its DONE MEANS.
+2. If it includes integration tests: `docker start cog-mongo`, port preflight on 8001,
+   `uv run uvicorn server:app --port 8001 &` (record PID), wait for port open, run gate.
+3. Kill uvicorn by recorded PID after the gate run.
+4. Only then: merge to trunk.
+
+---
+
+## Decision #11: Settings allow-list expansion (2026-07-20) — accepted risk
+
+**Chosen:** Expanded `.claude/settings.json` allow list to include `python *`, `python3 *`,
+`node *`, `netstat *`, `Get-NetTCPConnection *`, and a full set of PowerShell read-only
+cmdlets (Get-Process, Get-Content, Get-ChildItem, Test-Path, etc.).
+
+**Accepted risk:** `python *` and `node *` allow arbitrary interpreter invocations.
+The deny list is now **accident-prevention** (blocking obvious mistakes), not a sandbox.
+This is acceptable for the **solo-local threat model** of this project: the only actor
+running Claude Code against this repo is the owner on their own machine. The deny list still
+blocks `rm -rf`, `Remove-Item -Recurse`, `git push --force`, hard reset, and `.env` reads.
+`"Bash(cat *.env*)"` and `"Bash(type *.env*)"` have been added to the deny list to close
+the shell-based .env read vector (the existing `Read(**/.env)` deny covered the Read tool
+but not Bash-based file reads).
+
+**Rejected alternative:** Keeping the allow list minimal and prompting on each Python/Node
+invocation. Rejected because Phase 2 (migration scripts, agent-service) will invoke Python
+extensively; constant prompts break autonomous execution without adding meaningful security
+in a solo-local context.
+
+**Not changed:** `disableBundledSkills: true` remains; deny list entries for push-to-main,
+force-push, branch-delete, hard-reset, process-kill-by-name, and docker-stop are unchanged.

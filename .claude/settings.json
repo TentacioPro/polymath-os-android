@@ -32,6 +32,7 @@
       "Bash(rm -rf*)", "Bash(git reset --hard*)",
       "Bash(Remove-Item -Recurse*)", "Bash(Remove-Item -r *)",
       "Read(./backend/.env)", "Read(**/.env)",
+      "Bash(cat *.env*)", "Bash(type *.env*)",
       "Bash(pkill*)", "Bash(taskkill /IM*)", "Bash(Stop-Process -Name*)",
       "Bash(docker stop*)", "Bash(docker rm*)", "Bash(docker restart*)",
       "Bash(docker compose down*)", "Bash(docker kill*)"
