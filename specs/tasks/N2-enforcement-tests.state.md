@@ -58,6 +58,11 @@ decisions:
     passing to run_guardrails — check_provenance_downgrade calls .value on its arguments."
   - "REJECTED: modifying check_provenance_downgrade to accept raw strings — the enum type hint is
     correct and protects internal logic; conversion belongs at the HTTP boundary (server.py)."
+  - "DEVIATION (2026-07-21): N2 merged with only 26/26 integration gate run on task-branch HEAD.
+    Frontend 303 and backend 41 unit suites were NOT run at merge time, and the gate was not
+    re-run on the merge-result commit before push. All three suites confirmed green on trunk HEAD
+    3e95678 in the next session (2026-07-21): frontend 303/303, backend unit 41/41, integration
+    26/26. Rule hardened: see 00-environment-decisions.md Deviation #12."
 
 metrics:
   tool_calls_used: 35 (budget 40)

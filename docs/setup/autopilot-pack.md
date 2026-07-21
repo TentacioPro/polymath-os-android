@@ -34,13 +34,19 @@ rate limit.*
 > (frontend 303 + backend unit + 22 integration). 5. Branch pushed. 6. Metrics block (§4)
 > filled. Only then: done.
 >
-> INTEGRATION GATE RULE (2026-07-20, binding, no exceptions after T02–N1):
-> A task whose DONE MEANS includes the integration gate may NOT merge to trunk until that gate
-> has RUN. "Environment unavailable" is not an exemption when starting the environment is within
-> allowlisted commands. Procedure: `docker start cog-mongo`; port preflight on 8001;
-> `uv run uvicorn server:app --port 8001` (record PID to file); wait for port open;
-> run `uv run pytest tests/test_smoke_backend.py -v`; kill uvicorn by PID; then merge.
-> T02–N1 merges are exceptions #1 and #2 (batched). There is no exception #3.
+> INTEGRATION GATE RULE (2026-07-20, binding, hardened 2026-07-21):
+> A task whose DONE MEANS includes the integration gate MUST run that gate on the
+> merge-result commit before push. Running the gate only on the task-branch HEAD is
+> insufficient — the gate must pass on the actual merge commit. The FULL gate is all three
+> suites: (1) frontend `npx jest`, (2) backend unit `uv run pytest tests/` in backend/,
+> (3) integration `uv run pytest ../tests/` in backend/ against a live server. All three
+> must appear in the state file's last_verified before the merge push.
+> Procedure: gate passes on task branch → fast-forward merge to trunk locally →
+> `docker start cog-mongo`; port preflight on 8001;
+> `uv run uvicorn server:app --port 8001` (record PID); wait for port open;
+> run full gate on merge result; kill uvicorn by recorded PID; then push.
+> T02–N1 are exceptions #1 and #2 (no gate at all). N2 is the one exception to
+> the merge-result refinement. There is no exception #3 on either count.
 
 ## §2 THE QUEUE (execute in order; parallelize only where marked)
 

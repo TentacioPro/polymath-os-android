@@ -195,3 +195,26 @@ in a solo-local context.
 
 **Not changed:** `disableBundledSkills: true` remains; deny list entries for push-to-main,
 force-push, branch-delete, hard-reset, process-kill-by-name, and docker-stop are unchanged.
+
+---
+
+## Deviation #12: N2 gate ran on task-branch HEAD only, not merge-result commit (remediated)
+
+**What happened (2026-07-21):** N2 enforcement tests were merged to trunk after the 26/26
+integration gate passed on `task/N2-enforcement-tests` HEAD. The gate was not re-run on the
+merge-result commit before push. The frontend 303 and backend 41 unit suites were also not
+run at merge time — only the 26/26 integration gate was logged in the state file.
+
+**Remediation (2026-07-21):** All three suites run on trunk HEAD (3e95678) at session start:
+frontend 303/303 ✓, backend unit 41/41 ✓, integration 26/26 ✓. Green confirmed.
+
+**Rule (binding, refines Rule #10):**
+Any task whose DONE MEANS includes the integration gate MUST run that gate on the
+merge-result commit before push. The FULL gate is:
+  (1) frontend unit tests (`npx jest` in `frontend/`),
+  (2) backend unit tests (`uv run pytest tests/` in `backend/`),
+  (3) integration tests (`uv run pytest ../tests/` in `backend/` against running server).
+All three must be logged in the state file's last_verified.
+Prior pending-merge exceptions #1 (T02–T05 batch) and #2 (N1) are the ONLY exceptions
+on record for the original rule. N2 is the only exception on record for this merge-result
+refinement. No further exceptions.
