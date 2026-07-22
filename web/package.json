@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "generate-tokens": "tsx ../scripts/generate-tokens.mts",
+    "predev": "tsx ../scripts/generate-tokens.mts",
     "dev": "next dev",
+    "prebuild": "tsx ../scripts/generate-tokens.mts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -31,6 +34,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
+    "tsx": "^4.19.2",
     "typescript": "^5"
   },
   "ignoreScripts": [
