@@ -1,7 +1,8 @@
 /**
  * Theme System Tests
- * 
+ *
  * Tests the M3 theme tokens, palettes, and configuration.
+ * T09b: deprecated void/nova/ocean/forest/sunset/midnight identity tests → it.skip
  */
 
 import {
@@ -18,24 +19,36 @@ import {
 
 describe('Theme System Tests', () => {
   describe('themes object', () => {
-    it('should have void theme', () => {
+    it.skip('deprecated per T09a — void replaced by ink', () => {
       expect(themes.void).toBeDefined();
     });
 
-    it('should have nova theme', () => {
+    it.skip('deprecated per T09a — nova replaced by paper', () => {
       expect(themes.nova).toBeDefined();
+    });
+
+    it('should have ink theme', () => {
+      expect(themes.ink).toBeDefined();
+    });
+
+    it('should have paper theme', () => {
+      expect(themes.paper).toBeDefined();
+    });
+
+    it('should have dusk theme', () => {
+      expect(themes.dusk).toBeDefined();
     });
 
     it('should have amber theme', () => {
       expect(themes.amber).toBeDefined();
     });
 
-    it('should have 7 themes total', () => {
-      expect(Object.keys(themes)).toHaveLength(7);
+    it('should have 4 active themes', () => {
+      expect(themeNames).toHaveLength(4);
     });
 
-    it('should have all named themes', () => {
-      const expected: ThemeName[] = ['void', 'nova', 'amber', 'ocean', 'forest', 'sunset', 'midnight'];
+    it('should have all active named themes', () => {
+      const expected = ['ink', 'paper', 'dusk', 'amber'] as const;
       expected.forEach((name) => {
         expect(themes[name]).toBeDefined();
       });
@@ -43,23 +56,38 @@ describe('Theme System Tests', () => {
   });
 
   describe('getNextTheme', () => {
-    it('should cycle from void to nova', () => {
+    it.skip('deprecated per T09a — void→nova cycle removed', () => {
       expect(getNextTheme('void')).toBe('nova');
     });
 
-    it('should cycle from midnight back to void', () => {
+    it.skip('deprecated per T09a — midnight→void cycle removed', () => {
       expect(getNextTheme('midnight')).toBe('void');
     });
 
-    it('should cycle through all themes', () => {
-      let current: ThemeName = 'void';
-      const visited: ThemeName[] = [current];
-      for (let i = 0; i < 6; i++) {
+    it('should cycle from ink to paper', () => {
+      expect(getNextTheme('ink')).toBe('paper');
+    });
+
+    it('should cycle from amber back to ink', () => {
+      expect(getNextTheme('amber')).toBe('ink');
+    });
+
+    it('should cycle through all 4 active themes', () => {
+      let current = getNextTheme('ink');
+      const visited = ['ink', current];
+      for (let i = 0; i < 3; i++) {
         current = getNextTheme(current);
         visited.push(current);
       }
-      expect(visited).toHaveLength(7);
-      expect(new Set(visited).size).toBe(7);
+      expect(visited).toHaveLength(5);
+      const unique = [...new Set(visited)];
+      expect(unique).toHaveLength(4);
+    });
+
+    it('deprecated theme name should cycle to ink (first active)', () => {
+      // void is deprecated — idx=-1 → next is themeNames[0] = ink
+      expect(getNextTheme('void')).toBe('ink');
+      expect(getNextTheme('midnight')).toBe('ink');
     });
   });
 
@@ -139,24 +167,40 @@ describe('Theme System Tests', () => {
   });
 
   describe('Theme color identity', () => {
-    it('void theme should have dark surface', () => {
+    it.skip('deprecated per T09a — void surface identity', () => {
       expect(themes.void.surface).toBe('#000000');
     });
 
-    it('nova theme should have light surface', () => {
+    it.skip('deprecated per T09a — nova surface identity', () => {
       expect(themes.nova.surface).toBe('#FFFFFF');
     });
 
-    it('amber theme should have amber primary', () => {
+    it.skip('deprecated per T09a — amber primary identity', () => {
       expect(themes.amber.primary).toBe('#FFB800');
     });
 
-    it('ocean theme should have blue primary', () => {
+    it.skip('deprecated per T09a — ocean primary identity', () => {
       expect(themes.ocean.primary).toBe('#00F2FF');
     });
 
-    it('void theme has silver primary (monochrome #C0C0C0)', () => {
+    it.skip('deprecated per T09a — void silver primary identity', () => {
       expect(themes.void.primary).toBe('#C0C0C0');
+    });
+
+    it('ink theme should have cream surface (light theme)', () => {
+      expect(themes.ink.surface).toBe('#FAF8F5');
+    });
+
+    it('paper theme should have dark ink surface', () => {
+      expect(themes.paper.surface).toBe('#1C1917');
+    });
+
+    it('dusk theme should have deep blue-grey surface', () => {
+      expect(themes.dusk.surface).toBe('#0F172A');
+    });
+
+    it('amber theme should retain its primary', () => {
+      expect(themes.amber.primary).toBe('#FFB800');
     });
   });
 

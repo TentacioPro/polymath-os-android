@@ -19,6 +19,7 @@ import {
 
 // Re-export types and utilities
 export type { M3Palette, ThemeName };
+export type { ActiveThemeName } from '../../shared/design-tokens';
 export { m3Themes as themes, themeNames, themeLabels, getNextTheme, isDarkTheme };
 export { m3Typography, m3Spacing as spacing, m3Radii as radii, m3Elevation, m3Motion, m3ZIndex };
 
@@ -48,21 +49,30 @@ function buildThemeTokens(name: ThemeName, palette: M3Palette): ThemeTokens {
 
 // ─── Pre-built theme objects ────────────────────────────────────────────────
 
-export const voidTheme = buildThemeTokens('void', m3Themes.void);
-export const novaTheme = buildThemeTokens('nova', m3Themes.nova);
+// Active themes (T09b)
+export const inkTheme   = buildThemeTokens('ink',   m3Themes.ink);
+export const paperTheme = buildThemeTokens('paper', m3Themes.paper);
+export const duskTheme  = buildThemeTokens('dusk',  m3Themes.dusk);
 export const amberTheme = buildThemeTokens('amber', m3Themes.amber);
-export const oceanTheme = buildThemeTokens('ocean', m3Themes.ocean);
-export const forestTheme = buildThemeTokens('forest', m3Themes.forest);
-export const sunsetTheme = buildThemeTokens('sunset', m3Themes.sunset);
+
+// Deprecated — kept for user-pref backward compat; do not use in new components
+export const voidTheme     = buildThemeTokens('void',     m3Themes.void);
+export const novaTheme     = buildThemeTokens('nova',     m3Themes.nova);
+export const oceanTheme    = buildThemeTokens('ocean',    m3Themes.ocean);
+export const forestTheme   = buildThemeTokens('forest',   m3Themes.forest);
+export const sunsetTheme   = buildThemeTokens('sunset',   m3Themes.sunset);
 export const midnightTheme = buildThemeTokens('midnight', m3Themes.midnight);
 
 export const themeTokens: Record<ThemeName, ThemeTokens> = {
-  void: voidTheme,
-  nova: novaTheme,
+  ink:   inkTheme,
+  paper: paperTheme,
+  dusk:  duskTheme,
   amber: amberTheme,
-  ocean: oceanTheme,
-  forest: forestTheme,
-  sunset: sunsetTheme,
+  void:     voidTheme,
+  nova:     novaTheme,
+  ocean:    oceanTheme,
+  forest:   forestTheme,
+  sunset:   sunsetTheme,
   midnight: midnightTheme,
 };
 

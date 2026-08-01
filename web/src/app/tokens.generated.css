@@ -1,0 +1,197 @@
+/* tokens.generated.css — DO NOT EDIT. Run: tsx scripts/generate-tokens.mts */
+
+/* ═══ THEME: INK ═══ */
+:root, .theme-ink {
+  --m3-primary: #1C1917;
+  --m3-on-primary: #FAF8F5;
+  --m3-primary-container: rgba(28,25,23,0.08);
+  --m3-on-primary-container: #0A0907;
+  --m3-secondary: #44403C;
+  --m3-on-secondary: #FAF8F5;
+  --m3-secondary-container: #F5F0EB;
+  --m3-on-secondary-container: #292524;
+  --m3-tertiary: #78716C;
+  --m3-on-tertiary: #FFFFFF;
+  --m3-tertiary-container: #EDE8E3;
+  --m3-on-tertiary-container: #44403C;
+  --m3-surface: #FAF8F5;
+  --m3-surface-dim: rgba(250,248,245,0.80);
+  --m3-surface-container: #F2EDE8;
+  --m3-surface-container-high: #EDE8E3;
+  --m3-surface-container-highest: #E7E2DD;
+  --m3-on-surface: #1C1917;
+  --m3-on-surface-variant: #78716C;
+  --m3-outline: #A8A29E;
+  --m3-outline-variant: #D6D3D1;
+  --m3-inverse-surface: #1C1917;
+  --m3-inverse-on-surface: #FAF8F5;
+  --m3-error: #B91C1C;
+  --m3-on-error: #FFFFFF;
+  --m3-error-container: #FEE2E2;
+  --m3-success: #15803D;
+  --m3-success-container: #DCFCE7;
+  --m3-warning: #B45309;
+  --m3-warning-container: #FEF3C7;
+  --m3-info: #1D4ED8;
+  --m3-info-container: #DBEAFE;
+  --m3-cat-ai: #1C1917;
+  --m3-cat-news: #44403C;
+  --m3-cat-tools: #78716C;
+  --m3-cat-market: #292524;
+  --m3-cat-research: #57534E;
+  --m3-cat-tutorial: #0A0907;
+  --m3-cat-other: #A8A29E;
+  /* provenance border colors (WCAG AA ≥4.5:1) */
+  --prov-verified-artifact: #15803D;
+  --prov-human-verified: #1D4ED8;
+  --prov-ai-generated-unverified: #92400E;
+  --prov-unknown: #475569;
+  color-scheme: light;
+}
+
+/* ═══ THEME: PAPER ═══ */
+.theme-paper {
+  --m3-primary: #F5F0EB;
+  --m3-on-primary: #1C1917;
+  --m3-primary-container: rgba(245,240,235,0.12);
+  --m3-on-primary-container: #FFFFFF;
+  --m3-secondary: #D6D3D1;
+  --m3-on-secondary: #1C1917;
+  --m3-secondary-container: rgba(214,211,209,0.12);
+  --m3-on-secondary-container: #FAF8F5;
+  --m3-tertiary: #A8A29E;
+  --m3-on-tertiary: #1C1917;
+  --m3-tertiary-container: rgba(168,162,158,0.12);
+  --m3-on-tertiary-container: #D6D3D1;
+  --m3-surface: #1C1917;
+  --m3-surface-dim: rgba(28,25,23,0.90);
+  --m3-surface-container: #242120;
+  --m3-surface-container-high: #2C2928;
+  --m3-surface-container-highest: #363130;
+  --m3-on-surface: #FAF8F5;
+  --m3-on-surface-variant: #A8A29E;
+  --m3-outline: #57534E;
+  --m3-outline-variant: #2C2928;
+  --m3-inverse-surface: #FAF8F5;
+  --m3-inverse-on-surface: #1C1917;
+  --m3-error: #FCA5A5;
+  --m3-on-error: #7F1D1D;
+  --m3-error-container: #991B1B;
+  --m3-success: #86EFAC;
+  --m3-success-container: #14532D;
+  --m3-warning: #FCD34D;
+  --m3-warning-container: #78350F;
+  --m3-info: #93C5FD;
+  --m3-info-container: #1E3A8A;
+  --m3-cat-ai: #FAF8F5;
+  --m3-cat-news: #D6D3D1;
+  --m3-cat-tools: #A8A29E;
+  --m3-cat-market: #FFFFFF;
+  --m3-cat-research: #E7E2DD;
+  --m3-cat-tutorial: #F5F0EB;
+  --m3-cat-other: #78716C;
+  /* provenance border colors (WCAG AA ≥4.5:1) */
+  --prov-verified-artifact: #86EFAC;
+  --prov-human-verified: #93C5FD;
+  --prov-ai-generated-unverified: #FCD34D;
+  --prov-unknown: #CBD5E1;
+  color-scheme: dark;
+}
+
+/* ═══ THEME: DUSK ═══ */
+.theme-dusk {
+  --m3-primary: #94A3B8;
+  --m3-on-primary: #0F172A;
+  --m3-primary-container: rgba(148,163,184,0.15);
+  --m3-on-primary-container: #CBD5E1;
+  --m3-secondary: #64748B;
+  --m3-on-secondary: #F8FAFC;
+  --m3-secondary-container: rgba(100,116,139,0.15);
+  --m3-on-secondary-container: #94A3B8;
+  --m3-tertiary: #475569;
+  --m3-on-tertiary: #F1F5F9;
+  --m3-tertiary-container: rgba(71,85,105,0.15);
+  --m3-on-tertiary-container: #64748B;
+  --m3-surface: #0F172A;
+  --m3-surface-dim: rgba(15,23,42,0.90);
+  --m3-surface-container: #172033;
+  --m3-surface-container-high: #1E2A3F;
+  --m3-surface-container-highest: #263349;
+  --m3-on-surface: #E2E8F0;
+  --m3-on-surface-variant: #94A3B8;
+  --m3-outline: #334155;
+  --m3-outline-variant: #1E2A3F;
+  --m3-inverse-surface: #E2E8F0;
+  --m3-inverse-on-surface: #0F172A;
+  --m3-error: #FCA5A5;
+  --m3-on-error: #7F1D1D;
+  --m3-error-container: #991B1B;
+  --m3-success: #86EFAC;
+  --m3-success-container: #14532D;
+  --m3-warning: #FCD34D;
+  --m3-warning-container: #78350F;
+  --m3-info: #93C5FD;
+  --m3-info-container: #1E3A8A;
+  --m3-cat-ai: #94A3B8;
+  --m3-cat-news: #64748B;
+  --m3-cat-tools: #CBD5E1;
+  --m3-cat-market: #E2E8F0;
+  --m3-cat-research: #475569;
+  --m3-cat-tutorial: #BAC8D8;
+  --m3-cat-other: #334155;
+  /* provenance border colors (WCAG AA ≥4.5:1) */
+  --prov-verified-artifact: #86EFAC;
+  --prov-human-verified: #93C5FD;
+  --prov-ai-generated-unverified: #FCD34D;
+  --prov-unknown: #CBD5E1;
+  color-scheme: dark;
+}
+
+/* ═══ THEME: AMBER ═══ */
+.theme-amber {
+  --m3-primary: #FFB800;
+  --m3-on-primary: #1A1000;
+  --m3-primary-container: rgba(255,184,0,0.15);
+  --m3-on-primary-container: #FFD060;
+  --m3-secondary: #FF8A00;
+  --m3-on-secondary: #1A0E00;
+  --m3-secondary-container: rgba(255,138,0,0.15);
+  --m3-on-secondary-container: #FFAD4D;
+  --m3-tertiary: #FFD700;
+  --m3-on-tertiary: #1A1600;
+  --m3-tertiary-container: rgba(255,215,0,0.15);
+  --m3-on-tertiary-container: #FFE44D;
+  --m3-surface: #0A0A0A;
+  --m3-surface-dim: rgba(10,10,10,0.80);
+  --m3-surface-container: #121212;
+  --m3-surface-container-high: #1C1C1C;
+  --m3-surface-container-highest: #262626;
+  --m3-on-surface: #F5F5F5;
+  --m3-on-surface-variant: #A3A3A3;
+  --m3-outline: #404040;
+  --m3-outline-variant: #262626;
+  --m3-inverse-surface: #F5F5F5;
+  --m3-inverse-on-surface: #0A0A0A;
+  --m3-error: #FFB4AB;
+  --m3-on-error: #690005;
+  --m3-error-container: #93000A;
+  --m3-success: #81C995;
+  --m3-success-container: #0D5526;
+  --m3-warning: #FFB800;
+  --m3-warning-container: #5C4000;
+  --m3-info: #8AB4F8;
+  --m3-info-container: #1A3A6B;
+  --m3-cat-ai: #FFD060;
+  --m3-cat-news: #FF8A00;
+  --m3-cat-tools: #FFD700;
+  --m3-cat-market: #FFB800;
+  --m3-cat-research: #FFB800;
+  --m3-cat-tutorial: #FF8A00;
+  --m3-cat-other: #FFE44D;
+  /* provenance border colors (WCAG AA ≥4.5:1) */
+  --prov-verified-artifact: #86EFAC;
+  --prov-human-verified: #93C5FD;
+  --prov-ai-generated-unverified: #FCD34D;
+  --prov-unknown: #CBD5E1;
+  color-scheme: dark;
+}

@@ -279,7 +279,11 @@ export function buttonMinWidth(computedHeight: number): number {
 
 // ─── Theme Name Type ────────────────────────────────────────────────────────
 
-export type ThemeName = 'void' | 'nova' | 'amber' | 'ocean' | 'forest' | 'sunset' | 'midnight';
+/** Active themes (T09b). Deprecated themes kept for user-pref backward compat. */
+export type ActiveThemeName = 'ink' | 'paper' | 'dusk' | 'amber';
+/** @deprecated These IDs are kept only for user-pref migration — do not add to new components. */
+export type DeprecatedThemeName = 'void' | 'nova' | 'ocean' | 'forest' | 'sunset' | 'midnight';
+export type ThemeName = ActiveThemeName | DeprecatedThemeName;
 
 // ─── Theme Palettes ─────────────────────────────────────────────────────────
 
@@ -640,37 +644,206 @@ const midnightPalette: M3Palette = {
   },
 };
 
+// ─── Active Palettes (T09b — ink / paper / dusk) ────────────────────────────
+
+const inkPalette: M3Palette = {
+  // ink = dark ink on cream (light theme — editorial newspaper aesthetic)
+  primary: '#1C1917',
+  onPrimary: '#FAF8F5',
+  primaryContainer: 'rgba(28,25,23,0.08)',
+  onPrimaryContainer: '#0A0907',
+
+  secondary: '#44403C',
+  onSecondary: '#FAF8F5',
+  secondaryContainer: '#F5F0EB',
+  onSecondaryContainer: '#292524',
+
+  tertiary: '#78716C',
+  onTertiary: '#FFFFFF',
+  tertiaryContainer: '#EDE8E3',
+  onTertiaryContainer: '#44403C',
+
+  surface: '#FAF8F5',
+  surfaceDim: 'rgba(250,248,245,0.80)',
+  surfaceContainer: '#F2EDE8',
+  surfaceContainerHigh: '#EDE8E3',
+  surfaceContainerHighest: '#E7E2DD',
+  onSurface: '#1C1917',
+  onSurfaceVariant: '#78716C',
+
+  outline: '#A8A29E',
+  outlineVariant: '#D6D3D1',
+
+  inverseSurface: '#1C1917',
+  inverseOnSurface: '#FAF8F5',
+
+  error: '#B91C1C',
+  onError: '#FFFFFF',
+  errorContainer: '#FEE2E2',
+  success: '#15803D',
+  successContainer: '#DCFCE7',
+  warning: '#B45309',
+  warningContainer: '#FEF3C7',
+  info: '#1D4ED8',
+  infoContainer: '#DBEAFE',
+
+  categories: {
+    AI: '#1C1917',
+    News: '#44403C',
+    Tools: '#78716C',
+    Market: '#292524',
+    Research: '#57534E',
+    Tutorial: '#0A0907',
+    Other: '#A8A29E',
+  },
+};
+
+const paperPalette: M3Palette = {
+  // paper = cream on dark ink (dark theme — night-reading mode of ink)
+  primary: '#F5F0EB',
+  onPrimary: '#1C1917',
+  primaryContainer: 'rgba(245,240,235,0.12)',
+  onPrimaryContainer: '#FFFFFF',
+
+  secondary: '#D6D3D1',
+  onSecondary: '#1C1917',
+  secondaryContainer: 'rgba(214,211,209,0.12)',
+  onSecondaryContainer: '#FAF8F5',
+
+  tertiary: '#A8A29E',
+  onTertiary: '#1C1917',
+  tertiaryContainer: 'rgba(168,162,158,0.12)',
+  onTertiaryContainer: '#D6D3D1',
+
+  surface: '#1C1917',
+  surfaceDim: 'rgba(28,25,23,0.90)',
+  surfaceContainer: '#242120',
+  surfaceContainerHigh: '#2C2928',
+  surfaceContainerHighest: '#363130',
+  onSurface: '#FAF8F5',
+  onSurfaceVariant: '#A8A29E',
+
+  outline: '#57534E',
+  outlineVariant: '#2C2928',
+
+  inverseSurface: '#FAF8F5',
+  inverseOnSurface: '#1C1917',
+
+  error: '#FCA5A5',
+  onError: '#7F1D1D',
+  errorContainer: '#991B1B',
+  success: '#86EFAC',
+  successContainer: '#14532D',
+  warning: '#FCD34D',
+  warningContainer: '#78350F',
+  info: '#93C5FD',
+  infoContainer: '#1E3A8A',
+
+  categories: {
+    AI: '#FAF8F5',
+    News: '#D6D3D1',
+    Tools: '#A8A29E',
+    Market: '#FFFFFF',
+    Research: '#E7E2DD',
+    Tutorial: '#F5F0EB',
+    Other: '#78716C',
+  },
+};
+
+const duskPalette: M3Palette = {
+  // dusk = muted blue-grey (dark theme — slate editorial)
+  primary: '#94A3B8',
+  onPrimary: '#0F172A',
+  primaryContainer: 'rgba(148,163,184,0.15)',
+  onPrimaryContainer: '#CBD5E1',
+
+  secondary: '#64748B',
+  onSecondary: '#F8FAFC',
+  secondaryContainer: 'rgba(100,116,139,0.15)',
+  onSecondaryContainer: '#94A3B8',
+
+  tertiary: '#475569',
+  onTertiary: '#F1F5F9',
+  tertiaryContainer: 'rgba(71,85,105,0.15)',
+  onTertiaryContainer: '#64748B',
+
+  surface: '#0F172A',
+  surfaceDim: 'rgba(15,23,42,0.90)',
+  surfaceContainer: '#172033',
+  surfaceContainerHigh: '#1E2A3F',
+  surfaceContainerHighest: '#263349',
+  onSurface: '#E2E8F0',
+  onSurfaceVariant: '#94A3B8',
+
+  outline: '#334155',
+  outlineVariant: '#1E2A3F',
+
+  inverseSurface: '#E2E8F0',
+  inverseOnSurface: '#0F172A',
+
+  error: '#FCA5A5',
+  onError: '#7F1D1D',
+  errorContainer: '#991B1B',
+  success: '#86EFAC',
+  successContainer: '#14532D',
+  warning: '#FCD34D',
+  warningContainer: '#78350F',
+  info: '#93C5FD',
+  infoContainer: '#1E3A8A',
+
+  categories: {
+    AI: '#94A3B8',
+    News: '#64748B',
+    Tools: '#CBD5E1',
+    Market: '#E2E8F0',
+    Research: '#475569',
+    Tutorial: '#BAC8D8',
+    Other: '#334155',
+  },
+};
+
 // ─── Theme Registry ─────────────────────────────────────────────────────────
 
 export const m3Themes: Record<ThemeName, M3Palette> = {
+  // Active themes (T09b)
+  ink: inkPalette,
+  paper: paperPalette,
+  dusk: duskPalette,
+  amber: amberPalette,
+  // Deprecated — kept for user-pref backward compat only
   void: voidPalette,
   nova: novaPalette,
-  amber: amberPalette,
   ocean: oceanPalette,
   forest: forestPalette,
   sunset: sunsetPalette,
   midnight: midnightPalette,
 };
 
-export const themeNames: ThemeName[] = ['void', 'nova', 'amber', 'ocean', 'forest', 'sunset', 'midnight'];
+/** Active theme IDs — cycles through these only. Deprecated IDs → ink on first cycle. */
+export const themeNames: ActiveThemeName[] = ['ink', 'paper', 'dusk', 'amber'];
 
 export const themeLabels: Record<ThemeName, string> = {
-  void: 'TRUE TECH VOID',
-  nova: 'NOVA LIGHT',
-  amber: 'AMBER NEURAL',
-  ocean: 'CYBER OCEAN',
-  forest: 'EMERALD FOREST',
-  sunset: 'CRIMSON BLAZE',
-  midnight: 'COSMIC MIDNIGHT',
+  ink: 'INK',
+  paper: 'PAPER',
+  dusk: 'DUSK',
+  amber: 'AMBER',
+  // Deprecated labels preserved for pref display fallback
+  void: 'VOID (deprecated)',
+  nova: 'NOVA (deprecated)',
+  ocean: 'OCEAN (deprecated)',
+  forest: 'FOREST (deprecated)',
+  sunset: 'SUNSET (deprecated)',
+  midnight: 'MIDNIGHT (deprecated)',
 };
 
-export const getNextTheme = (current: ThemeName): ThemeName => {
-  const idx = themeNames.indexOf(current);
+export const getNextTheme = (current: ThemeName): ActiveThemeName => {
+  const idx = themeNames.indexOf(current as ActiveThemeName);
+  // deprecated names get idx=-1; (-1+1)%4=0 → wraps to 'ink'
   return themeNames[(idx + 1) % themeNames.length];
 };
 
-/** Check if a theme is "dark" (all except nova) */
-export const isDarkTheme = (name: ThemeName): boolean => name !== 'nova';
+/** Returns true for all dark themes. ink is the only light theme in the active set. */
+export const isDarkTheme = (name: ThemeName): boolean => name !== 'ink' && name !== 'nova';
 
 /** Compute luminance to auto-detect status bar style */
 export function hexLuminance(hex: string): number {
