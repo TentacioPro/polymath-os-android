@@ -41,6 +41,11 @@
   --m3-cat-research: #57534E;
   --m3-cat-tutorial: #0A0907;
   --m3-cat-other: #A8A29E;
+  /* provenance border colors (WCAG AA ≥4.5:1) */
+  --prov-verified-artifact: #15803D;
+  --prov-human-verified: #1D4ED8;
+  --prov-ai-generated-unverified: #92400E;
+  --prov-unknown: #475569;
   color-scheme: light;
 }
 
@@ -85,6 +90,11 @@
   --m3-cat-research: #E7E2DD;
   --m3-cat-tutorial: #F5F0EB;
   --m3-cat-other: #78716C;
+  /* provenance border colors (WCAG AA ≥4.5:1) */
+  --prov-verified-artifact: #86EFAC;
+  --prov-human-verified: #93C5FD;
+  --prov-ai-generated-unverified: #FCD34D;
+  --prov-unknown: #CBD5E1;
   color-scheme: dark;
 }
 
@@ -129,6 +139,11 @@
   --m3-cat-research: #475569;
   --m3-cat-tutorial: #BAC8D8;
   --m3-cat-other: #334155;
+  /* provenance border colors (WCAG AA ≥4.5:1) */
+  --prov-verified-artifact: #86EFAC;
+  --prov-human-verified: #93C5FD;
+  --prov-ai-generated-unverified: #FCD34D;
+  --prov-unknown: #CBD5E1;
   color-scheme: dark;
 }
 
@@ -173,5 +188,10 @@
   --m3-cat-research: #FFB800;
   --m3-cat-tutorial: #FF8A00;
   --m3-cat-other: #FFE44D;
+  /* provenance border colors (WCAG AA ≥4.5:1) */
+  --prov-verified-artifact: #86EFAC;
+  --prov-human-verified: #93C5FD;
+  --prov-ai-generated-unverified: #FCD34D;
+  --prov-unknown: #CBD5E1;
   color-scheme: dark;
 }

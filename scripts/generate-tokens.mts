@@ -31,6 +31,28 @@ function paletteToVars(palette: M3Palette): string {
   return lines.join('\n');
 }
 
+// Provenance border colors — WCAG AA ≥4.5:1 against each surface type.
+// Values verified in 09b-decisions.md §3. Dark-surface themes: paper, dusk, amber.
+const PROV_DARK: Record<string, string> = {
+  verified_artifact:       '#86EFAC', // 11.8:1 on dark surface
+  human_verified:          '#93C5FD', // 8.5:1
+  ai_generated_unverified: '#FCD34D', // 11.6:1
+  unknown:                 '#CBD5E1', // 11.1:1
+};
+const PROV_LIGHT: Record<string, string> = {
+  verified_artifact:       '#15803D', // 4.8:1 on light surface (#FAF8F5)
+  human_verified:          '#1D4ED8', // 6.4:1
+  ai_generated_unverified: '#92400E', // 6.0:1
+  unknown:                 '#475569', // 7.3:1
+};
+
+function provenanceVars(name: ThemeName): string {
+  const vars = isDarkTheme(name) ? PROV_DARK : PROV_LIGHT;
+  return Object.entries(vars)
+    .map(([k, v]) => `  --prov-${k.replace(/_/g, '-')}: ${v};`)
+    .join('\n');
+}
+
 function themeBlock(name: ThemeName, selector: string): string {
   const palette = m3Themes[name];
   const scheme = isDarkTheme(name) ? 'dark' : 'light';
@@ -38,6 +60,8 @@ function themeBlock(name: ThemeName, selector: string): string {
 /* ═══ THEME: ${name.toUpperCase()} ═══ */
 ${selector} {
 ${paletteToVars(palette)}
+  /* provenance border colors (WCAG AA ≥4.5:1) */
+${provenanceVars(name)}
   color-scheme: ${scheme};
 }`;
 }
